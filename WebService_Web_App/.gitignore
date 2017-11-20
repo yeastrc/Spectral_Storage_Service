@@ -1,0 +1,7 @@
+/classes/
+/deploy/
+/deploy_client_connector/
+/deploy_spectral_file_access/
+/resources__Local_Config_Only/
+/zz_build_dir/
+/zz_classes_shared_server_client/
