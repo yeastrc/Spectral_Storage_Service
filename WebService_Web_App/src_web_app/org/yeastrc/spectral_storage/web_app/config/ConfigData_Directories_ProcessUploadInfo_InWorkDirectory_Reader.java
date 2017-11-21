@@ -71,6 +71,10 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 				configData_Directories_ProcessUploadCommand_InWorkDirectory,
 				internalConfigDirectoryStrings );
 		
+		log.warn( "Finished processing config file '" 
+				+ CONFIG_OVERRIDES_FILENAME
+				+ "'." );
+		
 		if ( StringUtils.isEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) ) {
 			String msg = "Property '" + PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY + "' in config is empty or missing";
 			log.error( msg );
@@ -78,13 +82,15 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 		}
 
 		if ( StringUtils.isEmpty( internalConfigDirectoryStrings.tempScanUploadBaseDirectory ) ) {
-			String msg = "Property '" + PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY + "' in config is empty or missing";
+			String msg = "Property '" + PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY 
+					+ "' in config is empty or missing";
 			log.error( msg );
 			throw new SpectralFileWebappConfigException( msg );
 		}
 
 		if ( StringUtils.isEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getProcessScanUploadJarFile() ) ) {
-			String msg = "Property '" + PROPERTY_NAME__PROCESS_SCAN_UPLOAD_JAR_FILE + "' in config is empty or missing";
+			String msg = "Property '" + PROPERTY_NAME__PROCESS_SCAN_UPLOAD_JAR_FILE 
+					+ "' in config is empty or missing";
 			log.error( msg );
 			throw new SpectralFileWebappConfigException( msg );
 		}
@@ -94,15 +100,17 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 		File tempScanUploadBaseDirectory = new File( internalConfigDirectoryStrings.tempScanUploadBaseDirectory );
 		
 		if ( ! ( scanStorageBaseDirectory.exists() && scanStorageBaseDirectory.isDirectory() && scanStorageBaseDirectory.canRead() ) ) {
-			String msg = "Property '" + PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY + "' in config does not exist"
-					+ " or is not a directory or is not readable.  Value:  " + internalConfigDirectoryStrings.scanStorageBaseDirectory;
+			String msg = "!!Property '" + PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
+					+ "' in config does not exist or is not a directory or is not readable.  Value:  " 
+					+ internalConfigDirectoryStrings.scanStorageBaseDirectory;
 			log.error( msg );
 			throw new SpectralFileWebappConfigException( msg );
 		}
 		
 		if ( ! ( tempScanUploadBaseDirectory.exists() && tempScanUploadBaseDirectory.isDirectory() && tempScanUploadBaseDirectory.canRead() ) ) {
-			String msg = "Property '" + PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY + "' in config does not exist"
-					+ " or is not a directory or is not readable.  Value:  " + internalConfigDirectoryStrings.tempScanUploadBaseDirectory;
+			String msg = "!!!Property '" + PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY 
+					+ "' in config does not exist or is not a directory or is not readable.  Value:  " 
+					+ internalConfigDirectoryStrings.tempScanUploadBaseDirectory;
 			log.error( msg );
 			throw new SpectralFileWebappConfigException( msg );
 		}

@@ -57,22 +57,25 @@ public class ConfigDataInWebApp_Reader {
 		}
 
 		if ( StringUtils.isEmpty( webappWorkDirectoryString ) ) {
-			String msg = "Property '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY + "' in config is empty or missing";
+			String msg = "Property '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY 
+					+ "' in config is empty or missing";
 			log.error( msg );
 			throw new SpectralFileWebappConfigException( msg );
 		}
 		
 		File workDirectory = new File( webappWorkDirectoryString );
 		if ( ! ( workDirectory.exists() && workDirectory.isDirectory() && workDirectory.canRead() ) ) {
-			String msg = "Property '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY + "' in config "
-					+ "does not exist, is not  a directory, or is not readable.";
+			String msg = "Property '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY 
+					+ "' in config does not exist, is not  a directory, or is not readable. Value: "
+					+ webappWorkDirectoryString;
 			log.error( msg );
 			throw new SpectralFileWebappConfigException( msg );
 		}
 		
 		configDataInWebApp.setWebappWorkDirectory( workDirectory );
 
-		log.warn( "INFO: '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY + "' has value: " 
+		log.warn( "INFO: '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY 
+				+ "' has value: " 
 				+ configDataInWebApp.getWebappWorkDirectory().getCanonicalPath() );
 		
 	}
@@ -100,7 +103,10 @@ public class ConfigDataInWebApp_Reader {
 //				log.error( msg );
 //				throw new Exception( msg );
 			} else {
-				log.info( "Properties file '" + propertiesFilename + "' found, load path = " + configPropFile.getFile() );
+				log.info( "Properties file '" 
+			+ propertiesFilename 
+						+ "' found, load path = " 
+						+ configPropFile.getFile() );
 			}
 			propertiesFileAsStream = thisClassLoader.getResourceAsStream( propertiesFilename );
 			if ( propertiesFileAsStream == null ) {
@@ -108,7 +114,9 @@ public class ConfigDataInWebApp_Reader {
 				if ( allowNoPropertiesFile == AllowNoPropertiesFile.YES ) {
 					return null;  //  EARLY EXIT
 				}
-				String msg = "Properties file '" + propertiesFilename + "' not found in class path.";
+				String msg = "Properties file '" 
+				+ propertiesFilename 
+				+ "' not found in class path.";
 				log.error( msg );
 				throw new SpectralFileWebappConfigException( msg );
 			}
@@ -123,7 +131,10 @@ public class ConfigDataInWebApp_Reader {
 			return null;
 
 		} catch ( RuntimeException e ) {
-			log.error( "Error processing Properties file '" + propertiesFilename + "', exception: " + e.toString(), e );
+			log.error( "Error processing Properties file '" 
+					+ propertiesFilename 
+					+ "', exception: " 
+					+ e.toString(), e );
 			throw e;
 		} finally {
 			if ( propertiesFileAsStream != null ) {
