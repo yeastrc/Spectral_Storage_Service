@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.scan_file_processor.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists;
@@ -40,12 +41,19 @@ public class ProcessUploadedScanFileDir {
 		
 		File inputScanFile = getInputScanFile();
 		
+		System.out.println( "Starting validate scan file.  Now: " + new Date() );
+		
 		//  Throws exception SpectralStorageDataException if any error
 		ValidateInputScanFile.getInstance().validateScanFile( inputScanFile );
 		
+		System.out.println( "Finished validate scan file.  Now: " + new Date() );
+		
+		System.out.println( "Starting Compute hashes for scan file.  Now: " + new Date() );
 		
 		Compute_File_Hashes_Result compute_File_Hashes_Result =
 				Compute_File_Hashes.getInstance().compute_File_Hashes( inputScanFile );
+		
+		System.out.println( "Finished Compute hashes for scan file.  Now: " + new Date() );
 		
 		byte[] hash_sha384_Bytes = compute_File_Hashes_Result.getSha_384_Hash();
 		
@@ -75,11 +83,19 @@ public class ProcessUploadedScanFileDir {
 			return;
 		}
 		
-		System.out.println( "Data File does NOT already exists so processing the scan file");
+		System.out.println( "Data File does NOT already exists so STARTING processing the scan file.  Now: " + new Date() );
 		
-		Process_ScanFile_Create_SpectralFile.getInstance()
-		.processScanFile( inputScanFile, subDirForStorageFiles, hash_sha384_String, compute_File_Hashes_Result );
+		try {
+			Process_ScanFile_Create_SpectralFile.getInstance()
+			.processScanFile( inputScanFile, subDirForStorageFiles, hash_sha384_String, compute_File_Hashes_Result );
 
+		} catch ( Exception e) {
+			log.error( "Failed to process scan file: " + inputScanFile.getAbsolutePath(), e );
+			throw e;
+		}
+
+		System.out.println( "DONE Successfully processing the scan file.  Now: " + new Date() );
+		
 		if ( deleteScanFileOnSuccess ) {
 			cleanupInputScanFile( inputScanFile );
 		}
