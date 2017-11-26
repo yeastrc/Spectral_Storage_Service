@@ -3,6 +3,7 @@ package org.yeastrc.spectral_storage.scan_file_processor.main;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -55,6 +56,28 @@ public class ProcessUploadedScanFileDir {
 		
 		System.out.println( "Finished Compute hashes for scan file.  Now: " + new Date() );
 		
+		processInputFileWithComputedHash(outputBaseDir, 
+				deleteScanFileOnSuccess, 
+				inputScanFile, 
+				compute_File_Hashes_Result);
+		
+
+	}
+	
+	
+	/**
+	 * @param outputBaseDir
+	 * @param deleteScanFileOnSuccess
+	 * @param inputScanFile
+	 * @param compute_File_Hashes_Result
+	 * @throws Exception
+	 * @throws IOException
+	 */
+	public  void processInputFileWithComputedHash(
+			File outputBaseDir, 
+			boolean deleteScanFileOnSuccess, 
+			File inputScanFile,
+			Compute_File_Hashes_Result compute_File_Hashes_Result ) throws Exception, IOException {
 		byte[] hash_sha384_Bytes = compute_File_Hashes_Result.getSha_384_Hash();
 		
 		String hash_sha384_String = Compute_File_Hashes.getInstance().hashBytesToHexString( hash_sha384_Bytes );
@@ -96,11 +119,9 @@ public class ProcessUploadedScanFileDir {
 
 		System.out.println( "DONE Successfully processing the scan file.  Now: " + new Date() );
 		
-		if ( deleteScanFileOnSuccess ) {
-			cleanupInputScanFile( inputScanFile );
-		}
-		
-
+//		if ( deleteScanFileOnSuccess ) {
+//			cleanupInputScanFile( inputScanFile );
+//		}
 	}
 	
 	/**
