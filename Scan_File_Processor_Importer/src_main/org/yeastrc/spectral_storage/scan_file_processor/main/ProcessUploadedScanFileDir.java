@@ -73,7 +73,7 @@ public class ProcessUploadedScanFileDir {
 	 * @throws Exception
 	 * @throws IOException
 	 */
-	public  void processInputFileWithComputedHash(
+	public  String processInputFileWithComputedHash(
 			File outputBaseDir, 
 			boolean deleteScanFileOnSuccess, 
 			File inputScanFile,
@@ -103,7 +103,7 @@ public class ProcessUploadedScanFileDir {
 				cleanupInputScanFile( inputScanFile );
 			}
 			
-			return;
+			return hash_sha384_String;
 		}
 		
 		System.out.println( "Data File does NOT already exists so STARTING processing the scan file.  Now: " + new Date() );
@@ -119,9 +119,11 @@ public class ProcessUploadedScanFileDir {
 
 		System.out.println( "DONE Successfully processing the scan file.  Now: " + new Date() );
 		
-//		if ( deleteScanFileOnSuccess ) {
-//			cleanupInputScanFile( inputScanFile );
-//		}
+		if ( deleteScanFileOnSuccess ) {
+			cleanupInputScanFile( inputScanFile );
+		}
+		
+		return hash_sha384_String;
 	}
 	
 	/**
