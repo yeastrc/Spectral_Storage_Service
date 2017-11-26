@@ -56,18 +56,20 @@ public class ProcessUploadedScanFileDir {
 		
 		System.out.println( "Finished Compute hashes for scan file.  Now: " + new Date() );
 		
-		processInputFileWithComputedHash(outputBaseDir, 
-				deleteScanFileOnSuccess, 
+		processInputFileWithComputedHash(
+				outputBaseDir, 
 				inputScanFile, 
 				compute_File_Hashes_Result);
-		
 
+		//  Don't get here if here is a failure since an exception will be thrown.  
+		if ( deleteScanFileOnSuccess ) {
+			cleanupInputScanFile( inputScanFile );
+		}
 	}
 	
 	
 	/**
 	 * @param outputBaseDir
-	 * @param deleteScanFileOnSuccess
 	 * @param inputScanFile
 	 * @param compute_File_Hashes_Result
 	 * @throws Exception
@@ -75,7 +77,6 @@ public class ProcessUploadedScanFileDir {
 	 */
 	public  String processInputFileWithComputedHash(
 			File outputBaseDir, 
-			boolean deleteScanFileOnSuccess, 
 			File inputScanFile,
 			Compute_File_Hashes_Result compute_File_Hashes_Result ) throws Exception, IOException {
 		byte[] hash_sha384_Bytes = compute_File_Hashes_Result.getSha_384_Hash();
@@ -99,10 +100,6 @@ public class ProcessUploadedScanFileDir {
 			
 			System.out.println( "Data File already exists so no processing needed");
 			
-			if ( deleteScanFileOnSuccess ) {
-				cleanupInputScanFile( inputScanFile );
-			}
-			
 			return hash_sha384_String;
 		}
 		
@@ -118,10 +115,6 @@ public class ProcessUploadedScanFileDir {
 		}
 
 		System.out.println( "DONE Successfully processing the scan file.  Now: " + new Date() );
-		
-		if ( deleteScanFileOnSuccess ) {
-			cleanupInputScanFile( inputScanFile );
-		}
 		
 		return hash_sha384_String;
 	}
