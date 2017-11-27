@@ -1,5 +1,7 @@
 package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.on_disk_dto;
 
+import java.util.List;
+
 /**
  * For writing, this is populated in SpectralFile_Writer_GZIP_V_003
  *
@@ -17,6 +19,35 @@ public class SpectralFile_Index_Header_DTO_V_003 {
 	 * 2 - both - both false and true found in the file
 	 */
 	private byte isCentroidWholeFile;
+	
+	/**
+	 * Number of distinct scan level values, also length of summaryDataPerScanLevelList
+	 */
+	private byte distinctScanLevelValuesCount;
+	
+	/**
+	 * Length is stored in distinctScanLevelValuesCount
+	 * 
+	 * Each entry 
+	 * 
+	 * See SummaryDataPerScanLevel class.
+	 */
+	private List<SummaryDataPerScanLevel> summaryDataPerScanLevelList;
+	
+	private class SummaryDataPerScanLevel {
+		/**
+		 * Scan level for this summary data entry
+		 */
+		byte scanLevel;
+		/**
+		 * number of scans with this scan level
+		 */
+		int numberOfScans;
+		/**
+		 * Sum of intensity of all peaks for all scans with this scan level
+		 */
+		double totalIonCurrent;
+	}
 	
 	private byte scansAreInScanNumberOrder;
 	private byte scansAreInRetentionTimeOrder;
@@ -47,6 +78,5 @@ public class SpectralFile_Index_Header_DTO_V_003 {
 	 * 3 - int
 	 */
 	private byte scanNumberOffsetType;	
-
 	
 }

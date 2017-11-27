@@ -20,6 +20,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.constants.SpectralFile_Index_Header_DTO_V_003__Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_FileContents_Root_V_003;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SingleScan_V_003;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003;
 
 /**
  * 
@@ -95,6 +96,24 @@ public class SpectralFile_Index_File_Reader_V_003 {
 
 				spectralFile_Index_FileContents.setVersion( fileVersionInFile );
 				spectralFile_Index_FileContents.setIsCentroidWholeFile( dataInputStream_IndexFile.readByte() );
+
+				//  Read Summary data per distinct scan level
+				
+				byte distinctScanLevelValuesCount = dataInputStream_IndexFile.readByte();
+				
+				List<SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003> summaryDataPerScanLevelList = new ArrayList<>( distinctScanLevelValuesCount );
+				spectralFile_Index_FileContents.setSummaryDataPerScanLevelList( summaryDataPerScanLevelList );
+				
+				for ( byte scanLevelIndex = 0; scanLevelIndex < distinctScanLevelValuesCount; scanLevelIndex++ ) {
+					SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003 summaryDataPerScanLevel = new SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003();
+					summaryDataPerScanLevel.setScanLevel( dataInputStream_IndexFile.readByte() );
+					summaryDataPerScanLevel.setNumberOfScans( dataInputStream_IndexFile.readInt() );
+					summaryDataPerScanLevel.setTotalIonCurrent( dataInputStream_IndexFile.readDouble() );
+					summaryDataPerScanLevelList.add( summaryDataPerScanLevel );
+				}
+				
+				
+				//////
 				
 				byte scansAreInScanNumberOrder = dataInputStream_IndexFile.readByte();
 				byte scansAreInRetentionTimeOrder = dataInputStream_IndexFile.readByte();

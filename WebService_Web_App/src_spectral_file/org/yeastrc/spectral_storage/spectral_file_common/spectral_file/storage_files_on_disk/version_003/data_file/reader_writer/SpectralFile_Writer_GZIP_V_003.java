@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.log4j.Logger;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_summary_data.AccumulateSummaryDataPerScanLevel;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.DataOrIndexFileFullyWrittenConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
@@ -80,7 +81,6 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 
 	private long totalBytesForAllSingleScans = 0;
 	
-	//  TODO  Adjust for writing header
 	private long nextScanIndex_InBytes = 0;
 	
 	private long scanPeaksTotalBytes = 0;
@@ -89,6 +89,11 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 	private List<SpectralFile_Index_FDFW_SingleScan_V_003> indexScanEntries = new ArrayList<>();
 	
 	private Set<Byte> isCentroidUniqueValuesInScans = new HashSet<>();
+	
+	/**
+	 * Accumulate statistics
+	 */
+	AccumulateSummaryDataPerScanLevel accumulateSummaryDataPerScanLevel;
 	
 	
 	/* (non-Javadoc)
@@ -116,7 +121,7 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 
 				spectralFile_Index_FDFW_FileContents_Root.setIndexScanEntries( indexScanEntries );
 
-				SpectralFile_Index_File_Writer_V_003.getInstance().writeIndexFile( hash_String, subDirForStorageFiles, spectralFile_Index_FDFW_FileContents_Root );
+				SpectralFile_Index_File_Writer_V_003.getInstance().writeIndexFile( hash_String, subDirForStorageFiles, spectralFile_Index_FDFW_FileContents_Root, accumulateSummaryDataPerScanLevel );
 			}
 			
 			//  Create Files Complete file as last step
@@ -155,6 +160,8 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 
 		this.hash_String = hash_String;
 		this.subDirForStorageFiles = subDirForStorageFiles;
+		
+		accumulateSummaryDataPerScanLevel = AccumulateSummaryDataPerScanLevel.getInstance();
 		
 		//  Create Files Started file as first step
 		{
@@ -368,6 +375,8 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 		//  add amount of bytes written for this scan to totalBytesForAllSingleScans
 		
 		totalBytesForAllSingleScans += scanSize_InDataFile_InBytes;
+		
+		accumulateSummaryDataPerScanLevel.addScanToAccum( spectralFile_SingleScan );
 		
 		writeScanCalled = true;
 

@@ -23,7 +23,12 @@ public class SpectralFile_Index_TDFR_FileContents_Root_V_003 implements Spectral
 	 * 2 - both - both false and true found in the file
 	 */
 	private byte isCentroidWholeFile;
-	
+
+	/**
+	 * summary per distinct scan level
+	 */
+	private List<SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003> summaryDataPerScanLevelList;
+
 	private boolean scansAreInScanNumberOrder;
 	private boolean scansAreInRetentionTimeOrder;
 	
@@ -247,6 +252,23 @@ public class SpectralFile_Index_TDFR_FileContents_Root_V_003 implements Spectral
 
 	public void setTotalBytesForAllSingleScans(long totalBytesForAllSingleScans) {
 		this.totalBytesForAllSingleScans = totalBytesForAllSingleScans;
+	}
+
+
+
+	/**
+	 * summary per distinct scan level
+	 * @return
+	 */
+	public List<SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003> getSummaryDataPerScanLevelList() {
+		return summaryDataPerScanLevelList;
+	}
+
+
+
+	public void setSummaryDataPerScanLevelList(
+			List<SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003> summaryDataPerScanLevelList) {
+		this.summaryDataPerScanLevelList = summaryDataPerScanLevelList;
 	}
 	
 

@@ -11,8 +11,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_summary_data.AccumulateSummaryDataPerScanLevel;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_summary_data.AccumulateSummaryDataPerScanLevelResult;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_summary_data.AccumulateSummaryDataPerScanLevelSingleLevelResult;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.DataOrIndexFileFullyWrittenConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.constants.SpectralFile_Index_Header_DTO_V_003__Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.from_data_file_writer_objects.SpectralFile_Index_FDFW_FileContents_Root_V_003;
@@ -47,7 +51,8 @@ public class SpectralFile_Index_File_Writer_V_003 {
 	public void writeIndexFile( 
 			String hash_String,
 			File subDirForStorageFiles,
-			SpectralFile_Index_FDFW_FileContents_Root_V_003 spectralFile_Index_FDFW_FileContents_Root_V_003 ) throws Exception {
+			SpectralFile_Index_FDFW_FileContents_Root_V_003 spectralFile_Index_FDFW_FileContents_Root_V_003,
+			AccumulateSummaryDataPerScanLevel accumulateSummaryDataPerScanLevel ) throws Exception {
 
 		String outputSpectralIndexFilename =
 				CreateSpectralStorageFilenames.getInstance().createSpectraStorage_Index_Filename( hash_String );
@@ -56,6 +61,8 @@ public class SpectralFile_Index_File_Writer_V_003 {
 		
 		List<SpectralFile_Index_FDFW_SingleScan_V_003> indexScanEntries = spectralFile_Index_FDFW_FileContents_Root_V_003.getIndexScanEntries();
 				
+		AccumulateSummaryDataPerScanLevelResult accumulateSummaryDataPerScanLevelResult = accumulateSummaryDataPerScanLevel.getAccumResult();
+		List<AccumulateSummaryDataPerScanLevelSingleLevelResult> summaryDataPerScanLevelList = accumulateSummaryDataPerScanLevelResult.getSummaryDataPerScanLevelList();
 
 		//  WARNING, do not sort the records here. 
 		//   That allows the reader to determine the index of each scan 
@@ -173,14 +180,38 @@ public class SpectralFile_Index_File_Writer_V_003 {
 			
 			dataOutputStream_IndexFile.writeByte( DataOrIndexFileFullyWrittenConstants.FILE_FULLY_WRITTEN_NO );
 
-			
+			// IsCentroidWholeFile
 			dataOutputStream_IndexFile.writeByte( spectralFile_Index_FDFW_FileContents_Root_V_003.getIsCentroidWholeFile() );
 			
+			//  Write Summary data per distinct scan level
+			if ( summaryDataPerScanLevelList.size() > Byte.MAX_VALUE ) {
+				String msg = "summaryDataPerScanLevelList.size() > Byte.MAX_VALUE.  summaryDataPerScanLevelList.size(): " + summaryDataPerScanLevelList.size();
+				log.error( msg );
+				throw new SpectralStorageProcessingException( msg );
+			}
+			dataOutputStream_IndexFile.writeByte( summaryDataPerScanLevelList.size() );
+
+			System.out.println( "Writing Accumulated scan totals per scan Level to index file:");
+			for ( AccumulateSummaryDataPerScanLevelSingleLevelResult summaryDataPerScanLevelEntry : summaryDataPerScanLevelList ) {
+				dataOutputStream_IndexFile.writeByte( summaryDataPerScanLevelEntry.getScanLevel() );
+				dataOutputStream_IndexFile.writeInt( summaryDataPerScanLevelEntry.getNumberOfScans() );
+				dataOutputStream_IndexFile.writeDouble( summaryDataPerScanLevelEntry.getTotalIonCurrent() );
+				
+				System.out.println( "scan Level: " 
+						+ summaryDataPerScanLevelEntry.getScanLevel() 
+						+ ", number of scans: " 
+						+ summaryDataPerScanLevelEntry.getNumberOfScans()
+						+ ", Total Ion Current: " 
+						+ summaryDataPerScanLevelEntry.getTotalIonCurrent() );
+			}
+			
+			// scanNumbersAreInOrder
 			if ( scanNumbersAreInOrder ) {
 				dataOutputStream_IndexFile.writeByte( 1 );
 			} else {
 				dataOutputStream_IndexFile.writeByte( 0 );
 			}
+			// retentionTimesInOrder
 			if ( retentionTimesInOrder ) {
 				dataOutputStream_IndexFile.writeByte( 1 );
 			} else {
