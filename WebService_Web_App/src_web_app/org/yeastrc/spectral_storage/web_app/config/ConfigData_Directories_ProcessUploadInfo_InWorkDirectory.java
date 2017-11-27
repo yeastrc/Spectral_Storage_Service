@@ -1,6 +1,7 @@
 package org.yeastrc.spectral_storage.web_app.config;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Config data for config file in web app Work Directory
@@ -45,6 +46,11 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	 * command (filename and path to Java executable)
 	 */
 	private String javaExecutable;
+
+	/**
+	 * Parameters to pass to java executable
+	 */
+	private List<String> javaExecutableParameters;
 	
 	/**
 	 * Delete the uploaded scan file on successful import
@@ -129,6 +135,22 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	 */
 	public void setDeleteUploadedScanFileOnSuccessfulImport(boolean deleteUploadedScanFileOnSuccessfulImport) {
 		this.deleteUploadedScanFileOnSuccessfulImport = deleteUploadedScanFileOnSuccessfulImport;
+	}
+
+	/**
+	 * Parameters to pass to java executable
+	 * @return
+	 */
+	public List<String> getJavaExecutableParameters() {
+		return javaExecutableParameters;
+	}
+
+	/**
+	 * Parameters to pass to java executable
+	 * @param javaExecutableParameters
+	 */
+	public void setJavaExecutableParameters(List<String> javaExecutableParameters) {
+		this.javaExecutableParameters = javaExecutableParameters;
 	}
 
 		

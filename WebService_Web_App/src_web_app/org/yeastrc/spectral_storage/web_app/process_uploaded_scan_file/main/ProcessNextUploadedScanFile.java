@@ -81,6 +81,9 @@ public class ProcessNextUploadedScanFile {
 		String javaExecutable = 
 				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getJavaExecutable();
 
+		List<String> javaExecutableParameters =
+				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getJavaExecutableParameters();
+
 		String processScanUploadJarFile = 
 				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getProcessScanUploadJarFile();
 
@@ -92,6 +95,12 @@ public class ProcessNextUploadedScanFile {
 
 		List<String> commandAndItsArgumentsAsList = new ArrayList<>( 20 );
 		commandAndItsArgumentsAsList.add( javaExecutable );
+		
+		if ( javaExecutableParameters != null && ( ! javaExecutableParameters.isEmpty() ) ) {
+			for ( String javaExecutableParameter : javaExecutableParameters ) {
+				commandAndItsArgumentsAsList.add( javaExecutableParameter );
+			}
+		}
 		
 		commandAndItsArgumentsAsList.add( "-jar" );
 		commandAndItsArgumentsAsList.add( processScanUploadJarFile );

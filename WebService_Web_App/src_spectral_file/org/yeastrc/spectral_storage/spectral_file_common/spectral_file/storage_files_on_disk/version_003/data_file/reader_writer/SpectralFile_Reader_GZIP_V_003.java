@@ -53,6 +53,17 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		return instance;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader__IF#isVersionSupported(short)
+	 */
+	@Override
+	public boolean isVersionSupported(short version) {
+		if ( FILE_VERSION == version ) {
+			return true;
+		}
+		return false;
+	}
+
 
 	String hash_String;
 	private File subDirForStorageFiles;

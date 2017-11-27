@@ -13,12 +13,21 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  *
  */
 public interface SpectralFile_Reader__IF {
+	
+	/**
+	 * Is the version number in parameter supported by this reader.
+	 * A double check that the correct reader is created for the version
+	 * @param version
+	 * @return
+	 */
+	public boolean isVersionSupported( short version );
+	
 	/**
 	 * @throws Exception
 	 */
-	void close() throws Exception;
+	public void close() throws Exception;
 
-	void init( String hash_String, File scanStorageBaseDirectoryFile ) throws Exception;
+	public void init( String hash_String, File scanStorageBaseDirectoryFile ) throws Exception;
 
 	public SpectralFile_Header_Common getHeader()  throws Exception;
 

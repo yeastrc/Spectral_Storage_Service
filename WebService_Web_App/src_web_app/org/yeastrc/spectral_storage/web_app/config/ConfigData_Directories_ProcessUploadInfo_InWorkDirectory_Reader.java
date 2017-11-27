@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +34,7 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 	
 	private static String PROPERTY_NAME__PROCESS_SCAN_UPLOAD_JAR_FILE = "process.scan.upload.jar.file";
 	private static String PROPERTY_NAME__JAVA_EXECUTABLE = "java.executable";
+	private static String PROPERTY_NAME__JAVA_EXECUTABLE_PARAMETERS = "java.executable.parameters";
 	
 	private static String PROPERTY_NAME__DELETE_UPLOADED_SCAN_FILE_ON_SUCCESSFUL_IMPORT = 
 			"delete.uploaded.scan.file.on.successful.import";
@@ -129,14 +132,17 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 				+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getProcessScanUploadJarFile() );
 
 		if ( StringUtils.isEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getJavaExecutable() ) ) {
-			
 			configData_Directories_ProcessUploadCommand_InWorkDirectory.setJavaExecutable( ProcessUploadedScanFilesConstants.JAVA_EXECUTABLE_DEFAULT );
 			log.warn( "INFO: '" + PROPERTY_NAME__JAVA_EXECUTABLE + "' does NOT have a value and so will use the default of: " 
 					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getJavaExecutable() );
-		
 		} else {
 			log.warn( "INFO: '" + PROPERTY_NAME__JAVA_EXECUTABLE + "' has value: " 
 					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getJavaExecutable() );
+		}
+		
+		if ( configData_Directories_ProcessUploadCommand_InWorkDirectory.getJavaExecutableParameters() != null ) {
+			log.warn( "INFO: '" + PROPERTY_NAME__JAVA_EXECUTABLE_PARAMETERS + "' has value(s) [Space delimited]: " 
+					+ StringUtils.join( configData_Directories_ProcessUploadCommand_InWorkDirectory.getJavaExecutableParameters(), ' ' ) );
 		}
 		
 		if ( configData_Directories_ProcessUploadCommand_InWorkDirectory.isDeleteUploadedScanFileOnSuccessfulImport() ) {
@@ -247,12 +253,24 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 				configData_Directories_ProcessUploadCommand_InWorkDirectory.setJavaExecutable( propertyValue );
 			}
 
+			propertyValue = configProps.getProperty( PROPERTY_NAME__JAVA_EXECUTABLE_PARAMETERS );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				String[] javaExecutableParametersArray = propertyValue.split( " " );
+				List<String> javaExecutableParameters = new ArrayList<>( javaExecutableParametersArray.length );
+				for ( String javaExecutableParameter : javaExecutableParametersArray ) {
+					if ( StringUtils.isNotEmpty(javaExecutableParameter) ) {
+						javaExecutableParameters.add( javaExecutableParameter );
+					}
+				}
+				if ( ! javaExecutableParameters.isEmpty() ) {
+					configData_Directories_ProcessUploadCommand_InWorkDirectory.setJavaExecutableParameters( javaExecutableParameters );
+				}
+			}
+
 			propertyValue = configProps.getProperty( PROPERTY_NAME__DELETE_UPLOADED_SCAN_FILE_ON_SUCCESSFUL_IMPORT );
 			if ( BOOLEAN_STRING_TRUE.equals( propertyValue ) ) {
 				configData_Directories_ProcessUploadCommand_InWorkDirectory.setDeleteUploadedScanFileOnSuccessfulImport( true );
 			}
-			
-			
 
 		} catch ( RuntimeException e ) {
 			log.error( "Error processing Properties file '" + propertiesFilename + "', exception: " + e.toString(), e );
