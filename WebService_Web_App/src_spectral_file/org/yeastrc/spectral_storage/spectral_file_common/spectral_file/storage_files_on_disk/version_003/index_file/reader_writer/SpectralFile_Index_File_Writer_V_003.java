@@ -15,6 +15,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_sca
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_summary_data.AccumulateSummaryDataPerScanLevelResult;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_summary_data.AccumulateSummaryDataPerScanLevelSingleLevelResult;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.DataOrIndexFileFullyWrittenConstants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
@@ -56,8 +57,14 @@ public class SpectralFile_Index_File_Writer_V_003 {
 
 		String outputSpectralIndexFilename =
 				CreateSpectralStorageFilenames.getInstance().createSpectraStorage_Index_Filename( hash_String );
+		
+		String outputSpectralIndexFilenameWhileWriting =
+				outputSpectralIndexFilename
+				+ SpectralStorage_Filename_Constants.IN_PROGRESS_FILENAME_SUFFIX_SUFFIX;
 
-		File indexFile = new File( subDirForStorageFiles, outputSpectralIndexFilename );
+		File indexFileWhileWriting = new File( subDirForStorageFiles, outputSpectralIndexFilenameWhileWriting );
+		
+		File indexFileFinal = new File( subDirForStorageFiles, outputSpectralIndexFilename );
 		
 		List<SpectralFile_Index_FDFW_SingleScan_V_003> indexScanEntries = spectralFile_Index_FDFW_FileContents_Root_V_003.getIndexScanEntries();
 				
@@ -169,7 +176,7 @@ public class SpectralFile_Index_File_Writer_V_003 {
 		}
 		
 		try ( DataOutputStream dataOutputStream_IndexFile = 
-				new DataOutputStream( new BufferedOutputStream( new FileOutputStream( indexFile ) ) )
+				new DataOutputStream( new BufferedOutputStream( new FileOutputStream( indexFileWhileWriting ) ) )
 				) {
 
 			//  Write Version - ALWAYS FIRST
@@ -271,15 +278,23 @@ public class SpectralFile_Index_File_Writer_V_003 {
 				
 			}
 		} catch( Exception e ) {
-			log.error( "Error writing to index file: " + indexFile.getCanonicalPath() );
+			log.error( "Error writing to index file: " + indexFileWhileWriting.getCanonicalPath() );
 			throw e;
 		} finally {
 
 		}
 		
 		
-		updateFileFullyWrittenIndicatorUpdateAfterFullCloseMainWriter( indexFile, spectralFile_Index_FDFW_FileContents_Root_V_003 );
+		updateFileFullyWrittenIndicatorUpdateAfterFullCloseMainWriter( indexFileWhileWriting, spectralFile_Index_FDFW_FileContents_Root_V_003 );
+
+		//  Rename index file to final filename:
 		
+		if ( ! indexFileWhileWriting.renameTo( indexFileFinal ) ) {
+			log.error( "Error renaming index file to final filename. Renaming from: "
+					+ indexFileWhileWriting.getAbsolutePath() 
+					+ ", renaming to: "
+					+ indexFileFinal.getAbsolutePath() );
+		}
 		
 		System.out.println( "***************************************" );
 		System.out.println( "Index File Writing stats:");

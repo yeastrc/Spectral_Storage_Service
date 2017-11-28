@@ -22,11 +22,6 @@ public class SpectralFile_Index_FDFW_FileContents_Root_V_003 {
 	 */
 	private byte isCentroidWholeFile;
 
-	/**
-	 * summary per distinct scan level
-	 */
-	private List<SpectralFile_Index_FDFW_SummaryDataPerScanLevel_V_003> summaryDataPerScanLevelList;
-
 	private List<SpectralFile_Index_FDFW_SingleScan_V_003> indexScanEntries;
 
 	public short getVersion() {
@@ -59,15 +54,6 @@ public class SpectralFile_Index_FDFW_FileContents_Root_V_003 {
 
 	public void setIndexScanEntries(List<SpectralFile_Index_FDFW_SingleScan_V_003> indexScanEntries) {
 		this.indexScanEntries = indexScanEntries;
-	}
-
-	public List<SpectralFile_Index_FDFW_SummaryDataPerScanLevel_V_003> getSummaryDataPerScanLevelList() {
-		return summaryDataPerScanLevelList;
-	}
-
-	public void setSummaryDataPerScanLevelList(
-			List<SpectralFile_Index_FDFW_SummaryDataPerScanLevel_V_003> summaryDataPerScanLevelList) {
-		this.summaryDataPerScanLevelList = summaryDataPerScanLevelList;
 	}
 
 

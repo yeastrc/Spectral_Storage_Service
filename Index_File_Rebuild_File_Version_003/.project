@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>Index_File_Rebuild__File_Version_003</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>src_shared_server_client_importer</name>
+			<type>2</type>
+			<location>/data/code_checkouts/Github/Spectral_Storage_Service/GIT_CLONE/Spectral_Storage_Service/WebService_Web_App/src_shared_server_client_importer</location>
+		</link>
+		<link>
+			<name>src_spectral_file</name>
+			<type>2</type>
+			<location>/code_checkouts/Github/Spectral_Storage_Service/GIT_CLONE/Spectral_Storage_Service/WebService_Web_App/src_spectral_file</location>
+		</link>
+	</linkedResources>
+</projectDescription>

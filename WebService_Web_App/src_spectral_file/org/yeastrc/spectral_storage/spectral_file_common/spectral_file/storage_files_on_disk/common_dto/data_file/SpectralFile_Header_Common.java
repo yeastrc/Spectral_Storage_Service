@@ -5,6 +5,8 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_
  *
  */
 public class SpectralFile_Header_Common {
+	
+	private int headerTotalBytesInDataFile;
 
 	//  Ignored when writing.  Writer will write it's version number
 	private short version;
@@ -16,6 +18,18 @@ public class SpectralFile_Header_Common {
 	private byte[] altHashSHA512;
 	private byte[] altHashSHA1;
 
+	/**
+	 * Ignored when writing.  Total number of bytes in header
+	 * @return
+	 */
+	public int getHeaderTotalBytesInDataFile() {
+		return headerTotalBytesInDataFile;
+	}
+
+	public void setHeaderTotalBytesInDataFile(int headerTotalBytes) {
+		this.headerTotalBytesInDataFile = headerTotalBytes;
+	}
+	
 	/**
 	 * Ignored when writing.  Writer will write it's version number
 	 * @return
@@ -64,4 +78,5 @@ public class SpectralFile_Header_Common {
 	public void setAltHashSHA1(byte[] altHashSHA1) {
 		this.altHashSHA1 = altHashSHA1;
 	}
+
 }

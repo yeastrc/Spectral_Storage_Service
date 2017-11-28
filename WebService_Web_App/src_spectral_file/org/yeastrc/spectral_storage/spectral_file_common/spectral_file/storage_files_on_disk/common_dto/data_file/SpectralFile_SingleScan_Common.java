@@ -11,6 +11,8 @@ import java.util.List;
  */
 public class SpectralFile_SingleScan_Common {
 
+	private int scanTotalBytesInDataFile;
+	
 	private byte level;
 	private int scanNumber;
 	private float retentionTime;
@@ -198,6 +200,16 @@ public class SpectralFile_SingleScan_Common {
 
 	public void setNumberScanPeaks(int numberScanPeaks) {
 		this.numberScanPeaks = numberScanPeaks;
+	}
+
+
+	public int getScanTotalBytesInDataFile() {
+		return scanTotalBytesInDataFile;
+	}
+
+
+	public void setScanTotalBytesInDataFile(int scanTotalBytesInDataFile) {
+		this.scanTotalBytesInDataFile = scanTotalBytesInDataFile;
 	}
 
 

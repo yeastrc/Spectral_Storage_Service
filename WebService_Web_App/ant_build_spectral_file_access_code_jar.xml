@@ -17,6 +17,7 @@
 	<property name="output_jar_dir" value="deploy_spectral_file_access" />
 	
 	<property name="src_spectral_file" value="src_spectral_file" />
+	<property name="src_shared_server_client_importer" value="src_shared_server_client_importer" />
 	
 	
 	<property name="classes" value="zz_classes_shared_server_client" />	
@@ -118,6 +119,9 @@
 
   		    <fileset dir="${src_spectral_file}">
   		    </fileset>
+			<fileset dir="${src_shared_server_client_importer}">
+				</fileset>
+			
 			
 			<manifest>
             	<attribute name="GIT-last-tag-commit-hash" value="${git.last.tag.and.commit.hash}"/>
@@ -201,6 +205,12 @@
 
       	<echo message="Compiling Java:  java_source: ${java_source}, java_target: ${java_target} "/>  	
 
+      		
+    	
+    	<javac includeantruntime="false"  debug="on" srcdir="${src_shared_server_client_importer}" destdir="${classes}" source="${java_source}" target="${java_target}"  encoding="${java.source.character.set}" >
+        	<classpath refid="compile.classpath"/>
+    	</javac>
+    	
     	<!-- <echo message="${toString:compile.classpath}"/> -->
         <javac includeantruntime="false"  debug="on" srcdir="${src_spectral_file}" destdir="${classes}" source="${java_source}" target="${java_target}"  encoding="${java.source.character.set}" >
             <classpath refid="compile.classpath"/>
@@ -214,6 +224,9 @@
 
   	  	<copy  todir="${classes}">
   	  		
+  		    <fileset dir="${src_shared_server_client_importer}">
+  				<exclude name="**/*.java" />
+  		    </fileset>
   		    <fileset dir="${src_spectral_file}">
   				<exclude name="**/*.java" />
   		    </fileset>

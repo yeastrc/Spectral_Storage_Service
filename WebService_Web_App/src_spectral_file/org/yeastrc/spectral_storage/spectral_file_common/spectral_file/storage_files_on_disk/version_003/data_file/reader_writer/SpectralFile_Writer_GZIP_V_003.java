@@ -16,6 +16,7 @@ import java.util.zip.GZIPOutputStream;
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_summary_data.AccumulateSummaryDataPerScanLevel;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.DataOrIndexFileFullyWrittenConstants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.Compute_File_Hashes;
@@ -72,9 +73,11 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 	private String hash_String;
 	private File subDirForStorageFiles;
 	
-	private File outputFile_MainDataFile;
+	private File outputFile_MainDataFileWhileWriting;
 	
-	private BufferedOutputStream outputStream_MainDataFile;
+	private File outputFile_MainDataFileFinal;
+	
+	private BufferedOutputStream outputStream_MainDataFileWhileWriting;
 	
 	private ByteArrayOutputStream tempOutputStream = new ByteArrayOutputStream( TEMP_OUTPUT_STREAM_INITIAL_SIZE );
 	private ByteArrayOutputStream tempScansCompressedOutputStream = new ByteArrayOutputStream( TEMP_OUTPUT_STREAM_INITIAL_SIZE );
@@ -102,10 +105,21 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 	@Override
 	public void close() throws Exception {
 		
-		if ( outputStream_MainDataFile != null ) {
-			outputStream_MainDataFile.close();
+		if ( outputStream_MainDataFileWhileWriting != null ) {
+			outputStream_MainDataFileWhileWriting.close();
 			
 			updateDataFileAfterFullCloseMainWriter();
+			
+			
+			//  Rename data file to final filename:
+			
+			if ( ! outputFile_MainDataFileWhileWriting.renameTo( outputFile_MainDataFileFinal ) ) {
+				log.error( "Error renaming data file to final filename. Renaming from: "
+						+ outputFile_MainDataFileWhileWriting.getAbsolutePath() 
+						+ ", renaming to: "
+						+ outputFile_MainDataFileFinal.getAbsolutePath() );
+			}
+			
 			
 			//  Output the .index file
 
@@ -145,7 +159,7 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 			
 		}
 		
-		outputStream_MainDataFile = null;
+		outputStream_MainDataFileWhileWriting = null;
 
 		closeCalled = true;
 
@@ -175,12 +189,20 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 		
 		String spectralDataFilename =
 				CreateSpectralStorageFilenames.getInstance().createSpectraStorage_Data_Filename( hash_String );
+
+		String outputSpectralDataFilenameWhileWriting =
+				spectralDataFilename
+				+ SpectralStorage_Filename_Constants.IN_PROGRESS_FILENAME_SUFFIX_SUFFIX;
+
+		File dataFileWhileWriting = new File( subDirForStorageFiles, outputSpectralDataFilenameWhileWriting );
 		
-		File dataFile = new File( subDirForStorageFiles, spectralDataFilename );
+		File dataFileFinal = new File( subDirForStorageFiles, spectralDataFilename );
 		
-		outputFile_MainDataFile = dataFile;
+		outputFile_MainDataFileWhileWriting = dataFileWhileWriting;
 		
-		outputStream_MainDataFile = new BufferedOutputStream( new FileOutputStream( outputFile_MainDataFile ) );
+		outputFile_MainDataFileFinal = dataFileFinal;
+		
+		outputStream_MainDataFileWhileWriting = new BufferedOutputStream( new FileOutputStream( outputFile_MainDataFileWhileWriting ) );
 		
 		writeHeader( spectralFile_Header_Common );
 		
@@ -196,9 +218,9 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 
 		byte[] headerFirstBytes = getHeaderFirstBytes( HeaderFirstBytesInitialWriteUpdateAfterClose.FIRST_WRITE );
 		
-		outputStream_MainDataFile.write( headerFirstBytes );
+		outputStream_MainDataFileWhileWriting.write( headerFirstBytes );
 		
-		outputStream_MainDataFile.flush();
+		outputStream_MainDataFileWhileWriting.flush();
 		
 		int numBytesWrittenOtherThanVersion = writeHeaderMainPart( header );
 
@@ -217,7 +239,7 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 		//  Write to start of file after closing file
 		byte[] headerFirstBytes = getHeaderFirstBytes( HeaderFirstBytesInitialWriteUpdateAfterClose.UPDATE_AFTER_CLOSE );
 
-		try ( RandomAccessFile spectalFile = new RandomAccessFile( outputFile_MainDataFile, FILE_MODE_READ_WRITE ) ) {
+		try ( RandomAccessFile spectalFile = new RandomAccessFile( outputFile_MainDataFileWhileWriting, FILE_MODE_READ_WRITE ) ) {
 		
 //			spectalFile.getFilePointer();
 //			spectalFile.length();
@@ -245,7 +267,7 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 				== HeaderFirstBytesInitialWriteUpdateAfterClose.UPDATE_AFTER_CLOSE ) {
 			
 			fileFullyWrittenValue = DataOrIndexFileFullyWrittenConstants.FILE_FULLY_WRITTEN_YES;
-			dataFileSize = outputFile_MainDataFile.length();
+			dataFileSize = outputFile_MainDataFileWhileWriting.length();
 		}
 		
 		
@@ -330,13 +352,13 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 		dataOutputStream_headerMainPartSize.writeShort( headerMainPartSize );
 		dataOutputStream_headerMainPartSize.close();
 		
-		baos_headerMainPartSize.writeTo( outputStream_MainDataFile );		
+		baos_headerMainPartSize.writeTo( outputStream_MainDataFileWhileWriting );		
 		
 
-		tempOutputStream.writeTo( outputStream_MainDataFile );
+		tempOutputStream.writeTo( outputStream_MainDataFileWhileWriting );
 		
 		
-		outputStream_MainDataFile.flush();
+		outputStream_MainDataFileWhileWriting.flush();
 		
 		int numBytesWritten = baos_headerMainPartSize.size() + headerMainPartSize; 
 		
@@ -444,12 +466,12 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 		dataOutputStream.flush();
 		
 
-		tempOutputStream.writeTo( outputStream_MainDataFile );
+		tempOutputStream.writeTo( outputStream_MainDataFileWhileWriting );
 		
-		scanPeaksAsBAOS.writeTo( outputStream_MainDataFile );
+		scanPeaksAsBAOS.writeTo( outputStream_MainDataFileWhileWriting );
 			
 		
-		outputStream_MainDataFile.flush();
+		outputStream_MainDataFileWhileWriting.flush();
 		
 		int scanWithoutPeaksSize = tempOutputStream.size();
 		
@@ -558,7 +580,7 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 
 		//  Compute hashes on just created Spectral Storage Data File
 		Compute_File_Hashes_Result compute_File_Hashes_Result =
-				Compute_File_Hashes.getInstance().compute_File_Hashes( outputFile_MainDataFile );
+				Compute_File_Hashes.getInstance().compute_File_Hashes( outputFile_MainDataFileFinal );
 		
 		try ( BufferedOutputStream filesCompleteOutput = new BufferedOutputStream( new FileOutputStream( dataIndexSpectralFilesCompleteFile) ) ) {
 

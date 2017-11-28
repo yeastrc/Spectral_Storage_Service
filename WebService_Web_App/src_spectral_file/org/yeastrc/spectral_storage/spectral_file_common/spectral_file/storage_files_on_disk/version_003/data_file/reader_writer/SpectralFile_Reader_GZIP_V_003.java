@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.DataOrIndexFileFullyWrittenConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralFileDataFileNotFullyWrittenException;
@@ -114,7 +115,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		}
 		
 	}
-	
+
 	/**
 	 * @throws Exception
 	 */
@@ -187,10 +188,14 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		SpectralFile_Header_Common spectralFile_Header_Common = new SpectralFile_Header_Common();
 
+		int headerTotalBytesInDataFile = 0;
+		
 		//  Read version
 		spectralFile_Header_Common.setVersion( dataInputStream.readShort() );
+		headerTotalBytesInDataFile += Short.BYTES;
 
 		byte fileFullWrittenIndicator = dataInputStream.readByte();
+		headerTotalBytesInDataFile += Byte.BYTES;
 		
 		if ( fileFullWrittenIndicator != DataOrIndexFileFullyWrittenConstants.FILE_FULLY_WRITTEN_YES ) {
 
@@ -201,6 +206,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 
 		// Length of this file
 		long spectralStorageDataFileLength_InBytes  = dataInputStream.readLong();
+		headerTotalBytesInDataFile += Long.BYTES;
 		
 		if ( spectralStorageDataFileLength_InBytes != inputFile_MainFile.length() ) {
 			String msg = "Length stored in data file is not same as actual length of data file.  "
@@ -213,6 +219,10 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		//  Read mainHeaderLength - not used
 		short mainHeaderLength = dataInputStream.readShort();
+		headerTotalBytesInDataFile += Short.BYTES;
+		
+		//  Rest of header is value in mainHeaderLength
+		headerTotalBytesInDataFile+= mainHeaderLength;
 		
 		//  Read Scan File Length
 		spectralFile_Header_Common.setScanFileLength_InBytes( dataInputStream.readLong() );
@@ -221,6 +231,8 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		spectralFile_Header_Common.setMainHash( readSingleHashFromFile( dataInputStream ) );
 		spectralFile_Header_Common.setAltHashSHA512( readSingleHashFromFile( dataInputStream ) );
 		spectralFile_Header_Common.setAltHashSHA1( readSingleHashFromFile( dataInputStream ) );
+		
+		spectralFile_Header_Common.setHeaderTotalBytesInDataFile( headerTotalBytesInDataFile );
 		
 		return spectralFile_Header_Common;
 	}
@@ -449,32 +461,49 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	private SpectralFile_SingleScan_Common readScan_FromDataInputStream( DataInputStream dataInputStream_ScanData  ) throws Exception {
 
 		SpectralFile_SingleScan_Common spectralFile_SingleScan = new SpectralFile_SingleScan_Common();
+
+		int scanTotalBytesInDataFile = 0;
 		
 		try {
 			spectralFile_SingleScan.setLevel( dataInputStream_ScanData.readByte() );
+			scanTotalBytesInDataFile += Byte.BYTES;
 		} catch ( EOFException e ) {
 			//  Reached end of file so return null
 			return null;  //  EARLY EXIT
 		}
 		spectralFile_SingleScan.setScanNumber( dataInputStream_ScanData.readInt() );
+		scanTotalBytesInDataFile += Integer.BYTES;
 		spectralFile_SingleScan.setRetentionTime( dataInputStream_ScanData.readFloat() );
+		scanTotalBytesInDataFile += Float.BYTES;
 		spectralFile_SingleScan.setIsCentroid( dataInputStream_ScanData.readByte() );
+		scanTotalBytesInDataFile += Byte.BYTES;
 		
 		if ( spectralFile_SingleScan.getLevel() > 1 ) {
 
 			//  Only applicable where level > 1
 			
 			spectralFile_SingleScan.setParentScanNumber( dataInputStream_ScanData.readInt() );
+			scanTotalBytesInDataFile += Integer.BYTES;
 			spectralFile_SingleScan.setPrecursorCharge( dataInputStream_ScanData.readByte() );
+			scanTotalBytesInDataFile += Byte.BYTES;
 			spectralFile_SingleScan.setPrecursor_M_Over_Z( dataInputStream_ScanData.readFloat() );
+			scanTotalBytesInDataFile += Float.BYTES;
 		}
 		
 		spectralFile_SingleScan.setNumberScanPeaks( dataInputStream_ScanData.readInt() );
+		scanTotalBytesInDataFile += Integer.BYTES;
+		
+		MutableInt scanPeaksTotalBytesInDataFile = new MutableInt( 0 );
 		
 		List<SpectralFile_SingleScanPeak_Common> scanPeaksAsObjectArray = 
-				getScanPeaks( dataInputStream_ScanData );
+				getScanPeaks( dataInputStream_ScanData, scanPeaksTotalBytesInDataFile );
+		
+		scanTotalBytesInDataFile += scanPeaksTotalBytesInDataFile.intValue();
 		
 		spectralFile_SingleScan.setScanPeaksAsObjectArray( scanPeaksAsObjectArray );
+		
+		
+		spectralFile_SingleScan.setScanTotalBytesInDataFile( scanTotalBytesInDataFile );
 		
 		return spectralFile_SingleScan;
 	}
@@ -485,7 +514,9 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	 * @return
 	 * @throws Exception
 	 */
-	private List<SpectralFile_SingleScanPeak_Common> getScanPeaks( DataInputStream dataInputStream_ScanData ) throws Exception {
+	private List<SpectralFile_SingleScanPeak_Common> getScanPeaks( 
+			DataInputStream dataInputStream_ScanData,
+			MutableInt scanPeaksTotalBytesInDataFile ) throws Exception {
 
 		List<SpectralFile_SingleScanPeak_Common> scanPeaksAsObjectArray = new ArrayList<>();
 		
@@ -496,6 +527,9 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		// Length of compressed scan peaks data
 		int scanPeaksAsCompressedBytes_Size = dataInputStream_ScanData.readInt();
+		scanPeaksTotalBytesInDataFile.add( Integer.BYTES );
+		
+		scanPeaksTotalBytesInDataFile.add( scanPeaksAsCompressedBytes_Size );
 		
 		byte[] scanPeaksAsCompressedBytes = new byte[ scanPeaksAsCompressedBytes_Size ];
 		
@@ -572,18 +606,25 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	
 	private FileInputStream readWholeDataFile_fileInputStream = null;
 	private DataInputStream readWholeDataFile_dataInputStream = null;
-	
+
 	/**
 	 * readWholeDataFile processing - INIT - Open file
-	 * @throws FileNotFoundException 
+	 * 
+	 * Only used when Read the whole file directly
+	 * @param dataFile
+	 * @throws Exception
 	 */
-	public void readWholeDataFile_Open_Init() throws FileNotFoundException {
-		
+	public void readWholeDataFile_Init_OpenFile( File dataFile ) throws Exception {
+
+		inputFile_MainFile = dataFile;
+
+		validateVersion_FileFullyWritten();
+
 		readWholeDataFile_fileInputStream = new FileInputStream( inputFile_MainFile );
 			
 		readWholeDataFile_dataInputStream = new DataInputStream( new BufferedInputStream( readWholeDataFile_fileInputStream ) );
 	}
-
+	
 	/**
 	 * readWholeDataFile processing - Read Header
 	 * @throws IOException 
