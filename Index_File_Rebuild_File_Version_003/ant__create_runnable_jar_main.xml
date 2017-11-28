@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="create_run_jar" name="spectralStorage_Rebuild_Index_File_Version_003.jar  Create Runnable Jar for Jar-in-Jar Loader">
 
-	<property name="jar.main.class" value="org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram" />
+	<property name="jar.main.class" value="org.yeastrc.spectral_storage.index_file_rebuild.program.Rebuild_Indexes_MainProgram" />
 
 	<property name="output_runnable_jar" value="spectralStorage_Rebuild_Index_File_Version_003.jar"/>
 
