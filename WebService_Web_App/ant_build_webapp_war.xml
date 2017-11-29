@@ -11,6 +11,7 @@
   	<!-- name of jar or whatever that is copied to deploy -->
     <property name="deployablename" value="spectral_storage.war" />
 
+  	<property name="src_shared_server_client_importer" value="src_shared_server_client_importer" />
   	<property name="src_shared_server_client" value="src_shared_server_client" />
   	<property name="src_spectral_file" value="src_spectral_file" />
     <property name="src_web_app" value="src_web_app" />
@@ -151,6 +152,11 @@
   	
   	<echo message="Compiling Java:  java_source: ${java_source}, java_target: ${java_target} "/>  	
 
+  	<javac includeantruntime="false"  srcdir="${src_shared_server_client_importer}" destdir="${classesweb}" debug="true"  
+  		 source="${java_source}" target="${java_target}"  encoding="${java.source.character.set}" >
+		<classpath refid="classpath"/>
+	</javac>
+  	
   	<javac includeantruntime="false"  srcdir="${src_shared_server_client}" destdir="${classesweb}" debug="true"  
   		 source="${java_source}" target="${java_target}"  encoding="${java.source.character.set}" >
 		<classpath refid="classpath"/>

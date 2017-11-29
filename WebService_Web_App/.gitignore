@@ -5,3 +5,5 @@
 /resources__Local_Config_Only/
 /zz_build_dir/
 /zz_classes_shared_server_client/
+/.classpath
+/.project
