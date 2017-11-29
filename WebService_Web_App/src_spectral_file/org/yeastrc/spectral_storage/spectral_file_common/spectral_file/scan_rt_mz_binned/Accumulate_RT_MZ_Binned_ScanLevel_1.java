@@ -1,4 +1,4 @@
-package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_rt_mz_binned;
+package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned;
 
 import java.math.BigDecimal;
 import java.math.MathContext;

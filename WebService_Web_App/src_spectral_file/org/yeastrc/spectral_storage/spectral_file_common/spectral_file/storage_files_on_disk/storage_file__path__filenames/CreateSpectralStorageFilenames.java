@@ -59,4 +59,39 @@ public class CreateSpectralStorageFilenames {
 		
 		return hash + SpectralStorage_Filename_Constants.DATA_INDEX_FILES_COMPLETE_FILENAME_SUFFIX;
 	}
+	
+	//////////////////////////////////////////
+	
+	////   Special filename code that takes more parameters
+
+	/**
+	 * Get Filename for SCAN_BINNED_INTENSITY_ON_RT_MZ_FILENAME_SUFFIX_PART_1
+	 * 
+	 * @param hash
+	 * @param rtBinSizeInSeconds
+	 * @param mzBinSizeInMZ
+	 * @return
+	 * @throws Exception
+	 */
+	public String createSpectraStorage_ScanBinnedIntensityOn_RT_MZ_Filename( String hash, double rtBinSizeInSeconds, double mzBinSizeInMZ  ) throws Exception {
+		
+		return hash 
+				+ SpectralStorage_Filename_Constants.SCAN_BINNED_INTENSITY_ON_RT_MZ_FILENAME_SUFFIX_START
+				+ "_"
+				+ removeTrailingPeriodZero( Double.toString( rtBinSizeInSeconds ) )
+				+ "_"
+				+ removeTrailingPeriodZero( Double.toString( mzBinSizeInMZ ) );
+	}
+	
+	/**
+	 * @param input
+	 * @return
+	 */
+	private String removeTrailingPeriodZero( String input ) {
+		final String trailingPeriodZero = ".0";
+		if ( input.endsWith(trailingPeriodZero) ) {
+			return input.substring(0, input.length() - trailingPeriodZero.length() );
+		}
+		return input;
+	}
 }

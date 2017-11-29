@@ -21,6 +21,8 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exception
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.Compute_File_Hashes;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.Compute_File_Hashes.Compute_File_Hashes_Result;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.Accumulate_RT_MZ_Binned_ScanLevel_1;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.ScanLevel_1_RT_MZ_Binned_WriteFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_Header_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
@@ -98,6 +100,11 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 	 */
 	AccumulateSummaryDataPerScanLevel accumulateSummaryDataPerScanLevel;
 	
+	/**
+	 * Accumulate scan level 1 data binned for RT and MZ
+	 */
+	Accumulate_RT_MZ_Binned_ScanLevel_1 accumulate_RT_MZ_Binned_ScanLevel_1;
+	
 	
 	/* (non-Javadoc)
 	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.writer.SpectralFile_Writer__IF#close()
@@ -138,6 +145,13 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 				SpectralFile_Index_File_Writer_V_003.getInstance().writeIndexFile( hash_String, subDirForStorageFiles, spectralFile_Index_FDFW_FileContents_Root, accumulateSummaryDataPerScanLevel );
 			}
 			
+			//  Write data in accumulate_RT_MZ_Binned_ScanLevel_1 to file
+			ScanLevel_1_RT_MZ_Binned_WriteFile.getInstance()
+			.writeScanLevel_1_RT_MZ_Binned_File( 
+					accumulate_RT_MZ_Binned_ScanLevel_1,
+					hash_String, 
+					subDirForStorageFiles );
+			
 			//  Create Files Complete file as last step
 			{
 				createFilesCompleteFile();
@@ -176,6 +190,8 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 		this.subDirForStorageFiles = subDirForStorageFiles;
 		
 		accumulateSummaryDataPerScanLevel = AccumulateSummaryDataPerScanLevel.getInstance();
+		
+		accumulate_RT_MZ_Binned_ScanLevel_1 = Accumulate_RT_MZ_Binned_ScanLevel_1.getInstance();
 		
 		//  Create Files Started file as first step
 		{
@@ -399,6 +415,8 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 		totalBytesForAllSingleScans += scanSize_InDataFile_InBytes;
 		
 		accumulateSummaryDataPerScanLevel.addScanToAccum( spectralFile_SingleScan );
+		
+		accumulate_RT_MZ_Binned_ScanLevel_1.processScanForAccum( spectralFile_SingleScan );
 		
 		writeScanCalled = true;
 

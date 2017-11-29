@@ -2,3 +2,5 @@
 /classes/
 /deploy/
 /jar_this_project_main/
+.classpath
+.project
