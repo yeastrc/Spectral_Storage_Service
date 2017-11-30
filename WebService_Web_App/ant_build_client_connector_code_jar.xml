@@ -16,8 +16,12 @@
 
 	<property name="output_jar_dir" value="deploy_client_connector" />
 	
+	<property name="src_shared_server_client_importer" value="src_shared_server_client_importer" />
 	<property name="src_shared_server_client" value="src_shared_server_client" />
 	<property name="src_client_connector" value="src_client_connector" />
+	<property name="src_client_connector_JSON" value="src_client_connector_JSON" />
+	
+	<property name="lib_client_connector_JSON_Jackson_Only" value="lib_client_connector_JSON_Jackson_Only" />
 	
 	
 	<property name="classes" value="zz_classes_shared_server_client" />	
@@ -117,9 +121,13 @@
 		<jar destfile="${output_jar_dir}${file.separator}${output_source_jar}" 
 			basedir="${basedir}${file.separator}${classes}">
 
+			<fileset dir="${src_shared_server_client_importer}">
+  		    </fileset>
   		    <fileset dir="${src_shared_server_client}">
   		    </fileset>
   		    <fileset dir="${src_client_connector}">
+  		    </fileset>
+			<fileset dir="${src_client_connector_JSON}">
   		    </fileset>
 			
 			<manifest>
@@ -203,14 +211,26 @@
     <target name="compile" depends="clean">
 
       	<echo message="Compiling Java:  java_source: ${java_source}, java_target: ${java_target} "/>  	
-
+    	
+    	
+    	<!-- <echo message="${toString:compile.classpath}"/> -->
+        <javac includeantruntime="false"  debug="on" srcdir="${src_shared_server_client_importer}" destdir="${classes}" source="${java_source}" target="${java_target}"  encoding="${java.source.character.set}" >
+            <classpath refid="json.compile.classpath"/>
+        </javac>
+    	
     	<!-- <echo message="${toString:compile.classpath}"/> -->
         <javac includeantruntime="false"  debug="on" srcdir="${src_shared_server_client}" destdir="${classes}" source="${java_source}" target="${java_target}"  encoding="${java.source.character.set}" >
             <classpath refid="compile.classpath"/>
         </javac>
+    	
         <javac includeantruntime="false"  debug="on" srcdir="${src_client_connector}" destdir="${classes}" source="${java_source}" target="${java_target}"  encoding="${java.source.character.set}" >
             <classpath refid="compile.classpath"/>
         </javac>
+    	
+        <javac includeantruntime="false"  debug="on" srcdir="${src_client_connector_JSON}" destdir="${classes}" source="${java_source}" target="${java_target}"  encoding="${java.source.character.set}" >
+            <classpath refid="json.compile.classpath"/>
+        </javac>
+    	
 
 	<!--
   	<copy  todir="${classes}">
@@ -218,6 +238,13 @@
 	</copy>
   	-->
 
+  	  	<copy  todir="${classes}">
+  	  		
+  		    <fileset dir="${src_shared_server_client_importer}">
+  				<exclude name="**/*.java" />
+  		    </fileset>
+  		</copy>
+    	
   	  	<copy  todir="${classes}">
   	  		
   		    <fileset dir="${src_shared_server_client}">
@@ -232,6 +259,14 @@
   		    </fileset>
   		</copy>
     	
+  	  	<copy  todir="${classes}">
+  	  		
+  		    <fileset dir="${src_client_connector_JSON}">
+  				<exclude name="**/*.java" />
+  		    </fileset>
+  		</copy>
+    	
+    	
     </target>
 	
 	<!-- classpath  -->
@@ -241,6 +276,16 @@
         	<include name="**/*.jar"/>
       	</fileset>
 -->
+    </path>
+	
+
+	<!-- classpath  -->
+    <path id="json.compile.classpath">
+
+    	<fileset dir="${lib_client_connector_JSON_Jackson_Only}">
+        	<include name="**/*.jar"/>
+      	</fileset>
+
     </path>
 		
 

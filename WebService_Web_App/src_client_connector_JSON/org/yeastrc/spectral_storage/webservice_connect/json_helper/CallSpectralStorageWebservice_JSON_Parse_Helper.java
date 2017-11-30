@@ -1,4 +1,4 @@
-package org.yeastrc.spectral_storage.webservice_connect.main;
+package org.yeastrc.spectral_storage.webservice_connect.json_helper;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
