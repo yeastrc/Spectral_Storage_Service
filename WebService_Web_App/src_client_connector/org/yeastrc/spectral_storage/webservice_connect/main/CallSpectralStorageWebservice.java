@@ -46,7 +46,7 @@ import org.yeastrc.spectral_storage.shared_server_client.webservice_request_resp
  * 
  *
  */
-public class CallSpectralStorageWebservice_XML {
+public class CallSpectralStorageWebservice {
 
 	private static final String XML_ENCODING_CHARACTER_SET = StandardCharsets.UTF_8.toString();
 	private static final int SUCCESS_HTTP_RETURN_CODE = 200;
@@ -57,12 +57,12 @@ public class CallSpectralStorageWebservice_XML {
 	private boolean instanceInitialized;
 	
 	//  private constructor
-	private CallSpectralStorageWebservice_XML() { }
+	private CallSpectralStorageWebservice() { }
 	/**
 	 * @return newly created instance
 	 */
-	public static CallSpectralStorageWebservice_XML getInstance() { 
-		return new CallSpectralStorageWebservice_XML(); 
+	public static CallSpectralStorageWebservice getInstance() { 
+		return new CallSpectralStorageWebservice(); 
 	}
 	
 	/**
