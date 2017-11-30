@@ -29,6 +29,7 @@ public class WebserviceSpectralStoragePathConstants {
 
 	public static final String GET_SCANS_DATA_FROM_RETENTION_TIME_RANGE_SERVLET_XML = "/getScansDataFromRetentionTimeRange_XML";
 
+	public static final String GET_SCAN_PEAK_INTENSITY_BINNED_RT_MZ_JSON_GZIPPED = "/getScanPeakIntensityBinnedOn_RT_MZ_JSON_GZIPPED";
 	
 
 }

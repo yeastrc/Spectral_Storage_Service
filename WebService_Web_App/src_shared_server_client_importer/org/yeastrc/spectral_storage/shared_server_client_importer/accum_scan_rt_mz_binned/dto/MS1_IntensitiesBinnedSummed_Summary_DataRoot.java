@@ -9,69 +9,71 @@ public class MS1_IntensitiesBinnedSummed_Summary_DataRoot {
 	
 	// All Retention Time time values are in seconds
 	 
-	private double rtBinSizeInSeconds;
-	private double rtBinMinInSeconds;
-	private double rtBinMaxInSeconds;
-	private double rtMaxPossibleValueInSeconds;
+	private long rtBinSizeInSeconds;
+	private long rtBinMinInSeconds;
+	private long rtBinMaxInSeconds;
+	private long rtMaxPossibleValueInSeconds;
 	
 	//  All M/Z values are in single m/z
 	
-	private double mzBinSizeInMZ;
-	private double mzBinMinInMZ;
-	private double mzBinMaxInMZ;
-	private double mzMaxPossibleValueInMZ;
+	private long mzBinSizeInMZ;
+	private long mzBinMinInMZ;
+	private long mzBinMaxInMZ;
+	private long mzMaxPossibleValueInMZ;
 
-	public double getRtBinSizeInSeconds() {
-		return rtBinSizeInSeconds;
-	}
-	public void setRtBinSizeInSeconds(double rtBinSizeInSeconds) {
-		this.rtBinSizeInSeconds = rtBinSizeInSeconds;
-	}
-	public double getRtBinMinInSeconds() {
-		return rtBinMinInSeconds;
-	}
-	public void setRtBinMinInSeconds(double rtBinMinInSeconds) {
-		this.rtBinMinInSeconds = rtBinMinInSeconds;
-	}
-	public double getRtBinMaxInSeconds() {
-		return rtBinMaxInSeconds;
-	}
-	public void setRtBinMaxInSeconds(double rtBinMaxInSeconds) {
-		this.rtBinMaxInSeconds = rtBinMaxInSeconds;
-	}
-	public double getRtMaxPossibleValueInSeconds() {
-		return rtMaxPossibleValueInSeconds;
-	}
-	public void setRtMaxPossibleValueInSeconds(double rtMaxPossibleValueInSeconds) {
-		this.rtMaxPossibleValueInSeconds = rtMaxPossibleValueInSeconds;
-	}
-	public double getMzBinSizeInMZ() {
-		return mzBinSizeInMZ;
-	}
-	public void setMzBinSizeInMZ(double mzBinSizeInMZ) {
-		this.mzBinSizeInMZ = mzBinSizeInMZ;
-	}
-	public double getMzBinMinInMZ() {
-		return mzBinMinInMZ;
-	}
-	public void setMzBinMinInMZ(double mzBinMinInMZ) {
-		this.mzBinMinInMZ = mzBinMinInMZ;
-	}
-	public double getMzBinMaxInMZ() {
-		return mzBinMaxInMZ;
-	}
-	public void setMzBinMaxInMZ(double mzBinMaxInMZ) {
-		this.mzBinMaxInMZ = mzBinMaxInMZ;
-	}
-	public double getMzMaxPossibleValueInMZ() {
-		return mzMaxPossibleValueInMZ;
-	}
-	public void setMzMaxPossibleValueInMZ(double mzMaxPossibleValueInMZ) {
-		this.mzMaxPossibleValueInMZ = mzMaxPossibleValueInMZ;
-	}
 	private double intensityBinnedMin;
 	private double intensityBinnedMax;
 	
+	
+	public long getRtBinSizeInSeconds() {
+		return rtBinSizeInSeconds;
+	}
+	public void setRtBinSizeInSeconds(long rtBinSizeInSeconds) {
+		this.rtBinSizeInSeconds = rtBinSizeInSeconds;
+	}
+	public long getRtBinMinInSeconds() {
+		return rtBinMinInSeconds;
+	}
+	public void setRtBinMinInSeconds(long rtBinMinInSeconds) {
+		this.rtBinMinInSeconds = rtBinMinInSeconds;
+	}
+	public long getRtBinMaxInSeconds() {
+		return rtBinMaxInSeconds;
+	}
+	public void setRtBinMaxInSeconds(long rtBinMaxInSeconds) {
+		this.rtBinMaxInSeconds = rtBinMaxInSeconds;
+	}
+	public long getRtMaxPossibleValueInSeconds() {
+		return rtMaxPossibleValueInSeconds;
+	}
+	public void setRtMaxPossibleValueInSeconds(long rtMaxPossibleValueInSeconds) {
+		this.rtMaxPossibleValueInSeconds = rtMaxPossibleValueInSeconds;
+	}
+	public long getMzBinSizeInMZ() {
+		return mzBinSizeInMZ;
+	}
+	public void setMzBinSizeInMZ(long mzBinSizeInMZ) {
+		this.mzBinSizeInMZ = mzBinSizeInMZ;
+	}
+	public long getMzBinMinInMZ() {
+		return mzBinMinInMZ;
+	}
+	public void setMzBinMinInMZ(long mzBinMinInMZ) {
+		this.mzBinMinInMZ = mzBinMinInMZ;
+	}
+	public long getMzBinMaxInMZ() {
+		return mzBinMaxInMZ;
+	}
+	public void setMzBinMaxInMZ(long mzBinMaxInMZ) {
+		this.mzBinMaxInMZ = mzBinMaxInMZ;
+	}
+	public long getMzMaxPossibleValueInMZ() {
+		return mzMaxPossibleValueInMZ;
+	}
+	public void setMzMaxPossibleValueInMZ(long mzMaxPossibleValueInMZ) {
+		this.mzMaxPossibleValueInMZ = mzMaxPossibleValueInMZ;
+	}
+
 	
 	public String getJsonContents() {
 		return jsonContents;

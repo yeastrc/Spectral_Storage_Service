@@ -202,7 +202,26 @@
     <servlet-name>Get Scans Data From Retention Time Range Servlet - XML Response</servlet-name>
     <url-pattern>/getScansDataFromRetentionTimeRange_XML</url-pattern>
   </servlet-mapping>     
+
+	
+	<!-- Servlets that return other than XML  -->
+	
    
+    <!-- GetScanPeakIntensityBinnedOn_RT_MZ_Servlet - Returns JSON Gzipped since that is what is stored in the file -->
+  <servlet>
+    <servlet-name>Get Scan Peak Intensity Binned on RT MZ Servlet - JSON Gzipped Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.web_app.servlets_retrieve_data.GetScanPeakIntensityBinnedOn_RT_MZ_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Scan Peak Intensity Binned on RT MZ Servlet - JSON Gzipped Response</servlet-name>
+    <url-pattern>/getScanPeakIntensityBinnedOn_RT_MZ_JSON_GZIPPED</url-pattern>
+  </servlet-mapping>    
+  
+  
+  
+  
 <!--   Admin Servlets - All paths start with "/admin/" for Admin Access Control Filter -->
 
   

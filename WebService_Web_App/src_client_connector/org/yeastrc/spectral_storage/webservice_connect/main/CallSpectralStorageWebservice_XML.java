@@ -26,6 +26,7 @@ import org.yeastrc.spectral_storage.shared_server_client.webservice_request_resp
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Response;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanNumbersFromRetentionTimeRange_Request;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanNumbersFromRetentionTimeRange_Response;
+import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanPeakIntensityBinnedOn_RT_MZ_Request;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanRetentionTimes_Request;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanRetentionTimes_Response;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScansDataFromRetentionTimeRange_Request;
@@ -98,7 +99,11 @@ public class CallSpectralStorageWebservice_XML {
 						Get_ScanNumbersFromRetentionTimeRange_Request.class,
 						Get_ScanNumbersFromRetentionTimeRange_Response.class,
 						Get_ScansDataFromRetentionTimeRange_Request.class,
-						Get_ScansDataFromRetentionTimeRange_Response.class );
+						Get_ScansDataFromRetentionTimeRange_Response.class,
+						
+						//  No XML response
+						Get_ScanPeakIntensityBinnedOn_RT_MZ_Request.class
+						);
 		instanceInitialized = true;
 	}
 	
@@ -203,7 +208,7 @@ public class CallSpectralStorageWebservice_XML {
 				+ uploadScanFileTempKey;
 		
 		Object webserviceResponseAsObject = 
-				callActualWebserviceOnServerSendByteArrayOrFileAsStream(
+				callActualWebserviceOnServerSendByteArrayOrFileAsStreamReturnObject(
 						null /* bytesToSend */, scanFile, webserviceURL );
 		if ( ! ( webserviceResponseAsObject instanceof UploadScanFile_UploadScanFile_Response ) ) {
 			String msg = "Response unmarshaled to class other than UploadScanFile_UploadScanFile_Response.  "
@@ -458,7 +463,7 @@ public class CallSpectralStorageWebservice_XML {
 		}
 
 		String webserviceURL = spectralStorageServerBaseURL
-				+ WebserviceSpectralStoragePathConstants.GET_SCANS_DATA_FROM_RETENTION_TIME_RANGE_SERVLET_XML;
+				+ WebserviceSpectralStoragePathConstants.GET_SCAN_PEAK_INTENSITY_BINNED_RT_MZ_JSON_GZIPPED;
 		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
 		if ( ! ( webserviceResponseAsObject instanceof Get_ScansDataFromRetentionTimeRange_Response ) ) {
 			String msg = "Response unmarshaled to class other than Get_ScansDataFromRetentionTimeRange_Response.  "
@@ -479,6 +484,29 @@ public class CallSpectralStorageWebservice_XML {
 		}
 		return webserviceResponse;
 	}
+	
+
+	/**
+	 * @param webserviceRequest
+	 * @return
+	 * @throws Exception 
+	 */
+	public byte[] call_Get_ScanPeakIntensityBinnedOn_RT_MZ_Webservice( Get_ScanPeakIntensityBinnedOn_RT_MZ_Request webserviceRequest ) throws Exception {
+		if ( ! instanceInitialized ) {
+			throw new IllegalStateException( "Not initialized" );
+		}
+		if ( webserviceRequest == null ) {
+			throw new IllegalArgumentException( "webserviceRequest param must not be null in call to call_Get_ScansDataFromRetentionTimeRange_Webservice(...)" );
+		}
+
+		String webserviceURL = spectralStorageServerBaseURL
+				+ WebserviceSpectralStoragePathConstants.GET_SCAN_PEAK_INTENSITY_BINNED_RT_MZ_JSON_GZIPPED;
+		byte[] serverResponse = 
+				callActualWebserviceOnServerSendObject_ReturnServerResponseByteArray( webserviceRequest,	webserviceURL );
+
+		return serverResponse;
+	}
+	
 	
 	
 	
@@ -529,7 +557,55 @@ public class CallSpectralStorageWebservice_XML {
 			throw exception;
 		}
 		
-		return callActualWebserviceOnServerSendByteArrayOrFileAsStream( 
+		return callActualWebserviceOnServerSendByteArrayOrFileAsStreamReturnObject( 
+				byteArrayOutputStream_ToSend, null /* fileToSendAsStream */, webserviceURL );
+	}
+	
+
+	/**
+	 * @param webserviceRequest
+	 * @param webserviceURL
+	 * @return
+	 * @throws Exception
+	 */
+	private byte[] callActualWebserviceOnServerSendObject_ReturnServerResponseByteArray( 
+			Object webserviceRequest,
+			String webserviceURL ) throws Exception {
+		ByteArrayOutputStream byteArrayOutputStream_ToSend = new ByteArrayOutputStream(100000);
+		try {
+			//  Jackson JSON code for JSON testing
+			//  JSON using Jackson
+//			ObjectMapper mapper = new ObjectMapper();  //  Jackson JSON library object
+//			requestXMLToSend = mapper.writeValueAsBytes( webserviceRequest );
+			
+			//  Marshal (write) the object to the byte array as XML
+			Marshaller marshaller = jaxbContext.createMarshaller();
+			marshaller.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
+			marshaller.setProperty( Marshaller.JAXB_ENCODING, XML_ENCODING_CHARACTER_SET );
+			try {
+				marshaller.marshal( webserviceRequest, byteArrayOutputStream_ToSend );
+			} catch ( Exception e ) {
+				throw e;
+			} finally {
+				if ( byteArrayOutputStream_ToSend != null ) {
+					byteArrayOutputStream_ToSend.close();
+				}
+			}
+			//  Confirm that the generated XML can be parsed.
+//			ByteArrayInputStream bais = new ByteArrayInputStream( byteArrayOutputStream_ToSend.toByteArray() );
+//			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+//			@SuppressWarnings("unused")
+//			Object unmarshalledObject = unmarshaller.unmarshal( bais );
+
+		} catch ( Exception e ) {
+			String msg = "Error. Fail to encode request to send to server: "
+					+ e.toString();
+			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg, e );
+			exception.setFailToEncodeDataToSendToServer(true);
+			throw exception;
+		}
+		
+		return sendToServerSendByteArrayOrFileAsStream_GetByteArrayResponseFromServer( 
 				byteArrayOutputStream_ToSend, null /* fileToSendAsStream */, webserviceURL );
 	}
 	
@@ -544,12 +620,49 @@ public class CallSpectralStorageWebservice_XML {
 	 * @return
 	 * @throws Exception
 	 */
-	private Object callActualWebserviceOnServerSendByteArrayOrFileAsStream( 
+	private Object callActualWebserviceOnServerSendByteArrayOrFileAsStreamReturnObject( 
 			ByteArrayOutputStream byteArrayOutputStream_ToSend,
 			File fileToSendAsStream,
 			String webserviceURL ) throws Exception {
 
 		Object webserviceResponseAsObject = null;
+		
+		byte[] serverResponseByteArray = 
+				sendToServerSendByteArrayOrFileAsStream_GetByteArrayResponseFromServer(
+						byteArrayOutputStream_ToSend,
+						fileToSendAsStream, 
+						webserviceURL );
+
+		ByteArrayInputStream inputStreamBufferOfServerResponse = 
+				new ByteArrayInputStream( serverResponseByteArray );
+		// Unmarshal received XML into Java objects
+		try {
+			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			webserviceResponseAsObject = unmarshaller.unmarshal( inputStreamBufferOfServerResponse );
+		} catch ( JAXBException e ) {
+			YRCSpectralStorageWebserviceCallErrorException wcee = 
+					new YRCSpectralStorageWebserviceCallErrorException( "JAXBException unmarshalling XML received from server at URL: " + webserviceURL, e );
+			wcee.setFailToDecodeDataReceivedFromServer(true);
+			wcee.setWebserviceURL( webserviceURL );
+			throw wcee;
+		}
+		return webserviceResponseAsObject; 
+	}
+	
+	
+	/**
+	 * @param byteArrayOutputStream_ToSend
+	 * @param fileToSendAsStream
+	 * @param webserviceURL
+	 * @return
+	 * @throws YRCSpectralStorageWebserviceCallErrorException
+	 */
+	private byte[] sendToServerSendByteArrayOrFileAsStream_GetByteArrayResponseFromServer(
+			ByteArrayOutputStream byteArrayOutputStream_ToSend,
+			File fileToSendAsStream, 
+			String webserviceURL) throws YRCSpectralStorageWebserviceCallErrorException {
+		
+		byte[] serverResponseByteArray = null;
 		
 		if ( ( ! ( byteArrayOutputStream_ToSend != null || fileToSendAsStream != null ) )
 				|| (  byteArrayOutputStream_ToSend != null && fileToSendAsStream != null)) {
@@ -619,6 +732,7 @@ public class CallSpectralStorageWebservice_XML {
 		httpURLConnection.setDoOutput(true);
 		// Send post request to server
 		try {  //  Overall try/catch block to put "httpURLConnection.disconnect();" in the finally block
+
 			try {
 				httpURLConnection.connect();
 			} catch ( IOException e ) {
@@ -772,25 +886,13 @@ public class CallSpectralStorageWebservice_XML {
 					}
 				}
 			}
-			byte[] serverResponseByteArrayFromServer = outputStreamBufferOfServerResponse.toByteArray();
-			byte[] serverResponseByteArray = serverResponseByteArrayFromServer;
-			ByteArrayInputStream inputStreamBufferOfServerResponse = 
-					new ByteArrayInputStream( serverResponseByteArray );
-			// Unmarshal received XML into Java objects
-			try {
-				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-				webserviceResponseAsObject = unmarshaller.unmarshal( inputStreamBufferOfServerResponse );
-			} catch ( JAXBException e ) {
-				YRCSpectralStorageWebserviceCallErrorException wcee = 
-						new YRCSpectralStorageWebserviceCallErrorException( "JAXBException unmarshalling XML received from server at URL: " + webserviceURL, e );
-				wcee.setFailToDecodeDataReceivedFromServer(true);
-				wcee.setWebserviceURL( webserviceURL );
-				throw wcee;
-			}
-			return webserviceResponseAsObject; 
+			serverResponseByteArray = outputStreamBufferOfServerResponse.toByteArray();
+
+			
 		} finally {
 //			httpURLConnection.disconnect();
 		}
+		return serverResponseByteArray;
 	}
 	
 	/**

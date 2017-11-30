@@ -30,10 +30,6 @@ public class Accumulate_RT_MZ_Binned_ScanLevel_1 {
 	private Accumulate_RT_MZ_Binned_ScanLevel_1() { }
 	public static Accumulate_RT_MZ_Binned_ScanLevel_1 getInstance() { return new Accumulate_RT_MZ_Binned_ScanLevel_1(); }
 
-
-	//  !!!!  Arbitrary values since the code is using "floor" by casting to long or int
-	private static final double RETENTION_TIME_BIN_SIZE_IN_SECONDS = 1;
-	private static final double MZ_BIN_SIZE_IN_MZ = 1;
 	
 	/**
 	 * Significant digits for rounding the Total Ion Current for a single bin
@@ -123,14 +119,14 @@ public class Accumulate_RT_MZ_Binned_ScanLevel_1 {
 	 */
 	public MS1_IntensitiesBinnedSummedMapRoot getSummedObject() throws Exception {
 
-		Map<Double, Map<Double, Double>> ms1_IntensitiesDoubleBinnedSummedMap = new HashMap<>();
+		Map<Long, Map<Long, Double>> ms1_IntensitiesDoubleBinnedSummedMap = new HashMap<>();
 		
 		boolean firstRT = true;
 		boolean firstMZ = true;
-		double rtBinMin = 0;
-		double rtBinMax = 0;
-		double mzBinMin = 0;
-		double mzBinMax = 0;
+		long rtBinMin = 0;
+		long rtBinMax = 0;
+		long mzBinMin = 0;
+		long mzBinMax = 0;
 		double intensityBinnedMin = 0;
 		double intensityBinnedMax = 0;
 		
@@ -140,7 +136,7 @@ public class Accumulate_RT_MZ_Binned_ScanLevel_1 {
 		MathContext mathContextSignificantDigits = new MathContext( BINNED_SUMMED_INTENSITY_SIGNIFICANT_DIGITS );
 		
 		for ( Map.Entry<Long, Map<Long, MutableDouble>> entryKeyedRT : ms1_IntensitiesBinnedSummedMap.entrySet() ) {
-			double rtValue = entryKeyedRT.getKey();
+			long rtValue = entryKeyedRT.getKey();
 			if ( firstRT ) {
 				firstRT = false;
 				rtBinMin = rtValue;
@@ -153,10 +149,10 @@ public class Accumulate_RT_MZ_Binned_ScanLevel_1 {
 					rtBinMax = rtValue;
 				}
 			}
-			Map<Double, Double> ms1_IntensitiesDoubleBinnedSummedMapKeyMZ = new HashMap<>();
+			Map<Long, Double> ms1_IntensitiesDoubleBinnedSummedMapKeyMZ = new HashMap<>();
 			ms1_IntensitiesDoubleBinnedSummedMap.put( rtValue, ms1_IntensitiesDoubleBinnedSummedMapKeyMZ );
 			for ( Map.Entry<Long, MutableDouble> entryKeyedMZ : entryKeyedRT.getValue().entrySet() ) {
-				double mzValue = entryKeyedMZ.getKey();
+				long mzValue = entryKeyedMZ.getKey();
 				
 				//  Round binnedIntensity
 				double binnedIntensityNotRounded = entryKeyedMZ.getValue().getValue();
@@ -192,11 +188,13 @@ public class Accumulate_RT_MZ_Binned_ScanLevel_1 {
 		summaryData.setJsonContents( MS1_IntensitiesBinnedSummed_Summary_Data_ToJSONRoot_JSON_CONTENTS_TEXT );
 		summaryData.setBinnedSummedIntensityCount( binnedSummedIntensityCount );
 		
-		summaryData.setRtBinSizeInSeconds( RETENTION_TIME_BIN_SIZE_IN_SECONDS );
+		//  !!!!  Arbitrary values since the code is using "floor" by casting to long or int
+		summaryData.setRtBinSizeInSeconds( ScanLevel_1_RT_MZ_Binned_Constants.RETENTION_TIME_BIN_SIZE_IN_SECONDS_1 );
 		summaryData.setRtBinMaxInSeconds( rtBinMax );
 		summaryData.setRtBinMinInSeconds( rtBinMin );
 		
-		summaryData.setMzBinSizeInMZ( MZ_BIN_SIZE_IN_MZ );
+		//  !!!!  Arbitrary values since the code is using "floor" by casting to long or int
+		summaryData.setMzBinSizeInMZ( ScanLevel_1_RT_MZ_Binned_Constants.MZ_BIN_SIZE_IN_MZ_1 );
 		summaryData.setMzBinMaxInMZ( mzBinMax );
 		summaryData.setMzBinMinInMZ( mzBinMin );
 		

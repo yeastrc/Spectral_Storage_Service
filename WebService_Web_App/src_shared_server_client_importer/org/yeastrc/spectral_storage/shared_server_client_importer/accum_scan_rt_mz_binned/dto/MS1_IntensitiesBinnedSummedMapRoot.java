@@ -5,13 +5,6 @@ import java.util.Map;
 public class MS1_IntensitiesBinnedSummedMapRoot {
 	
 	private String jsonContents;
-	public String getJsonContents() {
-		return jsonContents;
-	}
-
-	public void setJsonContents(String jsonContents) {
-		this.jsonContents = jsonContents;
-	}
 
 	private MS1_IntensitiesBinnedSummed_Summary_DataRoot summaryData;
 	
@@ -21,9 +14,16 @@ public class MS1_IntensitiesBinnedSummedMapRoot {
 	 * "_BinStart" means the starting value of the bin.
 	 * There may be some minor variance as to which bin a value ends up in due to rounding
 	 */
-	Map<Double, Map<Double, Double>> ms1_IntensitiesBinnedSummedMap;
+	private Map<Long, Map<Long, Double>> ms1_IntensitiesBinnedSummedMap;
 	
 	
+	public String getJsonContents() {
+		return jsonContents;
+	}
+
+	public void setJsonContents(String jsonContents) {
+		this.jsonContents = jsonContents;
+	}
 
 	public MS1_IntensitiesBinnedSummed_Summary_DataRoot getSummaryData() {
 		return summaryData;
@@ -33,11 +33,11 @@ public class MS1_IntensitiesBinnedSummedMapRoot {
 		this.summaryData = summaryData;
 	}
 
-	public Map<Double, Map<Double, Double>> getMs1_IntensitiesBinnedSummedMap() {
+	public Map<Long, Map<Long, Double>> getMs1_IntensitiesBinnedSummedMap() {
 		return ms1_IntensitiesBinnedSummedMap;
 	}
 
-	public void setMs1_IntensitiesBinnedSummedMap(Map<Double, Map<Double, Double>> ms1_IntensitiesBinnedSummedMap) {
+	public void setMs1_IntensitiesBinnedSummedMap(Map<Long, Map<Long, Double>> ms1_IntensitiesBinnedSummedMap) {
 		this.ms1_IntensitiesBinnedSummedMap = ms1_IntensitiesBinnedSummedMap;
 	}
 

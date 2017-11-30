@@ -54,7 +54,9 @@ public class Z_JAXBContext_ForRequestResponse {
 						Get_ScanNumbersFromRetentionTimeRange_Request.class,
 						Get_ScanNumbersFromRetentionTimeRange_Response.class,
 						Get_ScansDataFromRetentionTimeRange_Request.class,
-						Get_ScansDataFromRetentionTimeRange_Response.class
+						Get_ScansDataFromRetentionTimeRange_Response.class,
+						
+						Get_ScanPeakIntensityBinnedOn_RT_MZ_Request.class
 						);
 	}
 	
