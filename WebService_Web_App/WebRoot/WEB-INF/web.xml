@@ -202,7 +202,25 @@
     <servlet-name>Get Scans Data From Retention Time Range Servlet - XML Response</servlet-name>
     <url-pattern>/getScansDataFromRetentionTimeRange_XML</url-pattern>
   </servlet-mapping>     
+  
+  
 
+    <!-- getSummaryDataPerScanLevel -->
+  <servlet>
+    <servlet-name>Get Scan Summary Data Per Scan Level Servlet - XML Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.web_app.servlets_retrieve_data.GetSummaryDataPerScanLevel_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>XML</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Scan Summary Data Per Scan Level Servlet - XML Response</servlet-name>
+    <url-pattern>/getSummaryDataPerScanLevel_XML</url-pattern>
+  </servlet-mapping>     
+  
 	
 	<!-- Servlets that return other than XML  -->
 	

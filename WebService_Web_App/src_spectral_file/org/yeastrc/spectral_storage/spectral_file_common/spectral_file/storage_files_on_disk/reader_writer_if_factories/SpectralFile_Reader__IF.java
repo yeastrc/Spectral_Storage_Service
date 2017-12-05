@@ -6,6 +6,7 @@ import java.util.List;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_Header_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_request_results.SpectralFile_Result_RetentionTime_ScanNumber;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_request_results.SummaryDataPerScanLevel;
 
 
 /**
@@ -42,4 +43,6 @@ public interface SpectralFile_Reader__IF {
 	public List<Integer> getScanNumbersForRetentionTimeRange(float retentionTimeStart, float retentionTimeEnd ) throws Exception;
 
 	public List<Integer> getScanNumbersForRetentionTimeRangeScanLevel(float retentionTimeStart, float retentionTimeEnd, byte scanLevel ) throws Exception;
+	
+	public List<SummaryDataPerScanLevel> getSummaryDataPerScanLevel_All() throws Exception;
 }

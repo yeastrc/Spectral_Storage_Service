@@ -32,9 +32,9 @@ public class SpectralFile_Index_Header_DTO_V_003 {
 	 * 
 	 * See SummaryDataPerScanLevel class.
 	 */
-	private List<SummaryDataPerScanLevel> summaryDataPerScanLevelList;
+	private List<SummaryDataPerScanLevel_DTO_V_003> summaryDataPerScanLevelList;
 	
-	private class SummaryDataPerScanLevel {
+	private class SummaryDataPerScanLevel_DTO_V_003 {
 		/**
 		 * Scan level for this summary data entry
 		 */

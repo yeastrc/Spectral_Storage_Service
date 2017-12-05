@@ -31,6 +31,8 @@ import org.yeastrc.spectral_storage.shared_server_client.webservice_request_resp
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanRetentionTimes_Response;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScansDataFromRetentionTimeRange_Request;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScansDataFromRetentionTimeRange_Response;
+import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_SummaryDataPerScanLevel_Request;
+import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_SummaryDataPerScanLevel_Response;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_UploadedScanFileInfo_Request;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_UploadedScanFileInfo_Response;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.UploadScanFile_Delete_For_ScanProcessStatusKey_Request;
@@ -100,6 +102,8 @@ public class CallSpectralStorageWebservice {
 						Get_ScanNumbersFromRetentionTimeRange_Response.class,
 						Get_ScansDataFromRetentionTimeRange_Request.class,
 						Get_ScansDataFromRetentionTimeRange_Response.class,
+						Get_SummaryDataPerScanLevel_Request.class,
+						Get_SummaryDataPerScanLevel_Response.class,
 						
 						//  No XML response
 						Get_ScanPeakIntensityBinnedOn_RT_MZ_Request.class
@@ -463,7 +467,7 @@ public class CallSpectralStorageWebservice {
 		}
 
 		String webserviceURL = spectralStorageServerBaseURL
-				+ WebserviceSpectralStoragePathConstants.GET_SCAN_PEAK_INTENSITY_BINNED_RT_MZ_JSON_GZIPPED;
+				+ WebserviceSpectralStoragePathConstants.GET_SCANS_DATA_FROM_RETENTION_TIME_RANGE_SERVLET_XML;
 		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
 		if ( ! ( webserviceResponseAsObject instanceof Get_ScansDataFromRetentionTimeRange_Response ) ) {
 			String msg = "Response unmarshaled to class other than Get_ScansDataFromRetentionTimeRange_Response.  "
@@ -486,6 +490,47 @@ public class CallSpectralStorageWebservice {
 	}
 	
 
+	/**
+	 * @param webserviceRequest
+	 * @return
+	 * @throws Exception 
+	 */
+	public Get_SummaryDataPerScanLevel_Response call_GetSummaryDataPerScanLevel_Webservice( Get_SummaryDataPerScanLevel_Request webserviceRequest ) throws Exception {
+		if ( ! instanceInitialized ) {
+			throw new IllegalStateException( "Not initialized" );
+		}
+		if ( webserviceRequest == null ) {
+			throw new IllegalArgumentException( "webserviceRequest param must not be null in call to call_Get_ScansDataFromRetentionTimeRange_Webservice(...)" );
+		}
+
+		String webserviceURL = spectralStorageServerBaseURL
+				+ WebserviceSpectralStoragePathConstants.GET_SUMMARY_DATA_PER_SCAN_LEVEL_SERVLET_XML;
+		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
+		if ( ! ( webserviceResponseAsObject instanceof Get_SummaryDataPerScanLevel_Response ) ) {
+			String msg = "Response unmarshaled to class other than Get_SummaryDataPerScanLevel_Response.  "
+					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
+			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			exception.setFailToDecodeDataReceivedFromServer(true);
+			throw exception;
+		}
+		Get_SummaryDataPerScanLevel_Response webserviceResponse = null;
+		try {
+			webserviceResponse = (Get_SummaryDataPerScanLevel_Response) webserviceResponseAsObject;
+		} catch ( Exception e ) {
+			String msg = "Error. Fail to cast response as Get_SummaryDataPerScanLevel_Response: "
+					+ e.toString();
+			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			exception.setFailToDecodeDataReceivedFromServer(true);
+			throw exception;
+		}
+		return webserviceResponse;
+	}
+	
+	
+	////////////////////////////////////////////
+
+	/////////   These return a byte[] that is directly returned from the server
+	
 	/**
 	 * @param webserviceRequest
 	 * @return

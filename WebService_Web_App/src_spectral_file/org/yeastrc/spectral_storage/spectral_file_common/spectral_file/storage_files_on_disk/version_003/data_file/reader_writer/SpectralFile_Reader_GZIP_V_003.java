@@ -23,6 +23,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.index_file.SpectralFile_Index_FileContents_Root_IF;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_request_results.SpectralFile_Result_RetentionTime_ScanNumber;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_request_results.SummaryDataPerScanLevel;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.index_file_root_data_object_cache.IndexFileRootDataObjectCache;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader__IF;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
@@ -30,6 +31,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.StorageFile_Version_003_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_FileContents_Root_V_003;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SingleScan_V_003;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003;
 
 /**
  * Special code to read whole file start to end at the bottom of this class
@@ -370,7 +372,30 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		return scanNumbersInRange;
 	}
 
+	@Override
+	public List<SummaryDataPerScanLevel> getSummaryDataPerScanLevel_All()  throws Exception{
+		
+		List<SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003> summaryDataPerScanLevel_InIndex_List =
+				spectralFile_Index_FileContents_Root.getSummaryDataPerScanLevelList();
+		
+		if ( summaryDataPerScanLevel_InIndex_List == null ) {
+			return null;
+		}
 
+		List<SummaryDataPerScanLevel> outputList = new ArrayList<>( summaryDataPerScanLevel_InIndex_List.size() );
+		
+		for ( SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003 summaryInIndexItem : summaryDataPerScanLevel_InIndex_List ) {
+			SummaryDataPerScanLevel outputEntry = new SummaryDataPerScanLevel();
+			outputList.add( outputEntry );
+			outputEntry.setScanLevel( summaryInIndexItem.getScanLevel() );
+			outputEntry.setNumberOfScans( summaryInIndexItem.getNumberOfScans() );
+			outputEntry.setTotalIonCurrent( summaryInIndexItem.getTotalIonCurrent() );
+		}
+		
+		return outputList;
+	}
+	
+	
 	/**
 	 * @param indexEntry
 	 * @return
