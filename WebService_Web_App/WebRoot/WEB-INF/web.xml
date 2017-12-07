@@ -27,7 +27,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Initialize the Upload Scan File Process Servlet - XML Response</servlet-name>
-    <url-pattern>/uploadScanFile_Init_XML</url-pattern>
+    <url-pattern>/update/uploadScanFile_Init_XML</url-pattern>
   </servlet-mapping>    
   
   <!-- Upload Scan File Process - Actual upload of Scan File - return XML -->
@@ -44,7 +44,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Upload Scan File Process - Actual upload of Scan File Servlet - XML Response</servlet-name>
-    <url-pattern>/uploadScanFile_uploadScanFile_XML</url-pattern>
+    <url-pattern>/update/uploadScanFile_uploadScanFile_XML</url-pattern>
   </servlet-mapping>   
 
   <!-- Submit the Upload Scan File Process - return XML -->
@@ -61,7 +61,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Submit the Upload Scan File Servlet - XML Response</servlet-name>
-    <url-pattern>/uploadScanFile_Submit_XML</url-pattern>
+    <url-pattern>/update/uploadScanFile_Submit_XML</url-pattern>
   </servlet-mapping>    
 
 	<!-- Get Uploaded Scan File Status and API Key - return XML -->  
@@ -77,7 +77,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Get Uploaded Scan File Status and API Key Servlet - XML Response</servlet-name>
-    <url-pattern>/uploadedScanFile_Status_API_Key_XML</url-pattern>
+    <url-pattern>/update/uploadedScanFile_Status_API_Key_XML</url-pattern>
   </servlet-mapping>      
   
 	<!-- UploadScanFile - Delete For ScanProcessStatusKey - return XML -->  
@@ -93,7 +93,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>UploadScanFile - Delete For ScanProcessStatusKey Servlet - XML Response</servlet-name>
-    <url-pattern>/uploadedScanFile_Delete_For_ScanProcessStatusKey_XML</url-pattern>
+    <url-pattern>/update/uploadedScanFile_Delete_For_ScanProcessStatusKey_XML</url-pattern>
   </servlet-mapping>  
   
   <!-- Upload Scan File as Stream - COMMENTED OUT, not currently supported, out of date -->
@@ -111,7 +111,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Upload Scan File Servlet - XML Response</servlet-name>
-    <url-pattern>/uploadScanFile_XML</url-pattern>
+    <url-pattern>/update/uploadScanFile_XML</url-pattern>
   </servlet-mapping>    
   -->
 
@@ -130,7 +130,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Upload Scan File as Form Servlet - XML Response</servlet-name>
-    <url-pattern>/uploadScanFile_as_Form_XML</url-pattern>
+    <url-pattern>/update/uploadScanFile_as_Form_XML</url-pattern>
   </servlet-mapping>    
   -->
   
@@ -152,7 +152,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Get Scan Data From Scan Numbers Servlet - XML Response</servlet-name>
-    <url-pattern>/getScanDataFromScanNumbers_XML</url-pattern>
+    <url-pattern>/query/getScanDataFromScanNumbers_XML</url-pattern>
   </servlet-mapping>     
   
     <!-- getScanRetentionTimes - Filtered based on request, or all if no filters -->
@@ -168,7 +168,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Get Scan Retention Times Servlet - XML Response</servlet-name>
-    <url-pattern>/getScanRetentionTimes_XML</url-pattern>
+    <url-pattern>/query/getScanRetentionTimes_XML</url-pattern>
   </servlet-mapping>     
         
     <!-- getScanNumbersFromRetentionTimeRange -->
@@ -184,7 +184,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Get Scan Numbers From Retention Time Range Servlet - XML Response</servlet-name>
-    <url-pattern>/getScanNumbersFromRetentionTimeRange_XML</url-pattern>
+    <url-pattern>/query/getScanNumbersFromRetentionTimeRange_XML</url-pattern>
   </servlet-mapping>     
    
     <!-- getScansDataFromRetentionTimeRange -->
@@ -200,7 +200,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Get Scans Data From Retention Time Range Servlet - XML Response</servlet-name>
-    <url-pattern>/getScansDataFromRetentionTimeRange_XML</url-pattern>
+    <url-pattern>/query/getScansDataFromRetentionTimeRange_XML</url-pattern>
   </servlet-mapping>     
   
   
@@ -218,7 +218,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Get Scan Summary Data Per Scan Level Servlet - XML Response</servlet-name>
-    <url-pattern>/getSummaryDataPerScanLevel_XML</url-pattern>
+    <url-pattern>/query/getSummaryDataPerScanLevel_XML</url-pattern>
   </servlet-mapping>     
   
 	
@@ -234,13 +234,13 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>Get Scan Peak Intensity Binned on RT MZ Servlet - JSON Gzipped Response</servlet-name>
-    <url-pattern>/getScanPeakIntensityBinnedOn_RT_MZ_JSON_GZIPPED</url-pattern>
+    <url-pattern>/query/getScanPeakIntensityBinnedOn_RT_MZ_JSON_GZIPPED</url-pattern>
   </servlet-mapping>    
   
   
   
   
-<!--   Admin Servlets - All paths start with "/admin/" for Admin Access Control Filter -->
+<!--   Query Servlets - All paths start with "/admin/" for Admin Access Control Filter -->
 
   
    <!-- Init admin page and forward to admin JSP -->
@@ -323,7 +323,11 @@
     
     <filter>
         <filter-name>Access Control</filter-name>
-        <filter-class>org.yeastrc.spectral_storage.web_app.servlet_filter__access_control.AccessControlServletFilter</filter-class>
+        <filter-class>org.yeastrc.spectral_storage.web_app.servlet_filter__access_control.AccessControl_ServletFilter</filter-class>
+    	<init-param>
+	      <param-name>access.control.type</param-name>
+	      <param-value>overall</param-value> <!-- See class AccessControl_ServletFilter for valid values -->
+    	</init-param>
     </filter>
 
     <filter-mapping>
@@ -332,11 +336,15 @@
     </filter-mapping>
     
 
-	<!-- filter for Admin Access Control - All paths start with "/admin_" for Admin Access Control Filter -->
+	<!-- filter for Admin Access Control - All paths start with "/admin/" for Admin Access Control Filter -->
 
     <filter>
         <filter-name>Admin Access Control</filter-name>
-        <filter-class>org.yeastrc.spectral_storage.web_app.servlet_filter__access_control.AccessControl_Admin_ServletFilter</filter-class>
+        <filter-class>org.yeastrc.spectral_storage.web_app.servlet_filter__access_control.AccessControl_ServletFilter</filter-class>
+    	<init-param>
+	      <param-name>access.control.type</param-name>
+	      <param-value>admin</param-value> <!-- See class AccessControl_ServletFilter for valid values -->
+    	</init-param>
     </filter>
 
     <filter-mapping>
@@ -344,6 +352,39 @@
         <url-pattern>/admin/*</url-pattern>
     </filter-mapping>    
 
+	<!-- filter for Update Access Control - All paths start with "/update/" for Update Access Control Filter -->
+
+    <filter>
+        <filter-name>Update Access Control</filter-name>
+        <filter-class>org.yeastrc.spectral_storage.web_app.servlet_filter__access_control.AccessControl_ServletFilter</filter-class>
+    	<init-param>
+	      <param-name>access.control.type</param-name>
+	      <param-value>update</param-value> <!-- See class AccessControl_ServletFilter for valid values -->
+    	</init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>Update Access Control</filter-name>
+        <url-pattern>/update/*</url-pattern>
+    </filter-mapping>    
+    
+    
+	<!-- filter for Query Access Control - All paths start with "/query/" for Query Access Control Filter -->
+
+    <filter>
+        <filter-name>Query Access Control</filter-name>
+        <filter-class>org.yeastrc.spectral_storage.web_app.servlet_filter__access_control.AccessControl_ServletFilter</filter-class>
+    	<init-param>
+	      <param-name>access.control.type</param-name>
+	      <param-value>query</param-value> <!-- See class AccessControl_ServletFilter for valid values -->
+    	</init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>Query Access Control</filter-name>
+        <url-pattern>/query/*</url-pattern>
+    </filter-mapping>    
+    
 	<!-- Servlet Context Listeners.  Called on Web app startup and shutdown -->
 	<listener>
 		<listener-class>

@@ -21,9 +21,11 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory_Reader {
 
 	private static String CONFIG_DEFAULTS_FILENAME = "spectra_config_allowed_remotes_defaults.properties";
 	private static String CONFIG_OVERRIDES_FILENAME = "spectra_config_allowed_remotes.properties";
-
-	private static String PROPERTY_NAME__ALLOWED_REMOTE_IPS = "allowed.remote.ips";
-	private static String PROPERTY_NAME__ALLOWED_ADMIN_REMOTE_IPS = "allowed.admin.remote.ips";
+	
+	private static String PROPERTY_NAME__ALLOWED_REMOTE_IPS_OVERALL = "allowed.remote.ips.overall";
+	private static String PROPERTY_NAME__ALLOWED_REMOTE_IPS_ADMIN = "allowed.remote.ips.admin";
+	private static String PROPERTY_NAME__ALLOWED_REMOTE_IPS_UPDATE = "allowed.remote.ips.update";
+	private static String PROPERTY_NAME__ALLOWED_REMOTE_IPS_QUERY = "allowed.remote.ips.query";
 	private static String PROPERTY_NAME__ALLOWED_REMOTE_IPS_DELIMITER = ",";
 	
 	private static enum IsDefaultPropertiesFile { YES, NO }
@@ -46,34 +48,37 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory_Reader {
 	public void readConfigDataInWebApp() throws Exception {
 		
 		ConfigData_Allowed_Remotes_InWorkDirectory configData_Allowed_Remotes_InWorkDirectory = ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance();
-		
-		configData_Allowed_Remotes_InWorkDirectory.clearAllowedRemoteIP_Collection();
-		configData_Allowed_Remotes_InWorkDirectory.clearAllowedAdminRemoteIP_Collection();
 
+		//   Clear all AllowedRemoteIP Collections
+		configData_Allowed_Remotes_InWorkDirectory.clear_ALL_AllowedRemoteIP_Collection_ALL();
+		
 		processPropertiesFilename( CONFIG_DEFAULTS_FILENAME, IsDefaultPropertiesFile.YES, AllowNoPropertiesFile.NO, configData_Allowed_Remotes_InWorkDirectory );
 		processPropertiesFilename( CONFIG_OVERRIDES_FILENAME, IsDefaultPropertiesFile.NO, AllowNoPropertiesFile.YES, configData_Allowed_Remotes_InWorkDirectory );
 		
 
-		if ( configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs() == null 
-				|| configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs().isEmpty() ) {
-			String msg = "Property '" + PROPERTY_NAME__ALLOWED_REMOTE_IPS + "' in config is empty or missing";
-			log.error( msg );
-			throw new SpectralFileWebappConfigException( msg );
-		}
-
-		if ( configData_Allowed_Remotes_InWorkDirectory.getAllowedAdminRemoteIPs() == null 
-				|| configData_Allowed_Remotes_InWorkDirectory.getAllowedAdminRemoteIPs().isEmpty() ) {
-			String msg = "Property '" + PROPERTY_NAME__ALLOWED_ADMIN_REMOTE_IPS + "' in config is empty or missing";
-			log.error( msg );
-			throw new SpectralFileWebappConfigException( msg );
-		}
+//		if ( configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs_Overall() == null 
+//				|| configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs_Overall().isEmpty() ) {
+//			String msg = "Property '" + PROPERTY_NAME__ALLOWED_REMOTE_IPS_OVERALL + "' in config is empty or missing";
+//			log.error( msg );
+//			throw new SpectralFileWebappConfigException( msg );
+//		}
+//
+//		if ( configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs_Admin() == null 
+//				|| configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs_Admin().isEmpty() ) {
+//			String msg = "Property '" + PROPERTY_NAME__ALLOWED_REMOTE_IPS_ADMIN + "' in config is empty or missing";
+//			log.error( msg );
+//			throw new SpectralFileWebappConfigException( msg );
+//		}
 		
 		
-		log.warn( "INFO: '" + PROPERTY_NAME__ALLOWED_REMOTE_IPS + "' has value: " 
-				+ StringUtils.join( configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs() ) );
-		log.warn( "INFO: '" + PROPERTY_NAME__ALLOWED_ADMIN_REMOTE_IPS + "' has value: " 
-				+ StringUtils.join( configData_Allowed_Remotes_InWorkDirectory.getAllowedAdminRemoteIPs() ) );
-
+		log.warn( "INFO: '" + PROPERTY_NAME__ALLOWED_REMOTE_IPS_OVERALL + "' has value: " 
+				+ StringUtils.join( configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs_Overall() ) );
+		log.warn( "INFO: '" + PROPERTY_NAME__ALLOWED_REMOTE_IPS_ADMIN + "' has value: " 
+				+ StringUtils.join( configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs_Admin() ) );
+		log.warn( "INFO: '" + PROPERTY_NAME__ALLOWED_REMOTE_IPS_UPDATE + "' has value: " 
+				+ StringUtils.join( configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs_Update() ) );
+		log.warn( "INFO: '" + PROPERTY_NAME__ALLOWED_REMOTE_IPS_QUERY + "' has value: " 
+				+ StringUtils.join( configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs_Query() ) );
 	}
 
 	/**
@@ -149,28 +154,46 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory_Reader {
 			Properties configProps = new Properties();
 			configProps.load(propertiesFileAsStream);
 			String propertyValue = null;
-			
-			propertyValue = configProps.getProperty( PROPERTY_NAME__ALLOWED_REMOTE_IPS );
+						
+			propertyValue = configProps.getProperty( PROPERTY_NAME__ALLOWED_REMOTE_IPS_OVERALL );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 				
 				String[] allowedRemoteIPs = propertyValue.split( PROPERTY_NAME__ALLOWED_REMOTE_IPS_DELIMITER );
 
 				for ( String allowedRemoteIP : allowedRemoteIPs ) {
-					configData_Allowed_Remotes_InWorkDirectory.addAllowedRemoteIP( allowedRemoteIP );
+					configData_Allowed_Remotes_InWorkDirectory.addAllowedRemoteIP_Overall( allowedRemoteIP );
 				}
 			}
 
-			propertyValue = configProps.getProperty( PROPERTY_NAME__ALLOWED_ADMIN_REMOTE_IPS );
+			propertyValue = configProps.getProperty( PROPERTY_NAME__ALLOWED_REMOTE_IPS_ADMIN );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 				
 				String[] allowedRemoteIPs = propertyValue.split( PROPERTY_NAME__ALLOWED_REMOTE_IPS_DELIMITER );
 
 				for ( String allowedRemoteIP : allowedRemoteIPs ) {
-					configData_Allowed_Remotes_InWorkDirectory.addAllowedAdminRemoteIP( allowedRemoteIP );
+					configData_Allowed_Remotes_InWorkDirectory.addAllowedRemoteIP_Admin( allowedRemoteIP );
+				}
+			}
+
+			propertyValue = configProps.getProperty( PROPERTY_NAME__ALLOWED_REMOTE_IPS_UPDATE );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				
+				String[] allowedRemoteIPs = propertyValue.split( PROPERTY_NAME__ALLOWED_REMOTE_IPS_DELIMITER );
+
+				for ( String allowedRemoteIP : allowedRemoteIPs ) {
+					configData_Allowed_Remotes_InWorkDirectory.addAllowedRemoteIP_Update( allowedRemoteIP );
 				}
 			}
 			
-			
+			propertyValue = configProps.getProperty( PROPERTY_NAME__ALLOWED_REMOTE_IPS_QUERY );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				
+				String[] allowedRemoteIPs = propertyValue.split( PROPERTY_NAME__ALLOWED_REMOTE_IPS_DELIMITER );
+
+				for ( String allowedRemoteIP : allowedRemoteIPs ) {
+					configData_Allowed_Remotes_InWorkDirectory.addAllowedRemoteIP_Query( allowedRemoteIP );
+				}
+			}
 
 		} catch ( RuntimeException e ) {
 			log.error( "Error processing Properties file '" + propertiesFilename + "', exception: " + e.toString(), e );
