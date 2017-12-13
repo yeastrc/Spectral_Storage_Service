@@ -218,8 +218,13 @@ public class GetScansDataFromRetentionTimeRange_Servlet extends HttpServlet {
 				spectralFile_Reader = SpectralFile_Reader_Factory.getInstance()
 						.getSpectralFile_Writer_ForHash( scanFileAPIKey, scanStorageBaseDirectoryFile );
 
-				List<Integer> scanNumbers =
-						spectralFile_Reader.getScanNumbersForRetentionTimeRangeScanLevel( retentionTimeStart, retentionTimeEnd, scanLevel );
+				List<Integer> scanNumbers = null;
+				
+				if ( scanLevel != null ) {
+					scanNumbers = spectralFile_Reader.getScanNumbersForRetentionTimeRangeScanLevel( retentionTimeStart, retentionTimeEnd, scanLevel );
+				} else {
+					scanNumbers = spectralFile_Reader.getScanNumbersForRetentionTimeRange( retentionTimeStart, retentionTimeEnd );
+				}
 
 				if ( scanNumbers.size() > MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES ) {
 
