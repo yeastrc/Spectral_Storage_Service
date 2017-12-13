@@ -35,8 +35,48 @@ public class Get_ScanDataFromScanNumbers_Request extends BaseWebserviceRequest {
 	@XmlElementWrapper(name="scanNumbers")
 	@XmlElement(name="scanNumber")
 	private List<Integer> scanNumbers;
-	
-	
+
+	/**
+	 * If populated, do not return any peaks with mz below this cutoff.  
+	 */
+	@XmlAttribute // attribute name is property name
+	private Float mzLowCutoff;
+
+	/**
+	 * If populated, do not return any peaks with mz above this cutoff.  
+	 */
+	@XmlAttribute // attribute name is property name
+	private Float mzHighCutoff;
+
+
+	/**
+	 * If populated, do not return any peaks with mz below this cutoff.  
+	 */
+	public Float getMzLowCutoff() {
+		return mzLowCutoff;
+	}
+
+	/**
+	 * If populated, do not return any peaks with mz below this cutoff.  
+	 */
+	public void setMzLowCutoff(Float mzLowCutoff) {
+		this.mzLowCutoff = mzLowCutoff;
+	}
+
+	/**
+	 * If populated, do not return any peaks with mz above this cutoff.  
+	 */
+	public Float getMzHighCutoff() {
+		return mzHighCutoff;
+	}
+
+	/**
+	 * If populated, do not return any peaks with mz above this cutoff.  
+	 */
+	public void setMzHighCutoff(Float mzHighCutoff) {
+		this.mzHighCutoff = mzHighCutoff;
+	}
+
 
 	public String getScanFileAPIKey() {
 		return scanFileAPIKey;

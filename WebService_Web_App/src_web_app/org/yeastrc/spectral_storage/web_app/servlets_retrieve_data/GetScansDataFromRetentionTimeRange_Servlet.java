@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.enums.Get_ScanData_ExcludeScansWithoutPeaks;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScansDataFromRetentionTimeRange_Request;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScansDataFromRetentionTimeRange_Response;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.sub_parts.SingleScan_SubResponse;
@@ -27,6 +28,7 @@ import org.yeastrc.spectral_storage.web_app.constants_enums.ServetResponseFormat
 import org.yeastrc.spectral_storage.web_app.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.web_app.exceptions.SpectralFileDeserializeRequestException;
 import org.yeastrc.spectral_storage.web_app.servlet_response_factories.SingleScan_SubResponse_Factory;
+import org.yeastrc.spectral_storage.web_app.servlet_response_factories.SingleScan_SubResponse_Factory_Parameters;
 import org.yeastrc.spectral_storage.web_app.servlet_response_factories.Single_ScanRetentionTime_ScanNumber_SubResponse_Factory;
 import org.yeastrc.spectral_storage.web_app.servlets_common.GetRequestObjectFromInputStream;
 import org.yeastrc.spectral_storage.web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
@@ -256,6 +258,11 @@ public class GetScansDataFromRetentionTimeRange_Servlet extends HttpServlet {
 				}
 				
 				SingleScan_SubResponse_Factory singleScan_SubResponse_Factory = SingleScan_SubResponse_Factory.getInstance();
+
+				SingleScan_SubResponse_Factory_Parameters singleScan_SubResponse_Factory_Parameters = new SingleScan_SubResponse_Factory_Parameters();
+				
+				singleScan_SubResponse_Factory_Parameters.setMzHighCutoff( get_ScanNumbersFromRetentionTimeRange_Request.getMzHighCutoff() );
+				singleScan_SubResponse_Factory_Parameters.setMzLowCutoff( get_ScanNumbersFromRetentionTimeRange_Request.getMzLowCutoff() );
 				
 				List<SingleScan_SubResponse> scans = new ArrayList<>( scanNumbers.size() );
 				
@@ -263,9 +270,17 @@ public class GetScansDataFromRetentionTimeRange_Servlet extends HttpServlet {
 					SpectralFile_SingleScan_Common spectralFile_SingleScan_Common = 
 							spectralFile_Reader.getScanForScanNumber( scanNumber );
 					if ( spectralFile_SingleScan_Common != null ) {
-						scans.add( 
+						SingleScan_SubResponse singleScan_SubResponse =
 								singleScan_SubResponse_Factory
-								.buildSingleScan_SubResponse( spectralFile_SingleScan_Common ) );
+								.buildSingleScan_SubResponse( spectralFile_SingleScan_Common, singleScan_SubResponse_Factory_Parameters );
+						if ( get_ScanNumbersFromRetentionTimeRange_Request.getExcludeScansWithoutPeaks() != null 
+								&& get_ScanNumbersFromRetentionTimeRange_Request.getExcludeScansWithoutPeaks() == Get_ScanData_ExcludeScansWithoutPeaks.YES ) {
+							if ( singleScan_SubResponse.getPeaks() == null || singleScan_SubResponse.getPeaks().isEmpty() ) {
+								// No Peaks so skip this scan
+								continue; // EARLY CONTINUE
+							}
+						}
+						scans.add( singleScan_SubResponse );
 					}
 				}
 				webserviceResponse.setScans( scans );

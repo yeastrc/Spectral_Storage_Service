@@ -11,6 +11,8 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 
 /**
  * Build SingleScan_SubResponse and sub objects
+ * 
+ * Filter response based on singleScan_SubResponse_Factory_Parameters
  *
  */
 public class SingleScan_SubResponse_Factory {
@@ -31,7 +33,9 @@ public class SingleScan_SubResponse_Factory {
 	 * @param spectralFile_SingleScan_Common
 	 * @return
 	 */
-	public SingleScan_SubResponse buildSingleScan_SubResponse( SpectralFile_SingleScan_Common spectralFile_SingleScan_Common ) {
+	public SingleScan_SubResponse buildSingleScan_SubResponse( 
+			SpectralFile_SingleScan_Common spectralFile_SingleScan_Common,
+			SingleScan_SubResponse_Factory_Parameters singleScan_SubResponse_Factory_Parameters) {
 		
 		SingleScan_SubResponse singleScan_SubResponse = new SingleScan_SubResponse();
 		
@@ -54,6 +58,14 @@ public class SingleScan_SubResponse_Factory {
 			singleScan_SubResponse.setPeaks( peaks );
 			
 			for ( SpectralFile_SingleScanPeak_Common peakCommon : spectralFile_SingleScan_Common.getScanPeaksAsObjectArray() ) {
+				if ( singleScan_SubResponse_Factory_Parameters.getMzLowCutoff() != null
+						&& singleScan_SubResponse_Factory_Parameters.getMzLowCutoff() > peakCommon.getM_over_Z() ) {
+					continue;  // Skip Peak since MZ below low cutoff
+				}
+				if ( singleScan_SubResponse_Factory_Parameters.getMzHighCutoff() != null
+						&& singleScan_SubResponse_Factory_Parameters.getMzHighCutoff() < peakCommon.getM_over_Z() ) {
+					continue;  // Skip Peak since MZ above high cutoff
+				}
 				SingleScanPeak_SubResponse peak = new SingleScanPeak_SubResponse();
 				peak.setMz( peakCommon.getM_over_Z() );
 				peak.setIntensity( peakCommon.getIntensity() );

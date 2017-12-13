@@ -28,6 +28,7 @@ import org.yeastrc.spectral_storage.web_app.constants_enums.ServetResponseFormat
 import org.yeastrc.spectral_storage.web_app.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.web_app.exceptions.SpectralFileDeserializeRequestException;
 import org.yeastrc.spectral_storage.web_app.servlet_response_factories.SingleScan_SubResponse_Factory;
+import org.yeastrc.spectral_storage.web_app.servlet_response_factories.SingleScan_SubResponse_Factory_Parameters;
 import org.yeastrc.spectral_storage.web_app.servlets_common.GetRequestObjectFromInputStream;
 import org.yeastrc.spectral_storage.web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.web_app.servlets_common.WriteResponseObjectToOutputStream;
@@ -221,6 +222,11 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 				
 				SingleScan_SubResponse_Factory singleScan_SubResponse_Factory = SingleScan_SubResponse_Factory.getInstance();
 				
+				SingleScan_SubResponse_Factory_Parameters singleScan_SubResponse_Factory_Parameters = new SingleScan_SubResponse_Factory_Parameters();
+				
+				singleScan_SubResponse_Factory_Parameters.setMzHighCutoff( get_ScanDataFromScanNumbers_Request.getMzHighCutoff() );
+				singleScan_SubResponse_Factory_Parameters.setMzLowCutoff( get_ScanDataFromScanNumbers_Request.getMzLowCutoff() );
+				
 				List<SingleScan_SubResponse> scans = new ArrayList<>( returnedScanListInitialSize );
 				
 				Set<Integer> insertedScansScanNumbers = new HashSet<>();
@@ -233,7 +239,8 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 							scans, 
 							insertedScansScanNumbers, 
 							spectralFile_Reader,
-							singleScan_SubResponse_Factory );
+							singleScan_SubResponse_Factory,
+							singleScan_SubResponse_Factory_Parameters );
 				}
 				
 				webserviceResponse.setScans( scans );
@@ -281,7 +288,8 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 			List<SingleScan_SubResponse> scans,
 			Set<Integer> insertedScansScanNumbers,
 			SpectralFile_Reader__IF spectralFile_Reader,
-			SingleScan_SubResponse_Factory singleScan_SubResponse_Factory ) throws Exception {
+			SingleScan_SubResponse_Factory singleScan_SubResponse_Factory,
+			SingleScan_SubResponse_Factory_Parameters singleScan_SubResponse_Factory_Parameters ) throws Exception {
 		
 		if ( insertedScansScanNumbers.contains( scanNumber ) ) {
 			// exit since already processed this scan number
@@ -294,7 +302,7 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 		if ( spectralFile_SingleScan_Common != null ) {
 			singleScan_SubResponse = 
 					singleScan_SubResponse_Factory
-					.buildSingleScan_SubResponse( spectralFile_SingleScan_Common );
+					.buildSingleScan_SubResponse( spectralFile_SingleScan_Common, singleScan_SubResponse_Factory_Parameters );
 			scans.add( singleScan_SubResponse );
 			insertedScansScanNumbers.add( scanNumber );
 			
@@ -315,7 +323,8 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 								scans, 
 								insertedScansScanNumbers, 
 								spectralFile_Reader,
-								singleScan_SubResponse_Factory );
+								singleScan_SubResponse_Factory,
+								singleScan_SubResponse_Factory_Parameters );
 					}
 				}
 				if ( includeParentScans == Get_ScanDataFromScanNumbers_IncludeParentScans.ALL_PARENTS 
@@ -333,7 +342,8 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 								scans, 
 								insertedScansScanNumbers, 
 								spectralFile_Reader,
-								singleScan_SubResponse_Factory );
+								singleScan_SubResponse_Factory,
+								singleScan_SubResponse_Factory_Parameters );
 					}
 					
 				}
