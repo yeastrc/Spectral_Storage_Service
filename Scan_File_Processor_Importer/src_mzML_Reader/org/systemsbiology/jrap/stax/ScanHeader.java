@@ -101,7 +101,7 @@ public class ScanHeader implements Serializable
 	protected float totIonCurrent = -1;
 
 	/** TODO: Describe */
-	protected float precursorMz = -1;
+	protected double precursorMz = -1;
 
 	/** TODO: Describe */
 	protected int precursorScanNum = -1;
@@ -504,7 +504,7 @@ public class ScanHeader implements Serializable
 	/**
 	 * @return Returns the precursorMz.
 	 */
-	public float getPrecursorMz()
+	public double getPrecursorMz()
 	{
 		return precursorMz;
 	}
@@ -513,7 +513,7 @@ public class ScanHeader implements Serializable
 	 * @param precursorMz
 	 *            The precursorMz to set.
 	 */
-	public void setPrecursorMz(float precursorMz)
+	public void setPrecursorMz(double precursorMz)
 	{
 		this.precursorMz = precursorMz;
 	}

@@ -464,7 +464,7 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 			
 			dataOutputStream.writeInt( spectralFile_SingleScan.getParentScanNumber() );
 			dataOutputStream.writeByte( spectralFile_SingleScan.getPrecursorCharge() );
-			dataOutputStream.writeFloat( spectralFile_SingleScan.getPrecursor_M_Over_Z() );
+			dataOutputStream.writeDouble( spectralFile_SingleScan.getPrecursor_M_Over_Z() );
 		}
 		
 		int numberScanPeaks = 0;
@@ -537,10 +537,7 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 			
 			singlePeakOutputStream.reset();
 			
-//			float mz = peak.getM_over_Z();
-//			float intensity = peak.getIntensity();
-			
-			dataOutputStream.writeFloat( peak.getM_over_Z() );
+			dataOutputStream.writeDouble( peak.getM_over_Z() );
 			dataOutputStream.writeFloat( peak.getIntensity() );
 			dataOutputStream.flush();
 			
@@ -580,8 +577,6 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 		
 		return tempScansCompressedOutputStream;
 
-//		private float m_over_Z;
-//		private float intensity;
 	}
 	
 

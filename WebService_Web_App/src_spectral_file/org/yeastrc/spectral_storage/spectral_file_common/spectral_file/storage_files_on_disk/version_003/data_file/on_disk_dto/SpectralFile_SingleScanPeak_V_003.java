@@ -8,7 +8,7 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_
  */
 public class SpectralFile_SingleScanPeak_V_003 {
 
-	private float m_over_Z;
+	private double m_over_Z;
 	private float intensity;
 	
 }

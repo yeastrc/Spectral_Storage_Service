@@ -38,6 +38,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 /**
+ * djaschob:  Changed this copy of this code to add getDoubleValue which is used
+ * 
  * dhmay changing 2009/10/21, incorporating Vagisha's changes and rebuilding my changes from 03/2009.
  * mzML 1.1 changes the way scan IDs are stored.  They are now stored in
  * the "id" attribute of "spectrum", which is being used to contain multiple name-value pairs; the
@@ -233,7 +235,7 @@ public class MLScanAndHeaderParser
                         // Precursor m/z from isolation window target m/z or selected ion m/z
                         // Selected m7z comes afterwards and will have precedence
                         if(attriAccession.equals("MS:1000827") || attriAccession.equals("MS:1000744"))
-                            tmpScanHeader.setPrecursorMz(getFloatValue(xmlSR,"value"));
+                            tmpScanHeader.setPrecursorMz(getDoubleValue(xmlSR,"value"));
                         if(attriAccession.equals("MS:1000042"))
                             tmpScanHeader.setPrecursorIntensity(getFloatValue(xmlSR,"value"));
                         if(attriAccession.equals("MS:1000041"))
@@ -384,6 +386,22 @@ public class MLScanAndHeaderParser
                 value= -1f;
             else
                 value=Float.parseFloat(xmlSR.getAttributeValue(null,name));
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        return value;
+    }
+
+    public double getDoubleValue(XMLStreamReader xmlSR, String name)
+    {
+        double value = -1;
+        try{
+            if(xmlSR.getAttributeValue(null,name) == null)
+                value= -1f;
+            else
+                value=Double.parseDouble(xmlSR.getAttributeValue(null,name));
         }
         catch(Exception e)
         {

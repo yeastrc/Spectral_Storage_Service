@@ -178,7 +178,7 @@ public class ScanAndHeaderParser{
 			    elementName = xmlSR.getLocalName();
 			    if(elementName.equals("precursorMz"))
 				{
-				    tmpScanHeader.setPrecursorMz(Float.parseFloat(precursorBuffer.toString()));
+				    tmpScanHeader.setPrecursorMz(Double.parseDouble(precursorBuffer.toString()));
                                 
 				    precursorBuffer = null; // make available for garbage collection
 

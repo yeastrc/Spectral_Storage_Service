@@ -22,7 +22,7 @@ public class SpectralFile_SingleScan_Common {
 	
 	private Integer parentScanNumber;
 	private Byte precursorCharge;
-	private Float precursor_M_Over_Z;
+	private Double precursor_M_Over_Z;
 	
 	/**
 	 * Number of scan peaks
@@ -183,12 +183,12 @@ public class SpectralFile_SingleScan_Common {
 	}
 
 
-	public Float getPrecursor_M_Over_Z() {
+	public Double getPrecursor_M_Over_Z() {
 		return precursor_M_Over_Z;
 	}
 
 
-	public void setPrecursor_M_Over_Z(Float precursor_M_Over_Z) {
+	public void setPrecursor_M_Over_Z(Double precursor_M_Over_Z) {
 		this.precursor_M_Over_Z = precursor_M_Over_Z;
 	}
 

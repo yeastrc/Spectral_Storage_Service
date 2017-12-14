@@ -25,7 +25,7 @@ public class SpectralFile_SingleScan_V_003 {
 	
 	private int parentScanNumber;
 	private byte precursorCharge;
-	private float precursor_M_Over_Z;
+	private double precursor_M_Over_Z;
 	
 	/**
 	 * Number of Scan Peaks

@@ -259,22 +259,17 @@ public class MzMl_MzXml_FileReader { // implements MzXmlDataProvider {
             double mzDouble = mzInt[0][index];
             double intensityDouble = mzInt[1][index];
             
-            if ( mzDouble > Float_MAX_VALUE ) {
-            	throw new Exception( "mzDouble > Float_MAX_VALUE. mzDouble: " + mzDouble 
-            			+ ", scanNumber: " + header.getNum() );
-            }
             if ( intensityDouble > Float_MAX_VALUE ) {
             	throw new Exception( "intensityDouble > Float_MAX_VALUE. intensityDouble: " + intensityDouble 
             			+ ", scanNumber: " + header.getNum() );
             }
 
-            float mzFloat = (float)mzDouble;
             float intensityFloat = (float)intensityDouble;
 
             
             ScanPeak scanPeak = new ScanPeak();
             
-            scanPeak.setMz( mzFloat );
+            scanPeak.setMz( mzDouble );
             scanPeak.setIntensity( intensityFloat );
             
             scanPeakList.add( scanPeak );

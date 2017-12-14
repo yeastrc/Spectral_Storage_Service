@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 public class SingleScanPeak_SubResponse {
 
 	@XmlAttribute // attribute name is property name
-	private float mz;
+	private double mz;
 	@XmlAttribute // attribute name is property name
 	private float intensity;
 	
@@ -23,11 +23,11 @@ public class SingleScanPeak_SubResponse {
 	}
 	
 
-	public float getMz() {
+	public double getMz() {
 		return mz;
 	}
 
-	public void setMz(float mz) {
+	public void setMz(double mz) {
 		this.mz = mz;
 	}
 

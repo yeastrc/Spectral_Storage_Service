@@ -511,8 +511,8 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 			scanTotalBytesInDataFile += Integer.BYTES;
 			spectralFile_SingleScan.setPrecursorCharge( dataInputStream_ScanData.readByte() );
 			scanTotalBytesInDataFile += Byte.BYTES;
-			spectralFile_SingleScan.setPrecursor_M_Over_Z( dataInputStream_ScanData.readFloat() );
-			scanTotalBytesInDataFile += Float.BYTES;
+			spectralFile_SingleScan.setPrecursor_M_Over_Z( dataInputStream_ScanData.readDouble() );
+			scanTotalBytesInDataFile += Double.BYTES;
 		}
 		
 		spectralFile_SingleScan.setNumberScanPeaks( dataInputStream_ScanData.readInt() );
@@ -614,7 +614,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		//  If get EOF while reading MZ value, assume that normal end of data is reached on the stream.
 		
 		try {
-			spectralFile_SingleScanPeak.setM_over_Z( scanPeaks_dataInputStream.readFloat() );
+			spectralFile_SingleScanPeak.setM_over_Z( scanPeaks_dataInputStream.readDouble() );
 		} catch( EOFException eofException ) {
 			//  Assume that normal end of data reached
 			

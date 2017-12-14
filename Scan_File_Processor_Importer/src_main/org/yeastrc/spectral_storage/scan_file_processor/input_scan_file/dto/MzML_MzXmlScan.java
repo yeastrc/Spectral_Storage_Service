@@ -25,7 +25,7 @@ public class MzML_MzXmlScan { // implements MsScanIn {
     private int scanNumber = -1;
     private int precursorScanNum = -1;
 
-    private float precursorMz;
+    private double precursorMz;
     private byte precursorCharge;
     private float retentionTime;
     
@@ -120,12 +120,12 @@ public class MzML_MzXmlScan { // implements MsScanIn {
 	}
 
 
-	public float getPrecursorMz() {
+	public double getPrecursorMz() {
 		return precursorMz;
 	}
 
 
-	public void setPrecursorMz(float precursorMz) {
+	public void setPrecursorMz(double precursorMz) {
 		this.precursorMz = precursorMz;
 	}
 
