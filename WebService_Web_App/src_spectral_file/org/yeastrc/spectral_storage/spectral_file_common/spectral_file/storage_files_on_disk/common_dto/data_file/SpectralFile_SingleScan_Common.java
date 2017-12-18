@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class SpectralFile_SingleScan_Common {
 
-	private int scanTotalBytesInDataFile;
+	private int scanTotalBytesInDataFile = -1;
 	
 	private byte level;
 	private int scanNumber;

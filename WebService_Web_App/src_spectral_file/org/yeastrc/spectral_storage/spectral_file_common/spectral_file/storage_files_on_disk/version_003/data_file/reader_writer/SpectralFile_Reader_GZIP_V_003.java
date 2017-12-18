@@ -47,6 +47,8 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	
 	private static final String FILE_MODE_READ = "r"; // Used in RandomAccessFile constructor below
 	
+	private enum ReadScanPeaks { YES, NO }
+	
 	/**
 	 * private constructor
 	 */
@@ -282,8 +284,31 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		//  Have Index Entry, now read scan using byte index in main spectral data file
 		
-		return readScanForScanNumber_IndexEntry( indexEntry );
+		return readScanForScanNumber_IndexEntry( indexEntry, ReadScanPeaks.YES );
 	}
+
+	/* (non-Javadoc)
+	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader__IF#getScanForScanNumber(int)
+	 */
+	@Override
+	public SpectralFile_SingleScan_Common getScanDataNoScanPeaksForScanNumber(int scanNumber) throws Exception {
+		
+		//  First get entry from Index for scan number
+		
+		SpectralFile_Index_TDFR_SingleScan_V_003 indexEntry = 
+				spectralFile_Index_FileContents_Root.get_SingleScan_ForScanNumber( scanNumber );
+		
+		if ( indexEntry == null ) {
+			//  No Index entry
+			return null;  // EARLY RETURN
+		}
+		
+		//  Have Index Entry, now read scan using byte index in main spectral data file
+		
+		return readScanForScanNumber_IndexEntry( indexEntry, ReadScanPeaks.NO );
+	}
+	
+	
 
 	/* (non-Javadoc)
 	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader__IF#getScanLevelForScanNumber(int)
@@ -395,12 +420,15 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		return outputList;
 	}
 	
-	
 	/**
 	 * @param indexEntry
+	 * @param readScanPeaks
 	 * @return
+	 * @throws Exception
 	 */
-	private SpectralFile_SingleScan_Common readScanForScanNumber_IndexEntry( SpectralFile_Index_TDFR_SingleScan_V_003 indexEntry ) throws Exception {
+	private SpectralFile_SingleScan_Common readScanForScanNumber_IndexEntry( 
+			SpectralFile_Index_TDFR_SingleScan_V_003 indexEntry,
+			ReadScanPeaks readScanPeaks ) throws Exception {
 
 		DataInputStream dataInputStream_ScanData = null;
 		try {
@@ -412,7 +440,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 
 			dataInputStream_ScanData = new DataInputStream( scanInputStream );
 			
-			return readScan_FromDataInputStream( dataInputStream_ScanData );
+			return readScan_FromDataInputStream( dataInputStream_ScanData, readScanPeaks );
 			
 		} catch ( Throwable e ) {
 			String msg = "Failed to read scan for Scan Number: " + indexEntry.getScanNumber()
@@ -480,10 +508,14 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	
 
 	/**
-	 * @param indexEntry
+	 * @param dataInputStream_ScanData
+	 * @param readScanPeaks
 	 * @return
+	 * @throws Exception
 	 */
-	private SpectralFile_SingleScan_Common readScan_FromDataInputStream( DataInputStream dataInputStream_ScanData  ) throws Exception {
+	private SpectralFile_SingleScan_Common readScan_FromDataInputStream( 
+			DataInputStream dataInputStream_ScanData,
+			ReadScanPeaks readScanPeaks ) throws Exception {
 
 		SpectralFile_SingleScan_Common spectralFile_SingleScan = new SpectralFile_SingleScan_Common();
 
@@ -520,15 +552,18 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		MutableInt scanPeaksTotalBytesInDataFile = new MutableInt( 0 );
 		
-		List<SpectralFile_SingleScanPeak_Common> scanPeaksAsObjectArray = 
-				getScanPeaks( dataInputStream_ScanData, scanPeaksTotalBytesInDataFile );
-		
-		scanTotalBytesInDataFile += scanPeaksTotalBytesInDataFile.intValue();
-		
-		spectralFile_SingleScan.setScanPeaksAsObjectArray( scanPeaksAsObjectArray );
-		
-		
-		spectralFile_SingleScan.setScanTotalBytesInDataFile( scanTotalBytesInDataFile );
+		if ( readScanPeaks == ReadScanPeaks.YES ) {
+			
+			List<SpectralFile_SingleScanPeak_Common> scanPeaksAsObjectArray = 
+					getScanPeaks( dataInputStream_ScanData, scanPeaksTotalBytesInDataFile );
+
+			scanTotalBytesInDataFile += scanPeaksTotalBytesInDataFile.intValue();
+
+			spectralFile_SingleScan.setScanPeaksAsObjectArray( scanPeaksAsObjectArray );
+
+			// setScanTotalBytesInDataFile only set if read scan peaks
+			spectralFile_SingleScan.setScanTotalBytesInDataFile( scanTotalBytesInDataFile );
+		}
 		
 		return spectralFile_SingleScan;
 	}
@@ -669,7 +704,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	 */
 	public SpectralFile_SingleScan_Common readWholeDataFile_ReadScan() throws Exception {
 
-		return readScan_FromDataInputStream( readWholeDataFile_dataInputStream );
+		return readScan_FromDataInputStream( readWholeDataFile_dataInputStream, ReadScanPeaks.YES );
 	}
 
 	/**

@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.enums.Get_ScanDataFromScanNumbers_IncludeParentScans;
+import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.enums.Get_ScanData_ExcludeReturnScanPeakData;
 
 /**
  * Request object for POST to Webservice GetScanDataFromScanNumbers_Servlet
@@ -28,6 +29,13 @@ public class Get_ScanDataFromScanNumbers_Request extends BaseWebserviceRequest {
 	@XmlAttribute // attribute name is property name
 	private Get_ScanDataFromScanNumbers_IncludeParentScans includeParentScans;
 	
+	/**
+	 * Indicates do not populate peaks list in SingleScan_SubResponse
+	 *
+	 * If null, assumed to be no
+	 */
+	@XmlAttribute // attribute name is property name
+	private Get_ScanData_ExcludeReturnScanPeakData excludeReturnScanPeakData;
 	
 	/**
 	 * Main Query element, list of scan numbers
@@ -100,6 +108,14 @@ public class Get_ScanDataFromScanNumbers_Request extends BaseWebserviceRequest {
 
 	public void setIncludeParentScans(Get_ScanDataFromScanNumbers_IncludeParentScans includeParentScans) {
 		this.includeParentScans = includeParentScans;
+	}
+
+	public Get_ScanData_ExcludeReturnScanPeakData getExcludeReturnScanPeakData() {
+		return excludeReturnScanPeakData;
+	}
+
+	public void setExcludeReturnScanPeakData(Get_ScanData_ExcludeReturnScanPeakData excludeReturnScanPeakData) {
+		this.excludeReturnScanPeakData = excludeReturnScanPeakData;
 	}
 
 

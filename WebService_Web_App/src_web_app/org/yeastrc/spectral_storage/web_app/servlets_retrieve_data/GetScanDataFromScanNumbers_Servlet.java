@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.enums.Get_ScanDataFromScanNumbers_IncludeParentScans;
+import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.enums.Get_ScanData_ExcludeReturnScanPeakData;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Request;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Response;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.sub_parts.SingleScan_SubResponse;
@@ -132,6 +133,8 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 			List<Integer> scanNumbers = get_ScanDataFromScanNumbers_Request.getScanNumbers();
 			Get_ScanDataFromScanNumbers_IncludeParentScans includeParentScans =
 					get_ScanDataFromScanNumbers_Request.getIncludeParentScans();
+			Get_ScanData_ExcludeReturnScanPeakData excludeReturnScanPeakData =
+					get_ScanDataFromScanNumbers_Request.getExcludeReturnScanPeakData();
 
 			if ( StringUtils.isEmpty( scanFileAPIKey ) ) {
 				String msg = "missing scanFileAPIKey ";
@@ -147,15 +150,21 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 
 			Get_ScanDataFromScanNumbers_Response webserviceResponse = new Get_ScanDataFromScanNumbers_Response();
 
-			if ( scanNumbers.size() > MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES ) {
-
-				webserviceResponse.setTooManyScansToReturn( true );
-				webserviceResponse.setMaxScansToReturn( MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES );
+			if ( excludeReturnScanPeakData != null 
+					&& excludeReturnScanPeakData == Get_ScanData_ExcludeReturnScanPeakData.YES ) {
 				
-				WriteResponseObjectToOutputStream.getSingletonInstance()
-				.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
+			} else {
+				//  Only apply max number of scans for when returning scan peaks
+				if ( scanNumbers.size() > MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES ) {
 
-				return; // EARLY RETURN
+					webserviceResponse.setTooManyScansToReturn( true );
+					webserviceResponse.setMaxScansToReturn( MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES );
+
+					WriteResponseObjectToOutputStream.getSingletonInstance()
+					.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
+
+					return; // EARLY RETURN
+				}
 			}
 			
 			File scanStorageBaseDirectoryFile =
@@ -236,6 +245,7 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 							1, // recursionLevel
 							scanNumber, 
 							includeParentScans,
+							excludeReturnScanPeakData,
 							scans, 
 							insertedScansScanNumbers, 
 							spectralFile_Reader,
@@ -285,6 +295,7 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 			int recursionLevel, // Starts at 1
 			Integer scanNumber, 
 			Get_ScanDataFromScanNumbers_IncludeParentScans includeParentScans,
+			Get_ScanData_ExcludeReturnScanPeakData excludeReturnScanPeakData,
 			List<SingleScan_SubResponse> scans,
 			Set<Integer> insertedScansScanNumbers,
 			SpectralFile_Reader__IF spectralFile_Reader,
@@ -296,8 +307,19 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 			return;
 		}
 		
-		SpectralFile_SingleScan_Common spectralFile_SingleScan_Common = 
-				spectralFile_Reader.getScanForScanNumber( scanNumber );
+		SpectralFile_SingleScan_Common spectralFile_SingleScan_Common = null;
+		
+		if ( excludeReturnScanPeakData != null
+				&& excludeReturnScanPeakData == Get_ScanData_ExcludeReturnScanPeakData.YES ) {
+			//  Get scan WITHOUT scan peak data
+			spectralFile_SingleScan_Common = 
+					spectralFile_Reader.getScanDataNoScanPeaksForScanNumber( scanNumber );
+		} else {
+			//  Get scan WITH scan peak data
+			spectralFile_SingleScan_Common = 
+					spectralFile_Reader.getScanForScanNumber( scanNumber );
+		}		
+		
 		SingleScan_SubResponse singleScan_SubResponse = null;
 		if ( spectralFile_SingleScan_Common != null ) {
 			singleScan_SubResponse = 
@@ -320,6 +342,7 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 								recursionLevelNextCall, // recursionLevel
 								parentScanNumber, 
 								includeParentScans,
+								excludeReturnScanPeakData,
 								scans, 
 								insertedScansScanNumbers, 
 								spectralFile_Reader,
@@ -339,6 +362,7 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 								recursionLevelNextCall, // recursionLevel
 								parentScanNumber, 
 								includeParentScans,
+								excludeReturnScanPeakData,
 								scans, 
 								insertedScansScanNumbers, 
 								spectralFile_Reader,
