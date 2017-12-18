@@ -47,6 +47,8 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	
 	private static final String FILE_MODE_READ = "r"; // Used in RandomAccessFile constructor below
 	
+	private static final int SIZE_OF_SCAN_MINUS_SCAN_PEAKS = sizeOfScanMinusScanPeaks();
+	
 	private enum ReadScanPeaks { YES, NO }
 	
 	/**
@@ -432,9 +434,16 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 
 		DataInputStream dataInputStream_ScanData = null;
 		try {
-			byte[] scanBytes = readBytesOnDiskForScanNumber_IndexEntry( indexEntry );
+			byte[] scanBytes = null;
+
+			if ( readScanPeaks != null && readScanPeaks == ReadScanPeaks.NO ) {
+				//  byte[] scanBytes containing scan without peaks
+				scanBytes = readBytesOnDiskForScanNumber_IndexEntry( indexEntry, SIZE_OF_SCAN_MINUS_SCAN_PEAKS );
+			} else {
+				//  create byte[] scanBytes containing whole scan
+				scanBytes = readBytesOnDiskForScanNumber_IndexEntry( indexEntry, null /* numberOfBytesToReadOverride */ );
+			}
 			
-			//  Process byte[] scanBytes containing whole scan
 			
 			ByteArrayInputStream scanInputStream = new ByteArrayInputStream( scanBytes );
 
@@ -462,7 +471,9 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	 * @param indexEntry
 	 * @return
 	 */
-	private byte[] readBytesOnDiskForScanNumber_IndexEntry( SpectralFile_Index_TDFR_SingleScan_V_003 indexEntry ) throws Exception {
+	private byte[] readBytesOnDiskForScanNumber_IndexEntry( 
+			SpectralFile_Index_TDFR_SingleScan_V_003 indexEntry,
+			Integer numberOfBytesToReadOverride ) throws Exception {
 
 		if ( indexEntry.getScanSize_InDataFile_InBytes() > Integer.MAX_VALUE ) {
 			String msg = "Processing Error:  indexEntry.getScanSize_InDataFile_InBytes() > Integer.MAX_VALUE.  Unable to allocate byte[]."
@@ -470,12 +481,20 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 					+ ", indexEntry.getScanSize_InDataFile_InBytes(): " + indexEntry.getScanSize_InDataFile_InBytes()
 					+ ", File: " + inputFile_MainFile.getAbsolutePath();
 			log.error( msg );
-			throw new Exception(msg);
+			throw new SpectralStorageProcessingException(msg);
 		}
 		
 		//  Read all bytes in file for scan into byte[] scanBytes
 		
-		byte[] scanBytes = new byte[ (int) indexEntry.getScanSize_InDataFile_InBytes() ];
+		int byteArraySize = (int) indexEntry.getScanSize_InDataFile_InBytes();
+		
+		if ( numberOfBytesToReadOverride != null ) {
+			//  Override to number of bytes requested
+			byteArraySize = numberOfBytesToReadOverride;
+		}
+		
+		byte[] scanBytes = new byte[ byteArraySize ];
+
 		
 		try ( RandomAccessFile spectalFile = new RandomAccessFile( inputFile_MainFile, FILE_MODE_READ ) ) {
 		
@@ -493,19 +512,64 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 				
 			} while ( numBytesRead != -1 && totalBytesRead < scanBytes.length );
 			
-			if ( totalBytesRead != scanBytes.length ) {
+			//  Change since now may contain fewer number of bytes if at end of file
+			if ( numBytesRead != -1 && totalBytesRead != scanBytes.length ) {
+				//  Not at end of file and bytes read not number of bytes requested:
 				String msg = "Number of bytes read is not number of bytes needed. totalBytesRead: " + totalBytesRead
 						+ ", scanBytes.length: " + scanBytes.length
 						+ ", scanNumber: " + indexEntry.getScanNumber()
 						+ ", File: " + inputFile_MainFile.getAbsolutePath();
 				log.error( msg );
-				throw new Exception(msg);
+				throw new SpectralStorageProcessingException(msg);
 			}
 		}
 		
 		return scanBytes;
 	}
 	
+	///////////////////////////////////////////////////
+	
+	//////    WARNING:  Keep sizeOfScanMinusScanPeaks in sync with following method readScan_FromDataInputStream(...)
+	//                  for size of scan data
+	
+	/**
+	 * @return in bytes the size of a scan minus the scan peaks (scan peaks assumed to be at end of scan data)
+	 */
+	private static int sizeOfScanMinusScanPeaks() {
+		
+		int scanTotalBytesInDataFile = 0;
+		
+//		spectralFile_SingleScan.setLevel( dataInputStream_ScanData.readByte() );
+		scanTotalBytesInDataFile += Byte.BYTES;
+		
+//		spectralFile_SingleScan.setScanNumber( dataInputStream_ScanData.readInt() );
+		scanTotalBytesInDataFile += Integer.BYTES;
+//		spectralFile_SingleScan.setRetentionTime( dataInputStream_ScanData.readFloat() );
+		scanTotalBytesInDataFile += Float.BYTES;
+//		spectralFile_SingleScan.setIsCentroid( dataInputStream_ScanData.readByte() );
+		scanTotalBytesInDataFile += Byte.BYTES;
+		
+//		if ( spectralFile_SingleScan.getLevel() > 1 ) {
+//
+//			//  Only applicable where level > 1
+			
+//			spectralFile_SingleScan.setParentScanNumber( dataInputStream_ScanData.readInt() );
+			scanTotalBytesInDataFile += Integer.BYTES;
+//			spectralFile_SingleScan.setPrecursorCharge( dataInputStream_ScanData.readByte() );
+			scanTotalBytesInDataFile += Byte.BYTES;
+//			spectralFile_SingleScan.setPrecursor_M_Over_Z( dataInputStream_ScanData.readDouble() );
+			scanTotalBytesInDataFile += Double.BYTES;
+//		}
+		
+//		spectralFile_SingleScan.setNumberScanPeaks( dataInputStream_ScanData.readInt() );
+		scanTotalBytesInDataFile += Integer.BYTES;
+		
+		return scanTotalBytesInDataFile;
+	}
+
+	//////    WARNING:  Keep readScan_FromDataInputStream in sync
+	//                  with previous method sizeOfScanMinusScanPeaks()
+	//                  for size of scan data
 
 	/**
 	 * @param dataInputStream_ScanData
