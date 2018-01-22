@@ -56,8 +56,22 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	 * Delete the uploaded scan file on successful import
 	 */
 	private boolean deleteUploadedScanFileOnSuccessfulImport;
-		
+	
+	//////////////////////////////////
+	//  Email on error config
 
+	//  Probably used.  SMTP Server Host
+	private String emailSmtpServerHost;
+	
+	//  Probably not used.  Special service
+	private String emailWebserviceURL;
+	
+	private String emailFromEmailAddress;
+
+	private List<String> emailToEmailAddresses;
+
+	private String emailMachineName;
+	
 	/**
 	 * The Base Directory that the scans are written to for perm storage
 	 * @return
@@ -151,6 +165,46 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	 */
 	public void setJavaExecutableParameters(List<String> javaExecutableParameters) {
 		this.javaExecutableParameters = javaExecutableParameters;
+	}
+
+	public String getEmailWebserviceURL() {
+		return emailWebserviceURL;
+	}
+
+	public void setEmailWebserviceURL(String emailWebserviceURL) {
+		this.emailWebserviceURL = emailWebserviceURL;
+	}
+
+	public String getEmailSmtpServerHost() {
+		return emailSmtpServerHost;
+	}
+
+	public void setEmailSmtpServerHost(String emailSmtpServerHost) {
+		this.emailSmtpServerHost = emailSmtpServerHost;
+	}
+
+	public String getEmailFromEmailAddress() {
+		return emailFromEmailAddress;
+	}
+
+	public void setEmailFromEmailAddress(String emailFromEmailAddress) {
+		this.emailFromEmailAddress = emailFromEmailAddress;
+	}
+
+	public List<String> getEmailToEmailAddresses() {
+		return emailToEmailAddresses;
+	}
+
+	public void setEmailToEmailAddresses(List<String> emailToEmailAddresses) {
+		this.emailToEmailAddresses = emailToEmailAddresses;
+	}
+
+	public String getEmailMachineName() {
+		return emailMachineName;
+	}
+
+	public void setEmailMachineName(String emailMachineName) {
+		this.emailMachineName = emailMachineName;
 	}
 
 		

@@ -11,6 +11,8 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file
 import org.yeastrc.spectral_storage.web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.web_app.process_uploaded_scan_file.run_system_command.RunSystemCommand;
 import org.yeastrc.spectral_storage.web_app.process_uploaded_scan_file.run_system_command.RunSystemCommandResponse;
+import org.yeastrc.spectral_storage.web_app.send_email.SendEmail;
+import org.yeastrc.spectral_storage.web_app.send_email.SendEmailDTO;
 
 /**
  * 
@@ -134,6 +136,8 @@ public class ProcessNextUploadedScanFile {
 				UploadProcessingWriteOrUpdateStatusFile.getInstance()
 				.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_KILLED, scanFileDirectory );
 
+				sendProcessKilledEmail( scanFileDirectory );
+				
 			} else {
 				if ( ! runSystemCommandResponse.isCommandSuccessful() ) {
 					log.error( "command failed: exit code: "
@@ -157,6 +161,7 @@ public class ProcessNextUploadedScanFile {
 					UploadProcessingWriteOrUpdateStatusFile.getInstance()
 					.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_SUCCESSFUL, scanFileDirectory );
 
+					sendProcessSuccessEmail( scanFileDirectory );
 				}
 
 			}
@@ -167,6 +172,8 @@ public class ProcessNextUploadedScanFile {
 			UploadProcessingWriteOrUpdateStatusFile.getInstance()
 			.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED, scanFileDirectory );
 
+			sendProcessFailedEmail( scanFileDirectory );
+			
 			throw new Exception( e );
 			
 		} finally {
@@ -175,6 +182,115 @@ public class ProcessNextUploadedScanFile {
 		}
 		
 	}
+	
 
+	/**
+	 * 
+	 */
+	private void sendProcessFailedEmail( File scanFileDirectory ) {
+		
+		final String successFailString = "Failed";
+		sendProcessEmail( scanFileDirectory, successFailString );
+	}
+
+	/**
+	 * 
+	 */
+	private void sendProcessSuccessEmail( File scanFileDirectory ) {
+		
+		final String successFailString = "Success";
+		sendProcessEmail( scanFileDirectory, successFailString );
+	}
+
+	/**
+	 * 
+	 */
+	private void sendProcessKilledEmail( File scanFileDirectory ) {
+		
+		final String successFailString = "Killed";
+		sendProcessEmail( scanFileDirectory, successFailString );
+	}
+	
+	/**
+	 * 
+	 */
+	private void sendProcessEmail( File scanFileDirectory, String successFailString ) {
+
+		try {
+			if ( ! isSendEmailConfigured() ) {
+				return;  // EARLY EXIT
+			}
+
+			ConfigData_Directories_ProcessUploadInfo_InWorkDirectory config = 
+					ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance();
+
+			String machineNameForSubject = "";
+			String machineNameForBody = "";
+
+			if ( config.getEmailMachineName() != null ) {
+				machineNameForSubject = "Machine name: " + config.getEmailMachineName() + ".  ";
+				machineNameForBody = "Machine name: " + config.getEmailMachineName() + ".\n\n";
+			}
+
+			String emailSubject = "Processing of scan file in spectral storage app: " + successFailString + ".  "
+					+ machineNameForSubject
+					+ "Processing dir: " + scanFileDirectory.getAbsolutePath();
+
+			String emailBody = "Processing of scan file in spectral storage app " + successFailString + ".\n\n"
+					+ machineNameForBody
+					+ "Processing dir: " + scanFileDirectory.getAbsolutePath()
+					+ "\n\n";
+
+			SendEmailDTO sendEmailDTO = new SendEmailDTO();
+			sendEmailDTO.setEmailSubject( emailSubject );
+			sendEmailDTO.setEmailBody( emailBody );
+
+			sendSendEmailDTO_ToToList( sendEmailDTO );
+		} catch (Throwable t) {
+			String msg = "Failed to send email";
+			log.error( msg, t );
+			//  Eat exception
+		}
+	}
+
+	/**
+	 * @return
+	 */
+	private boolean isSendEmailConfigured() {
+		
+		ConfigData_Directories_ProcessUploadInfo_InWorkDirectory config = 
+				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance();
+		
+		if ( config.getEmailFromEmailAddress() != null 
+				&& config.getEmailToEmailAddresses() != null 
+				&& ( config.getEmailSmtpServerHost() != null 
+						|| config.getEmailWebserviceURL() != null ) ) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * @param sendEmailDTO
+	 */
+	private void sendSendEmailDTO_ToToList( SendEmailDTO sendEmailDTO ) {
+
+		ConfigData_Directories_ProcessUploadInfo_InWorkDirectory config = 
+				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance();
+
+		sendEmailDTO.setFromEmailAddress( config.getEmailFromEmailAddress() );
+		
+		for ( String toEmailAddress : config.getEmailToEmailAddresses() ) {
+			sendEmailDTO.setToEmailAddress( toEmailAddress );
+
+			try {
+				SendEmail.getInstance().sendEmail( sendEmailDTO );
+			} catch (Throwable t) {
+				String msg = "Failed to send email";
+				log.error( msg, t );
+				//  Eat exception
+			}
+		}
+	}
 	
 }

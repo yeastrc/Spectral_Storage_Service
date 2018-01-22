@@ -39,6 +39,19 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 	private static String PROPERTY_NAME__DELETE_UPLOADED_SCAN_FILE_ON_SUCCESSFUL_IMPORT = 
 			"delete.uploaded.scan.file.on.successful.import";
 	
+	//  Email on error config
+
+	//  Probably used.  SMTP Server Host
+	private static String PROPERTY_NAME__EMAIL_SMTP_HOST = "email.smtp.host";
+
+	//  Probably not used
+	private static String PROPERTY_NAME__EMAIL_WEBSERVICE_URL = "email.webservice.url";
+
+	private static String PROPERTY_NAME__EMAIL_FROM_ADDRESS = "email.from.address";
+	
+	private static String PROPERTY_NAME__EMAIL_TO_ADDRESSES = "email.to.addresses";
+
+	private static String PROPERTY_NAME__EMAIL_MACHINE_NAME = "email.machine.name";
 
 	private static enum IsDefaultPropertiesFile { YES, NO }
 	private static enum AllowNoPropertiesFile { YES, NO }
@@ -144,6 +157,41 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			log.warn( "INFO: '" + PROPERTY_NAME__JAVA_EXECUTABLE_PARAMETERS + "' has value(s) [Space delimited]: " 
 					+ StringUtils.join( configData_Directories_ProcessUploadCommand_InWorkDirectory.getJavaExecutableParameters(), ' ' ) );
 		}
+		
+		if ( StringUtils.isEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailSmtpServerHost() ) ) {
+			log.warn( "INFO: '" + PROPERTY_NAME__EMAIL_SMTP_HOST + "' does NOT have a value." );
+		} else {
+			log.warn( "INFO: '" + PROPERTY_NAME__EMAIL_SMTP_HOST + "' has value: " 
+					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailSmtpServerHost() );
+		}
+
+		if ( StringUtils.isEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailSmtpServerHost() ) ) {
+		} else {
+			log.warn( "INFO: '" + PROPERTY_NAME__EMAIL_WEBSERVICE_URL + "' has value: " 
+					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailWebserviceURL() );
+		}
+
+		if ( StringUtils.isEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailFromEmailAddress() ) ) {
+			log.warn( "INFO: '" + PROPERTY_NAME__EMAIL_FROM_ADDRESS + "' does NOT have a value." );
+		} else {
+			log.warn( "INFO: '" + PROPERTY_NAME__EMAIL_FROM_ADDRESS + "' has value: " 
+					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailFromEmailAddress() );
+		}
+
+		if ( configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailToEmailAddresses() == null ) {
+			log.warn( "INFO: '" + PROPERTY_NAME__EMAIL_TO_ADDRESSES + "' does NOT have a value." );
+		} else {
+			log.warn( "INFO: '" + PROPERTY_NAME__EMAIL_TO_ADDRESSES + "' has value(s) [Comma delimited]: " 
+					+ StringUtils.join( configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailToEmailAddresses(), ' ' ) );
+		}
+
+		if ( StringUtils.isEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailMachineName() ) ) {
+			log.warn( "INFO: '" + PROPERTY_NAME__EMAIL_MACHINE_NAME + "' does NOT have a value." );
+		} else {
+			log.warn( "INFO: '" + PROPERTY_NAME__EMAIL_MACHINE_NAME + "' has value: " 
+					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailMachineName() );
+		}
+		
 		
 		if ( configData_Directories_ProcessUploadCommand_InWorkDirectory.isDeleteUploadedScanFileOnSuccessfulImport() ) {
 			log.warn( "INFO: '" + PROPERTY_NAME__DELETE_UPLOADED_SCAN_FILE_ON_SUCCESSFUL_IMPORT
@@ -267,6 +315,41 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 				}
 			}
 
+			propertyValue = configProps.getProperty( PROPERTY_NAME__EMAIL_SMTP_HOST );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailSmtpServerHost( propertyValue );
+			}
+
+			propertyValue = configProps.getProperty( PROPERTY_NAME__EMAIL_WEBSERVICE_URL );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailWebserviceURL( propertyValue );
+			}
+
+			propertyValue = configProps.getProperty( PROPERTY_NAME__EMAIL_FROM_ADDRESS );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailFromEmailAddress( propertyValue );
+			}
+
+			propertyValue = configProps.getProperty( PROPERTY_NAME__EMAIL_TO_ADDRESSES );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				String[] propertyValueSplitArray = propertyValue.split( "," );
+				List<String> propertyValues = new ArrayList<>( propertyValueSplitArray.length );
+				for ( String propertyValueSingle : propertyValueSplitArray ) {
+					if ( StringUtils.isNotEmpty(propertyValueSingle) ) {
+						propertyValues.add( propertyValueSingle );
+					}
+				}
+				if ( ! propertyValues.isEmpty() ) {
+					configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailToEmailAddresses( propertyValues );
+				}
+			}
+
+			propertyValue = configProps.getProperty( PROPERTY_NAME__EMAIL_MACHINE_NAME );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailMachineName( propertyValue );
+			}
+			
+			
 			propertyValue = configProps.getProperty( PROPERTY_NAME__DELETE_UPLOADED_SCAN_FILE_ON_SUCCESSFUL_IMPORT );
 			if ( BOOLEAN_STRING_TRUE.equals( propertyValue ) ) {
 				configData_Directories_ProcessUploadCommand_InWorkDirectory.setDeleteUploadedScanFileOnSuccessfulImport( true );
