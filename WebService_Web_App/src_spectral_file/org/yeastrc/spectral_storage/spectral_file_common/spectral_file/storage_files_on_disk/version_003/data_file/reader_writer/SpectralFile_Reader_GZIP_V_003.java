@@ -10,7 +10,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -332,7 +334,42 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		return indexEntry.getLevel();
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader__IF#getScanNumbersForScanLevelsToIncludeScanLevelsToExclude(java.util.List, java.util.List)
+	 */
+	@Override
+	public List<Integer> getScanNumbersForScanLevelsToIncludeScanLevelsToExclude(
+			List<Integer> scanLevelsToInclude,
+			List<Integer> scanLevelsToExclude ) throws Exception {
 
+		Set<Integer> scanLevelsToIncludeSet = null;
+		Set<Integer> scanLevelsToExcludeSet = null;
+		
+		if ( scanLevelsToInclude != null ) {
+			scanLevelsToIncludeSet = new HashSet<>( scanLevelsToInclude );
+		}
+		if ( scanLevelsToExclude != null ) {
+			scanLevelsToExcludeSet = new HashSet<>( scanLevelsToExclude );
+		}
+		
+		List<SpectralFile_Index_TDFR_SingleScan_V_003> indexScanEntries = spectralFile_Index_FileContents_Root.getIndexScanEntries();
+		List<Integer> results = new ArrayList<>( indexScanEntries.size() ); 
+
+		for ( SpectralFile_Index_TDFR_SingleScan_V_003 indexScanEntry : indexScanEntries ) {
+			Integer scanLevel = (int) indexScanEntry.getLevel();
+			if ( scanLevelsToIncludeSet != null 
+					&& ( ! scanLevelsToIncludeSet.contains( scanLevel ) ) ) {
+				continue;  // Skip entry
+			}
+			if ( scanLevelsToExcludeSet != null 
+					&& ( scanLevelsToExcludeSet.contains( scanLevel ) ) ) {
+				continue;  // Skip entry
+			}
+			results.add( indexScanEntry.getScanNumber() );
+		}
+		return results;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader__IF#getScanRetentionTimeForScanNumber(int)
@@ -784,7 +821,6 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 			readWholeDataFile_fileInputStream.close();
 		}
 	}
-
 
 }
 

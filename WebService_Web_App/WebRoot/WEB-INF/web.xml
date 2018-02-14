@@ -157,6 +157,22 @@
   
     <!-- getScanRetentionTimes - Filtered based on request, or all if no filters -->
   <servlet>
+    <servlet-name>Get Scan Numbers Servlet - XML Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.web_app.servlets_retrieve_data.GetScanNumbers_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>XML</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Scan Numbers Servlet - XML Response</servlet-name>
+    <url-pattern>/query/getScanNumbers_XML</url-pattern>
+  </servlet-mapping>     
+        
+    <!-- getScanRetentionTimes - Filtered based on request, or all if no filters -->
+  <servlet>
     <servlet-name>Get Scan Retention Times Servlet - XML Response</servlet-name>
     <servlet-class>org.yeastrc.spectral_storage.web_app.servlets_retrieve_data.GetScanRetentionTimes_Servlet</servlet-class>
     	<!-- required parameter resultDataFormat -->

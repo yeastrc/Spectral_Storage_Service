@@ -47,6 +47,8 @@ public class Z_JAXBContext_ForRequestResponse {
 						UploadScanFile_Delete_For_ScanProcessStatusKey_Request.class,
 						UploadScanFile_Delete_For_ScanProcessStatusKey_Response.class,
 						
+						Get_ScanNumbers_Request.class,
+						Get_ScanNumbers_Response.class,
 						Get_ScanDataFromScanNumbers_Request.class,
 						Get_ScanDataFromScanNumbers_Response.class,
 						Get_ScanRetentionTimes_Request.class,

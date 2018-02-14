@@ -43,6 +43,8 @@ public interface SpectralFile_Reader__IF {
 	public SpectralFile_SingleScan_Common getScanDataNoScanPeaksForScanNumber( int scanNumber) throws Exception;
 	
 	public Byte getScanLevelForScanNumber( int scanNumber) throws Exception;
+	
+	public List<Integer> getScanNumbersForScanLevelsToIncludeScanLevelsToExclude( List<Integer> scanLevelsToInclude, List<Integer> scanLevelsToExclude ) throws Exception;
 
 	public SpectralFile_Result_RetentionTime_ScanNumber getScanRetentionTimeForScanNumber( int scanNumber ) throws Exception;
 	

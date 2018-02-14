@@ -23,6 +23,8 @@ public class WebserviceSpectralStoragePathConstants {
 	
 	public static final String GET_SCAN_DATA_FROM_SCAN_NUMBERS_SERVLET_XML = "/query/getScanDataFromScanNumbers_XML";
 	
+	public static final String GET_SCAN_NUMBERS_SERVLET_XML = "/query/getScanNumbers_XML";
+	
 	public static final String GET_SCAN_RETENTION_TIMES_SERVLET_XML = "/query/getScanRetentionTimes_XML";
 	
 	public static final String GET_SCAN_NUMBERS_FROM_RETENTION_TIME_RANGE_SERVLET_XML = "/query/getScanNumbersFromRetentionTimeRange_XML";

@@ -26,6 +26,8 @@ import org.yeastrc.spectral_storage.shared_server_client.webservice_request_resp
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Response;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanNumbersFromRetentionTimeRange_Request;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanNumbersFromRetentionTimeRange_Response;
+import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanNumbers_Request;
+import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanNumbers_Response;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanPeakIntensityBinnedOn_RT_MZ_Request;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanRetentionTimes_Request;
 import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.Get_ScanRetentionTimes_Response;
@@ -94,6 +96,8 @@ public class CallSpectralStorageWebservice {
 						UploadScanFile_Delete_For_ScanProcessStatusKey_Request.class,
 						UploadScanFile_Delete_For_ScanProcessStatusKey_Response.class,
 						
+						Get_ScanNumbers_Request.class,
+						Get_ScanNumbers_Response.class,
 						Get_ScanDataFromScanNumbers_Request.class,
 						Get_ScanDataFromScanNumbers_Response.class,
 						Get_ScanRetentionTimes_Request.class,
@@ -344,6 +348,42 @@ public class CallSpectralStorageWebservice {
 	}
 	
 	////////////
+
+	/**
+	 * @param webserviceRequest
+	 * @return
+	 * @throws Exception 
+	 */
+	public Get_ScanNumbers_Response call_Get_ScanNumbers_Webservice( Get_ScanNumbers_Request webserviceRequest ) throws Exception {
+		if ( ! instanceInitialized ) {
+			throw new IllegalStateException( "Not initialized" );
+		}
+		if ( webserviceRequest == null ) {
+			throw new IllegalArgumentException( "webserviceRequest param must not be null in call to call_Get_ScanNumbers_Request_Webservice(...)" );
+		}
+
+		String webserviceURL = spectralStorageServerBaseURL
+				+ WebserviceSpectralStoragePathConstants.GET_SCAN_NUMBERS_SERVLET_XML;
+		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
+		if ( ! ( webserviceResponseAsObject instanceof Get_ScanNumbers_Response ) ) {
+			String msg = "Response unmarshaled to class other than Get_ScanNumbers_Response.  "
+					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
+			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			exception.setFailToDecodeDataReceivedFromServer(true);
+			throw exception;
+		}
+		Get_ScanNumbers_Response webserviceResponse = null;
+		try {
+			webserviceResponse = (Get_ScanNumbers_Response) webserviceResponseAsObject;
+		} catch ( Exception e ) {
+			String msg = "Error. Fail to cast response as Get_ScanNumbers_Response: "
+					+ e.toString();
+			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			exception.setFailToDecodeDataReceivedFromServer(true);
+			throw exception;
+		}
+		return webserviceResponse;
+	}
 
 	/**
 	 * @param webserviceRequest
