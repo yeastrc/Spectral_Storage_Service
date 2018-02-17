@@ -58,19 +58,7 @@
 	<!-- This does not fail if the file is not found -->
 	<property file="${overall_build_config.properties__file_with_path}" />
 	
-	
-	<target name="build_shared_code_jar" >
-	
-		<!-- build the jar spectal_storage_spectral_file_access_code_source.jar which will be put in the folder 'lib_built_proxl_shared_code_jar' -->
-		<ant dir="..${file.separator}WebService_Web_App" antfile="ant_build_spectral_file_access_code_jar.xml" />
-		
-  	  	<copy  todir="lib_spectral_file" file="../WebService_Web_App/deploy_spectral_file_access/spectal_storage_spectral_file_access_code.jar">
-  	  		
-  		</copy>
-
-	</target>	    	
-	
-    <target name="create_run_jar"  depends="build_shared_code_jar,create_jar_this_project_main_importer">
+    <target name="create_run_jar"  depends="create_jar_this_project_main_importer">
     	
     	<!-- Add the jars in the 'lib' folder to the class path   -->
     	
@@ -86,22 +74,7 @@
 		    <flattenmapper />
 		</pathconvert>
 
-    	<!-- Add the jars in the 'lib_spectral_file_dir' folder to the class path   -->
-
-		<path id="lib_spectral_file_dir">
-		  <fileset dir="lib_spectral_file">
-		    <include name="**/*.jar" />
-		  </fileset>
-		</path>
-
-		<!-- convert classpath to a flat list/string for use in manifest task -->
-		<pathconvert property="lib_spectral_file_dir.classpath" pathsep=" ">
-		    <path refid="lib_spectral_file_dir" />
-		    <flattenmapper />
-		</pathconvert>
-    	
-
-    	<property name="final.classpath" value="./ ${output_jar_this_project_main_importer} ${jars.classpath} ${lib_spectral_file_dir.classpath} "/>
+    	<property name="final.classpath" value="./ ${output_jar_this_project_main_importer} ${jars.classpath} "/>
     	
     	
 		<echo >Classpath for runnable jar ${final.classpath}</echo>
@@ -127,7 +100,6 @@
             <zipfileset src="jar-in-jar-loader.zip"/>
             <zipfileset dir="${jar_this_project_main_importer_dir}" />
         	<zipfileset dir="lib" />
-        	<zipfileset dir="lib_spectral_file" />
         	
         </jar>
     </target>
@@ -233,6 +205,18 @@
     	
       	<echo message="Compiling Java:  java_source: ${java_source}, java_target: ${java_target} "/>  	
 
+    	<javac includeantruntime="false"  debug="on" 
+    		srcdir="../Spectral_Storage_Service_Common_All/src_shared_server_client_importer"
+    		destdir="${classes}" source="${java_source}" target="${java_target}"  encoding="${java.source.character.set}" >
+    	    <classpath refid="compile.classpath"/>
+    	</javac>
+
+    	<javac includeantruntime="false"  debug="on" 
+    		srcdir="../Spectral_Storage_File_Common/src_spectral_file"
+    		destdir="${classes}" source="${java_source}" target="${java_target}"  encoding="${java.source.character.set}" >
+    	    <classpath refid="compile.classpath"/>
+    	</javac>
+    	
     	<!-- <echo message="${toString:compile.classpath}"/> -->
         <javac includeantruntime="false"  debug="on" srcdir="src_mzML_Reader" destdir="${classes}" source="${java_source}" target="${java_target}"  encoding="${java.source.character.set}" >
             <classpath refid="compile.classpath"/>
@@ -261,9 +245,6 @@
 	<!-- classpath  -->
     <path id="compile.classpath">
     	<fileset dir="lib">
-        	<include name="**/*.jar"/>
-      	</fileset>
-    	<fileset dir="lib_spectral_file">
         	<include name="**/*.jar"/>
       	</fileset>
     </path>

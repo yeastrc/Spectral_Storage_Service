@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+  <display-name>Webservice - Accept Import - Web App</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+
+<!--   JSON responses can be activated if change code and add Jackson Jars -->
+
+<!--   _________________________________________   -->
+
+<!--   Servlets - Processing Scan File Upload and Returning Status and API Key  -->
+
+  <!-- Initialize the Upload Scan File Process - return XML -->
+  
+  <servlet>
+    <servlet-name>Initialize the Upload Scan File Process Servlet - XML Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.UploadScanFile_Init_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>XML</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Initialize the Upload Scan File Process Servlet - XML Response</servlet-name>
+    <url-pattern>/update/uploadScanFile_Init_XML</url-pattern>
+  </servlet-mapping>    
+  
+  <!-- Upload Scan File Process - Actual upload of Scan File - return XML -->
+  
+  <servlet>
+    <servlet-name>Upload Scan File Process - Actual upload of Scan File Servlet - XML Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.UploadScanFile_UploadScanFile_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>XML</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Upload Scan File Process - Actual upload of Scan File Servlet - XML Response</servlet-name>
+    <url-pattern>/update/uploadScanFile_uploadScanFile_XML</url-pattern>
+  </servlet-mapping>   
+
+  <!-- Submit the Upload Scan File Process - return XML -->
+  
+  <servlet>
+    <servlet-name>Submit the Upload Scan File Servlet - XML Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.UploadScanFile_Submit_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>XML</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Submit the Upload Scan File Servlet - XML Response</servlet-name>
+    <url-pattern>/update/uploadScanFile_Submit_XML</url-pattern>
+  </servlet-mapping>    
+
+	<!-- Get Uploaded Scan File Status and API Key - return XML -->  
+  <servlet>
+    <servlet-name>Get Uploaded Scan File Status and API Key Servlet - XML Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.Get_UploadedScan_Status_API_HashKey_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>XML</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Uploaded Scan File Status and API Key Servlet - XML Response</servlet-name>
+    <url-pattern>/update/uploadedScanFile_Status_API_Key_XML</url-pattern>
+  </servlet-mapping>      
+  
+	<!-- UploadScanFile - Delete For ScanProcessStatusKey - return XML -->  
+  <servlet>
+    <servlet-name>UploadScanFile - Delete For ScanProcessStatusKey Servlet - XML Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.UploadScanFile_Delete_For_ScanProcessStatusKey_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>XML</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UploadScanFile - Delete For ScanProcessStatusKey Servlet - XML Response</servlet-name>
+    <url-pattern>/update/uploadedScanFile_Delete_For_ScanProcessStatusKey_XML</url-pattern>
+  </servlet-mapping>  
+  
+  <!-- Upload Scan File as Stream - COMMENTED OUT, not currently supported, out of date -->
+  
+  <!-- Upload Scan File as Stream - return XML -->
+  <!--
+  <servlet>
+    <servlet-name>Upload Scan File Servlet - XML Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.UploadScanFileServlet</servlet-class>
+    <init-param>
+      <param-name>resultDataFormat</param-name>
+      <param-value>XML</param-value>
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Upload Scan File Servlet - XML Response</servlet-name>
+    <url-pattern>/update/uploadScanFile_XML</url-pattern>
+  </servlet-mapping>    
+  -->
+
+  <!-- Upload Scan File as Form - COMMENTED OUT, not currently supported, out of date -->
+  
+	<!-- Upload Scan File as Form, return XML -->
+	<!--
+  <servlet>
+    <servlet-name>Upload Scan File as Form Servlet - XML Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.UploadScanFile_As_Form_Servlet</servlet-class>
+    <init-param>
+      <param-name>resultDataFormat</param-name>
+      <param-value>XML</param-value>
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Upload Scan File as Form Servlet - XML Response</servlet-name>
+    <url-pattern>/update/uploadScanFile_as_Form_XML</url-pattern>
+  </servlet-mapping>    
+  -->
+  
+  
+  
+<!--   Query Servlets - All paths start with "/admin/" for Admin Access Control Filter -->
+
+  
+   <!-- Init admin page and forward to admin JSP -->
+  <servlet>
+    <servlet-name>Admin Init/Page Servlet</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_admin.AdminInitServlet</servlet-class>
+    <load-on-startup>3</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Admin Init/Page Servlet</servlet-name>
+    <url-pattern>/admin</url-pattern>
+  </servlet-mapping>  
+  
+  <servlet>
+    <servlet-name>Reload Config Servlet</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_admin.ReloadConfigServlet</servlet-class>
+    <load-on-startup>3</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Reload Config Servlet</servlet-name>
+    <url-pattern>/admin/reloadConfig</url-pattern>
+  </servlet-mapping>  
+  
+  <!-- Process Scan Thread -->
+  
+  <servlet>
+    <servlet-name>Process Scan Thread Status Servlet</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_admin.ProcessScanFileThread_Status_Servlet</servlet-class>
+    <load-on-startup>3</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Process Scan Thread Status Servlet</servlet-name>
+    <url-pattern>/admin/processScanFileThread_Status</url-pattern>
+  </servlet-mapping>  
+  
+  <servlet>
+    <servlet-name>Process Scan Thread Stop Servlet</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_admin.ProcessScanFileThread_Stop_Servlet</servlet-class>
+    <load-on-startup>3</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Process Scan Thread Stop Servlet</servlet-name>
+    <url-pattern>/admin/processScanFileThread_Stop</url-pattern>
+  </servlet-mapping>  
+  
+  <servlet>
+    <servlet-name>Process Scan Thread Start Servlet</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_admin.ProcessScanFileThread_Start_Servlet</servlet-class>
+    <load-on-startup>3</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Process Scan Thread Start Servlet</servlet-name>
+    <url-pattern>/admin/processScanFileThread_Start</url-pattern>
+  </servlet-mapping>  
+  
+    
+  
+  <!-- Filters - run on each request -->
+
+    <!-- filter to set character encoding on each request -->
+    
+  <filter>
+    <filter-name>Set Character Encoding</filter-name>
+    <filter-class>org.apache.filters.SetCharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+      <param-name>ignore</param-name>
+      <param-value>false</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>Set Character Encoding</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+    <!-- filter for Access Control -->
+    
+    <filter>
+        <filter-name>Access Control</filter-name>
+        <filter-class>org.yeastrc.spectral_storage.accept_import_web_app.servlet_filter__access_control.AccessControl_ServletFilter</filter-class>
+    	<init-param>
+	      <param-name>access.control.type</param-name>
+	      <param-value>overall</param-value> <!-- See class AccessControl_ServletFilter for valid values -->
+    	</init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>Access Control</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+
+	<!-- filter for Admin Access Control - All paths start with "/admin/" for Admin Access Control Filter -->
+
+    <filter>
+        <filter-name>Admin Access Control</filter-name>
+        <filter-class>org.yeastrc.spectral_storage.accept_import_web_app.servlet_filter__access_control.AccessControl_ServletFilter</filter-class>
+    	<init-param>
+	      <param-name>access.control.type</param-name>
+	      <param-value>admin</param-value> <!-- See class AccessControl_ServletFilter for valid values -->
+    	</init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>Admin Access Control</filter-name>
+        <url-pattern>/admin/*</url-pattern>
+    </filter-mapping>    
+
+	<!-- filter for Update Access Control - All paths start with "/update/" for Update Access Control Filter -->
+
+    <filter>
+        <filter-name>Update Access Control</filter-name>
+        <filter-class>org.yeastrc.spectral_storage.accept_import_web_app.servlet_filter__access_control.AccessControl_ServletFilter</filter-class>
+    	<init-param>
+	      <param-name>access.control.type</param-name>
+	      <param-value>update</param-value> <!-- See class AccessControl_ServletFilter for valid values -->
+    	</init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>Update Access Control</filter-name>
+        <url-pattern>/update/*</url-pattern>
+    </filter-mapping>    
+    
+	<!-- Servlet Context Listeners.  Called on Web app startup and shutdown -->
+	<listener>
+		<listener-class>
+		org.yeastrc.spectral_storage.accept_import_web_app.servlet_context.ServletContextAppListener
+		</listener-class>
+	</listener>
+	  
+  <error-page>
+    <error-code>500</error-code>
+    <location>/WEB-INF/jsp-pages/generalError.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>503</error-code>
+    <location>/WEB-INF/jsp-pages/generalError.jsp</location>
+  </error-page>
+</web-app>
