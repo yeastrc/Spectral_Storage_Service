@@ -24,19 +24,21 @@ public class AccessControl_ServletFilter implements Filter {
 
 	private static final Logger log = Logger.getLogger( AccessControl_ServletFilter.class );
 
-	private static enum AccessControlType { OVERALL, ADMIN, UPDATE }
+	private static enum AccessControlType { OVERALL, ADMIN, UPDATE, IMPORTER }
 	
 	private static final String ACCESS_CONTROL_TYPE_INIT_PARAMETER_NAME = "access.control.type";
 	
 	private static final String ACCESS_CONTROL_TYPE_INIT_PARAMETER_VALUE_OVERALL = "overall";
 	private static final String ACCESS_CONTROL_TYPE_INIT_PARAMETER_VALUE_ADMIN = "admin";
 	private static final String ACCESS_CONTROL_TYPE_INIT_PARAMETER_VALUE_UPDATE = "update";
+	private static final String ACCESS_CONTROL_TYPE_INIT_PARAMETER_VALUE_IMPORTER = "importer";
 	
 	private static final String[] ACCESS_CONTROL_TYPE_INIT_PARAMETER_VALUES_ALLOWED = 
 		{
 				ACCESS_CONTROL_TYPE_INIT_PARAMETER_VALUE_OVERALL,
 				ACCESS_CONTROL_TYPE_INIT_PARAMETER_VALUE_ADMIN,
-				ACCESS_CONTROL_TYPE_INIT_PARAMETER_VALUE_UPDATE
+				ACCESS_CONTROL_TYPE_INIT_PARAMETER_VALUE_UPDATE,
+				ACCESS_CONTROL_TYPE_INIT_PARAMETER_VALUE_IMPORTER
 		};
 	
 	private AccessControlType accessControlType;
@@ -55,6 +57,8 @@ public class AccessControl_ServletFilter implements Filter {
 			accessControlType = AccessControlType.ADMIN;
 		} else if ( ACCESS_CONTROL_TYPE_INIT_PARAMETER_VALUE_UPDATE.equals( accessControlTypeString ) ) {
 			accessControlType = AccessControlType.UPDATE;
+		} else if ( ACCESS_CONTROL_TYPE_INIT_PARAMETER_VALUE_IMPORTER.equals( accessControlTypeString ) ) {
+			accessControlType = AccessControlType.IMPORTER;
 		} else {
 			String msg = "Init parameter '" + ACCESS_CONTROL_TYPE_INIT_PARAMETER_NAME + "' has invalid value of '"
 					+ accessControlTypeString
@@ -85,6 +89,8 @@ public class AccessControl_ServletFilter implements Filter {
 		} else if ( accessControlType == AccessControlType.ADMIN ) {
 			allowedRemoteIPs = ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().getAllowedRemoteIPs_Admin();
 		} else if ( accessControlType == AccessControlType.UPDATE ) {
+			allowedRemoteIPs = ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().getAllowedRemoteIPs_Update();
+		} else if ( accessControlType == AccessControlType.IMPORTER ) {
 			allowedRemoteIPs = ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().getAllowedRemoteIPs_Update();
 		} else {
 			String msg = "Unknown value for accessControlType: " + accessControlType;

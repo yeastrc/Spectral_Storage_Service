@@ -45,6 +45,12 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 	 */
 	private Set<String> allowedRemoteIPs_Update = new HashSet<>();
 
+	/**
+	 * URLs that start with "/importer/" also have applied filter using this allowed IP list
+	 */
+	private Set<String> allowedRemoteIPs_Importer = new HashSet<>();
+
+	
 	
 	//  !!!! Important:  Update clear_ALL_AllowedRemoteIP_Collection_ALL() if add any other AllowedRemoteIP collections
 	
@@ -55,6 +61,7 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 		this.allowedRemoteIPs_Overall.clear();
 		this.allowedRemoteIPs_Admin.clear();
 		this.allowedRemoteIPs_Update.clear();
+		allowedRemoteIPs_Importer.clear();
 	}
 	
 	/**
@@ -91,6 +98,18 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 		this.allowedRemoteIPs_Update.clear();
 	}
 
+	/**
+	 * Adds to allowedRemoteIPs_Overall as well
+	 * @param allowedRemoteIP
+	 */
+	public void addAllowedRemoteIP_Importer( String allowedRemoteIP) {
+		this.allowedRemoteIPs_Importer.add( allowedRemoteIP );
+		this.allowedRemoteIPs_Overall.add( allowedRemoteIP );
+	}
+	public void clearAllowedRemoteIP_Importer_Collection() {
+		this.allowedRemoteIPs_Importer.clear();
+	}
+
 
 	public Set<String> getAllowedRemoteIPs_Overall() {
 		return allowedRemoteIPs_Overall;
@@ -116,4 +135,12 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 		this.allowedRemoteIPs_Update = allowedRemoteIPs_Update;
 	}
 
+
+	public Set<String> getAllowedRemoteIPs_Importer() {
+		return allowedRemoteIPs_Importer;
+	}
+
+	public void setAllowedRemoteIPs_Importer(Set<String> allowedRemoteIPs_Importer) {
+		this.allowedRemoteIPs_Importer = allowedRemoteIPs_Importer;
+	}
 }
