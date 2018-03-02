@@ -25,8 +25,8 @@ import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.Servet
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseObjectToOutputStream;
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageQueryParamsConstants;
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageScanFileAllowedSuffixesConstants;
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageAcceptImportQueryParamsConstants;
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_UploadScanFile_Response;
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo;
 import org.yeastrc.spectral_storage.accept_import_web_app.utils.Create_S3_Object_Paths;
@@ -106,7 +106,7 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 		
 		log.info( "INFO:  doPost called");
 		
-		String uploadScanFileTempKey = request.getParameter( WebserviceSpectralStorageQueryParamsConstants.UPLOAD_SCAN_FILE_TEMP_KEY_QUERY_PARAM );
+		String uploadScanFileTempKey = request.getParameter( WebserviceSpectralStorageAcceptImportQueryParamsConstants.UPLOAD_SCAN_FILE_TEMP_KEY_QUERY_PARAM );
 
 		String scanFilenameToProcess = null;
 
@@ -119,7 +119,7 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 		       // uploadScanFileTempKey validation
 			if ( StringUtils.isEmpty( uploadScanFileTempKey ) ) {
 
-				log.warn( "Query param '" + WebserviceSpectralStorageQueryParamsConstants.UPLOAD_SCAN_FILE_TEMP_KEY_QUERY_PARAM 
+				log.warn( "Query param '" + WebserviceSpectralStorageAcceptImportQueryParamsConstants.UPLOAD_SCAN_FILE_TEMP_KEY_QUERY_PARAM 
 						+ "' not on URL.  requestURL: " + requestURL );
 				
 				response.setStatus( HttpServletResponse.SC_BAD_REQUEST /* 400  */ );
@@ -157,13 +157,13 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 				throw new FailResponseSentException();
 			}
 			
-			String scanFilenameSuffix = request.getParameter( WebserviceSpectralStorageQueryParamsConstants.UPLOAD_SCAN_FILE_SERVLET_QUERY_PARAM_SCAN_FILENAME_SUFFIX );
+			String scanFilenameSuffix = request.getParameter( WebserviceSpectralStorageAcceptImportQueryParamsConstants.UPLOAD_SCAN_FILE_SERVLET_QUERY_PARAM_SCAN_FILENAME_SUFFIX );
 
-		    if ( ! ( WebserviceSpectralStorageScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML.equals( scanFilenameSuffix ) 
-		    		||  WebserviceSpectralStorageScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML.equals( scanFilenameSuffix ) ) ) {
+		    if ( ! ( WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML.equals( scanFilenameSuffix ) 
+		    		||  WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML.equals( scanFilenameSuffix ) ) ) {
 
 				log.warn( "Filename suffix provided in parameter '"
-						+ WebserviceSpectralStorageQueryParamsConstants.UPLOAD_SCAN_FILE_SERVLET_QUERY_PARAM_SCAN_FILENAME_SUFFIX
+						+ WebserviceSpectralStorageAcceptImportQueryParamsConstants.UPLOAD_SCAN_FILE_SERVLET_QUERY_PARAM_SCAN_FILENAME_SUFFIX
 						+ "' is NOT a valid suffix: " + scanFilenameSuffix );
 				
 				response.setStatus( HttpServletResponse.SC_BAD_REQUEST /* 400  */ );

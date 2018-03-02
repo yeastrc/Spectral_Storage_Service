@@ -4,7 +4,7 @@ package org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.
  * URL Paths to the servlets
  *
  */
-public class WebserviceSpectralStoragePathConstants {
+public class WebserviceSpectralStorageAcceptImportPathConstants {
 
 	
 	//  Servlets - Processing Scan File Upload and Returning Status and API Key

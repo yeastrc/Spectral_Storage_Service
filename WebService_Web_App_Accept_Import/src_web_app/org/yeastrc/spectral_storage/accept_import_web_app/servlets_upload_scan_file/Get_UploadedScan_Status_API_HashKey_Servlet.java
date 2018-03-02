@@ -25,7 +25,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.GetReq
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseObjectToOutputStream;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseStringToOutputStream;
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectral_ProcessStatusEnum;
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageAcceptImport_ProcessStatusEnum;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.Get_UploadedScanFileInfo_Request;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.Get_UploadedScanFileInfo_Response;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
@@ -228,15 +228,15 @@ public class Get_UploadedScan_Status_API_HashKey_Servlet extends HttpServlet {
 					|| UploadProcessingStatusFileConstants.STATUS_PROCESSING_STARTED.equals( status ) 
 					|| UploadProcessingStatusFileConstants.STATUS_PROCESSING_KILLED.equals( status ) ) {
 
-				webserviceResponse.setStatus( WebserviceSpectral_ProcessStatusEnum.PENDING );
+				webserviceResponse.setStatus( WebserviceSpectralStorageAcceptImport_ProcessStatusEnum.PENDING );
 
 			} else if ( UploadProcessing_MarkedDeletedFile_Create_Check.getInstance().doesMarkedDeleteFileExist( scanProcessStatusKeyDir ) ) {
 
-				webserviceResponse.setStatus( WebserviceSpectral_ProcessStatusEnum.DELETED );
+				webserviceResponse.setStatus( WebserviceSpectralStorageAcceptImport_ProcessStatusEnum.DELETED );
 
 			} else if ( UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED.equals( status ) ) {
 
-				webserviceResponse.setStatus( WebserviceSpectral_ProcessStatusEnum.FAIL );
+				webserviceResponse.setStatus( WebserviceSpectralStorageAcceptImport_ProcessStatusEnum.FAIL );
 				webserviceResponse.setFailMessage( getFailMessage( scanProcessStatusKeyDir ) );
 
 			} else if ( UploadProcessingStatusFileConstants.STATUS_PROCESSING_SUCCESSFUL.equals( status ) ) {
@@ -244,7 +244,7 @@ public class Get_UploadedScan_Status_API_HashKey_Servlet extends HttpServlet {
 				String hashKey = ScanFileHashToFileReadWrite.getInstance().readScanFileHashFromFinalHashKeyFile( scanProcessStatusKeyDir );
 
 				webserviceResponse.setScanFileAPIKey( hashKey );
-				webserviceResponse.setStatus( WebserviceSpectral_ProcessStatusEnum.SUCCESS );
+				webserviceResponse.setStatus( WebserviceSpectralStorageAcceptImport_ProcessStatusEnum.SUCCESS );
 
 			} else {
 

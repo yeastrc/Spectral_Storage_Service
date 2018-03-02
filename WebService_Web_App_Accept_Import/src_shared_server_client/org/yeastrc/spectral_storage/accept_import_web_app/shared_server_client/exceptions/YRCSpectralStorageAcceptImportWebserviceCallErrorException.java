@@ -1,10 +1,10 @@
-package org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.exceptions;
+package org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.exceptions;
 
 /**
  * Error calling User Management Central Webservice
  *
  */
-public class YRCSpectralStorageWebserviceCallErrorException extends Exception {
+public class YRCSpectralStorageAcceptImportWebserviceCallErrorException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -27,28 +27,28 @@ public class YRCSpectralStorageWebserviceCallErrorException extends Exception {
 	private byte[] errorStreamContents;
 
 
-	public YRCSpectralStorageWebserviceCallErrorException() {
+	public YRCSpectralStorageAcceptImportWebserviceCallErrorException() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public YRCSpectralStorageWebserviceCallErrorException(String message, Throwable cause, boolean enableSuppression,
+	public YRCSpectralStorageAcceptImportWebserviceCallErrorException(String message, Throwable cause, boolean enableSuppression,
 			boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 		// TODO Auto-generated constructor stub
 	}
 
-	public YRCSpectralStorageWebserviceCallErrorException(String message, Throwable cause) {
+	public YRCSpectralStorageAcceptImportWebserviceCallErrorException(String message, Throwable cause) {
 		super(message, cause);
 		// TODO Auto-generated constructor stub
 	}
 
-	public YRCSpectralStorageWebserviceCallErrorException(String message) {
+	public YRCSpectralStorageAcceptImportWebserviceCallErrorException(String message) {
 		super(message);
 		// TODO Auto-generated constructor stub
 	}
 
-	public YRCSpectralStorageWebserviceCallErrorException(Throwable cause) {
+	public YRCSpectralStorageAcceptImportWebserviceCallErrorException(Throwable cause) {
 		super(cause);
 		// TODO Auto-generated constructor stub
 	}

@@ -4,7 +4,7 @@ package org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.consta
  * URL Paths to the servlets
  *
  */
-public class WebserviceSpectralStoragePathConstants {
+public class WebserviceSpectralStorageGetDataPathConstants {
 
 	//  Servlets - Retrieving data from scan files using API Key and other parameters
 	

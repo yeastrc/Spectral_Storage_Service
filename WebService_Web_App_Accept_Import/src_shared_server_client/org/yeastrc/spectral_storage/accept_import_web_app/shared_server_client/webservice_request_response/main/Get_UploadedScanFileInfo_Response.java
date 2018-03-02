@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectral_ProcessStatusEnum;
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageAcceptImport_ProcessStatusEnum;
 
 /**
  * Response object from Webservice Get_UploadedScanFileInfo
@@ -21,7 +21,7 @@ public class Get_UploadedScanFileInfo_Response extends BaseAcceptImportWebservic
 	private boolean scanProcessStatusKey_NotFound;
 
 	@XmlAttribute
-	private WebserviceSpectral_ProcessStatusEnum status;
+	private WebserviceSpectralStorageAcceptImport_ProcessStatusEnum status;
 	
 	/**
 	 * Populated if status success
@@ -43,11 +43,11 @@ public class Get_UploadedScanFileInfo_Response extends BaseAcceptImportWebservic
 		this.scanProcessStatusKey_NotFound = scanProcessStatusKey_NotFound;
 	}
 
-	public WebserviceSpectral_ProcessStatusEnum getStatus() {
+	public WebserviceSpectralStorageAcceptImport_ProcessStatusEnum getStatus() {
 		return status;
 	}
 
-	public void setStatus(WebserviceSpectral_ProcessStatusEnum status) {
+	public void setStatus(WebserviceSpectralStorageAcceptImport_ProcessStatusEnum status) {
 		this.status = status;
 	}
 

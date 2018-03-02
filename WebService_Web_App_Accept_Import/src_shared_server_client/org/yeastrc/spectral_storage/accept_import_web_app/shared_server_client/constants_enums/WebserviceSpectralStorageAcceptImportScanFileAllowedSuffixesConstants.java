@@ -4,7 +4,7 @@ package org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.
  * 
  *
  */
-public class WebserviceSpectralStorageScanFileAllowedSuffixesConstants {
+public class WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants {
 
 	//  SUFFIXes also in ScanFileToProcessConstants
 	

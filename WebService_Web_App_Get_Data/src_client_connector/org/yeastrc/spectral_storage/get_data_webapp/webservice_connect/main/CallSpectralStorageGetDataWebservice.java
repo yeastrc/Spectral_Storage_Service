@@ -18,8 +18,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.constants.WebserviceSpectralStoragePathConstants;
-import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.exceptions.YRCSpectralStorageWebserviceCallErrorException;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.constants.WebserviceSpectralStorageGetDataPathConstants;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.exceptions.YRCSpectralStorageGetDataWebserviceCallErrorException;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Request;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Response;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanNumbersFromRetentionTimeRange_Request;
@@ -109,12 +109,12 @@ public class CallSpectralStorageGetDataWebservice {
 		}
 
 		String webserviceURL = spectralStorageServerBaseURL
-				+ WebserviceSpectralStoragePathConstants.GET_SCAN_NUMBERS_SERVLET_XML;
+				+ WebserviceSpectralStorageGetDataPathConstants.GET_SCAN_NUMBERS_SERVLET_XML;
 		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
 		if ( ! ( webserviceResponseAsObject instanceof Get_ScanNumbers_Response ) ) {
 			String msg = "Response unmarshaled to class other than Get_ScanNumbers_Response.  "
 					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
 			exception.setFailToDecodeDataReceivedFromServer(true);
 			throw exception;
 		}
@@ -124,7 +124,7 @@ public class CallSpectralStorageGetDataWebservice {
 		} catch ( Exception e ) {
 			String msg = "Error. Fail to cast response as Get_ScanNumbers_Response: "
 					+ e.toString();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
 			exception.setFailToDecodeDataReceivedFromServer(true);
 			throw exception;
 		}
@@ -148,12 +148,12 @@ public class CallSpectralStorageGetDataWebservice {
 		}
 
 		String webserviceURL = spectralStorageServerBaseURL
-				+ WebserviceSpectralStoragePathConstants.GET_SCAN_DATA_FROM_SCAN_NUMBERS_SERVLET_XML;
+				+ WebserviceSpectralStorageGetDataPathConstants.GET_SCAN_DATA_FROM_SCAN_NUMBERS_SERVLET_XML;
 		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
 		if ( ! ( webserviceResponseAsObject instanceof Get_ScanDataFromScanNumbers_Response ) ) {
 			String msg = "Response unmarshaled to class other than Get_ScanDataFromScanNumbers_Response.  "
 					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
 			exception.setFailToDecodeDataReceivedFromServer(true);
 			throw exception;
 		}
@@ -163,7 +163,7 @@ public class CallSpectralStorageGetDataWebservice {
 		} catch ( Exception e ) {
 			String msg = "Error. Fail to cast response as Get_ScanDataFromScanNumbers_Response: "
 					+ e.toString();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
 			exception.setFailToDecodeDataReceivedFromServer(true);
 			throw exception;
 		}
@@ -184,12 +184,12 @@ public class CallSpectralStorageGetDataWebservice {
 		}
 
 		String webserviceURL = spectralStorageServerBaseURL
-				+ WebserviceSpectralStoragePathConstants.GET_SCAN_RETENTION_TIMES_SERVLET_XML;
+				+ WebserviceSpectralStorageGetDataPathConstants.GET_SCAN_RETENTION_TIMES_SERVLET_XML;
 		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
 		if ( ! ( webserviceResponseAsObject instanceof Get_ScanRetentionTimes_Response ) ) {
 			String msg = "Response unmarshaled to class other than Get_ScanRetentionTimes_Response.  "
 					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
 			exception.setFailToDecodeDataReceivedFromServer(true);
 			throw exception;
 		}
@@ -199,7 +199,7 @@ public class CallSpectralStorageGetDataWebservice {
 		} catch ( Exception e ) {
 			String msg = "Error. Fail to cast response as Get_ScanRetentionTimes_Response: "
 					+ e.toString();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
 			exception.setFailToDecodeDataReceivedFromServer(true);
 			throw exception;
 		}
@@ -220,12 +220,12 @@ public class CallSpectralStorageGetDataWebservice {
 		}
 
 		String webserviceURL = spectralStorageServerBaseURL
-				+ WebserviceSpectralStoragePathConstants.GET_SCAN_NUMBERS_FROM_RETENTION_TIME_RANGE_SERVLET_XML;
+				+ WebserviceSpectralStorageGetDataPathConstants.GET_SCAN_NUMBERS_FROM_RETENTION_TIME_RANGE_SERVLET_XML;
 		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
 		if ( ! ( webserviceResponseAsObject instanceof Get_ScanNumbersFromRetentionTimeRange_Response ) ) {
 			String msg = "Response unmarshaled to class other than Get_ScanNumbersFromRetentionTimeRange_Response.  "
 					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
 			exception.setFailToDecodeDataReceivedFromServer(true);
 			throw exception;
 		}
@@ -235,7 +235,7 @@ public class CallSpectralStorageGetDataWebservice {
 		} catch ( Exception e ) {
 			String msg = "Error. Fail to cast response as Get_ScanNumbersFromRetentionTimeRange_Response: "
 					+ e.toString();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
 			exception.setFailToDecodeDataReceivedFromServer(true);
 			throw exception;
 		}
@@ -256,12 +256,12 @@ public class CallSpectralStorageGetDataWebservice {
 		}
 
 		String webserviceURL = spectralStorageServerBaseURL
-				+ WebserviceSpectralStoragePathConstants.GET_SCANS_DATA_FROM_RETENTION_TIME_RANGE_SERVLET_XML;
+				+ WebserviceSpectralStorageGetDataPathConstants.GET_SCANS_DATA_FROM_RETENTION_TIME_RANGE_SERVLET_XML;
 		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
 		if ( ! ( webserviceResponseAsObject instanceof Get_ScansDataFromRetentionTimeRange_Response ) ) {
 			String msg = "Response unmarshaled to class other than Get_ScansDataFromRetentionTimeRange_Response.  "
 					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
 			exception.setFailToDecodeDataReceivedFromServer(true);
 			throw exception;
 		}
@@ -271,7 +271,7 @@ public class CallSpectralStorageGetDataWebservice {
 		} catch ( Exception e ) {
 			String msg = "Error. Fail to cast response as Get_ScansDataFromRetentionTimeRange_Response: "
 					+ e.toString();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
 			exception.setFailToDecodeDataReceivedFromServer(true);
 			throw exception;
 		}
@@ -293,12 +293,12 @@ public class CallSpectralStorageGetDataWebservice {
 		}
 
 		String webserviceURL = spectralStorageServerBaseURL
-				+ WebserviceSpectralStoragePathConstants.GET_SUMMARY_DATA_PER_SCAN_LEVEL_SERVLET_XML;
+				+ WebserviceSpectralStorageGetDataPathConstants.GET_SUMMARY_DATA_PER_SCAN_LEVEL_SERVLET_XML;
 		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
 		if ( ! ( webserviceResponseAsObject instanceof Get_SummaryDataPerScanLevel_Response ) ) {
 			String msg = "Response unmarshaled to class other than Get_SummaryDataPerScanLevel_Response.  "
 					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
 			exception.setFailToDecodeDataReceivedFromServer(true);
 			throw exception;
 		}
@@ -308,7 +308,7 @@ public class CallSpectralStorageGetDataWebservice {
 		} catch ( Exception e ) {
 			String msg = "Error. Fail to cast response as Get_SummaryDataPerScanLevel_Response: "
 					+ e.toString();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
 			exception.setFailToDecodeDataReceivedFromServer(true);
 			throw exception;
 		}
@@ -334,7 +334,7 @@ public class CallSpectralStorageGetDataWebservice {
 		}
 
 		String webserviceURL = spectralStorageServerBaseURL
-				+ WebserviceSpectralStoragePathConstants.GET_SCAN_PEAK_INTENSITY_BINNED_RT_MZ_JSON_GZIPPED;
+				+ WebserviceSpectralStorageGetDataPathConstants.GET_SCAN_PEAK_INTENSITY_BINNED_RT_MZ_JSON_GZIPPED;
 		byte[] serverResponse = 
 				callActualWebserviceOnServerSendObject_ReturnServerResponseByteArray( webserviceRequest,	webserviceURL );
 
@@ -386,7 +386,7 @@ public class CallSpectralStorageGetDataWebservice {
 		} catch ( Exception e ) {
 			String msg = "Error. Fail to encode request to send to server: "
 					+ e.toString();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg, e );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg, e );
 			exception.setFailToEncodeDataToSendToServer(true);
 			throw exception;
 		}
@@ -434,7 +434,7 @@ public class CallSpectralStorageGetDataWebservice {
 		} catch ( Exception e ) {
 			String msg = "Error. Fail to encode request to send to server: "
 					+ e.toString();
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg, e );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg, e );
 			exception.setFailToEncodeDataToSendToServer(true);
 			throw exception;
 		}
@@ -474,8 +474,8 @@ public class CallSpectralStorageGetDataWebservice {
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			webserviceResponseAsObject = unmarshaller.unmarshal( inputStreamBufferOfServerResponse );
 		} catch ( JAXBException e ) {
-			YRCSpectralStorageWebserviceCallErrorException wcee = 
-					new YRCSpectralStorageWebserviceCallErrorException( "JAXBException unmarshalling XML received from server at URL: " + webserviceURL, e );
+			YRCSpectralStorageGetDataWebserviceCallErrorException wcee = 
+					new YRCSpectralStorageGetDataWebserviceCallErrorException( "JAXBException unmarshalling XML received from server at URL: " + webserviceURL, e );
 			wcee.setFailToDecodeDataReceivedFromServer(true);
 			wcee.setWebserviceURL( webserviceURL );
 			throw wcee;
@@ -489,19 +489,19 @@ public class CallSpectralStorageGetDataWebservice {
 	 * @param fileToSendAsStream
 	 * @param webserviceURL
 	 * @return
-	 * @throws YRCSpectralStorageWebserviceCallErrorException
+	 * @throws YRCSpectralStorageGetDataWebserviceCallErrorException
 	 */
 	private byte[] sendToServerSendByteArrayOrFileAsStream_GetByteArrayResponseFromServer(
 			ByteArrayOutputStream byteArrayOutputStream_ToSend,
 			File fileToSendAsStream, 
-			String webserviceURL) throws YRCSpectralStorageWebserviceCallErrorException {
+			String webserviceURL) throws YRCSpectralStorageGetDataWebserviceCallErrorException {
 		
 		byte[] serverResponseByteArray = null;
 		
 		if ( ( ! ( byteArrayOutputStream_ToSend != null || fileToSendAsStream != null ) )
 				|| (  byteArrayOutputStream_ToSend != null && fileToSendAsStream != null)) {
 			String msg = "Exactly one of either byteArrayOutputStream_ToSend or fileToSendAsStream must be not null";
-			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
 			exception.setCallInterfaceInternalError(true);
 			exception.setCallInterfaceInternalErrorMessage(msg);
 			throw exception;
@@ -523,7 +523,7 @@ public class CallSpectralStorageGetDataWebservice {
 		try {
 			urlObject = new URL( webserviceURL );
 		} catch (MalformedURLException e) {
-			YRCSpectralStorageWebserviceCallErrorException wcee = new YRCSpectralStorageWebserviceCallErrorException( "Exception creating URL object to connect to server.  URL: " + webserviceURL, e );
+			YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "Exception creating URL object to connect to server.  URL: " + webserviceURL, e );
 			wcee.setServerURLError(true);
 			wcee.setWebserviceURL( webserviceURL );
 			throw wcee;
@@ -533,14 +533,14 @@ public class CallSpectralStorageGetDataWebservice {
 		try {
 			urlConnection = urlObject.openConnection();
 		} catch (IOException e) {
-			YRCSpectralStorageWebserviceCallErrorException wcee = new YRCSpectralStorageWebserviceCallErrorException( "Exception calling openConnection() on URL object to connect to server.  URL: " + webserviceURL, e );
+			YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "Exception calling openConnection() on URL object to connect to server.  URL: " + webserviceURL, e );
 			wcee.setServerURLError(true);
 			wcee.setWebserviceURL( webserviceURL );
 			throw wcee;
 		}
 		// Downcast URLConnection to HttpURLConnection to allow setting of HTTP parameters 
 		if ( ! ( urlConnection instanceof HttpURLConnection ) ) {
-			YRCSpectralStorageWebserviceCallErrorException wcee = new YRCSpectralStorageWebserviceCallErrorException( "Processing Error: Cannot cast URLConnection to HttpURLConnection" );
+			YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "Processing Error: Cannot cast URLConnection to HttpURLConnection" );
 			wcee.setServerURLError(true);
 			wcee.setWebserviceURL( webserviceURL );
 			throw wcee;
@@ -549,7 +549,7 @@ public class CallSpectralStorageGetDataWebservice {
 		try {
 			httpURLConnection = (HttpURLConnection) urlConnection;
 		} catch (Exception e) {
-			YRCSpectralStorageWebserviceCallErrorException wcee = new YRCSpectralStorageWebserviceCallErrorException( "Processing Error: Cannot cast URLConnection to HttpURLConnection" );
+			YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "Processing Error: Cannot cast URLConnection to HttpURLConnection" );
 			wcee.setServerURLError(true);
 			wcee.setWebserviceURL( webserviceURL );
 			throw wcee;
@@ -570,7 +570,7 @@ public class CallSpectralStorageGetDataWebservice {
 			try {
 				httpURLConnection.connect();
 			} catch ( IOException e ) {
-				YRCSpectralStorageWebserviceCallErrorException wcee = new YRCSpectralStorageWebserviceCallErrorException( "Exception connecting to server at URL: " + webserviceURL, e );
+				YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "Exception connecting to server at URL: " + webserviceURL, e );
 				wcee.setServerURLError(true);
 				wcee.setWebserviceURL( webserviceURL );
 				throw wcee;
@@ -604,7 +604,7 @@ public class CallSpectralStorageGetDataWebservice {
 					errorStreamContents= getErrorStreamContents( httpURLConnection );
 				} catch ( Exception ex ) {
 				}
-				YRCSpectralStorageWebserviceCallErrorException wcee = new YRCSpectralStorageWebserviceCallErrorException( "IOException sending XML to server at URL: " + webserviceURL, e );
+				YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "IOException sending XML to server at URL: " + webserviceURL, e );
 				wcee.setServerURLError(true);
 				wcee.setWebserviceURL( webserviceURL );
 				wcee.setErrorStreamContents( errorStreamContents );
@@ -621,7 +621,7 @@ public class CallSpectralStorageGetDataWebservice {
 							errorStreamContents= getErrorStreamContents( httpURLConnection );
 						} catch ( Exception ex ) {
 						}
-						YRCSpectralStorageWebserviceCallErrorException wcee = new YRCSpectralStorageWebserviceCallErrorException( "IOException closing output Stream to server at URL: " + webserviceURL, e );
+						YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "IOException closing output Stream to server at URL: " + webserviceURL, e );
 						wcee.setServerURLError(true);
 						wcee.setWebserviceURL( webserviceURL );
 						wcee.setErrorStreamContents( errorStreamContents );
@@ -638,7 +638,7 @@ public class CallSpectralStorageGetDataWebservice {
 										errorStreamContents= getErrorStreamContents( httpURLConnection );
 									} catch ( Exception ex ) {
 									}
-									YRCSpectralStorageWebserviceCallErrorException wcee = new YRCSpectralStorageWebserviceCallErrorException( "Exception closing output Stream to server at URL: " + webserviceURL, e );
+									YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "Exception closing output Stream to server at URL: " + webserviceURL, e );
 									wcee.setServerURLError(true);
 									wcee.setWebserviceURL( webserviceURL );
 									wcee.setErrorStreamContents( errorStreamContents );
@@ -657,8 +657,8 @@ public class CallSpectralStorageGetDataWebservice {
 						errorStreamContents= getErrorStreamContents( httpURLConnection );
 					} catch ( Exception ex ) {
 					}
-					YRCSpectralStorageWebserviceCallErrorException wcee = 
-							new YRCSpectralStorageWebserviceCallErrorException( "Unsuccessful HTTP response code of " + httpResponseCode
+					YRCSpectralStorageGetDataWebserviceCallErrorException wcee = 
+							new YRCSpectralStorageGetDataWebserviceCallErrorException( "Unsuccessful HTTP response code of " + httpResponseCode
 									+ " connecting to server at URL: " + webserviceURL );
 					wcee.setBadHTTPStatusCode(true);
 					wcee.setHttpStatusCode( httpResponseCode );
@@ -672,8 +672,8 @@ public class CallSpectralStorageGetDataWebservice {
 					errorStreamContents= getErrorStreamContents( httpURLConnection );
 				} catch ( Exception ex ) {
 				}
-				YRCSpectralStorageWebserviceCallErrorException wcee = 
-						new YRCSpectralStorageWebserviceCallErrorException( "IOException getting HTTP response code from server at URL: " + webserviceURL, e );
+				YRCSpectralStorageGetDataWebserviceCallErrorException wcee = 
+						new YRCSpectralStorageGetDataWebserviceCallErrorException( "IOException getting HTTP response code from server at URL: " + webserviceURL, e );
 				wcee.setServerSendReceiveDataError(true);
 				wcee.setWebserviceURL( webserviceURL );
 				wcee.setErrorStreamContents( errorStreamContents );
@@ -695,8 +695,8 @@ public class CallSpectralStorageGetDataWebservice {
 					errorStreamContents= getErrorStreamContents( httpURLConnection );
 				} catch ( Exception ex ) {
 				}
-				YRCSpectralStorageWebserviceCallErrorException wcee = 
-						new YRCSpectralStorageWebserviceCallErrorException( "IOException receiving XML from server at URL: " + webserviceURL, e );
+				YRCSpectralStorageGetDataWebserviceCallErrorException wcee = 
+						new YRCSpectralStorageGetDataWebserviceCallErrorException( "IOException receiving XML from server at URL: " + webserviceURL, e );
 				wcee.setServerSendReceiveDataError(true);
 				wcee.setWebserviceURL( webserviceURL );
 				wcee.setErrorStreamContents( errorStreamContents );
@@ -711,8 +711,8 @@ public class CallSpectralStorageGetDataWebservice {
 							errorStreamContents= getErrorStreamContents( httpURLConnection );
 						} catch ( Exception ex ) {
 						}
-						YRCSpectralStorageWebserviceCallErrorException wcee = 
-								new YRCSpectralStorageWebserviceCallErrorException( "IOException closing input Stream from server at URL: " + webserviceURL, e );
+						YRCSpectralStorageGetDataWebserviceCallErrorException wcee = 
+								new YRCSpectralStorageGetDataWebserviceCallErrorException( "IOException closing input Stream from server at URL: " + webserviceURL, e );
 						wcee.setServerSendReceiveDataError(true);
 						wcee.setWebserviceURL( webserviceURL );
 						wcee.setErrorStreamContents( errorStreamContents );

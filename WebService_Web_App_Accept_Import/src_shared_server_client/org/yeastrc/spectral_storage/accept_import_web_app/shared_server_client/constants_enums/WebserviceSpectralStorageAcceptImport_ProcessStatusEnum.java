@@ -4,7 +4,7 @@ package org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.
  * enum for Get_UploadedScanFileInfo_Response.status
  *
  */
-public enum WebserviceSpectral_ProcessStatusEnum {
+public enum WebserviceSpectralStorageAcceptImport_ProcessStatusEnum {
 
     PENDING("pending"),
     SUCCESS("success"),
@@ -22,7 +22,7 @@ public enum WebserviceSpectral_ProcessStatusEnum {
     /**
      * constructor:  Make private to hide 
      */
-    private WebserviceSpectral_ProcessStatusEnum(String v) {
+    private WebserviceSpectralStorageAcceptImport_ProcessStatusEnum(String v) {
         value = v;
     }
 
@@ -36,8 +36,8 @@ public enum WebserviceSpectral_ProcessStatusEnum {
      * @param value_
      * @return
      */
-    public static WebserviceSpectral_ProcessStatusEnum fromValue( String value_ ) {
-        for (WebserviceSpectral_ProcessStatusEnum c: WebserviceSpectral_ProcessStatusEnum.values()) {
+    public static WebserviceSpectralStorageAcceptImport_ProcessStatusEnum fromValue( String value_ ) {
+        for (WebserviceSpectralStorageAcceptImport_ProcessStatusEnum c: WebserviceSpectralStorageAcceptImport_ProcessStatusEnum.values()) {
             if (c.value.equals( value_ )) {
                 return c;
             }
