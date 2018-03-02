@@ -132,6 +132,9 @@ public class CallSpectralStorageGetDataWebservice {
 	}
 
 	/**
+	 * If specify exclude scan peaks, the "IsCentroid" may not be populated if there is more than 1 value for the file.
+	 * If "IsCentroid" is not populated, it will be null.
+	 * 
 	 * @param webserviceRequest
 	 * @return
 	 * @throws Exception 

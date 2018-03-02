@@ -4,7 +4,7 @@ import java.util.Properties;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import org.apache.log4j.Logger;
-import org.yeastrc.spectral_storage.get_data_webapp.config.A_Load_Config;
+import org.yeastrc.spectral_storage.get_data_webapp.config.A_Load_Config_Populate_Objects;
 
 /**
  * This class is loaded and the method "contextInitialized" is called when the web application is first loaded by the container
@@ -28,7 +28,7 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 		}
 		
 		try {
-			A_Load_Config.getInstance().load_Config();
+			A_Load_Config_Populate_Objects.getInstance().load_Config();
 		} catch (Exception e) {
 			String msg = "Failed to load config";
 			log.error( msg, e );

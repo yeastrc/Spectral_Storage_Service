@@ -1,29 +1,48 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.FileUploadConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ServetResponseFormatEnum;
+import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseObjectToOutputStream;
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants.WebserviceSpectralStorageQueryParamsConstants;
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants.WebserviceSpectralStorageScanFileAllowedSuffixesConstants;
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageQueryParamsConstants;
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageScanFileAllowedSuffixesConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_UploadScanFile_Response;
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.ScanFileToProcessConstants;
+import org.yeastrc.spectral_storage.accept_import_web_app.utils.Create_S3_Object_Paths;
+import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
+
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
+import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
+import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
+import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
+import com.amazonaws.services.s3.model.PartETag;
+import com.amazonaws.services.s3.model.UploadPartRequest;
+import com.amazonaws.services.s3.model.UploadPartResult;
 
 
 /**
@@ -45,7 +64,20 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 	
 	public static final int COPY_FILE_ARRAY_SIZE = 32 * 1024; // 32 KB
 	
-	
+	//  Large since can have at most 10,000 parts
+	public static final int S3_MULIPART_UPLOAD_PART_SIZE = 40 * 1024 * 1024; // each part 40 MB
+
+//	public static final int S3_MULIPART_UPLOAD_PART_SIZE = 5 * 1024 * 1024; // each part 5 MB - Min Size
+
+	private static final int UPLOAD_SCAN_FILE_INIT_UPLOAD_TO_S3_RETRY_COUNT_MAX = 3;
+	private static final int UPLOAD_SCAN_FILE_INIT_UPLOAD_TO_S3_RETRY_DELAY = 200; // in milliseconds
+
+	private static final int UPLOAD_SCAN_FILE_PART_TO_S3_RETRY_COUNT_MAX = 4;
+	private static final int UPLOAD_SCAN_FILE_PART_TO_S3_RETRY_DELAY = 300; // in milliseconds
+
+	private static final int UPLOAD_SCAN_FILE_COMPLETE_UPLOAD_TO_S3_RETRY_COUNT_MAX = 6;
+	private static final int UPLOAD_SCAN_FILE_COMPLETE_UPLOAD_TO_S3_RETRY_DELAY = 500; // in milliseconds
+
 	private ServetResponseFormatEnum servetResponseFormat;
 	
 	/* (non-Javadoc)
@@ -76,13 +108,13 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 		
 		String uploadScanFileTempKey = request.getParameter( WebserviceSpectralStorageQueryParamsConstants.UPLOAD_SCAN_FILE_TEMP_KEY_QUERY_PARAM );
 
-		File uploadedFileOnDisk = null;
-		
 		String scanFilenameToProcess = null;
 
 
 		try {
 			String requestURL = request.getRequestURL().toString();
+			
+			long postContentLength = request.getContentLengthLong();
 
 		       // uploadScanFileTempKey validation
 			if ( StringUtils.isEmpty( uploadScanFileTempKey ) ) {
@@ -105,9 +137,9 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 			}
 			
 		       // file upload size limit
-			if ( request.getContentLengthLong() > FileUploadConstants.MAX_FILE_UPLOAD_SIZE ) {
+			if ( postContentLength > FileUploadConstants.MAX_FILE_UPLOAD_SIZE ) {
 
-				log.warn( "Upload File size Exceeded.  File size uploaded: " + request.getContentLengthLong()
+				log.warn( "Upload File size Exceeded.  File size uploaded: " + postContentLength
 						+ ", max upload file size: " + FileUploadConstants.MAX_FILE_UPLOAD_SIZE 
 						+ ", max upload file size (formatted): " + FileUploadConstants.MAX_FILE_UPLOAD_SIZE_FORMATTED);
 				
@@ -199,89 +231,17 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 				
 				throw new FailResponseSentException();
 			}
-					
-			
-			uploadedFileOnDisk = new File( uploadScanFileTempKey_Dir, scanFilenameToProcess );
-					
-			//  Transfer the file from the stream to a disk file
-			InputStream inputStream = null;
-			OutputStream outStream = null;
-			try {
-				inputStream = request.getInputStream();
-				outStream = new FileOutputStream( uploadedFileOnDisk );
 
-				byte[] byteBuffer = new byte[ COPY_FILE_ARRAY_SIZE ];
-				int bytesRead;
-				long bytesReadTotal = 0;
-
-				while ( ( bytesRead = inputStream.read( byteBuffer ) ) > 0 ){
-					
-					bytesReadTotal += bytesRead;
-
-				       // file upload size limit
-					if ( bytesReadTotal > FileUploadConstants.MAX_FILE_UPLOAD_SIZE ) {
-
-						log.warn( "Upload File size Exceeded.  Bytes Read count so far: " + bytesReadTotal
-								+ ", max upload file size: " + FileUploadConstants.MAX_FILE_UPLOAD_SIZE 
-								+ ", max upload file size (formatted): " + FileUploadConstants.MAX_FILE_UPLOAD_SIZE_FORMATTED
-								+ ", writing to file: " + uploadedFileOnDisk.getAbsolutePath() );
-						
-						response.setStatus( HttpServletResponse.SC_BAD_REQUEST /* 400  */ );
-						
-						UploadScanFile_UploadScanFile_Response uploadResponse = new UploadScanFile_UploadScanFile_Response();
-						uploadResponse.setStatusSuccess(false);
-						uploadResponse.setFileSizeLimitExceeded(true);
-						uploadResponse.setMaxSize( FileUploadConstants.MAX_FILE_UPLOAD_SIZE );
-						uploadResponse.setMaxSizeFormatted( FileUploadConstants.MAX_FILE_UPLOAD_SIZE_FORMATTED );
-
-						WriteResponseObjectToOutputStream.getSingletonInstance()
-						.writeResponseObjectToOutputStream( uploadResponse, servetResponseFormat, response );
-						
-						throw new FailResponseSentException();
-					}
-
-					outStream.write( byteBuffer, 0, bytesRead );
-					
-				}
-			} catch ( Exception e ) {
+			if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket() ) ) {
 				
-				String msg = "Failed writing request to file: " + uploadedFileOnDisk.getAbsolutePath();
-				log.error(msg, e);
-				response.setStatus( 500 );
+				//  Save uploaded scan file to S3 Object. Returns a response to client if fail
+				saveUploadedScanFileToS3Object( request, response, scanFilenameToProcess, uploadScanFileTempKey_Dir );
 
-				throw new FailResponseSentException();
-			} finally {
-
-				boolean closeOutputStreamFail = false;
-				try {
-					if ( outStream != null ) {
-						outStream.close();
-					}
-				} catch(Exception e){
-					closeOutputStreamFail = true;
-
-					String msg = "Failed closing file: " + uploadedFileOnDisk.getAbsolutePath();
-					log.error(msg, e);
-					response.setStatus( 500 );
-
-					throw new FailResponseSentException();
-				} finally {
-					try {
-						if ( inputStream != null ) {
-							inputStream.close();
-						}
-					} catch(Exception e){ 
-						if ( ! closeOutputStreamFail ) {
-						}
-						String msg = "Failed closing input stream for file: " + uploadedFileOnDisk.getAbsolutePath();
-						log.error(msg, e);
-						response.setStatus( 500 );
-
-						throw new FailResponseSentException();
-					}
-				}
-			}
+			} else {
 			
+				//  Save uploaded scan file to local disk file. Returns a response to client if fail
+				saveUploadedScanFileToLocalDiskFile( request, response, scanFilenameToProcess, uploadScanFileTempKey_Dir );
+			}
 			
 			UploadScanFile_UploadScanFile_Response uploadResponse = new UploadScanFile_UploadScanFile_Response();
 			
@@ -322,6 +282,280 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 //			throw new ServletException( ex );
 		}
 
+	}
+	
+	
+	/**
+	 * @param request
+	 * @param response
+	 * @param scanFilenameToProcess
+	 * @param uploadScanFileTempKey_Dir
+	 * @throws Exception 
+	 */
+	private void saveUploadedScanFileToS3Object(
+			HttpServletRequest request, 
+			HttpServletResponse response,
+			String scanFilenameToProcess, 
+			File uploadScanFileTempKey_Dir ) throws Exception {
+		
+		final String bucketName = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket();
+		
+		String uploadScanFileTempKey_Dir_Name = uploadScanFileTempKey_Dir.getName();
+		
+		String s3_Object_Key = 
+				Create_S3_Object_Paths.getInstance()
+				.get_ScanFile_Uploaded_S3ObjectPath( uploadScanFileTempKey_Dir_Name, scanFilenameToProcess );
+
+		//  Write a file to uploadScanFileTempKey_Dir with info on file to be written to S3
+		{
+			UploadScanfileS3Location uploadScanfileS3Location = new UploadScanfileS3Location();
+			uploadScanfileS3Location.setScanFilenameToProcess( scanFilenameToProcess );
+			uploadScanfileS3Location.setS3_bucketName( bucketName );
+			uploadScanfileS3Location.setS3_objectName( s3_Object_Key );
+			
+			JAXBContext jaxbContext = JAXBContext.newInstance( UploadScanfileS3Location.class );
+			Marshaller marshaller = jaxbContext.createMarshaller();
+		
+			File scanfileS3InfoFile = new File( uploadScanFileTempKey_Dir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
+			
+			try ( OutputStream os = new FileOutputStream( scanfileS3InfoFile ) ) {
+				marshaller.marshal( uploadScanfileS3Location, os );
+			} catch (Exception e ) {
+				String msg = "Failed to write uploadScanfileS3Location to scanfileS3InfoFile: " + scanfileS3InfoFile.getAbsolutePath();
+				log.error( msg, e );
+				throw new SpectralFileWebappInternalException( msg, e );
+			}
+		}		
+		
+		//  Transfer the file from the stream to an S3 object
+		final AmazonS3 amazonS3 = CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3().getS3_Client();
+
+		byte[] uploadPartByteBuffer = new byte[ S3_MULIPART_UPLOAD_PART_SIZE ];
+
+		int partNumber = 0; // Must start at 1, incremented at top of loop, max of 10,000
+		int bytesRead = 0;
+		
+		try ( InputStream scanDataFileOnDiskIS = request.getInputStream() ) {
+
+	        // Create a list of UploadPartResponse objects. You get one of these
+	        // for each part upload.
+	        List<PartETag> partETags = new ArrayList<>( 10001 ); // Init to max possible size
+
+	    	InitiateMultipartUploadResult initResponse = null;
+	    	
+    		int uploadInitToS3_RetryCounter = 0;
+    		
+    		while ( true ) {
+    			try {
+    				// Step 1: Initialize.
+    				InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest( bucketName, s3_Object_Key );
+    				initResponse = amazonS3.initiateMultipartUpload(initRequest);
+
+    				break; //  Exit while( true ) since S3 call succeeded
+
+    			} catch ( Exception e ) {
+    				uploadInitToS3_RetryCounter++;
+    				if ( uploadInitToS3_RetryCounter > UPLOAD_SCAN_FILE_INIT_UPLOAD_TO_S3_RETRY_COUNT_MAX ) {
+    					throw e;
+    				}
+    				Thread.sleep( UPLOAD_SCAN_FILE_INIT_UPLOAD_TO_S3_RETRY_DELAY );
+    			}
+    		}
+    		
+        	String uploadId = initResponse.getUploadId();
+        
+	        try {
+	        	//  Step 2:  Upload parts.
+	        	while ( ( bytesRead = populateBufferFromScanDataFile( scanDataFileOnDiskIS, uploadPartByteBuffer ) ) > 0 ) {
+	        		partNumber++;
+	        		boolean lastPart = false;
+	        		if ( bytesRead < uploadPartByteBuffer.length ) { // uploadPartByteBuffer not full so is at end of file
+	        			lastPart = true;
+	        		}
+	        		
+	        		int uploadPartToS3_RetryCounter = 0;
+	        		
+	        		while ( true ) {
+	        			try {
+	        				ByteArrayInputStream scanFilePartIS = new ByteArrayInputStream( uploadPartByteBuffer, 0 /* offset */, bytesRead /* length */ );
+	        				UploadPartRequest uploadRequest = 
+	        						new UploadPartRequest().withUploadId( uploadId )
+	        						.withBucketName( bucketName )
+	        						.withKey( s3_Object_Key )
+	        						.withInputStream( scanFilePartIS )
+	        						.withPartNumber( partNumber )
+	        						.withPartSize( bytesRead )
+	        						.withLastPart( lastPart );
+
+	        				//   Consider computing MD5 on scanFilePartIS and add to uploadRequest
+	        				//       S3 uses that for an integrity check
+
+	        				UploadPartResult result =  amazonS3.uploadPart( uploadRequest );
+	        				PartETag partETag = result.getPartETag();
+	        				partETags.add( partETag );
+	        				
+	        				break; //  Exit while( true ) since S3 call succeeded
+
+	        			} catch ( Exception e ) {
+	        				uploadPartToS3_RetryCounter++;
+	        				if ( uploadPartToS3_RetryCounter > UPLOAD_SCAN_FILE_PART_TO_S3_RETRY_COUNT_MAX ) {
+	        					throw e;
+	        				}
+	        				Thread.sleep( UPLOAD_SCAN_FILE_PART_TO_S3_RETRY_DELAY );
+	        			}
+	        		}
+	        		
+	        		if ( bytesRead < uploadPartByteBuffer.length ) { // uploadPartByteBuffer not full so is at end of file
+	        			break; // exit loop since at last part
+	        		}
+	        	}
+
+        		int uploadPartToS3_RetryCounter = 0;
+        		
+        		while ( true ) {
+        			try {
+        				// Step 3: Complete.
+        				CompleteMultipartUploadRequest compRequest = new 
+        						CompleteMultipartUploadRequest(
+        								bucketName, 
+        								s3_Object_Key, 
+        								uploadId,
+        								partETags);
+
+        				amazonS3.completeMultipartUpload( compRequest );
+
+        				break; //  Exit while( true ) since S3 call succeeded
+
+        			} catch ( Exception e ) {
+        				uploadPartToS3_RetryCounter++;
+        				if ( uploadPartToS3_RetryCounter > UPLOAD_SCAN_FILE_COMPLETE_UPLOAD_TO_S3_RETRY_COUNT_MAX ) {
+        					throw e;
+        				}
+        				Thread.sleep( UPLOAD_SCAN_FILE_COMPLETE_UPLOAD_TO_S3_RETRY_DELAY );
+        			}
+        		}
+	        } catch (Exception e) {
+	        	log.error( "Exception transfering uploaded Scan file from request.inputstream to S3. amazonS3.abortMultipartUpload(...) will be called next " );
+	        	amazonS3.abortMultipartUpload( new AbortMultipartUploadRequest( bucketName, s3_Object_Key, uploadId ) );
+	        	throw e;
+	        }
+		}
+	}
+	
+	/**
+	 * @param scanDataFileIS
+	 * @param uploadPartByteBuffer
+	 * @return number of bytes read into uploadPartByteBuffer.  If < uploadPartByteBuffer.length, at last buffer for file
+	 * @throws IOException 
+	 */
+	private int populateBufferFromScanDataFile( InputStream scanDataFileIS, byte[] uploadPartByteBuffer ) throws IOException {
+		
+		int byteBufferLength = uploadPartByteBuffer.length;
+		
+		int bytesRead = 0;
+		int byteBufferIndex = 0;
+		
+		while ( ( bytesRead = 
+				scanDataFileIS.read( uploadPartByteBuffer, byteBufferIndex, byteBufferLength - byteBufferIndex) ) != -1 ) {
+			byteBufferIndex += bytesRead;
+			if ( byteBufferIndex >= byteBufferLength ) {
+				break;
+			}
+		}
+		
+		return byteBufferIndex;
+	}
+	
+	/**
+	 * @param request
+	 * @param response
+	 * @param scanFilenameToProcess
+	 * @param uploadScanFileTempKey_Dir
+	 * @throws FailResponseSentException
+	 */
+	private void saveUploadedScanFileToLocalDiskFile(HttpServletRequest request, HttpServletResponse response,
+			String scanFilenameToProcess, File uploadScanFileTempKey_Dir) throws FailResponseSentException {
+		File uploadedFileOnDisk;
+		uploadedFileOnDisk = new File( uploadScanFileTempKey_Dir, scanFilenameToProcess );
+				
+		//  Transfer the file from the stream to a disk file
+		InputStream inputStream = null;
+		OutputStream outStream = null;
+		try {
+			inputStream = request.getInputStream();
+			outStream = new FileOutputStream( uploadedFileOnDisk );
+
+			byte[] byteBuffer = new byte[ COPY_FILE_ARRAY_SIZE ];
+			int bytesRead;
+			long bytesReadTotal = 0;
+
+			while ( ( bytesRead = inputStream.read( byteBuffer ) ) > 0 ){
+				
+				bytesReadTotal += bytesRead;
+
+			       // file upload size limit
+				if ( bytesReadTotal > FileUploadConstants.MAX_FILE_UPLOAD_SIZE ) {
+
+					log.warn( "Upload File size Exceeded.  Bytes Read count so far: " + bytesReadTotal
+							+ ", max upload file size: " + FileUploadConstants.MAX_FILE_UPLOAD_SIZE 
+							+ ", max upload file size (formatted): " + FileUploadConstants.MAX_FILE_UPLOAD_SIZE_FORMATTED
+							+ ", writing to file: " + uploadedFileOnDisk.getAbsolutePath() );
+					
+					response.setStatus( HttpServletResponse.SC_BAD_REQUEST /* 400  */ );
+					
+					UploadScanFile_UploadScanFile_Response uploadResponse = new UploadScanFile_UploadScanFile_Response();
+					uploadResponse.setStatusSuccess(false);
+					uploadResponse.setFileSizeLimitExceeded(true);
+					uploadResponse.setMaxSize( FileUploadConstants.MAX_FILE_UPLOAD_SIZE );
+					uploadResponse.setMaxSizeFormatted( FileUploadConstants.MAX_FILE_UPLOAD_SIZE_FORMATTED );
+
+					WriteResponseObjectToOutputStream.getSingletonInstance()
+					.writeResponseObjectToOutputStream( uploadResponse, servetResponseFormat, response );
+					
+					throw new FailResponseSentException();
+				}
+
+				outStream.write( byteBuffer, 0, bytesRead );
+				
+			}
+		} catch ( Exception e ) {
+			
+			String msg = "Failed writing request to file: " + uploadedFileOnDisk.getAbsolutePath();
+			log.error(msg, e);
+			response.setStatus( 500 );
+
+			throw new FailResponseSentException();
+		} finally {
+
+			boolean closeOutputStreamFail = false;
+			try {
+				if ( outStream != null ) {
+					outStream.close();
+				}
+			} catch(Exception e){
+				closeOutputStreamFail = true;
+
+				String msg = "Failed closing file: " + uploadedFileOnDisk.getAbsolutePath();
+				log.error(msg, e);
+				response.setStatus( 500 );
+
+				throw new FailResponseSentException();
+			} finally {
+				try {
+					if ( inputStream != null ) {
+						inputStream.close();
+					}
+				} catch(Exception e){ 
+					if ( ! closeOutputStreamFail ) {
+					}
+					String msg = "Failed closing input stream for file: " + uploadedFileOnDisk.getAbsolutePath();
+					log.error(msg, e);
+					response.setStatus( 500 );
+
+					throw new FailResponseSentException();
+				}
+			}
+		}
 	}
 	
 	

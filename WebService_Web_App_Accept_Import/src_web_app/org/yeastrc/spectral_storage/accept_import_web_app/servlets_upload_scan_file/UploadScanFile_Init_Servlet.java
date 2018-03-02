@@ -17,8 +17,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.Get_Se
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseObjectToOutputStream;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_Init_Response;
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.CreateTempDirToUploadScanFileTo;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.ScanFileToProcessConstants;
-
+import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 
 /**
  * Initializes the Upload Scan Process by Creating the directory to upload into 
@@ -38,8 +37,7 @@ public class UploadScanFile_Init_Servlet extends HttpServlet {
 	 * @see javax.servlet.GenericServlet#init(javax.servlet.ServletConfig)
 	 */
 	@Override
-	public void init(ServletConfig config)
-	          throws ServletException {
+	public void init(ServletConfig config) throws ServletException {
 		
 		super.init(config); //  Must call this first
 
@@ -48,7 +46,6 @@ public class UploadScanFile_Init_Servlet extends HttpServlet {
 				.get_ServletResultDataFormat_FromServletInitParam( config );
 
 		log.warn( "INFO: servetResponseFormat: " + servetResponseFormat );
-		
 	}
 	
 	/* (non-Javadoc)
@@ -59,15 +56,13 @@ public class UploadScanFile_Init_Servlet extends HttpServlet {
 			throws ServletException, IOException {
 		
 		log.info( "INFO:  doPost called");
-		
 
 		try {
-			String requestURL = request.getRequestURL().toString();
+//			String requestURL = request.getRequestURL().toString();
 		    
 			File uploadFileTempDir = CreateTempDirToUploadScanFileTo.getInstance().createTempDirToUploadScanFileTo();
 			
 			String uploadScanFileTempKey = uploadFileTempDir.getName();
-			
 
 			//  Create a file in the directory to track the create date/time of the directory
 			File createdDirFile = new File( uploadFileTempDir, ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_SUB_DIR_CREATE_TRACKING_FILE );
@@ -87,7 +82,6 @@ public class UploadScanFile_Init_Servlet extends HttpServlet {
 			
 			uploadInitResponse.setMaxUploadFileSize( FileUploadConstants.MAX_FILE_UPLOAD_SIZE );
 			uploadInitResponse.setMaxUploadFileSizeFormatted( FileUploadConstants.MAX_FILE_UPLOAD_SIZE_FORMATTED );
-
 
 			WriteResponseObjectToOutputStream.getSingletonInstance()
 			.writeResponseObjectToOutputStream( uploadInitResponse, servetResponseFormat, response );

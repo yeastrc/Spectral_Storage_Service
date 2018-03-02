@@ -18,12 +18,14 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants.WebserviceSpectralStoragePathConstants;
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants.WebserviceSpectralStorageQueryParamsConstants;
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants.WebserviceSpectralStorageScanFileAllowedSuffixesConstants;
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStoragePathConstants;
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageQueryParamsConstants;
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageScanFileAllowedSuffixesConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.exceptions.YRCSpectralStorageWebserviceCallErrorException;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.Get_UploadedScanFileInfo_Request;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.Get_UploadedScanFileInfo_Response;
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_AddScanFileInS3Bucket_Request;
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_AddScanFileInS3Bucket_Response;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_Delete_For_ScanProcessStatusKey_Request;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_Delete_For_ScanProcessStatusKey_Response;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_Init_Request;
@@ -75,6 +77,8 @@ public class CallSpectralStorageAcceptImportWebservice {
 				JAXBContext.newInstance( 
 						UploadScanFile_Init_Request.class,
 						UploadScanFile_Init_Response.class,
+						UploadScanFile_AddScanFileInS3Bucket_Request.class,
+						UploadScanFile_AddScanFileInS3Bucket_Response.class,
 						UploadScanFile_UploadScanFile_Response.class,
 						UploadScanFile_Submit_Request.class,
 						UploadScanFile_Submit_Response.class,
@@ -99,7 +103,7 @@ public class CallSpectralStorageAcceptImportWebservice {
 			throw new IllegalStateException( "Not initialized" );
 		}
 		if ( webserviceRequest == null ) {
-			throw new IllegalArgumentException( "webserviceRequest param must not be null in call to call_Get_UploadedScanFileInfo_Webservice(...)" );
+			throw new IllegalArgumentException( "webserviceRequest param must not be null in call to call_UploadScanFile_Init_Webservice(...)" );
 		}
 
 		String webserviceURL = spectralStorageServerBaseURL
@@ -117,6 +121,42 @@ public class CallSpectralStorageAcceptImportWebservice {
 			webserviceResponse = (UploadScanFile_Init_Response) webserviceResponseAsObject;
 		} catch ( Exception e ) {
 			String msg = "Error. Fail to cast response as UploadScanFile_Init_Response: "
+					+ e.toString();
+			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			exception.setFailToDecodeDataReceivedFromServer(true);
+			throw exception;
+		}
+		return webserviceResponse;
+	}
+
+	/**
+	 * @param webserviceRequest
+	 * @return
+	 * @throws Exception 
+	 */
+	public UploadScanFile_AddScanFileInS3Bucket_Response call_UploadScanFile_AddScanFileInS3Bucket_Webservice( UploadScanFile_AddScanFileInS3Bucket_Request webserviceRequest ) throws Exception {
+		if ( ! instanceInitialized ) {
+			throw new IllegalStateException( "Not initialized" );
+		}
+		if ( webserviceRequest == null ) {
+			throw new IllegalArgumentException( "webserviceRequest param must not be null in call to call_UploadScanFile_AddScanFileInS3Bucket_Webservice(...)" );
+		}
+
+		String webserviceURL = spectralStorageServerBaseURL
+				+ WebserviceSpectralStoragePathConstants.UPLOAD_SCAN_FILE_ADD_SCAN_FILE_IN_S3_BUCKET_SERVLET_XML;
+		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
+		if ( ! ( webserviceResponseAsObject instanceof UploadScanFile_AddScanFileInS3Bucket_Response ) ) {
+			String msg = "Response unmarshaled to class other than UploadScanFile_AddScanFileInS3Bucket_Response.  "
+					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
+			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
+			exception.setFailToDecodeDataReceivedFromServer(true);
+			throw exception;
+		}
+		UploadScanFile_AddScanFileInS3Bucket_Response webserviceResponse = null;
+		try {
+			webserviceResponse = (UploadScanFile_AddScanFileInS3Bucket_Response) webserviceResponseAsObject;
+		} catch ( Exception e ) {
+			String msg = "Error. Fail to cast response as UploadScanFile_AddScanFileInS3Bucket_Response: "
 					+ e.toString();
 			YRCSpectralStorageWebserviceCallErrorException exception = new YRCSpectralStorageWebserviceCallErrorException( msg );
 			exception.setFailToDecodeDataReceivedFromServer(true);

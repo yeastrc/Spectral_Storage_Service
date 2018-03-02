@@ -122,6 +122,10 @@ public class SpectralFile_Index_File_Writer_V_003 {
 			//  Get largest scan Number Offset from prev scan number
 			int largestScanNumberOffsetFromPrev = 0;
 
+			//  Don't expect to ever be Negative, just for protection
+			//  Get most negative scan Number Offset from prev scan number.
+			int mostNegativeScanNumberOffsetFromPrev = 0;
+
 			//  Get largest scan size in bytes
 			int largestScanSizeInBytes = 0;
 
@@ -133,10 +137,13 @@ public class SpectralFile_Index_File_Writer_V_003 {
 						if ( scanNumberOffset > largestScanNumberOffsetFromPrev ) {
 							largestScanNumberOffsetFromPrev = scanNumberOffset;
 						}
+						if ( scanNumberOffset < mostNegativeScanNumberOffsetFromPrev ) {
+							mostNegativeScanNumberOffsetFromPrev = scanNumberOffset;
+						}
 						if ( scanNumberOffset != 1 ) {
 							scanNumberOffsetAlways_One = false;
-							System.out.println( "scanNumberOffset != 1: scanNumberOffset: " + scanNumberOffset
-									+ ", indexScanEntry.getScanNumber(): " + indexScanEntry.getScanNumber() );
+//							System.out.println( "scanNumberOffset != 1: scanNumberOffset: " + scanNumberOffset
+//									+ ", indexScanEntry.getScanNumber(): " + indexScanEntry.getScanNumber() );
 						}
 					}
 					if ( indexScanEntry.getScanSize_InDataFile_InBytes() > largestScanSizeInBytes ) {
@@ -149,9 +156,9 @@ public class SpectralFile_Index_File_Writer_V_003 {
 			if ( scanNumberOffsetAlways_One ) {
 				//  scanNumberOffset is always 1 so not needed per scan
 				scanNumberOffsetType = SpectralFile_Index_Header_DTO_V_003__Constants.SCAN_NUMBER_OFFSET_TYPE_NONE__SCAN_NUMBER_OFFSET_ALWAYS_DEFAULT_1;
-			} else if ( largestScanNumberOffsetFromPrev < Byte.MAX_VALUE ) {
+			} else if ( largestScanNumberOffsetFromPrev <= Byte.MAX_VALUE && mostNegativeScanNumberOffsetFromPrev >= Byte.MIN_VALUE ) {
 				scanNumberOffsetType = SpectralFile_Index_Header_DTO_V_003__Constants.SCAN_NUMBER_OFFSET_TYPE_BYTE;
-			} else if ( largestScanNumberOffsetFromPrev < Short.MAX_VALUE ) {
+			} else if ( largestScanNumberOffsetFromPrev <= Short.MAX_VALUE && mostNegativeScanNumberOffsetFromPrev >= Short.MIN_VALUE ) {
 				scanNumberOffsetType = SpectralFile_Index_Header_DTO_V_003__Constants.SCAN_NUMBER_OFFSET_TYPE_SHORT;
 			}
 			

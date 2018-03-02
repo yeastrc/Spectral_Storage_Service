@@ -3,6 +3,7 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_
 import java.io.File;
 
 import org.apache.log4j.Logger;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 
 /**
  * Get the Subdirectory path for the given hash value 
@@ -43,7 +44,9 @@ public class GetOrCreateSpectralStorageSubPath {
 			
 			//  Filename created from hash is not same as hash so return null.
 			
-			return null;
+			String msg = "Hash has OS Delimiters so throw error.  hash: " + hash;
+			log.error( msg );
+			throw new SpectralStorageDataException( msg );
 		}
 		
 		return getOrCreateDirsForHash( hash, outputBaseDir, CreateIfNotExist.NO );

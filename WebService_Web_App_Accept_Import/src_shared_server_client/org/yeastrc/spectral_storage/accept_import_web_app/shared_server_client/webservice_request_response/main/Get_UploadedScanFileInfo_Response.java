@@ -5,6 +5,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectral_ProcessStatusEnum;
+
 /**
  * Response object from Webservice Get_UploadedScanFileInfo
  *
@@ -19,39 +21,34 @@ public class Get_UploadedScanFileInfo_Response extends BaseAcceptImportWebservic
 	private boolean scanProcessStatusKey_NotFound;
 
 	@XmlAttribute
-	private boolean statusPending;
-	@XmlAttribute
-	private boolean statusSuccess;
-	@XmlAttribute
-	private boolean statusFail;
-	@XmlAttribute
-	private boolean statusDeleted;
+	private WebserviceSpectral_ProcessStatusEnum status;
 	
+	/**
+	 * Populated if status success
+	 */
 	@XmlAttribute
 	private String scanFileAPIKey;
 
-	public boolean isStatusPending() {
-		return statusPending;
+	/**
+	 * Populated if status fail
+	 */
+	@XmlAttribute
+	private String failMessage;
+
+	public boolean isScanProcessStatusKey_NotFound() {
+		return scanProcessStatusKey_NotFound;
 	}
 
-	public void setStatusPending(boolean statusPending) {
-		this.statusPending = statusPending;
+	public void setScanProcessStatusKey_NotFound(boolean scanProcessStatusKey_NotFound) {
+		this.scanProcessStatusKey_NotFound = scanProcessStatusKey_NotFound;
 	}
 
-	public boolean isStatusSuccess() {
-		return statusSuccess;
+	public WebserviceSpectral_ProcessStatusEnum getStatus() {
+		return status;
 	}
 
-	public void setStatusSuccess(boolean statusSuccess) {
-		this.statusSuccess = statusSuccess;
-	}
-
-	public boolean isStatusFail() {
-		return statusFail;
-	}
-
-	public void setStatusFail(boolean statusFail) {
-		this.statusFail = statusFail;
+	public void setStatus(WebserviceSpectral_ProcessStatusEnum status) {
+		this.status = status;
 	}
 
 	public String getScanFileAPIKey() {
@@ -62,19 +59,12 @@ public class Get_UploadedScanFileInfo_Response extends BaseAcceptImportWebservic
 		this.scanFileAPIKey = scanFileAPIKey;
 	}
 
-	public boolean isScanProcessStatusKey_NotFound() {
-		return scanProcessStatusKey_NotFound;
+	public String getFailMessage() {
+		return failMessage;
 	}
 
-	public void setScanProcessStatusKey_NotFound(boolean scanProcessStatusKey_NotFound) {
-		this.scanProcessStatusKey_NotFound = scanProcessStatusKey_NotFound;
+	public void setFailMessage(String failMessage) {
+		this.failMessage = failMessage;
 	}
 
-	public boolean isStatusDeleted() {
-		return statusDeleted;
-	}
-
-	public void setStatusDeleted(boolean statusDeleted) {
-		this.statusDeleted = statusDeleted;
-	}
 }

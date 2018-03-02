@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.yeastrc.spectral_storage.get_data_webapp.config.A_Load_Config;
+import org.yeastrc.spectral_storage.get_data_webapp.config.A_Load_Config_Populate_Objects;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.AdminPageConstants;
 
 public class ReloadConfigServlet extends HttpServlet {
@@ -90,7 +90,7 @@ public class ReloadConfigServlet extends HttpServlet {
 		
 		
 		try {
-			A_Load_Config.getInstance().load_Config();
+			A_Load_Config_Populate_Objects.getInstance().load_Config();
 		} catch (Throwable e) {
 			log.error( "Failed to reload config:", e );
 			response.setStatus( HttpServletResponse.SC_INTERNAL_SERVER_ERROR /* 500  */ );

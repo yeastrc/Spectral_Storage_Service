@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.run_system_command.RunSystemCommand;
@@ -80,19 +81,24 @@ public class ProcessNextUploadedScanFile {
 		UploadProcessingWriteOrUpdateStatusFile.getInstance()
 		.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_STARTED, scanFileDirectory );
 		
+		ConfigData_Directories_ProcessUploadInfo_InWorkDirectory configData_Directories_ProcessUploadInfo_InWorkDirectory = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance();
+		
 		String javaExecutable = 
-				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getJavaExecutable();
+				configData_Directories_ProcessUploadInfo_InWorkDirectory.getJavaExecutable();
 
 		List<String> javaExecutableParameters =
-				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getJavaExecutableParameters();
+				configData_Directories_ProcessUploadInfo_InWorkDirectory.getJavaExecutableParameters();
 
 		String processScanUploadJarFile = 
-				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getProcessScanUploadJarFile();
+				configData_Directories_ProcessUploadInfo_InWorkDirectory.getProcessScanUploadJarFile();
+
+		String scanFileStorageBaseDirString = null;
 
 		File scanFileStorageBaseDir = 
-				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getScanStorageBaseDirectory();
-		
-		String scanFileStorageBaseDirString = scanFileStorageBaseDir.getCanonicalPath();
+				configData_Directories_ProcessUploadInfo_InWorkDirectory.getScanStorageBaseDirectory();
+		if ( scanFileStorageBaseDir != null ) {
+			scanFileStorageBaseDirString = "--output_base_dir=" + scanFileStorageBaseDir.getCanonicalPath();
+		}
 
 
 		List<String> commandAndItsArgumentsAsList = new ArrayList<>( 20 );
@@ -107,8 +113,18 @@ public class ProcessNextUploadedScanFile {
 		commandAndItsArgumentsAsList.add( "-jar" );
 		commandAndItsArgumentsAsList.add( processScanUploadJarFile );
 		
-		//  output dir
-		commandAndItsArgumentsAsList.add( scanFileStorageBaseDirString );
+		if ( scanFileStorageBaseDirString != null ) {
+			// writing to local filesystem: output dir
+			commandAndItsArgumentsAsList.add( scanFileStorageBaseDirString );
+		}
+		
+		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Bucket() ) ) {
+			commandAndItsArgumentsAsList.add( "--s3_output_bucket=" + configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Bucket() );
+		}
+		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Region() ) ) {
+			commandAndItsArgumentsAsList.add( "--s3_output_region=" + configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Region() );
+			commandAndItsArgumentsAsList.add( "--s3_input_region=" + configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Region() );
+		}
 		
 		if ( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().isDeleteUploadedScanFileOnSuccessfulImport() ) {
 			//  Configured to delete uploaded scan file on successful import so pass to import program

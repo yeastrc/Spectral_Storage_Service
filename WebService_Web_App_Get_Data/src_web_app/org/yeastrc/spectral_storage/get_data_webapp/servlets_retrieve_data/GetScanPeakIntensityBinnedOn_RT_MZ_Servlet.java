@@ -1,8 +1,6 @@
 package org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,15 +13,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileDeserializeRequestException;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.GetRequestObjectFromInputStream;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteResponseStringToOutputStream;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanPeakIntensityBinnedOn_RT_MZ_Request;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.ScanLevel_1_RT_MZ_Binned_Constants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.GetOrCreateSpectralStorageSubPath;
 
 /**
  * Get Scan Peak intensity binned on Retention Time and m/z
@@ -176,42 +174,19 @@ public class GetScanPeakIntensityBinnedOn_RT_MZ_Servlet extends HttpServlet {
 				throw new SpectralFileBadRequestToServletException( msg );
 			}
 
-			File scanStorageBaseDirectoryFile =
-					ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance()
-					.getScanStorageBaseDirectory();
-
-			//  null returned if directory does not exist
-			File subDirForStorageFiles = 
-					GetOrCreateSpectralStorageSubPath.getInstance().getDirsForHash( scanFileAPIKey, scanStorageBaseDirectoryFile );
-			
-			if ( subDirForStorageFiles == null ) {
-				String msg = "subdirectory not found for scanFileAPIKey: " 
-						+ scanFileAPIKey
-						+ ".  scanStorageBaseDirectoryFile: " + scanStorageBaseDirectoryFile.getAbsolutePath();
-				log.warn( msg );
-				throw new SpectralFileBadRequestToServletException( msg );
-			}
+			CommonReader_File_And_S3 commonReader_File_And_S3 = CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3();
 
 			String dataFilename =
 					CreateSpectralStorageFilenames.getInstance()
-					.createSpectraStorage_ScanBinnedIntensityOn_RT_MZ_Filename( 
+					.createSpectraStorage_ScanBinnedIntensityOn_RT_MZ__JSON_GZIP_Filename(
 							scanFileAPIKey,
 							retentionTimeBinSize,
 							mzBinSize );
-			
-			File dataFile = new File( subDirForStorageFiles, dataFilename );
 
-			if ( ! dataFile.exists() ) {
-				String msg = "dataFile not found for scanFileAPIKey: " 
-						+ scanFileAPIKey
-						+ ".  dataFile: " + dataFile.getAbsolutePath();
-				log.warn( msg );
-				throw new SpectralFileBadRequestToServletException( msg );
-			}
-			
 			//  Copy dataFile to outputStream
 			
-			response.setContentLengthLong( dataFile.length() );
+			// Not readily available from S3 so skipping.
+//			response.setContentLengthLong( dataFile.length() );
 			
 			InputStream inputStream = null;
 			OutputStream outputStream = null;
@@ -219,7 +194,7 @@ public class GetScanPeakIntensityBinnedOn_RT_MZ_Servlet extends HttpServlet {
 			byte[] copyBuffer = new byte[ 16384 ];
 			
 			try {
-				inputStream = new BufferedInputStream( new FileInputStream(dataFile) );
+				inputStream = new BufferedInputStream( commonReader_File_And_S3.getInputStreamForScanStorageItem( dataFilename, scanFileAPIKey ) );
 				outputStream = response.getOutputStream();
 				
 				int bytesRead = 0;

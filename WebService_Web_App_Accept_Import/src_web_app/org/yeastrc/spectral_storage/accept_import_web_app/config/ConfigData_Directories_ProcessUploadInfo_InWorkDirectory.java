@@ -35,6 +35,18 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	 * The 'temp' Base directory that scan files are uploaded into
 	 */
 	private File tempScanUploadBaseDirectory;
+	
+
+	/**
+	 * The S3 bucket that the scan data is written to for perm storage
+	 */
+	private String s3Bucket;
+
+	/**
+	 * The S3 region that the scan data is written to for perm storage
+	 */
+	private String s3Region;
+	
 
 
 	/**
@@ -205,6 +217,22 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 
 	public void setEmailMachineName(String emailMachineName) {
 		this.emailMachineName = emailMachineName;
+	}
+
+	public String getS3Bucket() {
+		return s3Bucket;
+	}
+
+	public void setS3Bucket(String s3Bucket) {
+		this.s3Bucket = s3Bucket;
+	}
+
+	public String getS3Region() {
+		return s3Region;
+	}
+
+	public void setS3Region(String s3Region) {
+		this.s3Region = s3Region;
 	}
 
 		

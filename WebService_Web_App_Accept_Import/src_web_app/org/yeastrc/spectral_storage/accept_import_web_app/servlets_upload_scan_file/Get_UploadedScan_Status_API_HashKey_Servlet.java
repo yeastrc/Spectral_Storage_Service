@@ -1,7 +1,11 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -12,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
+import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ProcessingFailDefaultErrorMsgConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileDeserializeRequestException;
@@ -20,12 +25,14 @@ import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.GetReq
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseObjectToOutputStream;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseStringToOutputStream;
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectral_ProcessStatusEnum;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.Get_UploadedScanFileInfo_Request;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.Get_UploadedScanFileInfo_Response;
+import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_marked_deleted_file.UploadProcessing_MarkedDeletedFile_Create_Check;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingReadStatusFile;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.ScanFileHashToFileReadWrite;
 
 /**
@@ -221,22 +228,23 @@ public class Get_UploadedScan_Status_API_HashKey_Servlet extends HttpServlet {
 					|| UploadProcessingStatusFileConstants.STATUS_PROCESSING_STARTED.equals( status ) 
 					|| UploadProcessingStatusFileConstants.STATUS_PROCESSING_KILLED.equals( status ) ) {
 
-				webserviceResponse.setStatusPending( true );
+				webserviceResponse.setStatus( WebserviceSpectral_ProcessStatusEnum.PENDING );
 
 			} else if ( UploadProcessing_MarkedDeletedFile_Create_Check.getInstance().doesMarkedDeleteFileExist( scanProcessStatusKeyDir ) ) {
 
-				webserviceResponse.setStatusDeleted( true );
+				webserviceResponse.setStatus( WebserviceSpectral_ProcessStatusEnum.DELETED );
 
 			} else if ( UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED.equals( status ) ) {
 
-				webserviceResponse.setStatusFail( true );
+				webserviceResponse.setStatus( WebserviceSpectral_ProcessStatusEnum.FAIL );
+				webserviceResponse.setFailMessage( getFailMessage( scanProcessStatusKeyDir ) );
 
 			} else if ( UploadProcessingStatusFileConstants.STATUS_PROCESSING_SUCCESSFUL.equals( status ) ) {
 
 				String hashKey = ScanFileHashToFileReadWrite.getInstance().readScanFileHashFromFinalHashKeyFile( scanProcessStatusKeyDir );
 
 				webserviceResponse.setScanFileAPIKey( hashKey );
-				webserviceResponse.setStatusSuccess( true );
+				webserviceResponse.setStatus( WebserviceSpectral_ProcessStatusEnum.SUCCESS );
 
 			} else {
 
@@ -263,5 +271,43 @@ public class Get_UploadedScan_Status_API_HashKey_Servlet extends HttpServlet {
 			response.setStatus( HttpServletResponse.SC_INTERNAL_SERVER_ERROR /* 500  */ );
 		}
 
+	}
+	
+	/**
+	 * @return
+	 */
+	private String getFailMessage( File scanProcessStatusKeyDir ) throws Exception {
+		
+		File failMsgFile = new File( scanProcessStatusKeyDir, ScanFileToProcessConstants.DATA_ERROR_HUMAN_READABLE_FILENAME );
+		
+		if ( ! failMsgFile.exists() ) {
+			// No fail msg file, return default msg
+			return ProcessingFailDefaultErrorMsgConstants.DEFAULT_MSG; // EARLY EXIT
+		}
+		
+		long failMsgFileLength = failMsgFile.length();
+		
+		if ( failMsgFileLength > Integer.MAX_VALUE ) {
+			String msg = "failMsgFileLength > Integer.MAX_VALUE.  Unable to retrieve error msg file: "
+					+ failMsgFile.getAbsolutePath();
+			log.error( msg );
+			throw new SpectralStorageProcessingException( msg );
+		}
+		
+		ByteArrayOutputStream baosErrorMsgFileContents = new ByteArrayOutputStream( ((int) failMsgFileLength ) );
+		
+		try ( InputStream is = new FileInputStream(failMsgFile) ) {
+			byte[] buffer = new byte[ 10000 ];
+			int bytesRead = 0;
+			while ( ( bytesRead = is.read( buffer ) ) != -1 ) {
+				baosErrorMsgFileContents.write(buffer, 0, bytesRead);
+			}
+		}
+		
+		byte[] errorMsgFileContents = baosErrorMsgFileContents.toByteArray();
+		
+		String errorMsgFileContentsString = new String( errorMsgFileContents, StandardCharsets.UTF_8 );
+		
+		return errorMsgFileContentsString;
 	}
 }

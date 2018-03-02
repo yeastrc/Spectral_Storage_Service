@@ -12,6 +12,13 @@ public class SpectralFile_Index_FDFW_SingleScan_V_003 {
 	private byte level;
 	private float retentionTime;
 
+	//  Only applicable where level > 1
+	
+	private int parentScanNumber;
+	private byte precursorCharge;
+	private double precursor_M_Over_Z;
+	
+	
 	private long scanIndex_InDataFile_InBytes;
 	private int scanSize_InDataFile_InBytes;
 	
@@ -45,5 +52,23 @@ public class SpectralFile_Index_FDFW_SingleScan_V_003 {
 	}
 	public void setScanSize_InDataFile_InBytes(int scanSize_InDataFile_InBytes) {
 		this.scanSize_InDataFile_InBytes = scanSize_InDataFile_InBytes;
+	}
+	public int getParentScanNumber() {
+		return parentScanNumber;
+	}
+	public void setParentScanNumber(int parentScanNumber) {
+		this.parentScanNumber = parentScanNumber;
+	}
+	public byte getPrecursorCharge() {
+		return precursorCharge;
+	}
+	public void setPrecursorCharge(byte precursorCharge) {
+		this.precursorCharge = precursorCharge;
+	}
+	public double getPrecursor_M_Over_Z() {
+		return precursor_M_Over_Z;
+	}
+	public void setPrecursor_M_Over_Z(double precursor_M_Over_Z) {
+		this.precursor_M_Over_Z = precursor_M_Over_Z;
 	}
 }

@@ -2,11 +2,13 @@ package org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadFileSystemException;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.ScanFileToProcessConstants;
+import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 
 /**
  * 
@@ -51,7 +53,11 @@ public class CreateProcessScanFileDir {
 		
 		//  Create subdir for this specific scan file
 		
-		long uploadKey = System.currentTimeMillis();
+		//  First part is YYYYMMDD 
+		
+		String currentDate_yyyymmdd = new SimpleDateFormat("yyyy_MM_dd").format( new Date() );
+		
+		long processScanFileKey = System.currentTimeMillis();
 		File createdSubDir = null;
 		int retryCreateSubdirCount = 0;
 		while ( createdSubDir == null ) {
@@ -62,9 +68,9 @@ public class CreateProcessScanFileDir {
 				throw new SpectralFileFileUploadFileSystemException(msg);
 			}
 			int uploadKeyIncrement = ( (int) ( Math.random() * 10 ) ) + 5;
-			uploadKey += uploadKeyIncrement;
+			processScanFileKey += uploadKeyIncrement;
 			createdSubDir =
-					createSubDirForUploadFileTempDir( uploadKey, scanFilesToProcessBaseDir );
+					createSubDirForProcessScanFileDir( currentDate_yyyymmdd, processScanFileKey, scanFilesToProcessBaseDir );
 		}
 		
 		//  Create a file in the directory to track the create date/time of the directory
@@ -80,15 +86,15 @@ public class CreateProcessScanFileDir {
 	
 
 	/**
-	 * @param uploadKey
-	 * @param uploadTempBase
+	 * @param processScanFileKey
+	 * @param scanFilesToProcessBaseDir
 	 * @return null if subdir already exists
 	 * @throws SpectralFileFileUploadFileSystemException 
 	 * @throws IOException 
 	 */
-	private File createSubDirForUploadFileTempDir( long uploadKey, File uploadTempBase ) throws SpectralFileFileUploadFileSystemException, IOException {
+	private File createSubDirForProcessScanFileDir( String currentDate_yyyymmdd, long processScanFileKey, File scanFilesToProcessBaseDir ) throws SpectralFileFileUploadFileSystemException, IOException {
 		
-		File subdir = getSubDirForUploadFileTempDir( uploadKey, uploadTempBase );
+		File subdir = getSubDirForUploadFileTempDir( currentDate_yyyymmdd, processScanFileKey, scanFilesToProcessBaseDir );
 		if ( subdir.exists() ) {
 			//  Subdir already exists so need new uploadKey to create unique subdir
 			return null;
@@ -102,13 +108,13 @@ public class CreateProcessScanFileDir {
 	}
 
 	/**
-	 * @param uploadKey
-	 * @param uploadTempBase
+	 * @param processScanFileKey
+	 * @param scanFilesToProcessBaseDir
 	 * @return
 	 * @throws ProxlWebappFileUploadFileSystemException 
 	 * @throws IOException 
 	 */
-	private File getSubDirForUploadFileTempDir( long uploadKey, File uploadTempBase ) {
+	private File getSubDirForUploadFileTempDir( String currentDate_yyyymmdd, long processScanFileKey, File scanFilesToProcessBaseDir ) {
 		
 		long currTime = System.currentTimeMillis();
 		
@@ -118,27 +124,27 @@ public class CreateProcessScanFileDir {
 			randomVal += 0.5;
 		}
 		
-		long uploadKeyAddition = ( (long) ( currTime * randomVal ) );
+		long processScanFileKeyAddition = ( (long) ( currTime * randomVal ) );
 		
-		String uploadKeyString = Long.toString( uploadKey );
-		int uploadKeyStringLength = uploadKeyString.length();
+		String processScanFileKeyString = Long.toString( processScanFileKey );
+		int processScanFileKeyStringLength = processScanFileKeyString.length();
 		
-		String uploadKeyAdditionString = Long.toString( uploadKeyAddition );
-		int uploadKeyAdditionStringLength = uploadKeyAdditionString.length();
+		String processScanFileKeyAdditionString = Long.toString( processScanFileKeyAddition );
+		int processScanFileKeyAdditionStringLength = processScanFileKeyAdditionString.length();
 		
-		int uploadKeyAdditionStringOutputLength = uploadKeyStringLength - 2;
+		int processScanFileKeyAdditionStringOutputLength = processScanFileKeyStringLength - 2;
 		
-		if ( uploadKeyAdditionStringOutputLength > uploadKeyAdditionStringLength ) {
-			uploadKeyAdditionStringOutputLength = uploadKeyAdditionStringLength;
+		if ( processScanFileKeyAdditionStringOutputLength > processScanFileKeyAdditionStringLength ) {
+			processScanFileKeyAdditionStringOutputLength = processScanFileKeyAdditionStringLength;
 		}
-		
 
-		String uploadKeyAdditionFinalString = uploadKeyAdditionString.substring( uploadKeyStringLength - uploadKeyAdditionStringOutputLength );
-
+		String uploadKeyAdditionFinalString = processScanFileKeyAdditionString.substring( processScanFileKeyStringLength - processScanFileKeyAdditionStringOutputLength );
 
 		String subdirName = ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_SUB_DIR_PREFIX 
-				+ uploadKeyString + uploadKeyAdditionFinalString;
-		File subdir = new File( uploadTempBase, subdirName );
+				+ currentDate_yyyymmdd
+				+ "_"
+				+ processScanFileKeyString + uploadKeyAdditionFinalString;
+		File subdir = new File( scanFilesToProcessBaseDir, subdirName );
 		return subdir;
 	}
 	

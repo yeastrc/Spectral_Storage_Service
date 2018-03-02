@@ -1,6 +1,5 @@
 package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.index_file_root_data_object_cache;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -8,6 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.index_file.SpectralFile_Index_FileContents_Root_IF;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.reader_writer.SpectralFile_Index_File_Reader_V_003;
 
 import com.google.common.cache.CacheBuilder;
@@ -26,7 +26,7 @@ public class IndexFileRootDataObjectCache {
 	private static final int CACHE_MAX_SIZE_FULL_SIZE = 100;
 //	private static final int CACHE_MAX_SIZE_SMALL = 10;
 
-	//  Keep in memory always
+	//  Keep in memory always so don't specify a timeout
 //	private static final int CACHE_TIMEOUT_FULL_SIZE = 20; // in days
 //	private static final int CACHE_TIMEOUT_SMALL = 1; // in days
 
@@ -48,7 +48,7 @@ public class IndexFileRootDataObjectCache {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static synchronized IndexFileRootDataObjectCache getInstance() throws Exception {
+	public static synchronized IndexFileRootDataObjectCache getSingletonInstance() throws Exception {
 
 		if ( _instance == null ) {
 			_instance = new IndexFileRootDataObjectCache();
@@ -73,23 +73,6 @@ public class IndexFileRootDataObjectCache {
 	
 	private CacheHolderInternal cacheHolderInternal;
 	
-	private File subDirForStorageFiles;
-	
-	private boolean initialized;
-	
-	
-	/**
-	 * Must call before using
-	 * 
-	 * @param subDirForStorageFiles
-	 */
-	public void init( File subDirForStorageFiles ) {
-		
-		this.subDirForStorageFiles = subDirForStorageFiles;
-		
-		initialized = true;
-	}
-
 	
 //	@Override
 //	public CacheCurrentSizeMaxSizeResult getCurrentCacheSizeAndMax() throws Exception {
@@ -119,12 +102,6 @@ public class IndexFileRootDataObjectCache {
 	public SpectralFile_Index_FileContents_Root_IF getSpectralFile_Index_FileContents_Root_IF( 
 			String hashKey ) throws Exception {
 		
-		if ( ! initialized ) {
-			String msg = "In getSpectralFile_Index_FileContents_Root_IF(): init() not yet called";
-			log.error(msg);
-			throw new IllegalStateException(msg);
-		}
-
 		printPrevCacheHitCounts( false /* forcePrintNow */ );
 		
 		if ( debugLogLevelEnabled ) {
@@ -257,9 +234,13 @@ public class IndexFileRootDataObjectCache {
 			
 			try {
 
+				//  WARNING   Harded since only single version supported
+				
 				SpectralFile_Index_FileContents_Root_IF spectralFile_Index_FileContents_Root_IF =
 						SpectralFile_Index_File_Reader_V_003.getInstance()
-						.readIndexFile( hashKey, parentObject.subDirForStorageFiles );
+						.readIndexFile( 
+								hashKey, 
+								CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3() );
 
 				if ( spectralFile_Index_FileContents_Root_IF == null ) {
 					// Throw this exception since cannot return null to Cache
@@ -269,8 +250,10 @@ public class IndexFileRootDataObjectCache {
 
 			} catch ( Exception e ) {
 				
-				log.error( "loadFromDB(...): readIndexFile(...) threw exception for hashKey: " + hashKey
-						+ ", parentObject.subDirForStorageFiles: " + parentObject.subDirForStorageFiles, e );
+				log.error( "loadFromDB(...): readIndexFile(...) threw exception for hashKey: " 
+						+ hashKey
+						+ ", Scan File Storage Location: " 
+						+ CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3(), e );
 				throw e;
 			}
 		}

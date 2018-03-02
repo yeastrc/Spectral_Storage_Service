@@ -16,7 +16,11 @@ public class SpectralFile_SingleScan_Common {
 	private byte level;
 	private int scanNumber;
 	private float retentionTime;
-	private byte isCentroid;
+	
+	/**
+	 * Not populated if request other than peaks and scan file contains more than one unique value
+	 */
+	private Byte isCentroid;
 	
 	//  Only applicable where level > 1
 	
@@ -153,12 +157,16 @@ public class SpectralFile_SingleScan_Common {
 	}
 
 
-	public byte getIsCentroid() {
+	/**
+	 * Not populated if request other than peaks and scan file contains more than one unique value
+	 * @return null if not populated
+	 */
+	public Byte getIsCentroid() {
 		return isCentroid;
 	}
 
 
-	public void setIsCentroid(byte isCentroid) {
+	public void setIsCentroid(Byte isCentroid) {
 		this.isCentroid = isCentroid;
 	}
 

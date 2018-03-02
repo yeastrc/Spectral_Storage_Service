@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.GetOrCreateSpectralStorageSubPath;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.StorageFile_Version_003_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.data_file.reader_writer.SpectralFile_Reader_GZIP_V_003;
 
@@ -32,16 +32,18 @@ public class SpectralFile_Reader_Factory {
 	 * @throws SpectralStorageProcessingException
 	 * @throws Exception
 	 */
-	public SpectralFile_Reader__IF getSpectralFile_Writer_ForHash( String hashKey, File scanStorageBaseDirectoryFile ) 
+	public SpectralFile_Reader__IF getSpectralFile_Reader_ForHash( String hashKey, File scanStorageBaseDirectoryFile ) 
 			throws Exception, SpectralStorageProcessingException {
 
-		//  null returned if directory does not exist
-		File subDirForStorageFiles = 
-				GetOrCreateSpectralStorageSubPath.getInstance().getDirsForHash( hashKey, scanStorageBaseDirectoryFile );
+		//  TODO  Remove this check , replace with something else maybe
 		
-		if ( subDirForStorageFiles == null ) {
-			return null;
-		}
+		//  null returned if directory does not exist
+//		File subDirForStorageFiles = 
+//				GetOrCreateSpectralStorageSubPath.getInstance().getDirsForHash( hashKey, scanStorageBaseDirectoryFile );
+//		
+//		if ( subDirForStorageFiles == null ) {
+//			return null;
+//		}
 		
 //		
 //		fileVersionInFile = dataInputStream.readShort();
@@ -60,7 +62,7 @@ public class SpectralFile_Reader_Factory {
 			throw new SpectralStorageProcessingException( msg );
 		}
 		
-		spectralFile_Reader__IF.init( hashKey, scanStorageBaseDirectoryFile );
+		spectralFile_Reader__IF.init( hashKey, CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3() );
 		
 		return spectralFile_Reader__IF;
 	}

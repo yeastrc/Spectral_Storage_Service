@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
+import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_ScanDataLocation_InWorkDirectory;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileDeserializeRequestException;
@@ -21,6 +21,7 @@ import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.GetRequestOb
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteResponseObjectToOutputStream;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteResponseStringToOutputStream;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_ScanFileAPI_Key_NotFound;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_SummaryDataPerScanLevel_Request;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_SummaryDataPerScanLevel_Response;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.sub_parts.SingleScanLevelSummaryData_SubResponse;
@@ -136,33 +137,40 @@ public class GetSummaryDataPerScanLevel_Servlet extends HttpServlet {
 
 			
 			File scanStorageBaseDirectoryFile =
-					ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance()
+					ConfigData_ScanDataLocation_InWorkDirectory.getSingletonInstance()
 					.getScanStorageBaseDirectory();
 			
 			SpectralFile_Reader__IF spectralFile_Reader = null;
 			
 			try {
 				List<SingleScanLevelSummaryData_SubResponse> scanSummaryPerScanLevelList = null;
-			
+
+				//  null returned if directory does not exist
 				spectralFile_Reader = SpectralFile_Reader_Factory.getInstance()
-						.getSpectralFile_Writer_ForHash( scanFileAPIKey, scanStorageBaseDirectoryFile );
+						.getSpectralFile_Reader_ForHash( scanFileAPIKey, scanStorageBaseDirectoryFile );
 
-				List<SummaryDataPerScanLevel> internalResults =
-						spectralFile_Reader.getSummaryDataPerScanLevel_All();
+				if ( spectralFile_Reader == null ) {
+					webserviceResponse.setStatus_scanFileAPIKeyNotFound( Get_ScanData_ScanFileAPI_Key_NotFound.YES );
 
-				if ( internalResults != null ) {
-					scanSummaryPerScanLevelList = new ArrayList<>( internalResults.size() );
+				} else {
 
-					for ( SummaryDataPerScanLevel internalResult : internalResults ) {
-						SingleScanLevelSummaryData_SubResponse singleScanLevelSummaryData_SubResponse = new SingleScanLevelSummaryData_SubResponse();
-						scanSummaryPerScanLevelList.add( singleScanLevelSummaryData_SubResponse );
-						singleScanLevelSummaryData_SubResponse.setScanLevel( internalResult.getScanLevel() );
-						singleScanLevelSummaryData_SubResponse.setNumberOfScans( internalResult.getNumberOfScans() );
-						singleScanLevelSummaryData_SubResponse.setTotalIonCurrent( internalResult.getTotalIonCurrent() );
+					List<SummaryDataPerScanLevel> internalResults =
+							spectralFile_Reader.getSummaryDataPerScanLevel_All();
+
+					if ( internalResults != null ) {
+						scanSummaryPerScanLevelList = new ArrayList<>( internalResults.size() );
+
+						for ( SummaryDataPerScanLevel internalResult : internalResults ) {
+							SingleScanLevelSummaryData_SubResponse singleScanLevelSummaryData_SubResponse = new SingleScanLevelSummaryData_SubResponse();
+							scanSummaryPerScanLevelList.add( singleScanLevelSummaryData_SubResponse );
+							singleScanLevelSummaryData_SubResponse.setScanLevel( internalResult.getScanLevel() );
+							singleScanLevelSummaryData_SubResponse.setNumberOfScans( internalResult.getNumberOfScans() );
+							singleScanLevelSummaryData_SubResponse.setTotalIonCurrent( internalResult.getTotalIonCurrent() );
+						}
 					}
+
+					webserviceResponse.setScanSummaryPerScanLevelList( scanSummaryPerScanLevelList );
 				}
-				
-				webserviceResponse.setScanSummaryPerScanLevelList( scanSummaryPerScanLevelList );
 				
 			} finally {
 				if ( spectralFile_Reader != null ) {

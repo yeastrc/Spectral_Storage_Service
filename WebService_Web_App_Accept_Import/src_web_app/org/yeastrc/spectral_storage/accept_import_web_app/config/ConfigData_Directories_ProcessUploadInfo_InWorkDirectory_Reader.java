@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappConfigException;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.constants.ProcessUploadedScanFilesConstants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.index_file_root_data_object_cache.IndexFileRootDataObjectCache;
 
 /**
  * Update ConfigData_Directories_ProcessUploadCommand_InWorkDirectory with contents in config file
@@ -31,6 +30,9 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 
 	private static String PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY = "scan.storage.base.directory";
 	private static String PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY = "temp.upload.base.directory";
+	
+	private static String PROPERTY_NAME__S3_BUCKET = "s3.bucket";
+	private static String PROPERTY_NAME__S3_REGION = "s3.region";
 	
 	private static String PROPERTY_NAME__PROCESS_SCAN_UPLOAD_JAR_FILE = "process.scan.upload.jar.file";
 	private static String PROPERTY_NAME__JAVA_EXECUTABLE = "java.executable";
@@ -90,13 +92,56 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 		log.warn( "Finished processing config file '" 
 				+ CONFIG_OVERRIDES_FILENAME
 				+ "'." );
-		
-		if ( StringUtils.isEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) ) {
-			String msg = "Property '" + PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY + "' in config is empty or missing";
-			log.error( msg );
-			throw new SpectralFileWebappConfigException( msg );
-		}
 
+//		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) 
+//				&& StringUtils.isNotEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Bucket() ) ) {
+//			String msg = "Cannot set both properties '"
+//				+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
+//				+ "' and '"
+//				+ PROPERTY_NAME__S3_BUCKET
+//				+ "' to a value in config.";
+//			log.error( msg );
+//			throw new SpectralFileWebappConfigException( msg );
+//		}
+		
+		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) ) {
+
+			File scanStorageBaseDirectory = new File( internalConfigDirectoryStrings.scanStorageBaseDirectory );
+
+			if ( ! ( scanStorageBaseDirectory.exists() && scanStorageBaseDirectory.isDirectory() && scanStorageBaseDirectory.canRead() ) ) {
+				String msg = "!!Property '" + PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
+						+ "' in config does not exist or is not a directory or is not readable.  Value:  " 
+						+ internalConfigDirectoryStrings.scanStorageBaseDirectory;
+				log.error( msg );
+				throw new SpectralFileWebappConfigException( msg );
+			}
+
+			configData_Directories_ProcessUploadCommand_InWorkDirectory.setScanStorageBaseDirectory( scanStorageBaseDirectory );
+
+			log.warn( "INFO: '" + PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY + "' has value: " 
+					+ internalConfigDirectoryStrings.scanStorageBaseDirectory );
+		
+		} else {
+			
+			if ( StringUtils.isEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Bucket() ) ) {
+				String msg = "Must set One of properties '"
+					+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
+					+ "' and '"
+					+ PROPERTY_NAME__S3_BUCKET
+					+ "' to a value in config.";
+				log.error( msg );
+				throw new SpectralFileWebappConfigException( msg );
+			}
+
+			log.warn( "INFO: '" + PROPERTY_NAME__S3_BUCKET + "' has value: " 
+					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Bucket() );
+		}
+		
+		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region() ) ) {
+			log.warn( "INFO: '" + PROPERTY_NAME__S3_REGION + "' has value: " 
+					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region() );
+		}
+		
 		if ( StringUtils.isEmpty( internalConfigDirectoryStrings.tempScanUploadBaseDirectory ) ) {
 			String msg = "Property '" + PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY 
 					+ "' in config is empty or missing";
@@ -111,17 +156,22 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			throw new SpectralFileWebappConfigException( msg );
 		}
 		
-		File scanStorageBaseDirectory = new File( internalConfigDirectoryStrings.scanStorageBaseDirectory );
+		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) ) {
+
+			File scanStorageBaseDirectory = new File( internalConfigDirectoryStrings.scanStorageBaseDirectory );
+
+			if ( ! ( scanStorageBaseDirectory.exists() && scanStorageBaseDirectory.isDirectory() && scanStorageBaseDirectory.canRead() ) ) {
+				String msg = "!!Property '" + PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
+						+ "' in config does not exist or is not a directory or is not readable.  Value:  " 
+						+ internalConfigDirectoryStrings.scanStorageBaseDirectory;
+				log.error( msg );
+				throw new SpectralFileWebappConfigException( msg );
+			}
+			
+			configData_Directories_ProcessUploadCommand_InWorkDirectory.setScanStorageBaseDirectory( scanStorageBaseDirectory );
+		}
 
 		File tempScanUploadBaseDirectory = new File( internalConfigDirectoryStrings.tempScanUploadBaseDirectory );
-		
-		if ( ! ( scanStorageBaseDirectory.exists() && scanStorageBaseDirectory.isDirectory() && scanStorageBaseDirectory.canRead() ) ) {
-			String msg = "!!Property '" + PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
-					+ "' in config does not exist or is not a directory or is not readable.  Value:  " 
-					+ internalConfigDirectoryStrings.scanStorageBaseDirectory;
-			log.error( msg );
-			throw new SpectralFileWebappConfigException( msg );
-		}
 		
 		if ( ! ( tempScanUploadBaseDirectory.exists() && tempScanUploadBaseDirectory.isDirectory() && tempScanUploadBaseDirectory.canRead() ) ) {
 			String msg = "!!!Property '" + PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY 
@@ -131,13 +181,15 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			throw new SpectralFileWebappConfigException( msg );
 		}
 
-		configData_Directories_ProcessUploadCommand_InWorkDirectory.setScanStorageBaseDirectory( scanStorageBaseDirectory );
 		configData_Directories_ProcessUploadCommand_InWorkDirectory.setTempScanUploadBaseDirectory( tempScanUploadBaseDirectory );
 
 
-		log.warn( "INFO: '" + PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY + "' has value: " 
-				+ internalConfigDirectoryStrings.scanStorageBaseDirectory );
+		if ( StringUtils.isEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) ) {
 
+			log.warn( "INFO: '" + PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY + "' has value: " 
+					+ internalConfigDirectoryStrings.scanStorageBaseDirectory );
+		}
+		
 		log.warn( "INFO: '" + PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY + "' has value: " 
 				+ internalConfigDirectoryStrings.tempScanUploadBaseDirectory );
 		
@@ -199,8 +251,6 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 					+ "' so will delete uploaded scan file on successful import" ); 
 		}
 		
-		
-		IndexFileRootDataObjectCache.getInstance().init( scanStorageBaseDirectory );
 	}
 
 	/**
@@ -289,6 +339,16 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			propertyValue = configProps.getProperty( PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 				internalConfigDirectoryStrings.tempScanUploadBaseDirectory = propertyValue;
+			}
+
+			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_BUCKET );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setS3Bucket( propertyValue );
+			}
+
+			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_REGION );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setS3Region( propertyValue );
 			}
 
 			propertyValue = configProps.getProperty( PROPERTY_NAME__PROCESS_SCAN_UPLOAD_JAR_FILE );

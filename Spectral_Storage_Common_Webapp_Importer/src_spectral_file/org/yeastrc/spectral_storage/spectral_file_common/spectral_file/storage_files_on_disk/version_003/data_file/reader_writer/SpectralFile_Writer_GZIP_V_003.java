@@ -23,6 +23,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.Compute_File_Hashes.Compute_File_Hashes_Result;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.Accumulate_RT_MZ_Binned_ScanLevel_1;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.ScanLevel_1_RT_MZ_Binned_WriteFile;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.ScanLevel_1_RT_MZ_Binned_WriteFile_JSON_GZIP_NoIntensities;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_Header_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
@@ -33,6 +34,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.from_data_file_writer_objects.SpectralFile_Index_FDFW_FileContents_Root_V_003;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.from_data_file_writer_objects.SpectralFile_Index_FDFW_SingleScan_V_003;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.reader_writer.SpectralFile_Index_File_Writer_V_003;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.reader_writer.SpectralFile_ScansLvlGt1Partial_File_Writer_V_003;
 
 /**
  * V 003
@@ -128,7 +130,7 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 			}
 			
 			
-			//  Output the .index file
+			//  Output the .index file and .scnlvlgt1p file
 
 			{
 				SpectralFile_Index_FDFW_FileContents_Root_V_003 spectralFile_Index_FDFW_FileContents_Root = new SpectralFile_Index_FDFW_FileContents_Root_V_003();
@@ -143,14 +145,21 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 				spectralFile_Index_FDFW_FileContents_Root.setIndexScanEntries( indexScanEntries );
 
 				SpectralFile_Index_File_Writer_V_003.getInstance().writeIndexFile( hash_String, subDirForStorageFiles, spectralFile_Index_FDFW_FileContents_Root, accumulateSummaryDataPerScanLevel );
+				
+				SpectralFile_ScansLvlGt1Partial_File_Writer_V_003.getInstance().write_ScansLvlGt1Partial_File( hash_String, subDirForStorageFiles, spectralFile_Index_FDFW_FileContents_Root );
 			}
 			
-			//  Write data in accumulate_RT_MZ_Binned_ScanLevel_1 to file
+			//  Write data in accumulate_RT_MZ_Binned_ScanLevel_1 to file as GZIP JSON
 			ScanLevel_1_RT_MZ_Binned_WriteFile.getInstance()
 			.writeScanLevel_1_RT_MZ_Binned_File( 
 					accumulate_RT_MZ_Binned_ScanLevel_1,
 					hash_String, 
 					subDirForStorageFiles );
+			
+			//  Write data in accumulate_RT_MZ_Binned_ScanLevel_1 to file as JSON GZIP - No Summed Intensities
+			ScanLevel_1_RT_MZ_Binned_WriteFile_JSON_GZIP_NoIntensities.getInstance()
+			.writeScanLevel_1_RT_MZ_Binned_File_JSON_GZIP_NoIntensities(
+					accumulate_RT_MZ_Binned_ScanLevel_1, hash_String, subDirForStorageFiles);
 			
 			//  Create Files Complete file as last step
 			{
@@ -402,8 +411,16 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 		spectralFile_Index_SingleScan_DTO.setScanNumber( spectralFile_SingleScan.getScanNumber() );
 		spectralFile_Index_SingleScan_DTO.setLevel( spectralFile_SingleScan.getLevel() );
 		spectralFile_Index_SingleScan_DTO.setRetentionTime( spectralFile_SingleScan.getRetentionTime() );
+		
+		if ( spectralFile_SingleScan.getLevel() > 1 ) {
+			spectralFile_Index_SingleScan_DTO.setParentScanNumber( spectralFile_SingleScan.getParentScanNumber() );
+			spectralFile_Index_SingleScan_DTO.setPrecursorCharge( spectralFile_SingleScan.getPrecursorCharge() );
+			spectralFile_Index_SingleScan_DTO.setPrecursor_M_Over_Z( spectralFile_SingleScan.getPrecursor_M_Over_Z() );
+		}
+		
 		spectralFile_Index_SingleScan_DTO.setScanSize_InDataFile_InBytes( scanSize_InDataFile_InBytes );
 		spectralFile_Index_SingleScan_DTO.setScanIndex_InDataFile_InBytes( nextScanIndex_InBytes );
+		
 		indexScanEntries.add( spectralFile_Index_SingleScan_DTO );
 
 		//  add amount of bytes written for this scan to nextScanIndex_InBytes

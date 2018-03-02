@@ -3,8 +3,6 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,8 +12,8 @@ import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.DataOrIndexFileFullyWrittenConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralFileDataFileNotFullyWrittenException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.GetOrCreateSpectralStorageSubPath;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.StorageFile_Version_003_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.constants.SpectralFile_Index_Header_DTO_V_003__Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_FileContents_Root_V_003;
@@ -46,11 +44,14 @@ public class SpectralFile_Index_File_Reader_V_003 {
 	}
 	
 	/**
-	 * @param outputDataFile
-	 * @throws Exception 
+	 * @param hash_String
+	 * @param commonReader_File_And_S3
+	 * @return
+	 * @throws Exception
 	 */
 	public SpectralFile_Index_TDFR_FileContents_Root_V_003 readIndexFile( 
-			String hash_String, File scanStorageBaseDirectoryFile ) throws Exception {
+			String hash_String, 
+			CommonReader_File_And_S3 commonReader_File_And_S3 ) throws Exception {
 
 		SpectralFile_Index_TDFR_FileContents_Root_V_003 spectralFile_Index_FileContents = new SpectralFile_Index_TDFR_FileContents_Root_V_003();
 
@@ -62,16 +63,15 @@ public class SpectralFile_Index_File_Reader_V_003 {
 			String spectralIndexFilename =
 					CreateSpectralStorageFilenames.getInstance().createSpectraStorage_Index_Filename( hash_String );
 
-			File subDirForStorageFiles = 
-					GetOrCreateSpectralStorageSubPath.getInstance().getDirsForHash( hash_String, scanStorageBaseDirectoryFile );
-
-			File inputFile_IndexFile = new File( subDirForStorageFiles, spectralIndexFilename );
-
 			//   SpectralFile_Index_File_Common.getInstance().getSpectralFile_Index_File( inputDataFile );
 
-
 			try ( DataInputStream dataInputStream_IndexFile = 
-					new DataInputStream( new BufferedInputStream( new FileInputStream( inputFile_IndexFile ), BUFFERED_READER_BUFFER_SIZE ) )
+					new DataInputStream( 
+							new BufferedInputStream( 
+									commonReader_File_And_S3.getInputStreamForScanStorageItem( 
+											spectralIndexFilename, 
+											hash_String ), 
+									BUFFERED_READER_BUFFER_SIZE ) )
 					) {
 
 				short fileVersionInFile = dataInputStream_IndexFile.readShort();
@@ -79,7 +79,7 @@ public class SpectralFile_Index_File_Reader_V_003 {
 				if ( fileVersionInFile != FILE_VERSION ) {
 					String msg = "File version does not match programatic version.  File Version: " + fileVersionInFile
 							+ ", programatic version: " + FILE_VERSION
-							+ ".  File: " + inputFile_IndexFile.getCanonicalPath();
+							+ ".  spectralIndexFilename: " + spectralIndexFilename;
 					log.error( msg );
 					throw new SpectralStorageProcessingException( msg );
 				}
@@ -88,7 +88,7 @@ public class SpectralFile_Index_File_Reader_V_003 {
 
 				if ( fileFullWrittenIndicator != DataOrIndexFileFullyWrittenConstants.FILE_FULLY_WRITTEN_YES ) {
 					
-					String msg = "Index File not fully written.  First byte is not 1.  Index File: " + inputFile_IndexFile.getAbsolutePath();
+					String msg = "Index File not fully written.  First byte is not 1.  Index File: " + spectralIndexFilename;
 					log.error( msg );
 					throw new SpectralFileDataFileNotFullyWrittenException(msg);
 				}
@@ -129,14 +129,16 @@ public class SpectralFile_Index_File_Reader_V_003 {
 				byte scanNumberOffsetType = dataInputStream_IndexFile.readByte();
 				byte scanSizeType = dataInputStream_IndexFile.readByte();
 
-				//  TODO  Consider scan number and scan index as offsets from previous values, as smaller numbers
-
+				int indexFile_IndexPosition = 0;
+				
 				//  Prev Single Scan Entry
 				SpectralFile_Index_TDFR_SingleScan_V_003 spectralFile_Index_TDFR_SingleScan_PREV = null; // prev scan
 				
 				//  Process single scans in index
 				SpectralFile_Index_TDFR_SingleScan_V_003 spectralFile_Index_TDFR_SingleScan = null;
-				do {
+				
+				while ( true ) { // exit loop with 'break;'
+					
 					spectralFile_Index_TDFR_SingleScan =
 							readSingleIndexScanEntry( 
 									dataInputStream_IndexFile,
@@ -146,17 +148,23 @@ public class SpectralFile_Index_File_Reader_V_003 {
 									scanNumberOffsetType,
 									scanSizeType );
 
-					if ( spectralFile_Index_TDFR_SingleScan != null ) { // null returned if at eof.  Assumes that single scans go to end of file
-						indexScanEntries.add( spectralFile_Index_TDFR_SingleScan );
+					if ( spectralFile_Index_TDFR_SingleScan == null ) { // null returned if at eof.  Assumes that single scans go to end of file
+						break; // EXIT LOOP
 					}
+					
+					indexScanEntries.add( spectralFile_Index_TDFR_SingleScan );
+					
+					spectralFile_Index_TDFR_SingleScan.setIndexFile_IndexPosition( indexFile_IndexPosition );
 					
 					spectralFile_Index_TDFR_SingleScan_PREV = spectralFile_Index_TDFR_SingleScan;
 					
-				} while ( spectralFile_Index_TDFR_SingleScan != null );
+					indexFile_IndexPosition++;
+				}
 				
 				if ( scansAreInScanNumberOrder == 0 ) {
 					//  Sort on Scan Number, Comparable implemented on SpectralFile_Index_SingleScan_DTO
 					Collections.sort( indexScanEntries );
+					spectralFile_Index_FileContents.setScansAreInScanNumberOrder(true);
 				} else {
 					spectralFile_Index_FileContents.setScansAreInScanNumberOrder(true);
 				}
@@ -166,7 +174,7 @@ public class SpectralFile_Index_File_Reader_V_003 {
 				}
 
 			} catch( Exception e ) {
-				log.error( "Error reading from index file: " + inputFile_IndexFile.getCanonicalPath() );
+				log.error( "Error reading from index file: " + spectralIndexFilename, e );
 				throw e;
 			}
 
@@ -175,8 +183,7 @@ public class SpectralFile_Index_File_Reader_V_003 {
 
 		} catch ( Exception e ) {
 			
-			log.error( "readIndexFile(...): threw exception for hash_String: " + hash_String
-					+ ", scanStorageBaseDirectoryFile: " + scanStorageBaseDirectoryFile, e );
+			log.error( "readIndexFile(...): threw exception for hash_String: " + hash_String, e );
 			throw e;
 		}
 	}

@@ -2,7 +2,13 @@ package org.yeastrc.spectral_storage.scan_file_processor.program;
 
 import java.io.File;
 
-import org.yeastrc.spectral_storage.scan_file_processor.main.ProcessUploadedScanFileDir;
+import org.apache.commons.lang3.StringUtils;
+import org.yeastrc.spectral_storage.scan_file_processor.main.ProcessUploadedScanFileRequest;
+import org.yeastrc.spectral_storage.scan_file_processor.s3_aws_interface.S3_AWS_InterfaceObjectHolder;
+
+import jargs.gnu.CmdLineParser;
+import jargs.gnu.CmdLineParser.IllegalOptionValueException;
+import jargs.gnu.CmdLineParser.UnknownOptionException;
 
 /**
  * 
@@ -10,7 +16,9 @@ import org.yeastrc.spectral_storage.scan_file_processor.main.ProcessUploadedScan
  */
 public class Scan_File_Processor_MainProgram {
 	
-	public static final String CMD_LINE_PARAM_DELETE_ON_SUCCESS = "--delete-scan-file-on-successful-processing";
+	private static final int PROGRAM_EXIT_CODE_INVALID_INPUT = 1;
+	private static final int PROGRAM_EXIT_CODE_HELP = 1;
+	private static final String FOR_HELP_STRING = "For help, run without any parameters, -h, or --help";
 
 	/**
 	 * @param args
@@ -18,48 +26,130 @@ public class Scan_File_Processor_MainProgram {
 	 */
 	public static void main(String[] args) throws Exception {
 	
-		System.out.println( "Command Line args START");
+		System.out.println( "INFO: Command Line args START");
 		for ( int index = 0; index < args.length; index++) {
 			System.out.println( "arg: " + args[ index ] );
 		}
-		System.out.println( "Command Line args END");
-
-		if ( args.length >= 1 && args.length <= 2 ) {
-		} else {
-			System.err.println( "<pgm> <output base dir> [" + CMD_LINE_PARAM_DELETE_ON_SUCCESS + "]");
-			System.exit( 1 );
-		}
-
-		String outputBaseDirString = args[ 0 ];
+		System.out.println( "INFO: Command Line args END");
 		
-		boolean deleteScanFileOnSuccess = false;
+		//  If writing to S3, the '--output_base_dir' is the temp dir to write to before copy to S3
 		
-		if ( args.length >= 2 ) {
-			if ( ! CMD_LINE_PARAM_DELETE_ON_SUCCESS.equals( args[ 1 ] ) ) {
-				System.err.println( "Second command line param is not '" + CMD_LINE_PARAM_DELETE_ON_SUCCESS + "'."
-						+ "  No other value is allowed.");
-				System.exit( 1 );
+		CmdLineParser cmdLineParser = new CmdLineParser();
+//		CmdLineParser.Option configFileFromCommandLineFileNameCommandLineOpt = cmdLineParser.addStringOption( 'c', "config" );
+		CmdLineParser.Option outputBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "output_base_dir" );
+		CmdLineParser.Option s3OutputBucketCommandLineOpt = cmdLineParser.addStringOption( 'Z', "s3_output_bucket" );
+		CmdLineParser.Option s3OutputRegionCommandLineOpt = cmdLineParser.addStringOption( 'Z', "s3_output_region" );
+		CmdLineParser.Option s3InputRegionCommandLineOpt = cmdLineParser.addStringOption( 'Z', "s3_input_region" );
+		CmdLineParser.Option deleteScanFileOnSuccessfulProcessingCommandLineOpt = cmdLineParser.addBooleanOption('Z', "delete-scan-file-on-successful-processing"); 
+		CmdLineParser.Option helpOpt = cmdLineParser.addBooleanOption('h', "help"); 
+
+		String outputBaseDirString = null; 
+		String s3_OutputBucket = null;
+		String s3_OutputRegion = null;
+		String s3_InputRegion = null;
+		
+		try {
+			// parse command line options
+			try { cmdLineParser.parse(args); }
+			catch (IllegalOptionValueException e) {
+				System.err.println(e.getMessage());
+				System.err.println( "" );
+				System.err.println( FOR_HELP_STRING );
+				System.exit( PROGRAM_EXIT_CODE_INVALID_INPUT );
+			}
+			catch (UnknownOptionException e) {
+				System.err.println(e.getMessage());
+				System.err.println( "" );
+				System.err.println( FOR_HELP_STRING );
+				System.exit( PROGRAM_EXIT_CODE_INVALID_INPUT );
+			}
+			Boolean help = (Boolean) cmdLineParser.getOptionValue(helpOpt, Boolean.FALSE);
+			if(help) {
+//				printHelp();
+				System.out.println( "Help is not implemented");
+				System.exit( PROGRAM_EXIT_CODE_HELP );
+			}
+			//  Show an error if there is anything on the command line not associated with a parameter
+			String[] remainingArgs = cmdLineParser.getRemainingArgs();
+			if( remainingArgs.length > 0 ) {
+				System.out.println( "Unexpected command line parameters:");
+				for ( String remainingArg : remainingArgs ) {
+					System.out.println( remainingArg );
+				}
+				System.err.println( "" );
+				System.err.println( FOR_HELP_STRING );
+				System.exit( PROGRAM_EXIT_CODE_INVALID_INPUT );  //  EARLY EXIT
 			}
 			
-			deleteScanFileOnSuccess = true;
-		}
-		
-		System.out.println( "Output Base Dir command line: " + outputBaseDirString );
-		
-		File outputBaseDir = new File( outputBaseDirString );
+			outputBaseDirString = (String)cmdLineParser.getOptionValue( outputBaseDirStringCommandLineOpt );
+			
+			s3_OutputBucket = (String)cmdLineParser.getOptionValue( s3OutputBucketCommandLineOpt );
+			
+			s3_OutputRegion = (String)cmdLineParser.getOptionValue( s3OutputRegionCommandLineOpt );
+			
+			s3_InputRegion = (String)cmdLineParser.getOptionValue( s3InputRegionCommandLineOpt );
+	
+			Boolean deleteScanFileOnSuccess = (Boolean) cmdLineParser.getOptionValue(deleteScanFileOnSuccessfulProcessingCommandLineOpt, Boolean.FALSE);
 
-		System.out.println( "Output Base Dir canonical: " + outputBaseDir.getCanonicalPath() );
-		
-		if ( ! outputBaseDir.exists() ) {
-			System.err.println( "Output Base Dir command line Not Exist: " + outputBaseDirString );
-			System.exit( 1 );
+			if ( StringUtils.isEmpty( outputBaseDirString ) ) {
+				System.err.println( "Output Base Dir command line parameter not specified (--output_base_dir)" );
+				System.exit( 1 );  //  EARLY EXIT
+			}
+			
+			System.out.println( "Output Base Dir (--output_base_dir): " + outputBaseDirString );
+			
+			if ( StringUtils.isNotEmpty( s3_OutputBucket ) ) {
+				System.out.println( "S3 output Bucket (--s3_output_bucket): " + s3_OutputBucket );
+			}
+			if ( StringUtils.isNotEmpty( s3_OutputRegion ) ) {
+				System.out.println( "S3 output region (--s3_output_region): " + s3_OutputRegion );
+			}
+			if ( StringUtils.isNotEmpty( s3_InputRegion ) ) {
+				System.out.println( "S3 input region (--s3_input_region): " + s3_InputRegion );
+			}
+
+			if ( deleteScanFileOnSuccess ) {
+				System.out.println( "Will be deleting uploaded scan file on successful import" );
+			}
+			
+			Scan_File_Processor_MainProgram_Params pgmParams = new Scan_File_Processor_MainProgram_Params();
+			
+			if ( StringUtils.isNotEmpty( outputBaseDirString ) ) {
+				File outputBaseDir = new File( outputBaseDirString );
+
+				System.out.println( "Output Base Dir canonical: " + outputBaseDir.getCanonicalPath() );
+
+				if ( ! outputBaseDir.exists() ) {
+					System.err.println( "Output Base Dir command line Not Exist: " + outputBaseDirString );
+					System.exit( 1 );
+				}
+				
+				pgmParams.setOutputBaseDir( outputBaseDir );
+			}
+			
+			if ( StringUtils.isNotEmpty( s3_OutputBucket ) ) {
+				pgmParams.setS3_OutputBucket( s3_OutputBucket );
+			}
+			
+			pgmParams.setDeleteScanFileOnSuccess( deleteScanFileOnSuccess );
+			
+			if ( StringUtils.isNotEmpty( s3_InputRegion ) || StringUtils.isNotEmpty( s3_OutputRegion ) ) {
+
+				if ( StringUtils.isNotEmpty( s3_InputRegion ) ) {
+					S3_AWS_InterfaceObjectHolder.getSingletonInstance().setS3_InputRegion( s3_InputRegion );
+				}
+				if ( StringUtils.isNotEmpty( s3_OutputRegion ) ) {
+					S3_AWS_InterfaceObjectHolder.getSingletonInstance().setS3_OutputRegion( s3_OutputRegion );
+				}
+
+				S3_AWS_InterfaceObjectHolder.getSingletonInstance().init();
+			}
+			
+			ProcessUploadedScanFileRequest.getInstance().processUploadedScanFileRequest( pgmParams );
+			
+		} finally {
+			
 		}
-		
-		if ( deleteScanFileOnSuccess ) {
-			System.out.println( "Deleting uploaded scan file on successful import" );
-		}
-		
-		ProcessUploadedScanFileDir.getInstance().processUploadedScanFileDir( outputBaseDir, deleteScanFileOnSuccess );
 	}
 
 }

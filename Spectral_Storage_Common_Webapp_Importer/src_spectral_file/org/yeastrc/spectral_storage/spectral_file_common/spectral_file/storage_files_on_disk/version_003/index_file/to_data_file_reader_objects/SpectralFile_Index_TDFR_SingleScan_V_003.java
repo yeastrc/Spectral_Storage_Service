@@ -11,6 +11,11 @@ public class SpectralFile_Index_TDFR_SingleScan_V_003 implements Comparable<Spec
 	private int scanNumber;
 	private byte level;
 	private float retentionTime;
+	
+	/**
+	 * The position this was read from the index file in
+	 */
+	private int indexFile_IndexPosition;
 
 	private long scanIndex_InDataFile_InBytes;
 	private int scanSize_InDataFile_InBytes;
@@ -78,5 +83,13 @@ public class SpectralFile_Index_TDFR_SingleScan_V_003 implements Comparable<Spec
 	}
 	public void setScanSize_InDataFile_InBytes(int scanSize_InDataFile_InBytes) {
 		this.scanSize_InDataFile_InBytes = scanSize_InDataFile_InBytes;
+	}
+
+	public int getIndexFile_IndexPosition() {
+		return indexFile_IndexPosition;
+	}
+
+	public void setIndexFile_IndexPosition(int indexFile_IndexPosition) {
+		this.indexFile_IndexPosition = indexFile_IndexPosition;
 	}
 }

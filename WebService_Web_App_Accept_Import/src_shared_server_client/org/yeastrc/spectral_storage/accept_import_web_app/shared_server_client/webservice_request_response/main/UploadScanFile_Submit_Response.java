@@ -2,6 +2,7 @@ package org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -14,12 +15,16 @@ public class UploadScanFile_Submit_Response {
 	
 	// Properties as XML elements
 	
+	@XmlAttribute // attribute name is property name
 	private boolean statusSuccess;
 	
+	@XmlAttribute // attribute name is property name
 	private boolean uploadScanFileTempKey_NotFound;
 	
+	@XmlAttribute // attribute name is property name
 	private boolean noUploadedScanFile;
 	
+	@XmlAttribute // attribute name is property name
 	private String scanProcessStatusKey; // assigned temp status key (used to get perm API Key), null if submit failed
 	
 	

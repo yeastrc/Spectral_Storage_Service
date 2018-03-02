@@ -45,6 +45,16 @@ public class CreateSpectralStorageFilenames {
 	 * @return
 	 * @throws Exception
 	 */
+	public String createSpectraStorage_Scans_Level_Gt_1_Partial_Filename( String hash ) throws Exception {
+		
+		return hash + SpectralStorage_Filename_Constants.SCANS_LEVEL_GT_1_PARTIAL_FILENAME_SUFFIX;
+	}
+	
+	/**
+	 * @param hash
+	 * @return
+	 * @throws Exception
+	 */
 	public String createSpectraStorage_Data_Index_Files_Started_Filename( String hash ) throws Exception {
 		
 		return hash + SpectralStorage_Filename_Constants.DATA_INDEX_FILES_STARTED_FILENAME_SUFFIX;
@@ -73,12 +83,68 @@ public class CreateSpectralStorageFilenames {
 	 * @return
 	 * @throws Exception
 	 */
-	public String createSpectraStorage_ScanBinnedIntensityOn_RT_MZ_Filename( String hash, long rtBinSizeInSeconds, long mzBinSizeInMZ  ) throws Exception {
+	public String createSpectraStorage_ScanBinnedIntensityOn_RT_MZ__JSON_GZIP_Filename( String hash, long rtBinSizeInSeconds, long mzBinSizeInMZ  ) throws Exception {
 		
 		return hash 
-				+ SpectralStorage_Filename_Constants.SCAN_BINNED_INTENSITY_ON_RT_MZ_FILENAME_SUFFIX_START
+				+ SpectralStorage_Filename_Constants.SCAN_BINNED_INTENSITY_ON_RT_MZ__JSON_GZIPPED_FILENAME_SUFFIX_START
 				+ Long.toString( rtBinSizeInSeconds )
 				+ "_"
 				+ Long.toString( mzBinSizeInMZ );
 	}
+
+	/**
+	 * Get Filename for SCAN_BINNED_INTENSITY_ON_RT_MZ_FILENAME_SUFFIX_PART_1
+	 * 
+	 * @param hash
+	 * @param rtBinSizeInSeconds
+	 * @param mzBinSizeInMZ
+	 * @return
+	 * @throws Exception
+	 */
+	public String createSpectraStorage_ScanBinnedIntensityOn_RT_MZ__Binary_GZ_Filename( String hash, long rtBinSizeInSeconds, long mzBinSizeInMZ  ) throws Exception {
+		
+		return hash 
+				+ SpectralStorage_Filename_Constants.SCAN_BINNED_INTENSITY_ON_RT_MZ__BINARY_GZ__FILENAME_SUFFIX_START
+				+ Long.toString( rtBinSizeInSeconds )
+				+ "_"
+				+ Long.toString( mzBinSizeInMZ );
+	}
+
+	/**
+	 * Get Filename for SCAN_BINNED_INTENSITY_ON_RT_MZ__BINARY_NO_INTENSITIES__FILENAME_SUFFIX_START
+	 * 
+	 * @param hash
+	 * @param rtBinSizeInSeconds
+	 * @param mzBinSizeInMZ
+	 * @return
+	 * @throws Exception
+	 */
+	public String createSpectraStorage_ScanBinnedIntensityOn_RT_MZ__Binary_NoIntensities_Filename( String hash, long rtBinSizeInSeconds, long mzBinSizeInMZ  ) throws Exception {
+		
+		return hash 
+				+ SpectralStorage_Filename_Constants.SCAN_BINNED_INTENSITY_ON_RT_MZ__BINARY_NO_INTENSITIES__FILENAME_SUFFIX_START
+				+ Long.toString( rtBinSizeInSeconds )
+				+ "_"
+				+ Long.toString( mzBinSizeInMZ );
+	}
+
+	/**
+	 * Get Filename for SCAN_BINNED_INTENSITY_ON_RT_MZ__JSON_GZIP_NO_INTENSITIES__FILENAME_SUFFIX_START
+	 * 
+	 * @param hash
+	 * @param rtBinSizeInSeconds
+	 * @param mzBinSizeInMZ
+	 * @return
+	 * @throws Exception
+	 */
+	public String createSpectraStorage_ScanBinnedIntensityOn_RT_MZ__JSON_GZIP_NoIntensities_Filename( String hash, long rtBinSizeInSeconds, long mzBinSizeInMZ  ) throws Exception {
+		
+		return hash 
+				+ SpectralStorage_Filename_Constants.SCAN_BINNED_INTENSITY_ON_RT_MZ__JSON_GZIP_NO_INTENSITIES__FILENAME_SUFFIX_START
+				+ Long.toString( rtBinSizeInSeconds )
+				+ "_"
+				+ Long.toString( mzBinSizeInMZ );
+	}
+	
+	
 }

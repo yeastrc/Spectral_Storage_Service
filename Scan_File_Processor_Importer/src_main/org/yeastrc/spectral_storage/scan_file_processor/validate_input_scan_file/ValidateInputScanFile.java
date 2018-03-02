@@ -60,13 +60,12 @@ public class ValidateInputScanFile {
 			validateAllScans( scanFileReader, scanFile );
 
 		} catch ( Exception e ) {
-			String msg = "Error Exception processing mzML or mzXml Scan file: " + scanFile.getAbsolutePath()
-					+ ",  Throwing Data error since probably error in file format.";
+			String msg = "AAAAA  Error Exception processing mzML or mzXml Scan file: " + scanFile.getAbsolutePath()
+					+ ",  Throwing Data error since probably error in file format. Next: throw new SpectralStorageDataException( msgForException )";
 			log.error( msg, e );
-			String msgForException = "Error processing Scan file: " + scanFile.getAbsolutePath()
-					+ ".  Please check the file to ensure it contains the correct contents for "
+			String msgForException = "Error processing Scan file.  Please check the file to ensure it contains the correct contents for "
 					+ "a scan file based on the suffix of the file ('mzML' or 'mzXML')";
-			throw new Exception( msgForException );
+			throw new SpectralStorageDataException( msgForException );
 		} finally {
 			if ( scanFileReader != null ) {
 				scanFileReader.close();

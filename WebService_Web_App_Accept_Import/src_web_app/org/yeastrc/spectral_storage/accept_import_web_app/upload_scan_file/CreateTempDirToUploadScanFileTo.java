@@ -2,6 +2,8 @@ package org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
@@ -51,6 +53,10 @@ public class CreateTempDirToUploadScanFileTo {
 		
 		//  Create subdir for this specific file upload
 		
+		//  First part is YYYYMMDD 
+		
+		String currentDate_yyyymmdd = new SimpleDateFormat("yyyy_MM_dd").format( new Date() );
+		
 		long uploadKey = System.currentTimeMillis();
 		File createdSubDir = null;
 		int retryCreateSubdirCount = 0;
@@ -64,7 +70,7 @@ public class CreateTempDirToUploadScanFileTo {
 			int uploadKeyIncrement = ( (int) ( Math.random() * 10 ) ) + 5;
 			uploadKey += uploadKeyIncrement;
 			createdSubDir =
-					createSubDirForUploadFileTempDir( uploadKey, uploadFileTempDir );
+					createSubDirForUploadFileTempDir( currentDate_yyyymmdd, uploadKey, uploadFileTempDir );
 		}
 		
 		return createdSubDir;
@@ -72,15 +78,16 @@ public class CreateTempDirToUploadScanFileTo {
 	
 
 	/**
+	 * @param currentDate_yyyymmdd
 	 * @param uploadKey
 	 * @param uploadTempBase
 	 * @return null if subdir already exists
 	 * @throws SpectralFileFileUploadFileSystemException 
 	 * @throws IOException 
 	 */
-	private File createSubDirForUploadFileTempDir( long uploadKey, File uploadTempBase ) throws SpectralFileFileUploadFileSystemException, IOException {
+	private File createSubDirForUploadFileTempDir( String currentDate_yyyymmdd, long uploadKey, File uploadTempBase ) throws SpectralFileFileUploadFileSystemException, IOException {
 		
-		File subdir = getSubDirForUploadFileTempDir( uploadKey, uploadTempBase );
+		File subdir = getSubDirForUploadFileTempDir( currentDate_yyyymmdd, uploadKey, uploadTempBase );
 		if ( subdir.exists() ) {
 			//  Subdir already exists so need new uploadKey to create unique subdir
 			return null;
@@ -100,8 +107,10 @@ public class CreateTempDirToUploadScanFileTo {
 	 * @throws ProxlWebappFileUploadFileSystemException 
 	 * @throws IOException 
 	 */
-	private File getSubDirForUploadFileTempDir( long uploadKey, File uploadTempBase ) {
+	private File getSubDirForUploadFileTempDir( String currentDate_yyyymmdd, long uploadKey, File uploadTempBase ) {
 		String subdirName = FileUploadConstants.UPLOAD_FILE_TEMP_SUB_DIR_PREFIX 
+				+ currentDate_yyyymmdd
+				+ "_"
 				+ uploadKey;
 		File subdir = new File( uploadTempBase, subdirName );
 		return subdir;

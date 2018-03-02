@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
+import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_ScanDataLocation_InWorkDirectory;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileDeserializeRequestException;
@@ -24,6 +24,7 @@ import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.GetRequestOb
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteResponseObjectToOutputStream;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteResponseStringToOutputStream;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_ScanFileAPI_Key_NotFound;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanRetentionTimes_Request;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanRetentionTimes_Response;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.sub_parts.Single_ScanRetentionTime_ScanNumber_SubResponse;
@@ -152,7 +153,7 @@ public class GetScanRetentionTimes_Servlet extends HttpServlet {
 
 			
 			File scanStorageBaseDirectoryFile =
-					ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance()
+					ConfigData_ScanDataLocation_InWorkDirectory.getSingletonInstance()
 					.getScanStorageBaseDirectory();
 			
 			SpectralFile_Reader__IF spectralFile_Reader = null;
@@ -160,122 +161,128 @@ public class GetScanRetentionTimes_Servlet extends HttpServlet {
 			try {
 				List<Single_ScanRetentionTime_ScanNumber_SubResponse> scanParts = null;
 			
+				//  null returned if directory does not exist
 				spectralFile_Reader = SpectralFile_Reader_Factory.getInstance()
-						.getSpectralFile_Writer_ForHash( scanFileAPIKey, scanStorageBaseDirectoryFile );
+						.getSpectralFile_Reader_ForHash( scanFileAPIKey, scanStorageBaseDirectoryFile );
 
-				Single_ScanRetentionTime_ScanNumber_SubResponse_Factory single_ScanRetentionTime_ScanNumber_SubResponse_Factory =
-						Single_ScanRetentionTime_ScanNumber_SubResponse_Factory.getInstance();
-
-				List<Integer> scanNumbers = get_ScanDataFromScanNumbers_Request.getScanNumbers();
+				if ( spectralFile_Reader == null ) {
+					webserviceResponse.setStatus_scanFileAPIKeyNotFound( Get_ScanData_ScanFileAPI_Key_NotFound.YES );
 				
-				if ( scanNumbers != null && ( ! scanNumbers.isEmpty() ) ) {
-					
-					//  scanNumbers list populated so use that to retrieve retention times
-					
-					scanParts = new ArrayList<>( scanNumbers.size() );
+				} else {
 
-					for ( Integer scanNumber : scanNumbers ) {
-						SpectralFile_Result_RetentionTime_ScanNumber internalResult = 
-								spectralFile_Reader.getScanRetentionTimeForScanNumber( scanNumber );
-						if ( internalResult != null ) {
+					Single_ScanRetentionTime_ScanNumber_SubResponse_Factory single_ScanRetentionTime_ScanNumber_SubResponse_Factory =
+							Single_ScanRetentionTime_ScanNumber_SubResponse_Factory.getInstance();
+
+					List<Integer> scanNumbers = get_ScanDataFromScanNumbers_Request.getScanNumbers();
+
+					if ( scanNumbers != null && ( ! scanNumbers.isEmpty() ) ) {
+
+						//  scanNumbers list populated so use that to retrieve retention times
+
+						scanParts = new ArrayList<>( scanNumbers.size() );
+
+						for ( Integer scanNumber : scanNumbers ) {
+							SpectralFile_Result_RetentionTime_ScanNumber internalResult = 
+									spectralFile_Reader.getScanRetentionTimeForScanNumber( scanNumber );
+							if ( internalResult != null ) {
+								Single_ScanRetentionTime_ScanNumber_SubResponse subResponse = 
+										single_ScanRetentionTime_ScanNumber_SubResponse_Factory.buildSingle_ScanRetentionTime_ScanNumber_SubResponse( internalResult );
+								scanParts.add( subResponse );
+							}
+						}
+					} else {
+						// Use other than scanNumbers list to filter results list
+
+						//  Scan Levels to Include
+
+						Set<Integer> scanLevelsToIncludeSet = null;
+
+						List<Integer> scanLevelsToIncludeList = get_ScanDataFromScanNumbers_Request.getScanLevelsToInclude();
+						boolean haveScanLevelsToInclude = false;
+						boolean have_One_ScanLevelToInclude = false;
+						int onlyScanLevelToInclude = -1;
+
+						if ( scanLevelsToIncludeList != null 
+								&& ( ! scanLevelsToIncludeList.isEmpty() ) ) {
+							haveScanLevelsToInclude = true;
+							if ( scanLevelsToIncludeList.size() == 1 ) {
+								have_One_ScanLevelToInclude = true;
+								onlyScanLevelToInclude = scanLevelsToIncludeList.iterator().next();
+							} else {
+								scanLevelsToIncludeSet = new HashSet<>( scanLevelsToIncludeList );
+							}
+						}
+
+
+						//  Scan Levels to Exclude
+
+						Set<Integer> scanLevelsToExcludeSet = null;
+
+						List<Integer> scanLevelsToExcludeList = get_ScanDataFromScanNumbers_Request.getScanLevelsToExclude();
+						boolean haveScanLevelsToExclude = false;
+						boolean have_One_ScanLevelToExclude = false;
+						int onlyScanLevelToExclude = -1;
+
+						if ( scanLevelsToExcludeList != null 
+								&& ( ! scanLevelsToExcludeList.isEmpty() ) ) {
+							haveScanLevelsToExclude = true;
+							if ( scanLevelsToExcludeList.size() == 1 ) {
+								have_One_ScanLevelToExclude = true;
+								onlyScanLevelToExclude = scanLevelsToExcludeList.iterator().next();
+							} else {
+								scanLevelsToExcludeSet = new HashSet<>( scanLevelsToExcludeList );
+							}
+						}
+
+						List<SpectralFile_Result_RetentionTime_ScanNumber> internalResults = 
+								spectralFile_Reader.getScanRetentionTimes_All();
+
+						scanParts = new ArrayList<>( internalResults.size() );
+
+						for ( SpectralFile_Result_RetentionTime_ScanNumber internalResult : internalResults ) {
+
+							boolean includeThisValue = false;
+
+							if ( have_One_ScanLevelToInclude ) { 
+								if ( internalResult.getLevel() == onlyScanLevelToInclude ) {
+									includeThisValue = true;
+								}
+							} else if ( haveScanLevelsToInclude ) {
+								if ( scanLevelsToIncludeSet.contains( internalResult.getLevel() ) ) {
+									includeThisValue = true;
+								}
+							} else {
+								includeThisValue = true;
+							}
+
+							if ( ! includeThisValue ) {
+								continue;  //  EARLY CONTINUE
+							}
+
+							boolean excludeThisValue = false;
+
+							if ( have_One_ScanLevelToExclude ) {
+								if ( internalResult.getLevel() == onlyScanLevelToExclude ) {
+									excludeThisValue = true;
+								}
+							} else if ( haveScanLevelsToExclude ) {
+								if ( scanLevelsToExcludeSet.contains( internalResult.getLevel() ) ) {
+									excludeThisValue = true;
+								}
+							}
+
+							if ( excludeThisValue ) {
+								continue;  //  EARLY CONTINUE
+							}
+
 							Single_ScanRetentionTime_ScanNumber_SubResponse subResponse = 
 									single_ScanRetentionTime_ScanNumber_SubResponse_Factory.buildSingle_ScanRetentionTime_ScanNumber_SubResponse( internalResult );
 							scanParts.add( subResponse );
 						}
 					}
-				} else {
-					// Use other than scanNumbers list to filter results list
-					
-					//  Scan Levels to Include
-					
-					Set<Integer> scanLevelsToIncludeSet = null;
-					
-					List<Integer> scanLevelsToIncludeList = get_ScanDataFromScanNumbers_Request.getScanLevelsToInclude();
-					boolean haveScanLevelsToInclude = false;
-					boolean have_One_ScanLevelToInclude = false;
-					int onlyScanLevelToInclude = -1;
-					
-					if ( scanLevelsToIncludeList != null 
-							&& ( ! scanLevelsToIncludeList.isEmpty() ) ) {
-						haveScanLevelsToInclude = true;
-						if ( scanLevelsToIncludeList.size() == 1 ) {
-							have_One_ScanLevelToInclude = true;
-							onlyScanLevelToInclude = scanLevelsToIncludeList.iterator().next();
-						} else {
-							scanLevelsToIncludeSet = new HashSet<>( scanLevelsToIncludeList );
-						}
-					}
-					
 
-					//  Scan Levels to Exclude
-					
-					Set<Integer> scanLevelsToExcludeSet = null;
-					
-					List<Integer> scanLevelsToExcludeList = get_ScanDataFromScanNumbers_Request.getScanLevelsToExclude();
-					boolean haveScanLevelsToExclude = false;
-					boolean have_One_ScanLevelToExclude = false;
-					int onlyScanLevelToExclude = -1;
-					
-					if ( scanLevelsToExcludeList != null 
-							&& ( ! scanLevelsToExcludeList.isEmpty() ) ) {
-						haveScanLevelsToExclude = true;
-						if ( scanLevelsToExcludeList.size() == 1 ) {
-							have_One_ScanLevelToExclude = true;
-							onlyScanLevelToExclude = scanLevelsToExcludeList.iterator().next();
-						} else {
-							scanLevelsToExcludeSet = new HashSet<>( scanLevelsToExcludeList );
-						}
-					}
-
-					List<SpectralFile_Result_RetentionTime_ScanNumber> internalResults = 
-						spectralFile_Reader.getScanRetentionTimes_All();
-
-					scanParts = new ArrayList<>( internalResults.size() );
-
-					for ( SpectralFile_Result_RetentionTime_ScanNumber internalResult : internalResults ) {
-						
-						boolean includeThisValue = false;
-						
-						if ( have_One_ScanLevelToInclude ) { 
-							if ( internalResult.getLevel() == onlyScanLevelToInclude ) {
-								includeThisValue = true;
-							}
-						} else if ( haveScanLevelsToInclude ) {
-							if ( scanLevelsToIncludeSet.contains( internalResult.getLevel() ) ) {
-								includeThisValue = true;
-							}
-						} else {
-							includeThisValue = true;
-						}
-						
-						if ( ! includeThisValue ) {
-							continue;  //  EARLY CONTINUE
-						}
-
-						boolean excludeThisValue = false;
-						
-						if ( have_One_ScanLevelToExclude ) {
-							if ( internalResult.getLevel() == onlyScanLevelToExclude ) {
-								excludeThisValue = true;
-							}
-						} else if ( haveScanLevelsToExclude ) {
-							if ( scanLevelsToExcludeSet.contains( internalResult.getLevel() ) ) {
-								excludeThisValue = true;
-							}
-						}
-
-						if ( excludeThisValue ) {
-							continue;  //  EARLY CONTINUE
-						}
-						
-						Single_ScanRetentionTime_ScanNumber_SubResponse subResponse = 
-								single_ScanRetentionTime_ScanNumber_SubResponse_Factory.buildSingle_ScanRetentionTime_ScanNumber_SubResponse( internalResult );
-						scanParts.add( subResponse );
-					}
+					webserviceResponse.setScanParts( scanParts );
 				}
-				
-				webserviceResponse.setScanParts( scanParts );
-				
 			} finally {
 				if ( spectralFile_Reader != null ) {
 					spectralFile_Reader.close();

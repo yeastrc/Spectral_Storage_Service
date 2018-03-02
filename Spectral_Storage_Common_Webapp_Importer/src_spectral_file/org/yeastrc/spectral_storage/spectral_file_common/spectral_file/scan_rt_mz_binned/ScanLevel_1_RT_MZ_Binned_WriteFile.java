@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * Write Scan Level 1 data 
  * binned on Retention Time and M/Z 
- * as JSON
+ * as JSON GZIP
  */
 public class ScanLevel_1_RT_MZ_Binned_WriteFile {
 
@@ -37,12 +37,26 @@ public class ScanLevel_1_RT_MZ_Binned_WriteFile {
 			String hash_String,
 			File subDirForStorageFiles ) throws Exception {
 		
+		writeScanLevel_1_RT_MZ_Binned_File_JSON_GZIP( accumulate_RT_MZ_Binned_ScanLevel_1, hash_String, subDirForStorageFiles );
+	}
+	
+	/**
+	 * @param summaryData
+	 * @param hash_String
+	 * @param subDirForStorageFiles
+	 * @throws Exception
+	 */
+	private void writeScanLevel_1_RT_MZ_Binned_File_JSON_GZIP( 
+			Accumulate_RT_MZ_Binned_ScanLevel_1 accumulate_RT_MZ_Binned_ScanLevel_1,
+			String hash_String,
+			File subDirForStorageFiles ) throws Exception {
+
 		MS1_IntensitiesBinnedSummedMapRoot summedDataRoot = accumulate_RT_MZ_Binned_ScanLevel_1.getSummedObject();
 		MS1_IntensitiesBinnedSummed_Summary_DataRoot summaryData = summedDataRoot.getSummaryData();
 		
 		String filenameFinal =
 				CreateSpectralStorageFilenames.getInstance()
-				.createSpectraStorage_ScanBinnedIntensityOn_RT_MZ_Filename( 
+				.createSpectraStorage_ScanBinnedIntensityOn_RT_MZ__JSON_GZIP_Filename( 
 						hash_String,
 						summaryData.getRtBinSizeInSeconds(),
 						summaryData.getMzBinSizeInMZ() );
@@ -72,6 +86,5 @@ public class ScanLevel_1_RT_MZ_Binned_WriteFile {
 			log.error( msg );
 			throw new SpectralStorageProcessingException( msg );
 		}
-		
 	}
 }

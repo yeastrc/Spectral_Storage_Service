@@ -1,6 +1,9 @@
 /bin/
 /classes/
+/zz_classes/
 /deploy/
+/deploy_src/
+
 /.classpath
 /.project
 /.settings/

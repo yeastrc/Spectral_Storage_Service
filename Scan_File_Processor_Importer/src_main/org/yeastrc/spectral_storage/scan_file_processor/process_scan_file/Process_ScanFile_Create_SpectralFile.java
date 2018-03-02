@@ -10,6 +10,7 @@ import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.MzML
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.MzML_MzXmlScan;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.ScanPeak;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.reader.MzMl_MzXml_FileReader;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.Compute_File_Hashes.Compute_File_Hashes_Result;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_Header_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
@@ -41,10 +42,11 @@ public class Process_ScanFile_Create_SpectralFile {
 	 */
 	public void processScanFile( 
 			File scanFile, 
-			File subDirForOutputFiles, 
+			File subDirForOutputFiles,
 			String hash_String, 
 			Compute_File_Hashes_Result compute_File_Hashes_Result ) throws Exception {
 
+		
 		if ( ! scanFile.exists() ) {
 			String msg = "Input scan file does not exist: " + scanFile.getAbsolutePath();
 			log.error( msg );
@@ -86,13 +88,16 @@ public class Process_ScanFile_Create_SpectralFile {
 			System.out.println( "Output Scan Peak data bytes, commpressed: " + spectralFile_Writer.getScanPeaksCompressedTotalBytes() );
 
 		} catch ( Exception e ) {
+			log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+			log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
 			String msg = "Error Exception processing mzML or mzXml Scan file: " + scanFile.getAbsolutePath()
 					+ ",  Throwing Data error since probably error in file format.";
 			log.error( msg, e );
-			String msgForException = "Error processing Scan file: " + scanFile.getAbsolutePath()
+			log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+			String msgForException = "Error processing Scan file. " 
 					+ ".  Please check the file to ensure it contains the correct contents for "
 					+ "a scan file based on the suffix of the file ('mzML' or 'mzXML')";
-			throw new Exception( msgForException );
+			throw new SpectralStorageDataException( msgForException );
 		} finally {
 			if ( scanFileReader != null ) {
 				scanFileReader.close();
@@ -102,7 +107,6 @@ public class Process_ScanFile_Create_SpectralFile {
 			}
 		}
 		
-
 		System.out.println( "Ended Processing input file: "  + scanFile.getAbsolutePath() 
 			+ ", Now: " + new Date() );
 	}

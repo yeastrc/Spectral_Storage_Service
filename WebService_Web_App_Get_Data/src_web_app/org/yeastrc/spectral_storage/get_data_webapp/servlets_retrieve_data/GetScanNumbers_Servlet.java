@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
+import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_ScanDataLocation_InWorkDirectory;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileDeserializeRequestException;
@@ -20,6 +20,7 @@ import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.GetRequestOb
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteResponseObjectToOutputStream;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteResponseStringToOutputStream;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_ScanFileAPI_Key_NotFound;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanNumbers_Request;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanNumbers_Response;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader_Factory;
@@ -134,19 +135,26 @@ public class GetScanNumbers_Servlet extends HttpServlet {
 			
 
 			File scanStorageBaseDirectoryFile =
-					ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance()
+					ConfigData_ScanDataLocation_InWorkDirectory.getSingletonInstance()
 					.getScanStorageBaseDirectory();
 			
 			SpectralFile_Reader__IF spectralFile_Reader = null;
 			
 			try {
+				//  null returned if directory does not exist
 				spectralFile_Reader = SpectralFile_Reader_Factory.getInstance()
-						.getSpectralFile_Writer_ForHash( scanFileAPIKey, scanStorageBaseDirectoryFile );
+						.getSpectralFile_Reader_ForHash( scanFileAPIKey, scanStorageBaseDirectoryFile );
 
-				List<Integer> scanNumbers =
-						spectralFile_Reader.getScanNumbersForScanLevelsToIncludeScanLevelsToExclude( scanLevelsToInclude, scanLevelsToExclude );
+				if ( spectralFile_Reader == null ) {
+					webserviceResponse.setStatus_scanFileAPIKeyNotFound( Get_ScanData_ScanFileAPI_Key_NotFound.YES );
+				
+				} else {
 
-				webserviceResponse.setScanNumbers( scanNumbers );
+					List<Integer> scanNumbers =
+							spectralFile_Reader.getScanNumbersForScanLevelsToIncludeScanLevelsToExclude( scanLevelsToInclude, scanLevelsToExclude );
+
+					webserviceResponse.setScanNumbers( scanNumbers );
+				}
 			} finally {
 				if ( spectralFile_Reader != null ) {
 					spectralFile_Reader.close();

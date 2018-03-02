@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
+import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_ScanDataLocation_InWorkDirectory;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.MaxNumberScansReturnConstants;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileBadRequestToServletException;
@@ -28,6 +28,7 @@ import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteRespons
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteResponseStringToOutputStream;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanDataFromScanNumbers_IncludeParentScans;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_ExcludeReturnScanPeakData;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_ScanFileAPI_Key_NotFound;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Request;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Response;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.sub_parts.SingleScan_SubResponse;
@@ -168,93 +169,99 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 			}
 			
 			File scanStorageBaseDirectoryFile =
-					ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance()
+					ConfigData_ScanDataLocation_InWorkDirectory.getSingletonInstance()
 					.getScanStorageBaseDirectory();
 			
 			SpectralFile_Reader__IF spectralFile_Reader = null;
 			
 			try {
+				//  null returned if directory does not exist
 				spectralFile_Reader = SpectralFile_Reader_Factory.getInstance()
-						.getSpectralFile_Writer_ForHash( scanFileAPIKey, scanStorageBaseDirectoryFile );
+						.getSpectralFile_Reader_ForHash( scanFileAPIKey, scanStorageBaseDirectoryFile );
+
+				if ( spectralFile_Reader == null ) {
+					webserviceResponse.setStatus_scanFileAPIKeyNotFound( Get_ScanData_ScanFileAPI_Key_NotFound.YES );
 				
-				Byte maxScanLevelFound = null;
-				
-				if ( includeParentScans != null
-						&& ( includeParentScans == 
-								Get_ScanDataFromScanNumbers_IncludeParentScans.IMMEDIATE_PARENT 
-								|| includeParentScans == 
-								Get_ScanDataFromScanNumbers_IncludeParentScans.ALL_PARENTS ) ) {
-					
-					for ( Integer scanNumber : scanNumbers ) {
-						Byte scanLevel = spectralFile_Reader.getScanLevelForScanNumber( scanNumber );
-						
-						if ( scanLevel != null ) {
-							if ( maxScanLevelFound == null ) {
-								maxScanLevelFound = scanLevel;
-							} else {
-								if ( scanLevel > maxScanLevelFound ) {
+				} else {
+
+					Byte maxScanLevelFound = null;
+
+					if ( includeParentScans != null
+							&& ( includeParentScans == 
+							Get_ScanDataFromScanNumbers_IncludeParentScans.IMMEDIATE_PARENT 
+							|| includeParentScans == 
+							Get_ScanDataFromScanNumbers_IncludeParentScans.ALL_PARENTS ) ) {
+
+						for ( Integer scanNumber : scanNumbers ) {
+							Byte scanLevel = spectralFile_Reader.getScanLevelForScanNumber( scanNumber );
+
+							if ( scanLevel != null ) {
+								if ( maxScanLevelFound == null ) {
 									maxScanLevelFound = scanLevel;
+								} else {
+									if ( scanLevel > maxScanLevelFound ) {
+										maxScanLevelFound = scanLevel;
+									}
 								}
 							}
 						}
-					}
-					
-					int allowedMaxScanNumbers = MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES;
-					
-					if ( includeParentScans == 
+
+						int allowedMaxScanNumbers = MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES;
+
+						if ( includeParentScans == 
 								Get_ScanDataFromScanNumbers_IncludeParentScans.IMMEDIATE_PARENT ) {
-						
-						allowedMaxScanNumbers = allowedMaxScanNumbers / 2;  // Scan and parent
-					} else {
-						allowedMaxScanNumbers = allowedMaxScanNumbers / maxScanLevelFound;
+
+							allowedMaxScanNumbers = allowedMaxScanNumbers / 2;  // Scan and parent
+						} else {
+							allowedMaxScanNumbers = allowedMaxScanNumbers / maxScanLevelFound;
+						}
+
+						if ( scanNumbers.size() > allowedMaxScanNumbers ) {
+
+							webserviceResponse.setTooManyScansToReturn( true );
+							webserviceResponse.setMaxScansToReturn( MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES );
+							webserviceResponse.setMaxScanLevelFound( maxScanLevelFound );
+							webserviceResponse.setMaxScanNumbersAllowedForMaxScanLevelFound( allowedMaxScanNumbers );
+
+							WriteResponseObjectToOutputStream.getSingletonInstance()
+							.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
+
+							return; // EARLY RETURN
+						}
 					}
 
-					if ( scanNumbers.size() > allowedMaxScanNumbers ) {
+					int returnedScanListInitialSize = scanNumbers.size();
 
-						webserviceResponse.setTooManyScansToReturn( true );
-						webserviceResponse.setMaxScansToReturn( MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES );
-						webserviceResponse.setMaxScanLevelFound( maxScanLevelFound );
-						webserviceResponse.setMaxScanNumbersAllowedForMaxScanLevelFound( allowedMaxScanNumbers );
-						
-						WriteResponseObjectToOutputStream.getSingletonInstance()
-						.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
-
-						return; // EARLY RETURN
+					if ( maxScanLevelFound != null ) {
+						returnedScanListInitialSize *= maxScanLevelFound;
 					}
-				}
-				
-				int returnedScanListInitialSize = scanNumbers.size();
-				
-				if ( maxScanLevelFound != null ) {
-					returnedScanListInitialSize *= maxScanLevelFound;
-				}
-				
-				SingleScan_SubResponse_Factory singleScan_SubResponse_Factory = SingleScan_SubResponse_Factory.getInstance();
-				
-				SingleScan_SubResponse_Factory_Parameters singleScan_SubResponse_Factory_Parameters = new SingleScan_SubResponse_Factory_Parameters();
-				
-				singleScan_SubResponse_Factory_Parameters.setMzHighCutoff( get_ScanDataFromScanNumbers_Request.getMzHighCutoff() );
-				singleScan_SubResponse_Factory_Parameters.setMzLowCutoff( get_ScanDataFromScanNumbers_Request.getMzLowCutoff() );
-				
-				List<SingleScan_SubResponse> scans = new ArrayList<>( returnedScanListInitialSize );
-				
-				Set<Integer> insertedScansScanNumbers = new HashSet<>();
 
-				for ( Integer scanNumber : scanNumbers ) {
-					processScanNumber( 
-							1, // recursionLevel
-							scanNumber, 
-							includeParentScans,
-							excludeReturnScanPeakData,
-							scans, 
-							insertedScansScanNumbers, 
-							spectralFile_Reader,
-							singleScan_SubResponse_Factory,
-							singleScan_SubResponse_Factory_Parameters );
+					SingleScan_SubResponse_Factory singleScan_SubResponse_Factory = SingleScan_SubResponse_Factory.getInstance();
+
+					SingleScan_SubResponse_Factory_Parameters singleScan_SubResponse_Factory_Parameters = new SingleScan_SubResponse_Factory_Parameters();
+
+					singleScan_SubResponse_Factory_Parameters.setMzHighCutoff( get_ScanDataFromScanNumbers_Request.getMzHighCutoff() );
+					singleScan_SubResponse_Factory_Parameters.setMzLowCutoff( get_ScanDataFromScanNumbers_Request.getMzLowCutoff() );
+
+					List<SingleScan_SubResponse> scans = new ArrayList<>( returnedScanListInitialSize );
+
+					Set<Integer> insertedScansScanNumbers = new HashSet<>();
+
+					for ( Integer scanNumber : scanNumbers ) {
+						processScanNumber( 
+								1, // recursionLevel
+								scanNumber, 
+								includeParentScans,
+								excludeReturnScanPeakData,
+								scans, 
+								insertedScansScanNumbers, 
+								spectralFile_Reader,
+								singleScan_SubResponse_Factory,
+								singleScan_SubResponse_Factory_Parameters );
+					}
+
+					webserviceResponse.setScans( scans );
 				}
-				
-				webserviceResponse.setScans( scans );
-				
 			} finally {
 				if ( spectralFile_Reader != null ) {
 					spectralFile_Reader.close();

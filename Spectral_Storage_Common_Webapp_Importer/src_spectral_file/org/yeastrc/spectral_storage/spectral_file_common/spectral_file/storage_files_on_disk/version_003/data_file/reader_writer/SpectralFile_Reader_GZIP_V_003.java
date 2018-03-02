@@ -1,6 +1,5 @@
 package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.data_file.reader_writer;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
@@ -8,7 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,22 +17,27 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.DataOrIndexFileFullyWrittenConstants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.ScanCentroidedConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralFileDataFileNotFullyWrittenException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_Header_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.index_file.SpectralFile_Index_FileContents_Root_IF;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.scans_lvl_gt_1_partial.SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_request_results.SpectralFile_Result_RetentionTime_ScanNumber;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_request_results.SummaryDataPerScanLevel;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.index_file_root_data_object_cache.IndexFileRootDataObjectCache;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader__IF;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.scans_lvl_gt_1_file_root_data_cache.ScansLvlGt1PartialFileRootDataObjectCache;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.GetOrCreateSpectralStorageSubPath;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.StorageFile_Version_003_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_FileContents_Root_V_003;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SingleScan_V_003;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.to_data_file_reader_objects.SpectralFile_ScansLvlGt1Partial_TDFR_FileContents_Root_V_003;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.to_data_file_reader_objects.SpectralFile_ScansLvlGt1Partial_TDFR_SingleScan_V_003;
 
 /**
  * Special code to read whole file start to end at the bottom of this class
@@ -46,8 +50,6 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	
 	
 	private static final Logger log = Logger.getLogger(SpectralFile_Reader_GZIP_V_003.class);
-	
-	private static final String FILE_MODE_READ = "r"; // Used in RandomAccessFile constructor below
 	
 	private static final int SIZE_OF_SCAN_MINUS_SCAN_PEAKS = sizeOfScanMinusScanPeaks();
 	
@@ -74,12 +76,16 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	}
 
 
-	String hash_String;
-	private File subDirForStorageFiles;
+	private String hash_String;
+	private String spectralDataFilename;
 	
+	/**
+	 * Read from header of file
+	 */
+	private long spectralStorageDataFileLength_InBytes;
 	
-	private File inputFile_MainFile;
-	
+	private CommonReader_File_And_S3 commonReader_File_And_S3;
+		
 	private SpectralFile_Index_TDFR_FileContents_Root_V_003 spectralFile_Index_FileContents_Root;
 	
 	
@@ -90,24 +96,19 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	}
 
 	@Override
-	public void init( String hash_String, File scanStorageBaseDirectoryFile ) throws Exception {
+	public void init( String hash_String, CommonReader_File_And_S3 commonReader_File_And_S3 ) throws Exception {
 
 		this.hash_String = hash_String;
 		
-		String spectralDataFilename =
+		this.commonReader_File_And_S3 = commonReader_File_And_S3;
+		
+		spectralDataFilename =
 				CreateSpectralStorageFilenames.getInstance().createSpectraStorage_Data_Filename( hash_String );
 
-		subDirForStorageFiles = 
-				GetOrCreateSpectralStorageSubPath.getInstance().getDirsForHash( hash_String, scanStorageBaseDirectoryFile );
-		
-		File dataFile = new File( subDirForStorageFiles, spectralDataFilename );
-		
-		inputFile_MainFile = dataFile;
-		
 		validateVersion_FileFullyWritten();
 		
 		SpectralFile_Index_FileContents_Root_IF spectralFile_Index_FileContents_Root_IF =
-				IndexFileRootDataObjectCache.getInstance().getSpectralFile_Index_FileContents_Root_IF( hash_String );
+				IndexFileRootDataObjectCache.getSingletonInstance().getSpectralFile_Index_FileContents_Root_IF( hash_String );
 
 		if ( spectralFile_Index_FileContents_Root_IF == null ) {
 			String msg = "Failed to read index file for hash: " + hash_String;
@@ -121,7 +122,6 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 			log.error( msg, e );
 			throw new SpectralStorageProcessingException( msg, e );
 		}
-		
 	}
 
 	/**
@@ -131,18 +131,17 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		short fileVersionInFile = -1;
 		
-		try ( FileInputStream spectalFileInputSteram = new FileInputStream( inputFile_MainFile ) ) {
+		try ( InputStream spectalFileInputStream = commonReader_File_And_S3.getInputStreamForScanStorageItem( spectralDataFilename, hash_String ) ) {
 			
-			try ( DataInputStream dataInputStream = new DataInputStream( spectalFileInputSteram ) ) {
+			try ( DataInputStream dataInputStream = new DataInputStream( spectalFileInputStream ) ) {
 
-				
 				fileVersionInFile = dataInputStream.readShort();
 
 				byte fileFullWrittenIndicator = dataInputStream.readByte();
 
 				if ( fileFullWrittenIndicator != DataOrIndexFileFullyWrittenConstants.FILE_FULLY_WRITTEN_YES ) {
 					
-					String msg = "Data File not fully written.  Data File fully written indicator not 1.  Data File: " + inputFile_MainFile.getAbsolutePath();
+					String msg = "Data File not fully written.  Data File fully written indicator not 1.  spectralDataFilename: " + spectralDataFilename;
 					log.error( msg );
 					throw new SpectralFileDataFileNotFullyWrittenException(msg);
 				}
@@ -152,7 +151,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		if ( fileVersionInFile != FILE_VERSION ) {
 			String msg = "File version does not match programatic version.  File Version: " + fileVersionInFile
 					+ ", programatic version: " + FILE_VERSION
-					+ ".  File: " + inputFile_MainFile.getCanonicalPath();
+					+ ".  spectralDataFilename: " + spectralDataFilename;
 			log.error( msg );
 			throw new SpectralStorageProcessingException( msg );
 		}
@@ -166,22 +165,16 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	@Override
 	public SpectralFile_Header_Common getHeader() throws Exception {
 
-		FileInputStream spectalFileInputStream = null;
-		try {
-			spectalFileInputStream = new FileInputStream( inputFile_MainFile );
-					
+		try ( InputStream spectalFileInputStream = commonReader_File_And_S3.getInputStreamForScanStorageItem( spectralDataFilename, hash_String ) ) {
+								
 			try ( DataInputStream dataInputStream = new DataInputStream( spectalFileInputStream ) ) {
 				
 				return readHeaderFromDataInputStream( dataInputStream );
 			}
 		} catch ( Exception e ) {
-			String msg = "Error reading header for file: " + inputFile_MainFile.getCanonicalPath();
+			String msg = "Error reading header for spectralDataFilename: " + spectralDataFilename;
 			log.error( msg, e );
 			throw e;
-		} finally {
-			if ( spectalFileInputStream != null ) {
-				spectalFileInputStream.close();
-			}
 		}
 	}
 	
@@ -207,22 +200,22 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		if ( fileFullWrittenIndicator != DataOrIndexFileFullyWrittenConstants.FILE_FULLY_WRITTEN_YES ) {
 
-			String msg = "Data File not fully written.  First byte is not 1.  Data File: " + inputFile_MainFile.getAbsolutePath();
+			String msg = "Data File not fully written.  First byte is not 1.  spectralDataFilename: " + spectralDataFilename;
 			log.error( msg );
 			throw new SpectralFileDataFileNotFullyWrittenException(msg);
 		}
 
 		// Length of this file
-		long spectralStorageDataFileLength_InBytes  = dataInputStream.readLong();
+		spectralStorageDataFileLength_InBytes  = dataInputStream.readLong();
 		headerTotalBytesInDataFile += Long.BYTES;
 		
-		if ( spectralStorageDataFileLength_InBytes != inputFile_MainFile.length() ) {
-			String msg = "Length stored in data file is not same as actual length of data file.  "
-					+ "Length stored in data file: " + spectralStorageDataFileLength_InBytes
-					+ ", actual length of data file: " + inputFile_MainFile.length();
-			log.error( msg );
-			throw new SpectralStorageProcessingException(msg);
-		}
+//		if ( spectralStorageDataFileLength_InBytes != inputFile_MainFile.length() ) {
+//			String msg = "Length stored in data file is not same as actual length of data file.  "
+//					+ "Length stored in data file: " + spectralStorageDataFileLength_InBytes
+//					+ ", actual length of data file: " + inputFile_MainFile.length();
+//			log.error( msg );
+//			throw new SpectralStorageProcessingException(msg);
+//		}
 		
 		
 		//  Read mainHeaderLength - not used
@@ -230,7 +223,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		headerTotalBytesInDataFile += Short.BYTES;
 		
 		//  Rest of header is value in mainHeaderLength
-		headerTotalBytesInDataFile+= mainHeaderLength;
+		headerTotalBytesInDataFile += mainHeaderLength;
 		
 		//  Read Scan File Length
 		spectralFile_Header_Common.setScanFileLength_InBytes( dataInputStream.readLong() );
@@ -306,10 +299,72 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 			//  No Index entry
 			return null;  // EARLY RETURN
 		}
+
+		SpectralFile_SingleScan_Common spectralFile_SingleScan_Common = new SpectralFile_SingleScan_Common();
 		
-		//  Have Index Entry, now read scan using byte index in main spectral data file
+		spectralFile_SingleScan_Common.setScanNumber( scanNumber ); // from request
 		
-		return readScanForScanNumber_IndexEntry( indexEntry, ReadScanPeaks.NO );
+		// from index:
+		spectralFile_SingleScan_Common.setLevel( indexEntry.getLevel() );
+		spectralFile_SingleScan_Common.setRetentionTime( indexEntry.getRetentionTime() );
+
+		if ( spectralFile_Index_FileContents_Root.getIsCentroidWholeFile() != ScanCentroidedConstants.SCAN_CENTROIDED_VALUES_IN_FILE_BOTH ) {
+			//  Whole file is a single Centroid value so return it
+			spectralFile_SingleScan_Common.setIsCentroid( spectralFile_Index_FileContents_Root.getIsCentroidWholeFile() );
+		}
+		
+		if ( indexEntry.getLevel() > 1 ) {
+
+			//  Scan level > 1 so read partial file contents and set in returned object
+
+			SpectralFile_ScansLvlGt1Partial_TDFR_SingleScan_V_003 scansLvlGt1Partial_SingleScan = null;
+
+			try {
+				SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF spectralFile_ScansLvlGt1Partial_FileContents_Root_IF=
+						ScansLvlGt1PartialFileRootDataObjectCache.getSingletonInstance()
+						.getSpectralFile_ScansLvlGt1Partial_FileContents_Root_IF( hash_String );
+
+				if ( spectralFile_ScansLvlGt1Partial_FileContents_Root_IF == null ) {
+					String msg = "Failed to read ScansLvlGt1Partial file for hash: " + hash_String;
+					log.warn(msg);
+					throw new SpectralStorageProcessingException(msg);
+				}
+
+				SpectralFile_ScansLvlGt1Partial_TDFR_FileContents_Root_V_003 scansLvlGt1Partial_FileContents_Root = null;
+				try {
+					scansLvlGt1Partial_FileContents_Root = (SpectralFile_ScansLvlGt1Partial_TDFR_FileContents_Root_V_003) spectralFile_ScansLvlGt1Partial_FileContents_Root_IF;
+				} catch ( Exception e ) {
+					String msg = "Failed to cast ScansLvlGt1Partial file data object to correct class for hash: " + hash_String;
+					log.warn( msg, e );
+					throw new SpectralStorageProcessingException( msg, e );
+				}
+
+				scansLvlGt1Partial_SingleScan =	scansLvlGt1Partial_FileContents_Root.get_SingleScan_ForScanNumber( scanNumber );
+				if ( scansLvlGt1Partial_SingleScan == null ) {
+					String msg = "Failed to read scan number from ScansLvlGt1Partial for hash.  scanNumber: " + scanNumber + ", hash: " + hash_String;
+					log.warn(msg);
+					throw new SpectralStorageProcessingException(msg);
+				}
+				
+			} catch ( Exception e ) {
+				
+				//  TODO  For now just swallow exception since will then get from main data file
+			}
+			
+			if ( scansLvlGt1Partial_SingleScan == null ) {
+				//  Scan number not in ScansLvlGt1Partial file.  As backup get from main data file
+				
+				//  read scan using byte index in main spectral data file
+				SpectralFile_SingleScan_Common spectralFile_SingleScan_Common_FromMainDataFile = readScanForScanNumber_IndexEntry( indexEntry, ReadScanPeaks.NO );
+				return spectralFile_SingleScan_Common_FromMainDataFile;
+			}
+			
+			spectralFile_SingleScan_Common.setParentScanNumber( scansLvlGt1Partial_SingleScan.getParentScanNumber() );
+			spectralFile_SingleScan_Common.setPrecursorCharge( scansLvlGt1Partial_SingleScan.getPrecursorCharge() );
+			spectralFile_SingleScan_Common.setPrecursor_M_Over_Z( scansLvlGt1Partial_SingleScan.getPrecursor_M_Over_Z() );
+		}
+		
+		return spectralFile_SingleScan_Common;
 	}
 	
 	
@@ -486,12 +541,14 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 
 			dataInputStream_ScanData = new DataInputStream( scanInputStream );
 			
-			return readScan_FromDataInputStream( dataInputStream_ScanData, readScanPeaks );
+			SpectralFile_SingleScan_Common result = readScan_FromDataInputStream( dataInputStream_ScanData, readScanPeaks );
+			
+			return result;
 			
 		} catch ( Throwable e ) {
 			String msg = "Failed to read scan for Scan Number: " + indexEntry.getScanNumber()
 			+ ", indexEntry.getScanSize_InDataFile_InBytes(): " + indexEntry.getScanSize_InDataFile_InBytes()
-			+ ", File: " + inputFile_MainFile.getAbsolutePath();
+			+ ", spectralDataFilename: " + spectralDataFilename;
 			log.error( msg );
 			System.err.println( msg );
 			throw e;
@@ -511,12 +568,12 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	private byte[] readBytesOnDiskForScanNumber_IndexEntry( 
 			SpectralFile_Index_TDFR_SingleScan_V_003 indexEntry,
 			Integer numberOfBytesToReadOverride ) throws Exception {
-
+		
 		if ( indexEntry.getScanSize_InDataFile_InBytes() > Integer.MAX_VALUE ) {
 			String msg = "Processing Error:  indexEntry.getScanSize_InDataFile_InBytes() > Integer.MAX_VALUE.  Unable to allocate byte[]."
 					+ " Scan Number: " + indexEntry.getScanNumber()
 					+ ", indexEntry.getScanSize_InDataFile_InBytes(): " + indexEntry.getScanSize_InDataFile_InBytes()
-					+ ", File: " + inputFile_MainFile.getAbsolutePath();
+					+ ", spectralDataFilename: " + spectralDataFilename;
 			log.error( msg );
 			throw new SpectralStorageProcessingException(msg);
 		}
@@ -528,40 +585,20 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		if ( numberOfBytesToReadOverride != null ) {
 			//  Override to number of bytes requested
 			byteArraySize = numberOfBytesToReadOverride;
-		}
-		
-		byte[] scanBytes = new byte[ byteArraySize ];
-
-		
-		try ( RandomAccessFile spectalFile = new RandomAccessFile( inputFile_MainFile, FILE_MODE_READ ) ) {
-		
-//			spectalFile.getFilePointer();
-//			spectalFile.length();
-			
-			spectalFile.seek( indexEntry.getScanIndex_InDataFile_InBytes() );
-			
-			int totalBytesRead = 0;
-			int numBytesRead = -1;
-			
-			do {
-				numBytesRead = spectalFile.read( scanBytes, totalBytesRead, scanBytes.length - totalBytesRead );
-				totalBytesRead += numBytesRead;
-				
-			} while ( numBytesRead != -1 && totalBytesRead < scanBytes.length );
-			
-			//  Change since now may contain fewer number of bytes if at end of file
-			if ( numBytesRead != -1 && totalBytesRead != scanBytes.length ) {
-				//  Not at end of file and bytes read not number of bytes requested:
-				String msg = "Number of bytes read is not number of bytes needed. totalBytesRead: " + totalBytesRead
-						+ ", scanBytes.length: " + scanBytes.length
-						+ ", scanNumber: " + indexEntry.getScanNumber()
-						+ ", File: " + inputFile_MainFile.getAbsolutePath();
-				log.error( msg );
-				throw new SpectralStorageProcessingException(msg);
+			if ( byteArraySize + indexEntry.getScanIndex_InDataFile_InBytes() > spectralStorageDataFileLength_InBytes ) {
+				//  Specified to read past end of file so set to read to end of file
+				long byteArraySizeAsLong = spectralStorageDataFileLength_InBytes - indexEntry.getScanIndex_InDataFile_InBytes();
+				if ( byteArraySizeAsLong > Integer.MAX_VALUE ) {
+					String msg = "Computed bytes to read > Integer.MAX_VALUE: " + byteArraySizeAsLong
+							+ ", spectralDataFilename: " + spectralDataFilename;
+					log.error( msg );
+					throw new SpectralStorageProcessingException( msg );
+				}
 			}
 		}
-		
-		return scanBytes;
+
+		return commonReader_File_And_S3.getBytesFromScanStorageItem(
+				spectralDataFilename, hash_String, indexEntry.getScanIndex_InDataFile_InBytes(), byteArraySize );
 	}
 	
 	///////////////////////////////////////////////////
@@ -777,13 +814,15 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	 */
 	public void readWholeDataFile_Init_OpenFile( File dataFile ) throws Exception {
 
-		inputFile_MainFile = dataFile;
-
-		validateVersion_FileFullyWritten();
-
-		readWholeDataFile_fileInputStream = new FileInputStream( inputFile_MainFile );
-			
-		readWholeDataFile_dataInputStream = new DataInputStream( new BufferedInputStream( readWholeDataFile_fileInputStream ) );
+		//  TODO  !!!!!!  TEMP
+		
+//		inputFile_MainFile = dataFile;
+//
+//		validateVersion_FileFullyWritten();
+//
+//		readWholeDataFile_fileInputStream = new FileInputStream( inputFile_MainFile );
+//			
+//		readWholeDataFile_dataInputStream = new DataInputStream( new BufferedInputStream( readWholeDataFile_fileInputStream ) );
 	}
 	
 	/**
