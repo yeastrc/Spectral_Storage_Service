@@ -12,9 +12,13 @@
     <property name="deployablename" value="spectral_storage_get_data.war" />
 
   	<property name="src_shared_server_client_importer" value="../Spectral_Storage_Service_Common_All/src_shared_server_client_importer" />
+
   	<property name="src_shared_server_client" value="src_shared_server_client" />
-  	<property name="src_spectral_file" value="../Spectral_Storage_File_Common/src_spectral_file" />
-    <property name="src_web_app" value="src_web_app" />
+  	
+  	<property name="src_shared_webapp_importer" value="../Spectral_Storage_Common_Webapp_Importer/src_shared_webapp_importer" />
+  	<property name="src_spectral_file" value="../Spectral_Storage_Common_Webapp_Importer/src_spectral_file" />
+
+  	<property name="src_web_app" value="src_web_app" />
     <property name="zz_build_dir" value="zz_build_dir" />
     <property name="build" value="build" />
     <property name="classesweb" value="zz_build_dir/WEB-INF/classes" />
@@ -162,6 +166,11 @@
 		<classpath refid="classpath"/>
 	</javac>
 
+  	<javac includeantruntime="false"  srcdir="${src_shared_webapp_importer}" destdir="${classesweb}" debug="true"  
+  		 source="${java_source}" target="${java_target}"  encoding="${java.source.character.set}" >
+		<classpath refid="classpath"/>
+	</javac>
+  	
   	<javac includeantruntime="false"  srcdir="${src_spectral_file}" destdir="${classesweb}" debug="true"  
   		 source="${java_source}" target="${java_target}"  encoding="${java.source.character.set}" >
 		<classpath refid="classpath"/>

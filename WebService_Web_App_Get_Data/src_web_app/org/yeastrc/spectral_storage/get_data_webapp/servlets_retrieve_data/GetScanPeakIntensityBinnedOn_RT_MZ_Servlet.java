@@ -18,6 +18,7 @@ import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileDeser
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.GetRequestObjectFromInputStream;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteResponseStringToOutputStream;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanPeakIntensityBinnedOn_RT_MZ_Request;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.ScanLevel_1_RT_MZ_Binned_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
@@ -222,7 +223,10 @@ public class GetScanPeakIntensityBinnedOn_RT_MZ_Servlet extends HttpServlet {
 				}
 				
 			}
-			
+
+		} catch ( SpectralStorageDataNotFoundException e ) {
+
+			response.setStatus( HttpServletResponse.SC_NOT_FOUND /* 404  */ );
 			
 		} catch (SpectralFileBadRequestToServletException e) {
 

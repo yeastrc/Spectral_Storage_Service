@@ -13,6 +13,8 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exception
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.GetOrCreateSpectralStorageSubPath;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -88,7 +90,26 @@ public class CommonReader_File_And_S3 {
 				SpectralStorage_DataFiles_S3_Prefix_Constants.S3_PREFIX_DATA_FILES 
 				+ mainFilename;
 		
-		S3Object s3Object = s3_Client.getObject( s3_Bucket, s3_objectName );
+		//  throws exception when object not found for bucket and object name
+		
+		S3Object s3Object = null;
+		
+		try {
+			s3Object = s3_Client.getObject( s3_Bucket, s3_objectName );
+
+		} catch ( AmazonServiceException e ) {
+
+			if ( e.getStatusCode() == 404 ) {
+					String msg = "Hash Key not found: " + s3_objectName;
+//					log.warn( msg );
+					throw new SpectralStorageDataNotFoundException( msg );
+			}
+			throw e;
+		} catch ( SdkClientException e ) {
+			throw e;
+		}
+        
+		
 		InputStream isS3Object = s3Object.getObjectContent();
 		return isS3Object;
 	}
@@ -171,9 +192,25 @@ public class CommonReader_File_And_S3 {
 		GetObjectRequest rangeObjectRequest = new GetObjectRequest( s3_Bucket, s3_objectName );
 		
 		rangeObjectRequest.setRange( startOffset, endIndex ); // retrieve byte range, zero based (start,end).
-		
-		S3Object objectPortion_S3 = s3_Client.getObject(rangeObjectRequest);
 
+		S3Object objectPortion_S3 = null;
+		
+		try {
+			objectPortion_S3 = s3_Client.getObject( rangeObjectRequest );
+
+		} catch ( AmazonServiceException e ) {
+
+			if ( e.getStatusCode() == 404 ) {
+					String msg = "Hash Key not found: " + s3_objectName;
+//					log.warn( msg );
+					throw new SpectralStorageDataNotFoundException( msg );
+			}
+			throw e;
+		} catch ( SdkClientException e ) {
+			throw e;
+		}
+        
+		
 		try ( InputStream objectDataIS = objectPortion_S3.getObjectContent() ) {
 
 			int totalBytesRead = 0;
