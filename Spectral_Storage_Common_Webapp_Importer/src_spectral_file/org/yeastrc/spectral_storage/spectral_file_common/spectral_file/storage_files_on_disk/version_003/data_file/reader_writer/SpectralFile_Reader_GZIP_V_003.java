@@ -1,5 +1,6 @@
 package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.data_file.reader_writer;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
@@ -834,17 +835,21 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	 * @param dataFile
 	 * @throws Exception
 	 */
-	public void readWholeDataFile_Init_OpenFile( File dataFile ) throws Exception {
+	public void readWholeDataFile_Init_OpenFile( File dataFile, CommonReader_File_And_S3 commonReader_File_And_S3 ) throws Exception {
 
-		//  TODO  !!!!!!  TEMP
+		spectralDataFilename = dataFile.getName();
 		
-//		inputFile_MainFile = dataFile;
-//
-//		validateVersion_FileFullyWritten();
-//
-//		readWholeDataFile_fileInputStream = new FileInputStream( inputFile_MainFile );
-//			
-//		readWholeDataFile_dataInputStream = new DataInputStream( new BufferedInputStream( readWholeDataFile_fileInputStream ) );
+		int dotIndex = spectralDataFilename.indexOf( '.' );
+		
+		this.hash_String = spectralDataFilename.substring(0, dotIndex);
+		
+		this.commonReader_File_And_S3 = commonReader_File_And_S3;
+			
+		validateVersion_FileFullyWritten();
+
+		readWholeDataFile_fileInputStream = new FileInputStream( dataFile );
+			
+		readWholeDataFile_dataInputStream = new DataInputStream( new BufferedInputStream( readWholeDataFile_fileInputStream ) );
 	}
 	
 	/**
