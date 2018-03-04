@@ -45,6 +45,12 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  */
 public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	
+	private static final boolean OVERRIDE_SKIP_RETURN_SCAN_PEAKS = false;
+	
+	/**
+	 * Special override to not return scan peaks when reading file sequentially
+	 */
+//	private static final boolean OVERRIDE_SKIP_RETURN_SCAN_PEAKS = true;
 	
 	private static final short FILE_VERSION = StorageFile_Version_003_Constants.FILE_VERSION;
 	
@@ -53,6 +59,10 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	
 	private static final int SIZE_OF_SCAN_MINUS_SCAN_PEAKS = sizeOfScanMinusScanPeaks();
 	
+	/**
+	 * can be overridden by OVERRIDE_SKIP_RETURN_SCAN_PEAKS = true to read the scan peaks but not return them
+	 *
+	 */
 	private enum ReadScanPeaks { YES, NO }
 	
 	/**
@@ -60,6 +70,15 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	 */
 	private SpectralFile_Reader_GZIP_V_003(){}
 	public static SpectralFile_Reader__IF getInstance( ) throws Exception {
+		
+		if ( OVERRIDE_SKIP_RETURN_SCAN_PEAKS ) {
+			log.warn( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+			log.warn( "" );
+			log.warn( " SpectralFile_Reader_GZIP_V_003:  OVERRIDE_SKIP_RETURN_SCAN_PEAKS = true");
+			log.warn( "" );
+			log.warn( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+		}
+		
 		SpectralFile_Reader__IF instance = new SpectralFile_Reader_GZIP_V_003();
 		return instance;
 	}
@@ -747,6 +766,9 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 			
 		}
 		
+		if ( OVERRIDE_SKIP_RETURN_SCAN_PEAKS ) {
+			return scanPeaksAsObjectArray;
+		}
 		//  Read scanPeaksAsCompressedBytes as GZIP bytes as DataInputStream
 		
 		ByteArrayInputStream scanPeaksBAIS = new ByteArrayInputStream( scanPeaksAsCompressedBytes );
