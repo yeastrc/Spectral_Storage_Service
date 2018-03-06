@@ -37,7 +37,8 @@ what interfaces are available via web services to retrieve the data.
 .. toctree::
    :maxdepth: 1
    :caption: Web Services
-   
+
+   services/download   
    services/upload
 
 .. toctree::

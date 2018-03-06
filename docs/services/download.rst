@@ -1,25 +1,55 @@
 ===========================================
-Upload Data
+Download Data
 ===========================================
-This document contains documentation for the web services for uploading data to spectr.
+This document contains documentation for the web services for downloading data from spectr.
 
-Uploading a scan file to spectr us a multi-step affair. The steps are:
+Scan Data:
+===============================
+For all web services that return scan data, this is the XML format used:
 
-  1. Initiate upload of scan file with ``/update/uploadScanFile_Init_XML``
-  2. Use the returned key to send data to spectr.
-     Use ``/update/uploadScanFile_uploadScanFile_XML`` to send data from a local file or 
-     ``/update/uploadScanFile_addScanFileInS3Bucket_XML`` to send data from S3.
-  3. Commit the submission for processing with ``/update/uploadScanFile_Submit_XML``
-  4. Use the returned key from 3 to query status and retrieve final hash key for uploaded file with ``/update/uploadedScanFile_Status_API_Key_XML``.
+.. code-block:: xml
+
+ <scan level="2" scanNumber="3305" retentionTime="332.33993" isCentroid="0">
+    <peaks>
+       <peak mz="899.999484" intensity="19999338.33" />
+       <peak mz="903.399883" intensity="88373.31" />
+       <peak mz="1003.87368" intensity="7733.84" />
+       <!-- ... peak element for every peak in the scan ... -->
+    </peaks>
+ </scan>
+
+Scan attributes
+------------------
+
+ * level - Scan level (1 for ms1, 2 for ms2 and so on)
+ * scanNumber - Scan number for this scan from the original spectral file
+ * retentionTime - Retention time for this scan (in seconds)
+ * isCentroid - Whether or not this scan is centroided (0 for false, 1 for true)
+ * parentScanNumber - (Only for scan level > 1) Parent scan number
+ * precursorCharge - (Only for scan level > 1) Charge of precursor ion
+ * precursor_M_Over_Z - (Only for scan level > 1) m/z of precursor ion (double)
+
+Peak attributes
+--------------------
+
+ * mz - The m/z of the peak (double)
+ * intensity - The intensity of the peak (float)
+
+APINotFound
+=======================
+All responses will contain the ``<status_scanFileAPIKeyNotFound>YES</status_scanFileAPIKeyNotFound>`` sub-element if
+the supplied API key was invalid.
+
 
 Web Services Details:
 ================================
 
-Initiate upload of scan file
+Get Scan Numbers
 ---------------------------------------------------------
+Get all scan numbers present in an uploaded file, by scan level
 
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
-| **URI**              | /update/uploadScanFile_Init_XML                                                                                        |
+| **URI**              | /query/getScanNumbers_XML                                                                                              |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Method               | POST                                                                                                                   |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
@@ -28,44 +58,24 @@ Initiate upload of scan file
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | POST data            | .. code-block:: xml                                                                                                    |
 |                      |                                                                                                                        |
-|                      |   <uploadScanFile_Init_Request></uploadScanFile_Init_Request>                                                          |
+|                      |      <get_ScanNumbers_Request scanFileAPIKey="">                                                                       |
+|                      |          <scanLevelsToInclude>                                                                                         |
+|                      |              <scanLevelToInclude>n</scanLevelToInclude>                                                                |
+|                      |              <!-- scanLevelToInclude element for each scan level to include -->                                        |
+|                      |          </scanLevelsToInclude>                                                                                        |
+|                      |          <scanLevelsToExclude>                                                                                         |
+|                      |              <scanLevelToExclude>n</scanLevelToExclude>                                                                |
+|                      |              <!-- scanLevelToExclude element for each scan level to exclude -->                                        |
+|                      |          </scanLevelsToExclude>                                                                                        |
+|                      |      </get_ScanNumbers_Request>                                                                                        |
 |                      |                                                                                                                        |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Success Response     | Success (200 OK)                                                                                                       |
+| Post attributes      |  * scanFileAPIKey -  API Key for scan data                                                                             |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Error Response       | Unauthorized (401)                                                                                                     |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Sample Response      | .. code-block:: xml                                                                                                    |
-|                      |                                                                                                                        |
-|                      |  <uploadScanFile_Init_Response>                                                                                        |
-|                      |    <statusSuccess>true</statusSuccess>                                                                                 |
-|                      |    <uploadScanFileTempKey>aekd838dkd</uploadScanFileTempKey>                                                           |
-|                      |    <maxUploadFileSize>10000000000</maxUploadFileSize>                                                                  |
-|                      |    <maxUploadFileSizeFormatted>10,000,000,000</maxUploadFileSizeFormatted>                                             |
-|                      |  </uploadScanFile_Init_Response>                                                                                       |
-|                      |                                                                                                                        |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Response Elements    |  * <statusSuccess> - contains "true" or "false"                                                                        |
-|                      |  * <uploadScanFileTempKey> - String, identifier to use when submitting new file                                        |
-|                      |  * <maxUploadFileSize> - Integer, maximum allowed upload scan file size in bytes                                       |
-|                      |  * <maxUploadFileSizeFormatted> - String, number above, but with commas                                                |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-
-
-Submit Data from Scan File
----------------------------------------------------------
-Send the contents of a scan file, byte for byte.
-
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| **URI**              | /update/uploadScanFile_uploadScanFile_XML                                                                              |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Method               | POST                                                                                                                   |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| URL Params           |   * uploadScanFileTempKey - Value returned in <uploadScanFileTempKey> from call to /update/uploadScanFile_Init_XML     |
-| (GET)                |   * scan_filename_suffix - (Optional) The suffix of the scan filename - Allowed values are ".mzML" and ".mzXML"        |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| POST data            |   * POST headers:  Content Length must be set                                                                          |
-|                      |   * POST body is the scan file contents.  Chunked data is not allowed                                                  |
+| Post elements        |  * scanLevelsToInclude - (Optional) A collection of ``scanLevelToInclude`` elements.                                   |
+|                      |  * scanLevelToInclude - A scan level to include. (1 for ms1, 2 for ms2, and so on)                                     |
+|                      |  * scanLevelsToExclude - (Optional) A collection of ``scanLevelToExclude`` elements.                                   |
+|                      |  * scanLevelToExclude - A scan level to exclude. (1 for ms1, 2 for ms2, and so on)                                     |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Success Response     | Success (200 OK)                                                                                                       |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
@@ -73,21 +83,76 @@ Send the contents of a scan file, byte for byte.
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Sample Response      | .. code-block:: xml                                                                                                    |
 |                      |                                                                                                                        |
-|                      |    <UploadScanFile_UploadScanFile_Response>                                                                            |
-|                      |       <statusSuccess>true</statusSuccess>                                                                              |
-|                      |       <uploadScanFileTempKey_NotFound>false</uploadScanFileTempKey_NotFound>                                           |
-|                      |       <uploadedFileHasNoFilename>false</uploadedFileHasNoFilename>                                                     |
-|                      |       <uploadedFileSuffixNotValid>false</uploadedFileSuffixNotValid>                                                   |
-|                      |    </UploadScanFile_UploadScanFile_Response>                                                                           |
+|                      |  <uploadScanFile_Submit_Response>                                                                                      |
+|                      |    <status_scanFileAPIKeyNotFound>NO</status_scanFileAPIKeyNotFound>                                                   |
+|                      |    <scanNumbers>                                                                                                       |
+|                      |        <scanNumber>1</scanNumber>                                                                                      |
+|                      |        <scanNumber>2</scanNumber>                                                                                      |
+|                      |        <scanNumber>3</scanNumber>                                                                                      |
+|                      |        <scanNumber>4</scanNumber>                                                                                      |
+|                      |   </scanNumbers>                                                                                                       |
+|                      |  </uploadScanFile_Submit_Response>                                                                                     |
 |                      |                                                                                                                        |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Response Elements    |  * statusSuccess - true if successful, false if not                                                                    |
-|                      |  * uploadScanFileTempKey_NotFound - Scan file temp key was not valid                                                   |
-|                      |  * objectKeyOrFilenameSuffixNotValid - Could not determine data file was a valid type (mzML or mzXML)                  |
-|                      |  * uploadedFileHasNoFilename - Uploaded file has no file name                                                          |
-|                      |  * fileSizeLimitExceeded - (Optional) true if file size limit was exceeded                                             |
-|                      |  * maxSize - (Optional) Integer, maximum allowed upload scan file size in bytes                                        |
-|                      |  * maxSizeFormatted  - (Optional) Number above, but with commas                                                        |
+| Response Elements    |  * <status_scanFileAPIKeyNotFound> - If YES, API key was not found.                                                    |
+|                      |  * <scanNumbers> - Collection of ``scanNumber`` elements.                                                              |
+|                      |  * <scanNumber> - A scan number from the original spectral file.                                                       |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+
+
+Get Scan Data From File
+---------------------------------------------------------
+Get the scan data for a list of scan numbers.
+
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| **URI**              | /query/getScanDataFromScanNumbers_XML                                                                                  |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Method               | POST                                                                                                                   |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| URL Params           | None                                                                                                                   |
+| (GET)                |                                                                                                                        |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| POST data            | .. code-block:: xml                                                                                                    |
+|                      |                                                                                                                        |
+|                      |      <get_ScanDataFromScanNumbers_Request scanFileAPIKey="">                                                           |
+|                      |        <scanNumbers>                                                                                                   |
+|                      |            <scanNumber>1</scanNumber>                                                                                  |
+|                      |            <scanNumber>2</scanNumber>                                                                                  |
+|                      |            <scanNumber>3</scanNumber>                                                                                  |
+|                      |            <scanNumber>4</scanNumber>                                                                                  |
+|                      |        </scanNumbers>                                                                                                  |
+|                      |      </get_ScanDataFromScanNumbers_Request>                                                                            |
+|                      |                                                                                                                        |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Post attributes      |  * scanFileAPIKey -  API Key for scan data                                                                             |
+|                      |  * includeParentScans - (Optional) allowed values: "no", "immediate_parent", "all_parents"                             |
+|                      |  * excludeReturnScanPeakData - (Optional) Default: no. Allowed values: "no", "yes". If yes, do not return peak data    |
+|                      |  * mzLowCutoff - (Optional) do not return any peaks with mz below this cutoff.                                         |
+|                      |  * mzHighCutoff - (Optional) do not return any peaks with mz above this cutoff.                                        |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Post elements        |  * <scanNumbers> - Collection of ``scanNumber`` elements.                                                              |
+|                      |  * <scanNumber> - A scan number from the original spectral file.                                                       |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Success Response     | Success (200 OK)                                                                                                       |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Error Response       | Bad Request (400), Unauthorized (401)                                                                                  |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Sample Response      | .. code-block:: xml                                                                                                    |
+|                      |                                                                                                                        |
+|                      |  <uploadScanFile_Submit_Response>                                                                                      |
+|                      |    <status_scanFileAPIKeyNotFound>NO</status_scanFileAPIKeyNotFound>                                                   |
+|                      |    <scanNumbers>                                                                                                       |
+|                      |        <scanNumber>1</scanNumber>                                                                                      |
+|                      |        <scanNumber>2</scanNumber>                                                                                      |
+|                      |        <scanNumber>3</scanNumber>                                                                                      |
+|                      |        <scanNumber>4</scanNumber>                                                                                      |
+|                      |   </scanNumbers>                                                                                                       |
+|                      |  </uploadScanFile_Submit_Response>                                                                                     |
+|                      |                                                                                                                        |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Response Elements    |  * <status_scanFileAPIKeyNotFound> - If YES, API key was not found.                                                    |
+|                      |  * <scanNumbers> - Collection of ``scanNumber`` elements.                                                              |
+|                      |  * <scanNumber> - A scan number from the original spectral file.                                                       |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 
 
