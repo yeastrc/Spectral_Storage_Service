@@ -4,10 +4,15 @@ Spectr's Main Index File
 
 The index file used to rapidly find relevant scans and
 the location of specific scans in the binary scan data file. This
-file is, itself, binary, to save space.
+file is, itself, binary, to save space. All data necessary to regenerate
+this index file are present in the data file.
 
-All data necessary to regenerate this index file are present in the
-data file.
+Purpose
+-----------------------
+Note that the spectr binary data formats are not meant to be used as a generalized format for
+representing mass spectrometry data. It is designed specifically to serve as a backend storage format
+for use by spectr, and all access to the data should be done via the web services provided
+by spectr. The documentation of these formats are purely informational.
 
 File Name / AWS S3 Object Name
 ---------------------------------------------------------

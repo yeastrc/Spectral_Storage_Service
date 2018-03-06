@@ -5,6 +5,12 @@ Spectr's Main Binary Data
 Internally, spectr stores all data in a proprietary binary format, which is documented here. The format is designed
 to be space efficient, while storing enough information to re-generate the index file if necessary. 
 
+Purpose
+-----------------------
+Note that the spectr binary data formats are not meant to be used as a generalized format for
+representing mass spectrometry data. It is designed specifically to serve as a backend storage format
+for use by spectr, and all access to the data should be done via the web services provided
+by spectr. The documentation of these formats are purely informational.
 
 File Name / AWS S3 Object Name
 ---------------------------------------------------------
