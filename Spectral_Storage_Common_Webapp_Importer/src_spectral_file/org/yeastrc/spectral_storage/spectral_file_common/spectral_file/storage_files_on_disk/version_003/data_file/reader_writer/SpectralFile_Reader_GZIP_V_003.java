@@ -125,7 +125,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		spectralDataFilename =
 				CreateSpectralStorageFilenames.getInstance().createSpectraStorage_Data_Filename( hash_String );
 
-		validateVersion_FileFullyWritten();
+//		validateVersion_FileFullyWritten();
 		
 		SpectralFile_Index_FileContents_Root_IF spectralFile_Index_FileContents_Root_IF =
 				IndexFileRootDataObjectCache.getSingletonInstance().getSpectralFile_Index_FileContents_Root_IF( hash_String );
@@ -147,36 +147,36 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	/**
 	 * @throws Exception
 	 */
-	private void validateVersion_FileFullyWritten() throws Exception {
-		
-		short fileVersionInFile = -1;
-		
-		try ( InputStream spectalFileInputStream = commonReader_File_And_S3.getInputStreamForScanStorageItem( spectralDataFilename, hash_String ) ) {
-			
-			try ( DataInputStream dataInputStream = new DataInputStream( spectalFileInputStream ) ) {
-
-				fileVersionInFile = dataInputStream.readShort();
-
-				byte fileFullWrittenIndicator = dataInputStream.readByte();
-
-				if ( fileFullWrittenIndicator != DataOrIndexFileFullyWrittenConstants.FILE_FULLY_WRITTEN_YES ) {
-					
-					String msg = "Data File not fully written.  Data File fully written indicator not 1.  spectralDataFilename: " + spectralDataFilename;
-					log.error( msg );
-					throw new SpectralFileDataFileNotFullyWrittenException(msg);
-				}
-			}
-		}
-		
-		if ( fileVersionInFile != FILE_VERSION ) {
-			String msg = "File version does not match programatic version.  File Version: " + fileVersionInFile
-					+ ", programatic version: " + FILE_VERSION
-					+ ".  spectralDataFilename: " + spectralDataFilename;
-			log.error( msg );
-			throw new SpectralStorageProcessingException( msg );
-		}
-	
-	}
+//	private void validateVersion_FileFullyWritten() throws Exception {
+//		
+//		short fileVersionInFile = -1;
+//		
+//		try ( InputStream spectalFileInputStream = commonReader_File_And_S3.getInputStreamForScanStorageItem( spectralDataFilename, hash_String ) ) {
+//			
+//			try ( DataInputStream dataInputStream = new DataInputStream( spectalFileInputStream ) ) {
+//
+//				fileVersionInFile = dataInputStream.readShort();
+//
+//				byte fileFullWrittenIndicator = dataInputStream.readByte();
+//
+//				if ( fileFullWrittenIndicator != DataOrIndexFileFullyWrittenConstants.FILE_FULLY_WRITTEN_YES ) {
+//					
+//					String msg = "Data File not fully written.  Data File fully written indicator not 1.  spectralDataFilename: " + spectralDataFilename;
+//					log.error( msg );
+//					throw new SpectralFileDataFileNotFullyWrittenException(msg);
+//				}
+//			}
+//		}
+//		
+//		if ( fileVersionInFile != FILE_VERSION ) {
+//			String msg = "File version does not match programatic version.  File Version: " + fileVersionInFile
+//					+ ", programatic version: " + FILE_VERSION
+//					+ ".  spectralDataFilename: " + spectralDataFilename;
+//			log.error( msg );
+//			throw new SpectralStorageProcessingException( msg );
+//		}
+//	
+//	}
 
 
 	/* (non-Javadoc)
@@ -845,7 +845,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		this.commonReader_File_And_S3 = commonReader_File_And_S3;
 			
-		validateVersion_FileFullyWritten();
+//		validateVersion_FileFullyWritten();
 
 		readWholeDataFile_fileInputStream = new FileInputStream( dataFile );
 			
