@@ -24,11 +24,34 @@ Configuring Spectr Upload Web App
 Sample files are in ``WebService_Web_App_Accept_Import/Config_Sample_Files`` of the
 web application.
 
+spectral_server_accept_import_config.properties
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Must go in the WEB-INF/classes folder of the web app. Specifies a directory where the other config files are placed.
+
 spectral_server_accept_import_config_allowed_remotes.properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Configures allowed IPs for IP filtering.
 
-
 spectral_server_accept_import_config_dirs_process_cmd.properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-asdf
+Configures directories, S3 info, how to run the importer, if the uploaded scan file should be deleted, and where to email importer status of success or fail.
+
+
+Configuring Spectr Download Web App
+------------------------------------
+
+Sample files are in ``WebService_Web_App_Get_Data/Config_Sample_Files`` of the
+web application.
+
+spectral_storage_get_data_config.properties
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Must go in the WEB-INF/classes folder of the web app. Specifies a directory where the other config files are placed.
+
+spectral_storage_get_data_config_allowed_remotes.properties
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Configures allowed IPs for IP filtering.
+
+
+spectral_storage_get_data_scan_data_location.properties
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Configures directories, S3 info, how to run the importer, if the uploaded scan file should be deleted, and where to email importer status of success or fail.
