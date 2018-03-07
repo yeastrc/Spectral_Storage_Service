@@ -220,9 +220,8 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 						if ( scanNumbers.size() > allowedMaxScanNumbers ) {
 
 							webserviceResponse.setTooManyScansToReturn( true );
-							webserviceResponse.setMaxScansToReturn( MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES );
+							webserviceResponse.setMaxScansToReturn( allowedMaxScanNumbers );
 							webserviceResponse.setMaxScanLevelFound( maxScanLevelFound );
-							webserviceResponse.setMaxScanNumbersAllowedForMaxScanLevelFound( allowedMaxScanNumbers );
 
 							WriteResponseObjectToOutputStream.getSingletonInstance()
 							.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
