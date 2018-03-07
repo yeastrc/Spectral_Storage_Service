@@ -83,7 +83,7 @@ Get all scan numbers present in an uploaded file, by scan level
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Sample Response      | .. code-block:: xml                                                                                                    |
 |                      |                                                                                                                        |
-|                      |  <uploadScanFile_Submit_Response>                                                                                      |
+|                      |  <get_ScanNumbers_Response>                                                                                            |
 |                      |    <status_scanFileAPIKeyNotFound>NO</status_scanFileAPIKeyNotFound>                                                   |
 |                      |    <scanNumbers>                                                                                                       |
 |                      |        <scanNumber>1</scanNumber>                                                                                      |
@@ -91,7 +91,7 @@ Get all scan numbers present in an uploaded file, by scan level
 |                      |        <scanNumber>3</scanNumber>                                                                                      |
 |                      |        <scanNumber>4</scanNumber>                                                                                      |
 |                      |   </scanNumbers>                                                                                                       |
-|                      |  </uploadScanFile_Submit_Response>                                                                                     |
+|                      |  </get_ScanNumbers_Response>                                                                                           |
 |                      |                                                                                                                        |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Response Elements    |  * <status_scanFileAPIKeyNotFound> - If YES, API key was not found.                                                    |
@@ -100,7 +100,7 @@ Get all scan numbers present in an uploaded file, by scan level
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 
 
-Get Scan Data From File
+Get Scan Data From File (for specific scan numbers)
 ---------------------------------------------------------
 Get the scan data for a list of scan numbers.
 
@@ -139,30 +139,86 @@ Get the scan data for a list of scan numbers.
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Sample Response      | .. code-block:: xml                                                                                                    |
 |                      |                                                                                                                        |
-|                      |  <uploadScanFile_Submit_Response>                                                                                      |
+|                      |  <get_ScanDataFromScanNumbers_Response>                                                                                |
 |                      |    <status_scanFileAPIKeyNotFound>NO</status_scanFileAPIKeyNotFound>                                                   |
-|                      |    <scanNumbers>                                                                                                       |
-|                      |        <scanNumber>1</scanNumber>                                                                                      |
-|                      |        <scanNumber>2</scanNumber>                                                                                      |
-|                      |        <scanNumber>3</scanNumber>                                                                                      |
-|                      |        <scanNumber>4</scanNumber>                                                                                      |
-|                      |   </scanNumbers>                                                                                                       |
+|                      |    <scans>                                                                                                             |
+|                      |        <!-- scan list, see top of document for more information -->                                                    |
+|                      |   </scans>                                                                                                             |
 |                      |  </uploadScanFile_Submit_Response>                                                                                     |
 |                      |                                                                                                                        |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Response attributes  |  * tooManyScansToReturn - if present and "true", number of scans exceeded max number of scans that can be returned     |
+|                      |  * MaxScanNumbersAllowed - only present if above is "true". The max number of scans that can be returned               |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Response Elements    |  * <status_scanFileAPIKeyNotFound> - If YES, API key was not found.                                                    |
-|                      |  * <scanNumbers> - Collection of ``scanNumber`` elements.                                                              |
-|                      |  * <scanNumber> - A scan number from the original spectral file.                                                       |
+|                      |  * <scans>  - The scan data. See top of page.                                                                          |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 
 
 
-Add Scan file in S3 Bucket
+Get Scan Data From File
+------------------------------------------------------------
+Get the scan data for a retention time window, m/z range, and scan level.
+
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| **URI**              | /query/getScansDataFromRetentionTimeRange_XML                                                                          |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Method               | POST                                                                                                                   |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| URL Params           | None                                                                                                                   |
+| (GET)                |                                                                                                                        |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| POST data            | .. code-block:: xml                                                                                                    |
+|                      |                                                                                                                        |
+|                      |      <get_ScanNumbersFromRetentionTimeRange_Request                                                                    |
+|                      |        scanFileAPIKey="">                                                                                              |
+|                      |        excludeReturnScanPeakData="">                                                                                   |
+|                      |        retentionTimeStart="">                                                                                          |
+|                      |        retentionTimeEnd="">                                                                                            |
+|                      |        mzLowCutoff="">                                                                                                 |
+|                      |        mzHighCutoff="">                                                                                                |
+|                      |        scanLevel ="">                                                                                                  |
+|                      |      </get_ScanNumbersFromRetentionTimeRange_Request>                                                                  |
+|                      |                                                                                                                        |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Post attributes      |  * scanFileAPIKey -  API Key for scan data                                                                             |
+|                      |  * excludeReturnScanPeakData - (Optional) Default: no. Allowed values: "no", "yes". If yes, do not return peak data    |
+|                      |  * retentionTimeStart - (Required) Lower end of retention time window                                                  |
+|                      |  * retentionTimeEnd - (Required) Upper end of retention time window                                                    |
+|                      |  * mzLowCutoff - (Optional) do not return any peaks with mz below this cutoff.                                         |
+|                      |  * mzHighCutoff - (Optional) do not return any peaks with mz above this cutoff.                                        |
+|                      |  * scanLevel - (Optional) Only return data for scans with this scan level.                                             |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Success Response     | Success (200 OK)                                                                                                       |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Error Response       | Bad Request (400), Unauthorized (401)                                                                                  |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Sample Response      | .. code-block:: xml                                                                                                    |
+|                      |                                                                                                                        |
+|                      |  <get_ScansDataFromRetentionTimeRange_Response>                                                                        |
+|                      |    <status_scanFileAPIKeyNotFound>NO</status_scanFileAPIKeyNotFound>                                                   |
+|                      |    <scans>                                                                                                             |
+|                      |        <!-- scan list, see top of document for more information -->                                                    |
+|                      |   </scans>                                                                                                             |
+|                      |  </get_ScansDataFromRetentionTimeRange_Response>                                                                       |
+|                      |                                                                                                                        |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Response attributes  |  * tooManyScansToReturn - if present and "true", number of scans exceeded max number of scans that can be returned     |
+|                      |  * MaxScanNumbersAllowed - only present if above is "true". The max number of scans that can be returned               |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Response Elements    |  * <status_scanFileAPIKeyNotFound> - If YES, API key was not found.                                                    |
+|                      |  * <scans>  - The scan data. See top of page.                                                                          |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+
+
+
+
+Get Scan Retention Times
 ---------------------------------------------------------
-Submit a file to spectr, if that file is already on Amazon S3 and spectr has read access to that object. Prevents needlessly sending file.
+Get retention times for one or more scans.
 
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
-| **URI**              | /update/uploadScanFile_addScanFileInS3Bucket_XML                                                                       |
+| **URI**              | /query/getScanRetentionTimes_XML                                                                                       |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Method               | POST                                                                                                                   |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
@@ -171,20 +227,36 @@ Submit a file to spectr, if that file is already on Amazon S3 and spectr has rea
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | POST data            | .. code-block:: xml                                                                                                    |
 |                      |                                                                                                                        |
-|                      |      <uploadScanFile_AddScanFileInS3Bucket_Request                                                                     |
-|                      |          uploadScanFileTempKey=""                                                                                      |
-|                      |          s3Bucket=""                                                                                                   | 
-|                      |          s3ObjectKey=""                                                                                                |
-|                      |          scanFilenameSuffix=""                                                                                         |
-|                      |          s3Region=""                                                                                                   |
-|                      |       />                                                                                                               |
+|                      |      <get_ScanRetentionTimes_Request scanFileAPIKey="">                                                                |
+|                      |        <scanNumbers>                                                                                                   |
+|                      |            <scanNumber>1</scanNumber>                                                                                  |
+|                      |            <scanNumber>2</scanNumber>                                                                                  |
+|                      |            <scanNumber>3</scanNumber>                                                                                  |
+|                      |            <scanNumber>4</scanNumber>                                                                                  |
+|                      |        </scanNumbers>                                                                                                  |
+|                      |         <!-- below is only included if scan numbers are not included -->                                               |
+|                      |         <scanLevelsToInclude>                                                                                          |
+|                      |             <scanLevelToInclude>n</scanLevelToInclude>                                                                 |
+|                      |             <!-- scanLevelToInclude element for each scan level to include -->                                         |
+|                      |         </scanLevelsToInclude>                                                                                         |
+|                      |         <scanLevelsToExclude>                                                                                          |
+|                      |             <scanLevelToExclude>n</scanLevelToExclude>                                                                 |
+|                      |             <!-- scanLevelToExclude element for each scan level to exclude -->                                         |
+|                      |         </scanLevelsToExclude>                                                                                         |
+|                      |      </get_ScanDataFromScanNumbers_Request>                                                                            |
 |                      |                                                                                                                        |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Post attributes      |  * uploadScanFileTempKey - Value returned in <uploadScanFileTempKey> from call to /update/uploadScanFile_Init_XML      |
-|                      |  * s3Bucket - S3 bucket name                                                                                           |
-|                      |  * s3ObjectKey - S3 object key                                                                                         |
-|                      |  * scanFilenameSuffix - (Optional) Suffix of scan file (e.g., mzML or mzXML)                                           |
-|                      |  * s3Region - (Optional) AWS region of object                                                                          |
+| Post attributes      |  * scanFileAPIKey -  API Key for scan data                                                                             |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Post elements        |  * scanNumbers - Collection of ``scanNumber`` elements.                                                                |
+|                      |  * scanNumber - A scan number from the original spectral file.                                                         |
+|                      |  * scanLevelsToInclude - (Optional) A collection of ``scanLevelToInclude`` elements.                                   |
+|                      |  * scanLevelToInclude - A scan level to include. (1 for ms1, 2 for ms2, and so on)                                     |
+|                      |  * scanLevelsToExclude - (Optional) A collection of ``scanLevelToExclude`` elements.                                   |
+|                      |  * scanLevelToExclude - A scan level to exclude. (1 for ms1, 2 for ms2, and so on)                                     |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| Notes                |  * If scan numbers are present, scanLevelsToInclude and scanLevelsToExclude should not be present.                     |
+|                      |  * Otherwise, all scans will be returned, filtered on scanLevelsToInclude and scanLevelsToExclude.                     |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Success Response     | Success (200 OK)                                                                                                       |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
@@ -192,31 +264,34 @@ Submit a file to spectr, if that file is already on Amazon S3 and spectr has rea
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Sample Response      | .. code-block:: xml                                                                                                    |
 |                      |                                                                                                                        |
-|                      |  <uploadScanFile_AddScanFileInS3Bucket_Response                                                                        |
-|                      |    statusSuccess="true"                                                                                                |
-|                      |    uploadScanFileTempKey_NotFound="false"                                                                              |
-|                      |    objectKeyOrFilenameSuffixNotValid="false"                                                                           |
-|                      |    uploadScanFileS3BucketOrObjectKey_NotFound="false"                                                                  |
-|                      |    uploadScanFileS3BucketOrObjectKey_PermissionError="false" />                                                        |
+|                      |  <get_ScanRetentionTimes_Response>                                                                                     |
+|                      |    <status_scanFileAPIKeyNotFound>NO</status_scanFileAPIKeyNotFound>                                                   |
+|                      |    <scanParts>                                                                                                         |
+|                      |        <scanPart scanNumber="1" level="1" retentionTime="1.3346" />                                                    |
+|                      |        <scanPart scanNumber="2" level="1" retentionTime="2.3346" />                                                    |
+|                      |        <scanPart scanNumber="3" level="2" retentionTime="3.8346" />                                                    |
+|                      |        <!-- repeat for all returned scans -->                                                                          |
+|                      |   </scanParts>                                                                                                         |
+|                      |  </get_ScanRetentionTimes_Response>                                                                                    |
 |                      |                                                                                                                        |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Response attributes  |  * statusSuccess - true if successful, false if not                                                                    |
-|                      |  * uploadScanFileTempKey_NotFound - Scan file temp key was not valid                                                   |
-|                      |  * objectKeyOrFilenameSuffixNotValid - Could not determine data file was a valid type (mzML or mzXML)                  |
-|                      |  * uploadScanFileS3BucketOrObjectKey_NotFound - S3 object was not found                                                |
-|                      |  * uploadScanFileS3BucketOrObjectKey_PermissionError - No permissions to read S3 object                                |
-|                      |  * fileSizeLimitExceeded - (Optional) true if file size limit was exceeded                                             |
-|                      |  * maxSize - (Optional) Integer, maximum allowed upload scan file size in bytes                                        |
-|                      |  * maxSizeFormatted  - (Optional) Number above, but with commas                                                        |
+| Response Elements    |  * <status_scanFileAPIKeyNotFound> - If YES, API key was not found.                                                    |
+|                      |  * <scanParts> - A collection of scanPart elements                                                                     |
+|                      |  * <scanPart> - A report of the retention time for a given scan.                                                       |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| scanPart attributes  |  * scanNumber - The scan number being reported on                                                                      |
+|                      |  * level - The level for this scan (e.g. "2" for ms2)                                                                  |
+|                      |  * retentionTime - The retention time for this scan (in seconds)                                                       |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 
 
-Commit the upload of a scan file
+
+Get Scan Level Summary Data
 ---------------------------------------------------------
-After the scan data have been sent (or a S3 object designated), this must be called to complete processing of the file
+Get summary statistics for each scan level
 
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
-| **URI**              | /update/uploadScanFile_Submit_XML                                                                                      |
+| **URI**              | /query/getSummaryDataPerScanLevel_XML                                                                                  |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Method               | POST                                                                                                                   |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
@@ -225,12 +300,10 @@ After the scan data have been sent (or a S3 object designated), this must be cal
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | POST data            | .. code-block:: xml                                                                                                    |
 |                      |                                                                                                                        |
-|                      |      <uploadScanFile_Submit_Request                                                                                    |
-|                      |         uploadScanFileTempKey=""                                                                                       |
-|                      |      />                                                                                                                |
+|                      |      <get_SummaryDataPerScanLevel_Request scanFileAPIKey="" />                                                         |
 |                      |                                                                                                                        |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Post attributes      |  * uploadScanFileTempKey - Value returned in <uploadScanFileTempKey> from call to /update/uploadScanFile_Init_XML      |
+| Post attributes      |  * scanFileAPIKey -  API Key for scan data                                                                             |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Success Response     | Success (200 OK)                                                                                                       |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
@@ -238,27 +311,32 @@ After the scan data have been sent (or a S3 object designated), this must be cal
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Sample Response      | .. code-block:: xml                                                                                                    |
 |                      |                                                                                                                        |
-|                      |  <uploadScanFile_Submit_Response                                                                                       |
-|                      |    statusSuccess="true"                                                                                                |
-|                      |    uploadScanFileTempKey_NotFound="false"                                                                              |
-|                      |    noUploadedScanFile="false"                                                                                          |
-|                      |    scanProcessStatusKey="dkdk39dkd93kdkd"                                                                              |
-|                      |  />                                                                                                                    |
+|                      |  <get_SummaryDataPerScanLevel_Response>                                                                                |
+|                      |    <status_scanFileAPIKeyNotFound>NO</status_scanFileAPIKeyNotFound>                                                   |
+|                      |    <scanSummaryPerScanLevelList>                                                                                       |
+|                      |        <scanSummaryPerScanLevel scanLevel="1" numberOfScans="37736" totalIonCurrent="28458447387.383" />               |
+|                      |        <scanSummaryPerScanLevel scanLevel="2" numberOfScans="28473" totalIonCurrent="7643543763.293" />                |
+|                      |        <!-- repeat for all scan levels -->                                                                             |
+|                      |   </scanSummaryPerScanLevelList>                                                                                       |
+|                      |  </get_SummaryDataPerScanLevel_Response>                                                                               |
 |                      |                                                                                                                        |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Response attributes  |  * statusSuccess - true if successful, false if not                                                                    |
-|                      |  * uploadScanFileTempKey_NotFound - Scan file temp key was not valid                                                   |
-|                      |  * noUploadedScanFile - Commit called without submitting scan file first                                               |
-|                      |  * scanProcessStatusKey - Key to use to query the status of processing and obtain final key                            |
+| Response Elements    |  * <status_scanFileAPIKeyNotFound> - If YES, API key was not found.                                                    |
+|                      |  * <scanSummaryPerScanLevelList> - A collection of scanSummaryPerScanLevel elements                                    |
+|                      |  * <scanSummaryPerScanLevel> - Summary statistics for a given scan level                                               |
++----------------------+------------------------------------------------------------------------------------------------------------------------+
+| sc. level attributes |  * scanLevel - A scan level (e.g. "2" for ms2)                                                                         |
+|                      |  * numberOfScans - Total number of scans at this scan level                                                            |
+|                      |  * totalIonCurrent - Summed intensity of all peaks for all scans at this scan level                                    |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 
 
-Get the final key (API key)
------------------------------------------------------------------------------------------------
-Get the final key for the uploaded scan file (used to query data from file later).
+Get Binned MS1 Ion Intensity
+---------------------------------------------------------
+Get binned total ion intensity from MS1 scans. Note, unlike other web services, this one returned GZIP compressed JSON data.
 
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
-| **URI**              | /update/uploadedScanFile_Status_API_Key_XML                                                                            |
+| **URI**              | /query/getScanPeakIntensityBinnedOn_RT_MZ_JSON_GZIPPED                                                                 |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Method               | POST                                                                                                                   |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
@@ -267,69 +345,17 @@ Get the final key for the uploaded scan file (used to query data from file later
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | POST data            | .. code-block:: xml                                                                                                    |
 |                      |                                                                                                                        |
-|                      |      <get_UploadedScanFileInfo_Request                                                                                 |
-|                      |         scanProcessStatusKey=""                                                                                        |
-|                      |      />                                                                                                                |
+|                      |      <get_ScanPeakIntensityBinnedOn_RT_MZ_Request scanFileAPIKey="" />                                                 |
 |                      |                                                                                                                        |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Post attributes      |  * scanProcessStatusKey - Key to use to query the status of processing and obtain final key                            |
+| Post attributes      |  * scanFileAPIKey -  API Key for scan data                                                                             |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Success Response     | Success (200 OK)                                                                                                       |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 | Error Response       | Bad Request (400), Unauthorized (401)                                                                                  |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Sample Response      | .. code-block:: xml                                                                                                    |
-|                      |                                                                                                                        |
-|                      |  <get_UploadedScanFileInfo_Response                                                                                    |
-|                      |    scanFileAPIKey="98c11ffdfdd540676b1a137cb1a22b2a70350c9a44171d6b1180c6be5cbb2ee3f79d532c8a1dd9ef2e8e08e752a3babb"   |
-|                      |    scanProcessStatusKey_NotFound="false"                                                                               |
-|                      |    status="success"                                                                                                    |
-|                      |    failMessage=""                                                                                                      |
-|                      |  />                                                                                                                    |
-|                      |                                                                                                                        |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Response attributes  |  * scanFileAPIKey - Final hash key used to query scan data from this file (only here if processing is complete)        |
-|                      |  * scanProcessStatusKey_NotFound - Invalid scan processing status key                                                  |
-|                      |  * status - "pending", "success", "fail", or "deleted"                                                                 |
-|                      |  * failMessage - If failed, a message describing the reason for failure                                                |
+| Sample Response      | .. literalinclude:: binnedIonIntensities.json                                                                          |
+|                      |    :language: javascript                                                                                               |
 +----------------------+------------------------------------------------------------------------------------------------------------------------+
 
-
-
-Delete scan processing key
------------------------------------------------------------------------------------------------
-Mark a scan processing key as deleted. Ensures not accidentally used again. Note that these keys do age and are automatically deleted with time.
-
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| **URI**              | /update/uploadedScanFile_Delete_For_ScanProcessStatusKey_XML                                                           |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Method               | POST                                                                                                                   |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| URL Params           | None                                                                                                                   |
-| (GET)                |                                                                                                                        |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| POST data            | .. code-block:: xml                                                                                                    |
-|                      |                                                                                                                        |
-|                      |      <get_UploadedScanFileInfo_Request                                                                                 |
-|                      |         scanProcessStatusKey=""                                                                                        |
-|                      |      />                                                                                                                |
-|                      |                                                                                                                        |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Post attributes      |  * scanProcessStatusKey - Key to use to query the status of processing and obtain final key                            |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Success Response     | Success (200 OK)                                                                                                       |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Error Response       | Bad Request (400), Unauthorized (401)                                                                                  |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Sample Response      | .. code-block:: xml                                                                                                    |
-|                      |                                                                                                                        |
-|                      |  <uploadScanFile_Delete_For_ScanProcessStatusKey_Request                                                               |
-|                      |    scanProcessStatusKey_NotFound="false"                                                                               |
-|                      |    statusSuccess="true"                                                                                                |
-|                      |  />                                                                                                                    |
-|                      |                                                                                                                        |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
-| Response attributes  |  * statusSuccess - Whether or not the request was successfull. "true" or "false"                                       |
-|                      |  * scanProcessStatusKey_NotFound - Invalid scan processing status key                                                  |
-+----------------------+------------------------------------------------------------------------------------------------------------------------+
 

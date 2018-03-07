@@ -52,6 +52,6 @@ what interfaces are available via web services to retrieve the data.
    :maxdepth: 1
    :caption: Administration
    
-   admin/install
+   admin/config
  
    

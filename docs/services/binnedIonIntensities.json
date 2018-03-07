@@ -1,0 +1,36 @@
+{
+    "jsonContents":"text describing contents herein",
+    "summaryData": {
+                   "jsonContents":"text describing contents herein",
+                   "binnedSummedIntensityCount":"",     // I don't know what this is.
+                   "rtBinSizeInSeconds":"",             // size of retention time bins (seconds)
+                   "rtBinMinInSeconds":"",              // minimum retention time included
+                   "rtBinMaxInSeconds":"",              // I don't know what this is.
+                   "rtMaxPossibleValueInSeconds":"",    // I don't know what this is.
+                   "mzBinSizeInMZ":"",                  // size of m/z bins
+                   "mzBinMinInMZ":"",                   // I don't know what this is.
+                   "mzBinMaxInMZ":"",                   // I don't know what this is.
+                   "mzMaxPossibleValueInMZ":"",         // I don't know what this is.
+                   "intensityBinnedMin":"",             // Minimum intensity of all bins
+                   "intensityBinnedMax":"",             // Maximum intensity of all bins
+               },
+    "ms1_IntensitiesBinnedSummedMap":
+                   {
+                       1 /* retention time bin start */  : {
+                           400  /* m/z bin start */  : 393833.393  /* total ion current in this bin */
+                           401  /* m/z bin start */  : 2732.383    /* total ion current in this bin */
+                           402  /* m/z bin start */  : 3939.22     /* total ion current in this bin */
+                           403  /* m/z bin start */  : 373633.33   /* total ion current in this bin */
+                           // entry for all m/z bins ...
+                       },
+                       2 /* retention time bin start */  : {
+                           400  /* m/z bin start */  : 29383.38    /* total ion current in this bin */
+                           401  /* m/z bin start */  : 69283.343   /* total ion current in this bin */
+                           402  /* m/z bin start */  : 11323.232   /* total ion current in this bin */
+                           403  /* m/z bin start */  : 103.332     /* total ion current in this bin */
+                           // entry for all m/z bins ...
+                       },
+                       // repeating entries for all retention time bins
+                   }
+    }
+}
