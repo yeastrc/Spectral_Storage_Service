@@ -26,8 +26,6 @@ public class Get_ScanDataFromScanNumbers_Response extends BaseGetDataWebserviceR
 	private List<SingleScan_SubResponse> scans;
 
 	/**
-	 * Not populated if number of scan numbers > maxScansToReturn 
-	 * 
 	 * Only populated if includeParentScans is not null and is not NO 
 	 */
 	@XmlAttribute // attribute name is property name
@@ -39,23 +37,6 @@ public class Get_ScanDataFromScanNumbers_Response extends BaseGetDataWebserviceR
 	@XmlAttribute // attribute name is property name
 	private Integer maxScansToReturn;
 
-	/**
-	 * Not populated if number of scan numbers > maxScansToReturn
-	 * 
-	 * Only populated if includeParentScans is not null and is not NO
-	 */
-	@XmlAttribute // attribute name is property name
-	private Integer maxScanNumbersAllowedForMaxScanLevelFound;
-	
-	
-
-	public List<SingleScan_SubResponse> getScans() {
-		return scans;
-	}
-
-	public void setScans(List<SingleScan_SubResponse> scans) {
-		this.scans = scans;
-	}
 
 	/**
 	 * Not populated if number of scan numbers > maxScansToReturn
@@ -65,6 +46,22 @@ public class Get_ScanDataFromScanNumbers_Response extends BaseGetDataWebserviceR
 		return maxScanLevelFound;
 	}
 
+	/**
+	 * Value is smaller if includeParentScans in request is not null and not NO
+	 * @return
+	 */
+	public Integer getMaxScansToReturn() {
+		return maxScansToReturn;
+	}
+
+
+	public List<SingleScan_SubResponse> getScans() {
+		return scans;
+	}
+
+	public void setScans(List<SingleScan_SubResponse> scans) {
+		this.scans = scans;
+	}
 	public void setMaxScanLevelFound(Byte maxScanLevelFound) {
 		this.maxScanLevelFound = maxScanLevelFound;
 	}
@@ -77,25 +74,8 @@ public class Get_ScanDataFromScanNumbers_Response extends BaseGetDataWebserviceR
 		this.tooManyScansToReturn = tooManyScansToReturn;
 	}
 
-	public Integer getMaxScansToReturn() {
-		return maxScansToReturn;
-	}
-
 	public void setMaxScansToReturn(Integer maxScansToReturn) {
 		this.maxScansToReturn = maxScansToReturn;
 	}
-
-	/**
-	 * Not populated if number of scan numbers > maxScansToReturn
-	 * @return
-	 */
-	public Integer getMaxScanNumbersAllowedForMaxScanLevelFound() {
-		return maxScanNumbersAllowedForMaxScanLevelFound;
-	}
-
-	public void setMaxScanNumbersAllowedForMaxScanLevelFound(Integer maxScanNumbersAllowedForMaxScanLevelFound) {
-		this.maxScanNumbersAllowedForMaxScanLevelFound = maxScanNumbersAllowedForMaxScanLevelFound;
-	}
-
 	
 }
