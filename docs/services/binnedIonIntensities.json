@@ -2,15 +2,15 @@
     "jsonContents":"text describing contents herein",
     "summaryData": {
                    "jsonContents":"text describing contents herein",
-                   "binnedSummedIntensityCount":"",     // I don't know what this is.
+                   "binnedSummedIntensityCount":"",     // Total number of bins (rt bins * mz bins)
                    "rtBinSizeInSeconds":"",             // size of retention time bins (seconds)
-                   "rtBinMinInSeconds":"",              // minimum retention time included
-                   "rtBinMaxInSeconds":"",              // I don't know what this is.
-                   "rtMaxPossibleValueInSeconds":"",    // I don't know what this is.
+                   "rtBinMinInSeconds":"",              // minimum retetion_time_bin_start in this file
+                   "rtBinMaxInSeconds":"",              // maximum retetion_time_bin_start in this file
+                   "rtMaxPossibleValueInSeconds":"",    // rtBinMaxInSeconds + rtBinSizeInSeconds. (max rt included)
                    "mzBinSizeInMZ":"",                  // size of m/z bins
-                   "mzBinMinInMZ":"",                   // I don't know what this is.
-                   "mzBinMaxInMZ":"",                   // I don't know what this is.
-                   "mzMaxPossibleValueInMZ":"",         // I don't know what this is.
+                   "mzBinMinInMZ":"",                   // minimum m/z_bin_start in this file
+                   "mzBinMaxInMZ":"",                   // maximum m/z_bin_start in this file
+                   "mzMaxPossibleValueInMZ":"",         // mzBinMaxInMZ + mzBinSizeInMZ (max m/z included)
                    "intensityBinnedMin":"",             // Minimum intensity of all bins
                    "intensityBinnedMax":"",             // Maximum intensity of all bins
                },
