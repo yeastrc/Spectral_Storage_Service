@@ -134,11 +134,11 @@ public class MzMl_MzXml_FileReader { // implements MzXmlDataProvider {
         else if(header.getMsLevel() > 1) {
             
             if( header.getPrecursorScanNum() > 0) {
-                if( header.getPrecursorScanNum() != this.lastMs1ScanNumber) {
-                    throw new Exception("last MS1 scan: " + this.lastMs1ScanNumber +
-                            " is not the same as precursor scan number: " + header.getPrecursorScanNum()+
-                            " for scan: "+header.getNum() );
-                }
+//                if( header.getPrecursorScanNum() != this.lastMs1ScanNumber) {
+//                    throw new Exception("last MS1 scan: " + this.lastMs1ScanNumber +
+//                            " is not the same as precursor scan number: " + header.getPrecursorScanNum()+
+//                            " for scan: "+header.getNum() );
+//                }
                 mScan.setPrecursorScanNum(header.getPrecursorScanNum());
             }
             else {
