@@ -21,8 +21,11 @@ public class SingleScan_SubResponse {
 	private int scanNumber;
 	@XmlAttribute // attribute name is property name
 	private float retentionTime;
+	/**
+	 * Not populated if request other than peaks and scan file contains more than one unique value
+	 */
 	@XmlAttribute // attribute name is property name
-	private byte isCentroid;
+	private Byte isCentroid;
 	
 	//  Only applicable where level > 1
 	
@@ -44,7 +47,17 @@ public class SingleScan_SubResponse {
 		super();
 	}
 	
-	
+	/**
+	 * Not populated if request other than peaks and scan file contains more than one unique value
+	 * @return null if not populated
+	 */
+	public Byte getIsCentroid() {
+		return isCentroid;
+	}
+	public void setIsCentroid(Byte isCentroid) {
+		this.isCentroid = isCentroid;
+	}
+
 	
 	public byte getLevel() {
 		return level;
@@ -63,12 +76,6 @@ public class SingleScan_SubResponse {
 	}
 	public void setRetentionTime(float retentionTime) {
 		this.retentionTime = retentionTime;
-	}
-	public byte getIsCentroid() {
-		return isCentroid;
-	}
-	public void setIsCentroid(byte isCentroid) {
-		this.isCentroid = isCentroid;
 	}
 	public Integer getParentScanNumber() {
 		return parentScanNumber;
