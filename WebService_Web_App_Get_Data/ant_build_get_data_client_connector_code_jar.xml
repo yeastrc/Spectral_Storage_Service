@@ -4,9 +4,9 @@
 	<available file="../${file.separator}.git" type="dir" property="git.present"/>
 	  	
 		
-	<property name="output_jar" value="spectal_storage_get_data_client_connector_code.jar"/>
+	<property name="output_jar" value="spectral_storage_get_data_client_connector_code.jar"/>
 
-	<property name="output_source_jar" value="spectal_storage_get_data_client_connector_code_source.jar"/>
+	<property name="output_source_jar" value="spectral_storage_get_data_client_connector_code_source.jar"/>
 
 	<property name="output_jar_dir" value="deploy_client_connector" />
 	
