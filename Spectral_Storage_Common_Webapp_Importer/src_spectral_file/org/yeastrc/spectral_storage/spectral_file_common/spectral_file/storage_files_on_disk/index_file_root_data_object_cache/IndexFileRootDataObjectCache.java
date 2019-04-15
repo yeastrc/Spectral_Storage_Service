@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.index_file.SpectralFile_Index_FileContents_Root_IF;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.reader_writer.SpectralFile_Index_File_Reader_V_003;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.reader_writer.SpectralFile_Index_File_Reader_V_004;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -183,7 +183,7 @@ public class IndexFileRootDataObjectCache {
 //				}
 				
 //				int cacheTimeout = CACHE_TIMEOUT_FULL_SIZE;
-				cacheMaxSize = parentObject.CACHE_MAX_SIZE_FULL_SIZE;
+				cacheMaxSize = IndexFileRootDataObjectCache.CACHE_MAX_SIZE_FULL_SIZE;
 //				if ( cachedDataSizeOptions == CachedDataSizeOptions.HALF ) {
 ////					cacheMaxSize = cacheMaxSize / 2;
 //				} else if ( cachedDataSizeOptions == CachedDataSizeOptions.SMALL ) {
@@ -196,6 +196,7 @@ public class IndexFileRootDataObjectCache {
 						.maximumSize( cacheMaxSize )
 						.build(
 								new CacheLoader<String, SpectralFile_Index_FileContents_Root_IF>() {
+									@Override
 									public SpectralFile_Index_FileContents_Root_IF load( String hashKey ) throws Exception {
 										
 										//   WARNING  cannot return null.  
@@ -237,7 +238,7 @@ public class IndexFileRootDataObjectCache {
 				//  WARNING   Harded since only single version supported
 				
 				SpectralFile_Index_FileContents_Root_IF spectralFile_Index_FileContents_Root_IF =
-						SpectralFile_Index_File_Reader_V_003.getInstance()
+						SpectralFile_Index_File_Reader_V_004.getInstance()
 						.readIndexFile( 
 								hashKey, 
 								CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3() );

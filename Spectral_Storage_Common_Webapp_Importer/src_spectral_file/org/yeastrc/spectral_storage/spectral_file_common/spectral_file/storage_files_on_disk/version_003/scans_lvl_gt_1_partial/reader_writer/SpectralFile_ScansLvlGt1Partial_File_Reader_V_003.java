@@ -19,8 +19,8 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.index_file_root_data_object_cache.IndexFileRootDataObjectCache;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.StorageFile_Version_003_Constants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_FileContents_Root_V_003;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SingleScan_V_003;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_FileContents_Root_V_004;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SingleScan_V_004;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.constants.SpectralFile_ScansLvlGt1Partial_Header_DTO_V_003__Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.to_data_file_reader_objects.SpectralFile_ScansLvlGt1Partial_TDFR_FileContents_Root_V_003;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.to_data_file_reader_objects.SpectralFile_ScansLvlGt1Partial_TDFR_SingleScan_V_003;
@@ -59,7 +59,7 @@ public class SpectralFile_ScansLvlGt1Partial_File_Reader_V_003 {
 		SpectralFile_ScansLvlGt1Partial_TDFR_FileContents_Root_V_003 spectralFile_Index_FileContents = new SpectralFile_ScansLvlGt1Partial_TDFR_FileContents_Root_V_003();
 
 		try {
-			List<SpectralFile_Index_TDFR_SingleScan_V_003> indexScanLevelGt1List =
+			List<SpectralFile_Index_TDFR_SingleScan_V_004> indexScanLevelGt1List =
 					get_indexScanEntries_OnlyLevelGt1InIndexFileOrder( hash_String );
 			
 			//  Next read file for this data
@@ -128,10 +128,10 @@ public class SpectralFile_ScansLvlGt1Partial_File_Reader_V_003 {
 				List<SpectralFile_ScansLvlGt1Partial_TDFR_SingleScan_V_003> scanDataEntries = new ArrayList<>( perScanFromFileHolderList.size() );
 				spectralFile_Index_FileContents.setScanDataEntries( scanDataEntries );
 
-				Iterator<SpectralFile_Index_TDFR_SingleScan_V_003> indexScanLevelGt1Iter = indexScanLevelGt1List.iterator();
+				Iterator<SpectralFile_Index_TDFR_SingleScan_V_004> indexScanLevelGt1Iter = indexScanLevelGt1List.iterator();
 				
 				for ( PerScanFromFileHolder perScanFromFileHolderItem : perScanFromFileHolderList ) {
-					SpectralFile_Index_TDFR_SingleScan_V_003 indexScanLevelGt1Item = indexScanLevelGt1Iter.next();
+					SpectralFile_Index_TDFR_SingleScan_V_004 indexScanLevelGt1Item = indexScanLevelGt1Iter.next();
 
 					SpectralFile_ScansLvlGt1Partial_TDFR_SingleScan_V_003 spectralFile_Index_TDFR_SingleScan = new SpectralFile_ScansLvlGt1Partial_TDFR_SingleScan_V_003();
 					scanDataEntries.add( spectralFile_Index_TDFR_SingleScan );
@@ -254,7 +254,7 @@ public class SpectralFile_ScansLvlGt1Partial_File_Reader_V_003 {
 	 * @return
 	 * @throws Exception
 	 */
-	private List<SpectralFile_Index_TDFR_SingleScan_V_003> get_indexScanEntries_OnlyLevelGt1InIndexFileOrder( String hash_String ) throws Exception {
+	private List<SpectralFile_Index_TDFR_SingleScan_V_004> get_indexScanEntries_OnlyLevelGt1InIndexFileOrder( String hash_String ) throws Exception {
 				
 		//  First get Index File Data
 
@@ -267,30 +267,34 @@ public class SpectralFile_ScansLvlGt1Partial_File_Reader_V_003 {
 			throw new SpectralStorageProcessingException(msg);
 		}
 		
-		SpectralFile_Index_TDFR_FileContents_Root_V_003 spectralFile_Index_FileContents_Root = null;
+		SpectralFile_Index_TDFR_FileContents_Root_V_004 spectralFile_Index_FileContents_Root = null;
 		try {
-			spectralFile_Index_FileContents_Root = (SpectralFile_Index_TDFR_FileContents_Root_V_003) spectralFile_Index_FileContents_Root_IF;
+			spectralFile_Index_FileContents_Root = (SpectralFile_Index_TDFR_FileContents_Root_V_004) spectralFile_Index_FileContents_Root_IF;
 		} catch ( Exception e ) {
-			String msg = "Failed to cast index file data object to correct class for hash: " + hash_String;
+			String msg = "Failed to cast index file data object to correct class for hash: " + hash_String
+					+ ", index object .getVersion(): "
+					+ spectralFile_Index_FileContents_Root_IF.getVersion() 
+					+ ", index object class name: "
+					+ spectralFile_Index_FileContents_Root_IF.getClass().getName();
 			log.error( msg, e );
 			throw new SpectralStorageProcessingException( msg, e );
 		}
 
-		List<SpectralFile_Index_TDFR_SingleScan_V_003> indexScanEntriesAll = spectralFile_Index_FileContents_Root.getIndexScanEntries();
+		List<SpectralFile_Index_TDFR_SingleScan_V_004> indexScanEntriesAll = spectralFile_Index_FileContents_Root.getIndexScanEntries();
 
-		List<SpectralFile_Index_TDFR_SingleScan_V_003> indexScanEntriesLevelGt1 = new ArrayList<>( indexScanEntriesAll.size() );
+		List<SpectralFile_Index_TDFR_SingleScan_V_004> indexScanEntriesLevelGt1 = new ArrayList<>( indexScanEntriesAll.size() );
 		
-		for ( SpectralFile_Index_TDFR_SingleScan_V_003 item : indexScanEntriesAll ) {
+		for ( SpectralFile_Index_TDFR_SingleScan_V_004 item : indexScanEntriesAll ) {
 			if ( item.getLevel() > 1 ) {
 				indexScanEntriesLevelGt1.add( item );
 			}
 		}
 
 		//  Sort on index set in order that they were read from index file
-		Collections.sort( indexScanEntriesLevelGt1, new Comparator<SpectralFile_Index_TDFR_SingleScan_V_003>() {
+		Collections.sort( indexScanEntriesLevelGt1, new Comparator<SpectralFile_Index_TDFR_SingleScan_V_004>() {
 			@Override
-			public int compare(SpectralFile_Index_TDFR_SingleScan_V_003 o1,
-					SpectralFile_Index_TDFR_SingleScan_V_003 o2) {
+			public int compare(SpectralFile_Index_TDFR_SingleScan_V_004 o1,
+					SpectralFile_Index_TDFR_SingleScan_V_004 o2) {
 				if ( o1.getIndexFile_IndexPosition() < o2.getIndexFile_IndexPosition() ) {
 					return -1;
 				}

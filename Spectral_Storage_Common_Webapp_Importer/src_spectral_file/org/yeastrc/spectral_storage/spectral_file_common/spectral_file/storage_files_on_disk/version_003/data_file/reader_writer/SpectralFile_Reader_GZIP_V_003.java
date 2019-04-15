@@ -34,11 +34,11 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.scans_lvl_gt_1_file_root_data_cache.ScansLvlGt1PartialFileRootDataObjectCache;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.StorageFile_Version_003_Constants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_FileContents_Root_V_003;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SingleScan_V_003;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.to_data_file_reader_objects.SpectralFile_ScansLvlGt1Partial_TDFR_FileContents_Root_V_003;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.to_data_file_reader_objects.SpectralFile_ScansLvlGt1Partial_TDFR_SingleScan_V_003;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_FileContents_Root_V_004;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SingleScan_V_004;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_004;
 
 /**
  * Special code to read whole file start to end at the bottom of this class
@@ -64,7 +64,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	 * can be overridden by OVERRIDE_SKIP_RETURN_SCAN_PEAKS = true to read the scan peaks but not return them
 	 *
 	 */
-	private enum ReadScanPeaks { YES, NO }
+	public enum ReadScanPeaks { YES, NO }
 	
 	/**
 	 * private constructor
@@ -106,7 +106,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	
 	private CommonReader_File_And_S3 commonReader_File_And_S3;
 		
-	private SpectralFile_Index_TDFR_FileContents_Root_V_003 spectralFile_Index_FileContents_Root;
+	private SpectralFile_Index_TDFR_FileContents_Root_V_004 spectralFile_Index_FileContents_Root;
 	
 	
 	@Override
@@ -136,7 +136,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 			throw new SpectralStorageProcessingException(msg);
 		}
 		try {
-			spectralFile_Index_FileContents_Root = (SpectralFile_Index_TDFR_FileContents_Root_V_003) spectralFile_Index_FileContents_Root_IF;
+			spectralFile_Index_FileContents_Root = (SpectralFile_Index_TDFR_FileContents_Root_V_004) spectralFile_Index_FileContents_Root_IF;
 		} catch ( Exception e ) {
 			String msg = "Failed to cast index file data object to correct class for hash: " + hash_String;
 			log.error( msg, e );
@@ -291,7 +291,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		//  First get entry from Index for scan number
 		
-		SpectralFile_Index_TDFR_SingleScan_V_003 indexEntry = 
+		SpectralFile_Index_TDFR_SingleScan_V_004 indexEntry = 
 				spectralFile_Index_FileContents_Root.get_SingleScan_ForScanNumber( scanNumber );
 		
 		if ( indexEntry == null ) {
@@ -312,7 +312,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		//  First get entry from Index for scan number
 		
-		SpectralFile_Index_TDFR_SingleScan_V_003 indexEntry = 
+		SpectralFile_Index_TDFR_SingleScan_V_004 indexEntry = 
 				spectralFile_Index_FileContents_Root.get_SingleScan_ForScanNumber( scanNumber );
 		
 		if ( indexEntry == null ) {
@@ -324,16 +324,34 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		spectralFile_SingleScan_Common.setScanNumber( scanNumber ); // from request
 		
+		byte scanLevel = indexEntry.getLevel();
+		
 		// from index:
-		spectralFile_SingleScan_Common.setLevel( indexEntry.getLevel() );
+		spectralFile_SingleScan_Common.setLevel( scanLevel );
 		spectralFile_SingleScan_Common.setRetentionTime( indexEntry.getRetentionTime() );
 
-		if ( spectralFile_Index_FileContents_Root.getIsCentroidWholeFile() != ScanCentroidedConstants.SCAN_CENTROIDED_VALUES_IN_FILE_BOTH ) {
-			//  Whole file is a single Centroid value so return it
-			spectralFile_SingleScan_Common.setIsCentroid( spectralFile_Index_FileContents_Root.getIsCentroidWholeFile() );
+		//  isCentroid is per scan level so search summary per level list for scan level
+		{
+			boolean foundScanLevelInSummaryList = false;
+			for ( SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_004 summaryPerScanLevel : spectralFile_Index_FileContents_Root.getSummaryDataPerScanLevelList() ) {
+				if ( summaryPerScanLevel.getScanLevel() == scanLevel ) {
+					foundScanLevelInSummaryList = true;
+					if ( summaryPerScanLevel.getIsCentroidScanLevel() != ScanCentroidedConstants.SCAN_CENTROIDED_VALUES_IN_FILE_BOTH ) {
+						//  Per Scan Level is a single Centroid value so return it
+						spectralFile_SingleScan_Common.setIsCentroid( summaryPerScanLevel.getIsCentroidScanLevel() );
+					}
+				}
+			}
+			if ( ! foundScanLevelInSummaryList ) {
+				String msg = "Failed to find scan level in summary list. hashKey: " + hash_String
+						+ ", scan level: " + String.valueOf( scanLevel )
+						+ ", scan number: " + scanNumber;
+				log.warn(msg);
+				throw new SpectralStorageProcessingException(msg);
+			}
 		}
 		
-		if ( indexEntry.getLevel() > 1 ) {
+		if ( scanLevel > 1 ) {
 
 			//  Scan level > 1 so read partial file contents and set in returned object
 
@@ -397,7 +415,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		//  First get entry from Index for scan number
 		
-		SpectralFile_Index_TDFR_SingleScan_V_003 indexEntry = 
+		SpectralFile_Index_TDFR_SingleScan_V_004 indexEntry = 
 				spectralFile_Index_FileContents_Root.get_SingleScan_ForScanNumber( scanNumber );
 		
 		if ( indexEntry == null ) {
@@ -428,10 +446,10 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 			scanLevelsToExcludeSet = new HashSet<>( scanLevelsToExclude );
 		}
 		
-		List<SpectralFile_Index_TDFR_SingleScan_V_003> indexScanEntries = spectralFile_Index_FileContents_Root.getIndexScanEntries();
+		List<SpectralFile_Index_TDFR_SingleScan_V_004> indexScanEntries = spectralFile_Index_FileContents_Root.getIndexScanEntries();
 		List<Integer> results = new ArrayList<>( indexScanEntries.size() ); 
 
-		for ( SpectralFile_Index_TDFR_SingleScan_V_003 indexScanEntry : indexScanEntries ) {
+		for ( SpectralFile_Index_TDFR_SingleScan_V_004 indexScanEntry : indexScanEntries ) {
 			Integer scanLevel = (int) indexScanEntry.getLevel();
 			if ( scanLevelsToIncludeSet != null 
 					&& ( ! scanLevelsToIncludeSet.contains( scanLevel ) ) ) {
@@ -455,7 +473,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 
 		//  First get entry from Index for scan number
 		
-		SpectralFile_Index_TDFR_SingleScan_V_003 indexEntry = 
+		SpectralFile_Index_TDFR_SingleScan_V_004 indexEntry = 
 				spectralFile_Index_FileContents_Root.get_SingleScan_ForScanNumber( scanNumber );
 
 		if ( indexEntry == null ) {
@@ -476,10 +494,10 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	@Override
 	public List<SpectralFile_Result_RetentionTime_ScanNumber> getScanRetentionTimes_All() throws Exception {
 		
-		List<SpectralFile_Index_TDFR_SingleScan_V_003> indexScanEntries = spectralFile_Index_FileContents_Root.getIndexScanEntries();
+		List<SpectralFile_Index_TDFR_SingleScan_V_004> indexScanEntries = spectralFile_Index_FileContents_Root.getIndexScanEntries();
 		List<SpectralFile_Result_RetentionTime_ScanNumber> results = new ArrayList<>( indexScanEntries.size() ); 
 
-		for ( SpectralFile_Index_TDFR_SingleScan_V_003 indexScanEntry : indexScanEntries ) {
+		for ( SpectralFile_Index_TDFR_SingleScan_V_004 indexScanEntry : indexScanEntries ) {
 			SpectralFile_Result_RetentionTime_ScanNumber result = new SpectralFile_Result_RetentionTime_ScanNumber();
 			result.setScanNumber( indexScanEntry.getScanNumber() );
 			result.setLevel( indexScanEntry.getLevel() );
@@ -514,7 +532,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	@Override
 	public List<SummaryDataPerScanLevel> getSummaryDataPerScanLevel_All()  throws Exception{
 		
-		List<SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003> summaryDataPerScanLevel_InIndex_List =
+		List<SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_004> summaryDataPerScanLevel_InIndex_List =
 				spectralFile_Index_FileContents_Root.getSummaryDataPerScanLevelList();
 		
 		if ( summaryDataPerScanLevel_InIndex_List == null ) {
@@ -523,7 +541,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 
 		List<SummaryDataPerScanLevel> outputList = new ArrayList<>( summaryDataPerScanLevel_InIndex_List.size() );
 		
-		for ( SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_003 summaryInIndexItem : summaryDataPerScanLevel_InIndex_List ) {
+		for ( SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_004 summaryInIndexItem : summaryDataPerScanLevel_InIndex_List ) {
 			SummaryDataPerScanLevel outputEntry = new SummaryDataPerScanLevel();
 			outputList.add( outputEntry );
 			outputEntry.setScanLevel( summaryInIndexItem.getScanLevel() );
@@ -535,13 +553,15 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	}
 	
 	/**
+	 * !!!  WARNING:  Nominally a Private method. Only public for conversions
+	 * 
 	 * @param indexEntry
 	 * @param readScanPeaks
 	 * @return
 	 * @throws Exception
 	 */
-	private SpectralFile_SingleScan_Common readScanForScanNumber_IndexEntry( 
-			SpectralFile_Index_TDFR_SingleScan_V_003 indexEntry,
+	public SpectralFile_SingleScan_Common readScanForScanNumber_IndexEntry( 
+			SpectralFile_Index_TDFR_SingleScan_V_004 indexEntry,
 			ReadScanPeaks readScanPeaks ) throws Exception {
 
 		DataInputStream dataInputStream_ScanData = null;
@@ -586,7 +606,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	 * @return
 	 */
 	private byte[] readBytesOnDiskForScanNumber_IndexEntry( 
-			SpectralFile_Index_TDFR_SingleScan_V_003 indexEntry,
+			SpectralFile_Index_TDFR_SingleScan_V_004 indexEntry,
 			Integer numberOfBytesToReadOverride ) throws Exception {
 		
 		if ( indexEntry.getScanSize_InDataFile_InBytes() > Integer.MAX_VALUE ) {
@@ -600,7 +620,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 		
 		//  Read all bytes in file for scan into byte[] scanBytes
 		
-		int byteArraySize = (int) indexEntry.getScanSize_InDataFile_InBytes();
+		int byteArraySize = indexEntry.getScanSize_InDataFile_InBytes();
 		
 		if ( numberOfBytesToReadOverride != null ) {
 			//  Override to number of bytes requested
@@ -835,7 +855,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	 * @param dataFile
 	 * @throws Exception
 	 */
-	public void readWholeDataFile_Init_OpenFile( File dataFile, CommonReader_File_And_S3 commonReader_File_And_S3 ) throws Exception {
+	public void readWholeDataFile_Init_OpenFile( File dataFile ) throws Exception {
 
 		spectralDataFilename = dataFile.getName();
 		

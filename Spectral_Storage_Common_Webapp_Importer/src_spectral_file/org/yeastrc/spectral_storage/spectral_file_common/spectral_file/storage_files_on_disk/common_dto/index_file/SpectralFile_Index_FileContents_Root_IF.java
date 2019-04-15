@@ -8,4 +8,6 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_
  */
 public interface SpectralFile_Index_FileContents_Root_IF {
 
+	short getVersion();
+
 }

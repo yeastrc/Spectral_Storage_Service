@@ -161,9 +161,8 @@ public class ProcessFileWithDataFileList {
 		SpectralFile_Reader_GZIP_V_003 spectralFile_Reader_GZIP_V_003 = (SpectralFile_Reader_GZIP_V_003) SpectralFile_Reader_GZIP_V_003.getInstance();
 
 		try {
-
 			spectralFile_Reader_GZIP_V_003.readWholeDataFile_Init_OpenFile( dataFile );
-
+			
 			SpectralFile_Header_Common spectralFile_Header_Common = spectralFile_Reader_GZIP_V_003.readWholeDataFile_ReadHeader();
 
 			if ( DataFile_Version_BeingProcessed_Constants.dataFile_Version_BeingProcessed != spectralFile_Header_Common.getVersion() ) {
@@ -237,9 +236,8 @@ public class ProcessFileWithDataFileList {
 		accumulate_RT_MZ_Binned_ScanLevel_1 = Accumulate_RT_MZ_Binned_ScanLevel_1.getInstance();
 
 		try {
-
 			spectralFile_Reader_GZIP_V_003.readWholeDataFile_Init_OpenFile( dataFile );
-
+			
 			SpectralFile_Header_Common spectralFile_Header_Common = spectralFile_Reader_GZIP_V_003.readWholeDataFile_ReadHeader();
 
 			if ( DataFile_Version_BeingProcessed_Constants.dataFile_Version_BeingProcessed != spectralFile_Header_Common.getVersion() ) {

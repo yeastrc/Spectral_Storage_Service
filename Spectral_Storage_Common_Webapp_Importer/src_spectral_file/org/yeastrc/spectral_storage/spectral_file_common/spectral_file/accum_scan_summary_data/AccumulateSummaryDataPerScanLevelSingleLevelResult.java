@@ -16,11 +16,39 @@ public class AccumulateSummaryDataPerScanLevelSingleLevelResult {
 	 * number of scans with this scan level
 	 */
 	int numberOfScans;
+
+	/**
+	 * Is centroid values for this scan level
+	 * 0 - false - ScanCentroidedConstants.SCAN_CENTROIDED_FALSE
+	 * 1 - true - ScanCentroidedConstants.SCAN_CENTROIDED_TRUE
+	 * 2 - both - both false and true found for this scan level the file
+	 *            ScanCentroidedConstants.SCAN_CENTROIDED_VALUES_IN_FILE_BOTH
+	 */
+	Byte isCentroidScanLevel;
+	
 	/**
 	 * Sum of intensity of all peaks for all scans with this scan level
 	 */
 	double totalIonCurrent;
-	
+
+	/**
+	 * Is centroid values for this scan level
+	 * 0 - false
+	 * 1 - true
+	 * 2 - both - both false and true found for this scan level the file
+	 */
+	public Byte getIsCentroidScanLevel() {
+		return isCentroidScanLevel;
+	}
+	/**
+	 * Is centroid values for this scan level
+	 * 0 - false
+	 * 1 - true
+	 * 2 - both - both false and true found for this scan level the file
+	 */
+	public void setIsCentroidScanLevel(Byte isCentroidScanLevel) {
+		this.isCentroidScanLevel = isCentroidScanLevel;
+	}
 	
 	public byte getScanLevel() {
 		return scanLevel;

@@ -30,16 +30,15 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Writer__IF;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.StorageFile_Version_003_Constants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.common.Get_isCentroidWholeFile_ForIndexFileHeader;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.from_data_file_writer_objects.SpectralFile_Index_FDFW_FileContents_Root_V_003;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.from_data_file_writer_objects.SpectralFile_Index_FDFW_SingleScan_V_003;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.index_file.reader_writer.SpectralFile_Index_File_Writer_V_003;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.reader_writer.SpectralFile_ScansLvlGt1Partial_File_Writer_V_003;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.from_data_file_writer_objects.SpectralFile_Index_FDFW_FileContents_Root_V_004;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.from_data_file_writer_objects.SpectralFile_Index_FDFW_SingleScan_V_004;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.reader_writer.SpectralFile_Index_File_Writer_V_004;
 
 /**
  * V 003
  * 
- * Uses matching SpectralFile_Index_File_Writer_V_003
+ * Uses matching SpectralFile_Index_File_Writer_V_004
  * 
  * Uses GZIPOutputStream for compression
  *
@@ -93,7 +92,7 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 	private long scanPeaksTotalBytes = 0;
 	private long scanPeaksTotalCount = 0;
 	
-	private List<SpectralFile_Index_FDFW_SingleScan_V_003> indexScanEntries = new ArrayList<>();
+	private List<SpectralFile_Index_FDFW_SingleScan_V_004> indexScanEntries = new ArrayList<>();
 	
 	private Set<Byte> isCentroidUniqueValuesInScans = new HashSet<>();
 	
@@ -133,18 +132,13 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 			//  Output the .index file and .scnlvlgt1p file
 
 			{
-				SpectralFile_Index_FDFW_FileContents_Root_V_003 spectralFile_Index_FDFW_FileContents_Root = new SpectralFile_Index_FDFW_FileContents_Root_V_003();
+				SpectralFile_Index_FDFW_FileContents_Root_V_004 spectralFile_Index_FDFW_FileContents_Root = new SpectralFile_Index_FDFW_FileContents_Root_V_004();
 
-				spectralFile_Index_FDFW_FileContents_Root.setVersion( FILE_VERSION );
 				spectralFile_Index_FDFW_FileContents_Root.setTotalBytesForAllSingleScans( totalBytesForAllSingleScans );
 				
-				spectralFile_Index_FDFW_FileContents_Root.setIsCentroidWholeFile( 
-						Get_isCentroidWholeFile_ForIndexFileHeader.getInstance()
-						.get_isCentroidWholeFile_ForIndexFileHeader( isCentroidUniqueValuesInScans ) );
-
 				spectralFile_Index_FDFW_FileContents_Root.setIndexScanEntries( indexScanEntries );
 
-				SpectralFile_Index_File_Writer_V_003.getInstance().writeIndexFile( hash_String, subDirForStorageFiles, spectralFile_Index_FDFW_FileContents_Root, accumulateSummaryDataPerScanLevel );
+				SpectralFile_Index_File_Writer_V_004.getInstance().writeIndexFile( hash_String, subDirForStorageFiles, spectralFile_Index_FDFW_FileContents_Root, accumulateSummaryDataPerScanLevel );
 				
 				SpectralFile_ScansLvlGt1Partial_File_Writer_V_003.getInstance().write_ScansLvlGt1Partial_File( hash_String, subDirForStorageFiles, spectralFile_Index_FDFW_FileContents_Root );
 			}
@@ -406,7 +400,7 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 		int scanSize_InDataFile_InBytes = writeScanTo_Main_DataFile( spectralFile_SingleScan );
 		
 		
-		SpectralFile_Index_FDFW_SingleScan_V_003 spectralFile_Index_SingleScan_DTO = new SpectralFile_Index_FDFW_SingleScan_V_003();
+		SpectralFile_Index_FDFW_SingleScan_V_004 spectralFile_Index_SingleScan_DTO = new SpectralFile_Index_FDFW_SingleScan_V_004();
 
 		spectralFile_Index_SingleScan_DTO.setScanNumber( spectralFile_SingleScan.getScanNumber() );
 		spectralFile_Index_SingleScan_DTO.setLevel( spectralFile_SingleScan.getLevel() );

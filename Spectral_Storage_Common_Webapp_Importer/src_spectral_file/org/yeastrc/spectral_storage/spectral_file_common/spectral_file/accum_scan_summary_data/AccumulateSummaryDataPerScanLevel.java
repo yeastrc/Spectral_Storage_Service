@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.ScanCentroidedConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
 
@@ -46,6 +47,21 @@ public class AccumulateSummaryDataPerScanLevel {
 		
 		holder.scanCount++;
 		holder.scanIntensitiesSummedForLevel += scanIntensitiesSummedForScan;
+		
+		Byte isCentroidOfScan = scan.getIsCentroid();
+		
+		{ //  Update holder.isCentroidScanLevel
+			if ( holder.isCentroidScanLevel == null ) {
+				// Not set for level so add it
+				holder.isCentroidScanLevel = isCentroidOfScan;
+			} else if ( holder.isCentroidScanLevel.byteValue() == ScanCentroidedConstants.SCAN_CENTROIDED_VALUES_IN_FILE_BOTH ) {
+				//  Already set to both values for level so just skip to next scan
+			} else if ( holder.isCentroidScanLevel.byteValue() !=  isCentroidOfScan.byteValue() ) {
+				// Have both values so set to both values in map for level
+				holder.isCentroidScanLevel = ScanCentroidedConstants.SCAN_CENTROIDED_VALUES_IN_FILE_BOTH;
+			}
+		}
+		
 	}
 	
 	/**
@@ -78,11 +94,17 @@ public class AccumulateSummaryDataPerScanLevel {
 		result.setSummaryDataPerScanLevelList( singleLevelResultList );
 		
 		for ( Map.Entry<Byte, InternalPerScanLevelHolder> totalsPerScanLevelMapEntry : totalsPerScanLevelMap_List ) {
+			Byte scanLevel = totalsPerScanLevelMapEntry.getKey();
+			InternalPerScanLevelHolder internalPerScanLevelHolder = totalsPerScanLevelMapEntry.getValue();
+			if ( internalPerScanLevelHolder.isCentroidScanLevel == null ) {
+				throw new IllegalStateException( "internalPerScanLevelHolder.isCentroidScanLevelisCentroidScanLevel == null.  scanLevel: " + String.valueOf( scanLevel ) );
+			}
 			AccumulateSummaryDataPerScanLevelSingleLevelResult singleLevelResult = new AccumulateSummaryDataPerScanLevelSingleLevelResult();
 			singleLevelResultList.add( singleLevelResult );
-			singleLevelResult.setScanLevel( totalsPerScanLevelMapEntry.getKey() );
-			singleLevelResult.setNumberOfScans( totalsPerScanLevelMapEntry.getValue().scanCount );
-			singleLevelResult.setTotalIonCurrent( totalsPerScanLevelMapEntry.getValue().scanIntensitiesSummedForLevel );
+			singleLevelResult.setScanLevel( scanLevel );
+			singleLevelResult.setNumberOfScans( internalPerScanLevelHolder.scanCount );
+			singleLevelResult.setIsCentroidScanLevel( internalPerScanLevelHolder.isCentroidScanLevel ); 
+			singleLevelResult.setTotalIonCurrent( internalPerScanLevelHolder.scanIntensitiesSummedForLevel );
 		}
 		
 		return result;
@@ -96,9 +118,15 @@ public class AccumulateSummaryDataPerScanLevel {
 		
 		int scanCount;
 		double scanIntensitiesSummedForLevel;
+
+		/**
+		 * Is centroid values for this scan level
+		 * 0 - false - ScanCentroidedConstants.SCAN_CENTROIDED_FALSE
+		 * 1 - true - ScanCentroidedConstants.SCAN_CENTROIDED_TRUE
+		 * 2 - both - both false and true found for this scan level the file
+		 *            ScanCentroidedConstants.SCAN_CENTROIDED_VALUES_IN_FILE_BOTH
+		 */
+		Byte isCentroidScanLevel;
 	}
-	
-	
-	
 	
 }
