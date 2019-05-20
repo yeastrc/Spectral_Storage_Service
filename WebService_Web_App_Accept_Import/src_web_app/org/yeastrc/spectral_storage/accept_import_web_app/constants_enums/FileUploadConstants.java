@@ -44,7 +44,7 @@ public class FileUploadConstants {
 	/**
 	 * Allowed access time after creation of UPLOAD_FILE_TEMP_SUB_DIR_PREFIX
 	 */
-	public static final long UPLOAD_FILE_TEMP_SUB_DIR_ALLOWED_ACCESS_TIME = 5 * 60 * 1000; // 5 minutes
+	public static final long UPLOAD_FILE_TEMP_SUB_DIR_ALLOWED_ACCESS_TIME = 160 * 60 * 1000; // 160 minutes
 
 	public static final String UPLOAD_FILE_DATA_FILE_PREFIX = "uploaded_file__data_file_";
 	public static final String UPLOAD_FILE_DATA_FILE_SUFFIX = ".xml";

@@ -37,6 +37,10 @@ public class ValidateTempDirToUploadScanFileTo {
 		File c_dir_created_trackingFile = new File( uploadScanFileTempKey_Dir, ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_SUB_DIR_CREATE_TRACKING_FILE );
 		
 		if ( ! c_dir_created_trackingFile.exists() ) {
+
+			log.warn( "Validation of submit of dir " 
+					+ uploadScanFileTempKey_Dir.getAbsolutePath()
+					+ " Failed. The tracking file is missing: " + ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_SUB_DIR_CREATE_TRACKING_FILE );
 			return false;
 		}
 		
@@ -45,6 +49,13 @@ public class ValidateTempDirToUploadScanFileTo {
 		long now = System.currentTimeMillis();
 		
 		if ( lastModified + FileUploadConstants.UPLOAD_FILE_TEMP_SUB_DIR_ALLOWED_ACCESS_TIME < now ) {
+			
+			log.warn( "Validation of submit of dir " 
+					+ uploadScanFileTempKey_Dir.getAbsolutePath()
+					+ " Failed. The time from create directory (tracked by last modified on file '"
+					+ ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_SUB_DIR_CREATE_TRACKING_FILE
+					+ "' to time of submit (aka now) exceeds time allowed (in milliseconds): " 
+					+ FileUploadConstants.UPLOAD_FILE_TEMP_SUB_DIR_ALLOWED_ACCESS_TIME );
 			return false;
 		}
 		

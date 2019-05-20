@@ -145,8 +145,15 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 			UploadScanFile_Submit_Request uploadScanFile_Submit_Request,
 			HttpServletRequest request, 
 			HttpServletResponse response) throws ServletException, IOException {
+
+		log.warn("INFO: processRequest(...) Start: NEW: uploadScanFile_Submit_Request.getUploadScanFileTempKey(): " + uploadScanFile_Submit_Request.getUploadScanFileTempKey() );
+		
+		long startTime = System.currentTimeMillis();
+		
+		String uploadScanFileTempKey = null;
+		
 		try {
-			String uploadScanFileTempKey = uploadScanFile_Submit_Request.getUploadScanFileTempKey();
+			uploadScanFileTempKey = uploadScanFile_Submit_Request.getUploadScanFileTempKey();
 
 			if ( StringUtils.isEmpty( uploadScanFileTempKey ) ) {
 				String msg = "request is missing uploadScanFileTempKey ";
@@ -164,11 +171,12 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 
 			File uploadScanFileTempKey_Dir = new File( uploadFileTempDir, uploadScanFileTempKey );
 			if ( ! uploadScanFileTempKey_Dir.exists() ) {
-				if ( log.isInfoEnabled() ) {
+//				if ( log.isInfoEnabled() ) {
 					String msg = "uploadScanFileTempKey_Dir does not exist.  uploadScanFileTempKey_Dir: " 
 							+ uploadScanFileTempKey_Dir.getAbsolutePath();
 					log.info( msg );
-				}
+					log.warn( msg );
+//				}
 
 				webserviceResponse.setUploadScanFileTempKey_NotFound( true );
 
@@ -181,12 +189,13 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 			if ( ! uploadScanFileTempKey_Dir.getName().equals( uploadScanFileTempKey ) ) {
 
 				//  Return not found but actually problem with provided key, contains Operating System path separator or something
-				
-				log.warn( "uploadScanFileTempKey value is not same as directory name when put into Java File object. "
+				String msg = "uploadScanFileTempKey value is not same as directory name when put into Java File object. "
 						+ "uploadScanFileTempKey from request: '" + uploadScanFileTempKey + "'"
 						+ ", uploadScanFileTempKey directory name from Java File object: '" 
 						+ uploadScanFileTempKey_Dir.getName() 
-						+ "'" );
+						+ "'";
+				
+				log.warn( msg );
 
 				webserviceResponse.setUploadScanFileTempKey_NotFound( true );
 
@@ -197,8 +206,12 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 			}
 
 			if ( ! ValidateTempDirToUploadScanFileTo.getInstance().validateTempDirToUploadScanFileTo( uploadScanFileTempKey_Dir ) ) {
-
-				webserviceResponse.setUploadScanFileTempKey_NotFound( true );
+//				if ( log.isInfoEnabled() ) {
+					String msg = "ValidateTempDirToUploadScanFileTo.getInstance().validateTempDirToUploadScanFileTo(...) returns false.  uploadScanFileTempKey_Dir: " 
+							+ uploadScanFileTempKey_Dir.getAbsolutePath();
+					log.info( msg );
+					log.warn( msg );
+//				}
 			
 				UploadScanFile_Submit_Response uploadResponse = new UploadScanFile_Submit_Response();
 				uploadResponse.setStatusSuccess(false);
@@ -206,7 +219,7 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 
 				WriteResponseObjectToOutputStream.getSingletonInstance()
 				.writeResponseObjectToOutputStream( uploadResponse, servetResponseFormat, response );
-				
+
 				return;  // EARLY EXIT
 			}
 			
@@ -226,6 +239,14 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 				String scanFilenameToMove = getScanFileToMove( uploadScanFileTempKey_Dir );
 
 				if ( scanFilenameToMove == null ) {
+					
+//					if ( log.isInfoEnabled() ) {
+						String msg = "scanFilenameToMove == null.  uploadScanFileTempKey_Dir: " 
+								+ uploadScanFileTempKey_Dir.getAbsolutePath();
+						log.info( msg );
+						log.warn( msg );
+//					}
+						
 					webserviceResponse.setNoUploadedScanFile(true);
 
 					WriteResponseObjectToOutputStream.getSingletonInstance()
@@ -239,6 +260,12 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 						moveUpload_LocalDisk_ScanFileTempKey_Dir_To_scanProcessStatusKey_Dir( 
 								scanFilenameToMove,
 								uploadScanFileTempKey_Dir );
+				
+				log.warn("INFO: processRequest(...) processed uploadScanFile_Submit_Request.getUploadScanFileTempKey(): " 
+						+ uploadScanFile_Submit_Request.getUploadScanFileTempKey()
+						+ ", and returned scanProcessStatusKey: "
+						+ scanProcessStatusKey );
+
 			}
 			
 			webserviceResponse.setScanProcessStatusKey( scanProcessStatusKey );
@@ -249,7 +276,14 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 			.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
 			
 		} catch (SpectralFileBadRequestToServletException e) {
-
+			
+//			if ( log.isInfoEnabled() ) {
+				String msg = "SpectralFileBadRequestToServletException caught: scanFilenameToMove == null.  uploadScanFileTempKey: " 
+						+ uploadScanFileTempKey ;
+				log.info( msg, e );
+				log.warn( msg, e );
+//			}
+				
 			response.setStatus( HttpServletResponse.SC_BAD_REQUEST /* 400  */ );
 
 			if ( StringUtils.isNotEmpty( e.getMessage() ) ) {
@@ -258,9 +292,21 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 			}
 
 		} catch (Throwable e) {
-			String msg = "Failed to process request";
+
+			String msg = "Failed to process request, uploadScanFileTempKey: " + uploadScanFileTempKey;
 			log.error( msg, e );
 			response.setStatus( HttpServletResponse.SC_INTERNAL_SERVER_ERROR /* 500  */ );
+		}
+		
+		long endTime = System.currentTimeMillis();
+		
+		long timeForMethod = endTime - startTime;
+		
+		log.warn("INFO: processRequest(...) took " + timeForMethod + " millseconds for uploadScanFile_Submit_Request.getUploadScanFileTempKey(): " 
+				+ uploadScanFile_Submit_Request.getUploadScanFileTempKey() );
+		
+		if ( ( startTime + 7000 ) < endTime ) {
+			log.warn( "Time taken in processRequest(...) > 7 seconds for uploadScanFile_Submit_Request.getUploadScanFileTempKey(): " + uploadScanFile_Submit_Request.getUploadScanFileTempKey() );
 		}
 	}
 	

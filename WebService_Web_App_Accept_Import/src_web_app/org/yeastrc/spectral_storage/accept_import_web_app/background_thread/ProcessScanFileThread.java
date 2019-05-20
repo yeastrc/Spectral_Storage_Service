@@ -18,6 +18,9 @@ public class ProcessScanFileThread extends Thread {
 	//  Temp for testing
 //	private static final int WAIT_TIME_WHEN_NO_WORK_TO_DO = 5 * 1000;  // in milliseconds
 	
+	//  Wait after being awakened for processing import to wait for File system to update
+	private static final int WAIT_TIME_BRIEF_WAIT_AFTER_AWAKEN_FOR_FILE_SYSTEM = 3 * 1000;  // in milliseconds
+	
 	
 	private static ProcessScanFileThread instance = null;
 	
@@ -222,6 +225,10 @@ public class ProcessScanFileThread extends Thread {
 						log.debug( "before 'while ( keepRunning )', before wait() called" );
 
 						wait( WAIT_TIME_WHEN_NO_WORK_TO_DO );
+						
+						if ( keepRunning ) {
+							wait( WAIT_TIME_BRIEF_WAIT_AFTER_AWAKEN_FOR_FILE_SYSTEM );
+						}
 
 						if ( log.isDebugEnabled() ) {
 							log.debug("before 'while ( keepRunning )', after wait() called:  ProcessImportFASTAFileThread.getId() = " + this.getId() );
