@@ -53,6 +53,8 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 
 	private static final String FILE_MODE_READ_WRITE = "rw"; // Used in RandomAccessFile constructor below
 
+	private static final int FILE_WRITE_BUFFER_SIZE = 4096 * 8;
+
 	
 	private enum HeaderFirstBytesInitialWriteUpdateAfterClose { FIRST_WRITE, UPDATE_AFTER_CLOSE }
 	
@@ -221,7 +223,7 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 		
 		outputFile_MainDataFileFinal = dataFileFinal;
 		
-		outputStream_MainDataFileWhileWriting = new BufferedOutputStream( new FileOutputStream( outputFile_MainDataFileWhileWriting ) );
+		outputStream_MainDataFileWhileWriting = new BufferedOutputStream( new FileOutputStream( outputFile_MainDataFileWhileWriting ), FILE_WRITE_BUFFER_SIZE );
 		
 		writeHeader( spectralFile_Header_Common );
 		
