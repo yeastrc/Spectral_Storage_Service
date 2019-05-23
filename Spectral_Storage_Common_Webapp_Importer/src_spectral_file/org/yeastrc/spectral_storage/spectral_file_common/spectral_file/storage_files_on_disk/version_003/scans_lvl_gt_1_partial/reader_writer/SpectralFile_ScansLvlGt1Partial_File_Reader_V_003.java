@@ -33,6 +33,9 @@ public class SpectralFile_ScansLvlGt1Partial_File_Reader_V_003 {
 
 	private static final short FILE_VERSION = StorageFile_Version_003_Constants.FILE_VERSION;
 	
+	//  File version Zero also allowed since had bug in V003 File Writer that stored zero in version
+	private static final short FILE_VERSION_ZERO = 0;  
+	
 	private static final int BUFFERED_READER_BUFFER_SIZE = 1 * 1024 * 1024; // 1MB
 
 	private static final Logger log = Logger.getLogger(SpectralFile_ScansLvlGt1Partial_File_Reader_V_003.class);
@@ -80,11 +83,11 @@ public class SpectralFile_ScansLvlGt1Partial_File_Reader_V_003 {
 				short fileVersionInFile = dataInputStream_IndexFile.readShort();
 
 				if ( fileVersionInFile != FILE_VERSION 
-						//  TODO TEMP ALLOW zero
-						&& fileVersionInFile != 0
+						&& fileVersionInFile != FILE_VERSION_ZERO
 						) {
 					String msg = "File version does not match programatic version.  File Version: " + fileVersionInFile
 							+ ", programatic version: " + FILE_VERSION
+							+ " 'programatic version also accepts version of " + FILE_VERSION_ZERO
 							+ ".  spectralScans_Level_Gt_1_PartialFilename: " + spectralScans_Level_Gt_1_PartialFilename;
 					log.error( msg );
 					throw new SpectralStorageProcessingException( msg );
