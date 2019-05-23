@@ -24,6 +24,10 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 public class SpectralFile_ScansLvlGt1Partial_File_Writer_V_003 {
 
 	private static final Logger log = Logger.getLogger(SpectralFile_ScansLvlGt1Partial_File_Writer_V_003.class);
+	
+
+	private static final short FILE_VERSION = StorageFile_Version_003_Constants.FILE_VERSION;
+	
 
 	private static final String FILE_MODE_READ_WRITE = "rw"; // Used in RandomAccessFile constructor below
 	
@@ -175,7 +179,7 @@ public class SpectralFile_ScansLvlGt1Partial_File_Writer_V_003 {
 
 			//  Write Version - ALWAYS FIRST
 
-			dataOutputStream_ToOutputFile.writeShort( StorageFile_Version_003_Constants.FILE_VERSION );
+			dataOutputStream_ToOutputFile.writeShort( FILE_VERSION );
 			
 			//  Write File Fully Written Indicator - ALWAYS SECOND
 			
@@ -322,7 +326,7 @@ public class SpectralFile_ScansLvlGt1Partial_File_Writer_V_003 {
 
 		//  Write Version - ALWAYS FIRST
 
-		dataOutputStream.writeShort( spectralFile_Index_FDFW_FileContents_Root_V_004.getVersion() );
+		dataOutputStream.writeShort( FILE_VERSION );
 		
 		//  Write File Fully Written Indicator - ALWAYS SECOND
 		
