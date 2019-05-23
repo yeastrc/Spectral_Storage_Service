@@ -34,6 +34,9 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 	private static String PROPERTY_NAME__S3_BUCKET = "s3.bucket";
 	private static String PROPERTY_NAME__S3_REGION = "s3.region";
 	
+	private static String PROPERTY_NAME__SUBMITTED_SCAN_FILE_PATH_RESTRICTIONS = "submitted.scan.file.path.restrictions";
+	
+	
 	private static String PROPERTY_NAME__PROCESS_SCAN_UPLOAD_JAR_FILE = "process.scan.upload.jar.file";
 	private static String PROPERTY_NAME__JAVA_EXECUTABLE = "java.executable";
 	private static String PROPERTY_NAME__JAVA_EXECUTABLE_PARAMETERS = "java.executable.parameters";
@@ -141,6 +144,16 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			log.warn( "INFO: '" + PROPERTY_NAME__S3_REGION + "' has value: " 
 					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region() );
 		}
+
+		if ( configData_Directories_ProcessUploadCommand_InWorkDirectory.getSubmittedScanFilePathRestrictions() != null 
+				&& ( !  configData_Directories_ProcessUploadCommand_InWorkDirectory.getSubmittedScanFilePathRestrictions().isEmpty() ) ) {
+			log.warn( "INFO: '" + PROPERTY_NAME__SUBMITTED_SCAN_FILE_PATH_RESTRICTIONS + "' has value(s) (comma delim): " 
+					+ StringUtils.join(  configData_Directories_ProcessUploadCommand_InWorkDirectory.getSubmittedScanFilePathRestrictions(), "," ) );
+		} else {
+			log.warn( "INFO: '" + PROPERTY_NAME__SUBMITTED_SCAN_FILE_PATH_RESTRICTIONS 
+					+ "' has NO values or is missing.  All requests with scan filename and path will be rejected with the appropriate flag in the response.  " );
+		}
+		
 		
 		if ( StringUtils.isEmpty( internalConfigDirectoryStrings.tempScanUploadBaseDirectory ) ) {
 			String msg = "Property '" + PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY 
@@ -350,7 +363,21 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 				configData_Directories_ProcessUploadCommand_InWorkDirectory.setS3Region( propertyValue );
 			}
-
+			
+			propertyValue = configProps.getProperty( PROPERTY_NAME__SUBMITTED_SCAN_FILE_PATH_RESTRICTIONS );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				String[] valuesArray = propertyValue.split( "," );
+				List<String> values = new ArrayList<>( valuesArray.length );
+				for ( String value : valuesArray ) {
+					if ( StringUtils.isNotEmpty(value) ) {
+						values.add( value.trim() );
+					}
+				}
+				if ( ! values.isEmpty() ) {
+					configData_Directories_ProcessUploadCommand_InWorkDirectory.setSubmittedScanFilePathRestrictions( values );
+				}
+			}
+			
 			propertyValue = configProps.getProperty( PROPERTY_NAME__PROCESS_SCAN_UPLOAD_JAR_FILE );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 				configData_Directories_ProcessUploadCommand_InWorkDirectory.setProcessScanUploadJarFile( propertyValue );

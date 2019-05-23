@@ -64,6 +64,23 @@
     <url-pattern>/update/uploadScanFile_addScanFileInS3Bucket_XML</url-pattern>
   </servlet-mapping>   
   
+  <!-- Send Scan Filename with Path to process - return XML -->
+  
+  <servlet>
+    <servlet-name>Send Scan Filename with Path to process Servlet - XML Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.UploadScanFile_AddScanFileFromFilenameAndPath_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>XML</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Send Scan Filename with Path to process Servlet - XML Response</servlet-name>
+    <url-pattern>/update/uploadScanFile_addScanFilenameWithPath_XML</url-pattern>
+  </servlet-mapping>   
+  
   <!-- Submit the Upload Scan File Process - return XML -->
   
   <servlet>

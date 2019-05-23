@@ -11,7 +11,9 @@ public class FileUploadConstants {
 
 	 public static final long MAX_FILE_UPLOAD_SIZE = ( 20L * 1000L * 1000L * 1000L ); // 20GB max
 
-//	public static final int MAX_FILE_UPLOAD_SIZE = ( 2 * 10 * 1000  ); // temp smaller max of 20KB
+//	public static final long MAX_FILE_UPLOAD_SIZE = ( 2L * 10L * 1000L  ); // temp smaller max of 20KB
+
+//	public static final long MAX_FILE_UPLOAD_SIZE = 5L; // temp smaller max of 5 bytes
 
 	
 	public static final String MAX_FILE_UPLOAD_SIZE_FORMATTED = NumberFormat.getInstance().format( MAX_FILE_UPLOAD_SIZE );

@@ -41,6 +41,8 @@ public class Z_JAXBContext_ForRequestResponse {
 						UploadScanFile_Init_Response.class,
 						UploadScanFile_AddScanFileInS3Bucket_Request.class,
 						UploadScanFile_AddScanFileInS3Bucket_Response.class,
+						UploadScanFile_AddScanFileFromFilenameAndPath_Request.class,
+						UploadScanFile_AddScanFileFromFilenameAndPath_Response.class,
 						UploadScanFile_UploadScanFile_Response.class,
 						UploadScanFile_Submit_Request.class,
 						UploadScanFile_Submit_Response.class,

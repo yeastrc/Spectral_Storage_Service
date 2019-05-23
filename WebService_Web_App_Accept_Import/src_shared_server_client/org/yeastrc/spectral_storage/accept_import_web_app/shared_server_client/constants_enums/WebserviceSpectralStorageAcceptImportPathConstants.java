@@ -12,6 +12,8 @@ public class WebserviceSpectralStorageAcceptImportPathConstants {
 	public static final String UPLOAD_SCAN_FILE_INIT_SERVLET_XML = "/update/uploadScanFile_Init_XML";
 
 	public static final String UPLOAD_SCAN_FILE_ADD_SCAN_FILE_IN_S3_BUCKET_SERVLET_XML = "/update/uploadScanFile_addScanFileInS3Bucket_XML";
+
+	public static final String UPLOAD_SCAN_FILE_ADD_SCAN_FILENAME_WITH_PATH_SERVLET_XML = "/update/uploadScanFile_addScanFilenameWithPath_XML";
 	
 	public static final String UPLOAD_SCAN_FILE_UPLOAD_SCAN_FILE_SERVLET_XML = "/update/uploadScanFile_uploadScanFile_XML";
 	

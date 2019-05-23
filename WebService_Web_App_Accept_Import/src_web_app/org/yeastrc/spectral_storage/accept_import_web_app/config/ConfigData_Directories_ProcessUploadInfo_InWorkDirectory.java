@@ -46,9 +46,14 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	 * The S3 region that the scan data is written to for perm storage
 	 */
 	private String s3Region;
+
 	
-
-
+	/**
+	 * Path for passed in Filename must start with one of these values
+	 */
+	private List<String> submittedScanFilePathRestrictions;
+	
+	
 	/**
 	 * Java Jar File to run in the directory the scan file has been uploaded into
 	 */
@@ -233,6 +238,14 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 
 	public void setS3Region(String s3Region) {
 		this.s3Region = s3Region;
+	}
+
+	public List<String> getSubmittedScanFilePathRestrictions() {
+		return submittedScanFilePathRestrictions;
+	}
+
+	public void setSubmittedScanFilePathRestrictions(List<String> submittedScanFilePathRestrictions) {
+		this.submittedScanFilePathRestrictions = submittedScanFilePathRestrictions;
 	}
 
 		
