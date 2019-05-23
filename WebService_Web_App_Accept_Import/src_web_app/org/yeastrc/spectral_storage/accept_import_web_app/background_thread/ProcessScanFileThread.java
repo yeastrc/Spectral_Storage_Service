@@ -1,7 +1,7 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.background_thread;
 
 import org.apache.log4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessAvailableUploadedScanFiles;
+import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextAvailableUploadedScanFile;
 
 /**
  * 
@@ -13,10 +13,10 @@ public class ProcessScanFileThread extends Thread {
 	
 	//  A long sleep/wait time since it is awaken whenever a file is uploaded
 	
-//	private static final int WAIT_TIME_WHEN_NO_WORK_TO_DO = 10 * 60 * 1000;  // in milliseconds
+	private static final int WAIT_TIME_WHEN_NO_WORK_TO_DO = 10 * 60 * 1000;  // in milliseconds
 
 	//  Shortened sleep/wait time to make sure never too long to wait to start processing a scan file
-	private static final int WAIT_TIME_WHEN_NO_WORK_TO_DO = 10 * 1000;  // in milliseconds
+//	private static final int WAIT_TIME_WHEN_NO_WORK_TO_DO = 10 * 1000;  // in milliseconds
 	
 	//  For Reporting
 	private static final int WAIT_TIME_WHEN_NO_WORK_TO_DO_80_PERCENT = (int) ( WAIT_TIME_WHEN_NO_WORK_TO_DO * 0.8 );  // in milliseconds
@@ -32,7 +32,7 @@ public class ProcessScanFileThread extends Thread {
 	
 	
 	
-	private volatile ProcessAvailableUploadedScanFiles processAvailableUploadedScanFiles;
+	private volatile ProcessNextAvailableUploadedScanFile processNextAvailableUploadedScanFile;
 	
 
 
@@ -134,7 +134,7 @@ public class ProcessScanFileThread extends Thread {
 		if ( log.isDebugEnabled() ) {
 			log.debug("awaken() called:  " );
 		}
-
+		
 		synchronized (this) {
 			
 			skipWait = true;
@@ -159,8 +159,8 @@ public class ProcessScanFileThread extends Thread {
 
 		//  awaken this thread if it is in 'wait' state ( not currently processing a job )
 		this.awaken();
-		if ( processAvailableUploadedScanFiles != null ) {
-			processAvailableUploadedScanFiles.shutdown();
+		if ( processNextAvailableUploadedScanFile != null ) {
+			processNextAvailableUploadedScanFile.shutdown();
 		}
 	}
 
@@ -201,7 +201,7 @@ public class ProcessScanFileThread extends Thread {
 	 * @return
 	 */
 	public boolean isProcessingFiles() {
-		if ( processAvailableUploadedScanFiles != null ) {
+		if ( processNextAvailableUploadedScanFile != null ) {
 			return true;
 		}
 		return false;
@@ -224,15 +224,11 @@ public class ProcessScanFileThread extends Thread {
 			try {
 				skipWait = false; //  set true in awaken()
 				
-				processAvailableUploadedScanFiles = ProcessAvailableUploadedScanFiles.getInstance();
-				
-				processAvailableUploadedScanFiles.processAvailableUploadedScanFile();
-				
-				processAvailableUploadedScanFiles = null;
+				processAvailableUploadedScanFiles();
 
 			} catch (Throwable e) {
 
-				log.error("ProcessUploadedScanFiles.getInstance().processNextFASTAFile()", e );
+				log.error("Exception from: ProcessAvailableUploadedScanFiles.getInstance().processAvailableUploadedScanFiles()", e );
 
 			}
 			
@@ -300,6 +296,42 @@ public class ProcessScanFileThread extends Thread {
 		}
 		
 		log.info("Exitting run()" );
+	}
+
+
+	
+	/**
+	 * Process all uploaded scan files that have not been fully processed
+	 * 
+	 * Return after processing all uploaded scan files or shutdown() has been called
+	 */
+	private void processAvailableUploadedScanFiles() {
+
+		boolean processed_A_Scanfile = true; // init to true to prime loop
+		
+		while ( keepRunning && processed_A_Scanfile ) {
+
+			/////////////////////////////////////////
+			
+//			try {
+
+			processNextAvailableUploadedScanFile = ProcessNextAvailableUploadedScanFile.getInstance();
+
+			//  Process all available uploaded scan files
+			processed_A_Scanfile = processNextAvailableUploadedScanFile.processNextAvailableUploadedScanFile();
+
+			processNextAvailableUploadedScanFile = null;
+				
+			if ( log.isDebugEnabled() ) {
+				if ( processed_A_Scanfile ) {
+					log.debug( "processNextAvailableUploadedScanFile() returned true so YES processed a file" );
+				} else {
+					log.debug( "processNextAvailableUploadedScanFile() returned false so NO processed a file" );
+				}
+			}
+				
+//			} ( catch)
+		}
 	}
 
 

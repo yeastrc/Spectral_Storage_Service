@@ -26,9 +26,9 @@ public class ProcessNextUploadedScanFile {
 
 	private static final String CMD_LINE_PARAM_DELETE_ON_SUCCESS = "--delete-scan-file-on-successful-processing";
 
+	public enum ProcessingSuccessFail { SUCCESS, FAIL, KILLED }
 	
-	
-	private volatile boolean shutdownRequested = false;
+//	private volatile boolean shutdownRequested = false;
 	private volatile RunSystemCommand runSystemCommand;
 
 	private ProcessNextUploadedScanFile() { }
@@ -58,7 +58,7 @@ public class ProcessNextUploadedScanFile {
 	 */
 	public void shutdown() {
 		log.error( "shutdown() called. Calling runSystemCommand.shutdown() then calling awaken()");
-		shutdownRequested = true;
+//		shutdownRequested = true;
 		try {
 			if ( runSystemCommand != null ) {
 				runSystemCommand.shutdown();
@@ -76,7 +76,13 @@ public class ProcessNextUploadedScanFile {
 	 * Return after processing all uploaded scan files or shutdown() has been called
 	 * @throws Exception 
 	 */
-	public void processNextUploadedScanFile( File scanFileDirectory ) throws Exception {
+	public ProcessingSuccessFail processNextUploadedScanFile( File scanFileDirectory ) throws Exception {
+		
+		if ( log.isInfoEnabled() ) {
+			log.info( "processNextUploadedScanFile(..): Processing Scan File in Directory: " + scanFileDirectory );
+		}
+		
+		ProcessingSuccessFail processingSuccessFail_Result = null;
 		
 		UploadProcessingWriteOrUpdateStatusFile.getInstance()
 		.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_STARTED, scanFileDirectory );
@@ -130,6 +136,11 @@ public class ProcessNextUploadedScanFile {
 			//  Configured to delete uploaded scan file on successful import so pass to import program
 			commandAndItsArgumentsAsList.add( CMD_LINE_PARAM_DELETE_ON_SUCCESS );
 		}
+		
+		if ( log.isInfoEnabled() ) {
+			String commandAndItsArgumentsAsList_Space_Delimited = StringUtils.join( commandAndItsArgumentsAsList, " " );
+			log.info( "Command to run to import scan file (space delimited): " + commandAndItsArgumentsAsList_Space_Delimited );
+		}
 
 		
 		String filenameToWriteSysoutTo = "processScanUploadCommand.sysout.txt";
@@ -154,6 +165,8 @@ public class ProcessNextUploadedScanFile {
 
 				sendProcessKilledEmail( scanFileDirectory );
 				
+				processingSuccessFail_Result = ProcessingSuccessFail.KILLED;
+				
 			} else {
 				if ( ! runSystemCommandResponse.isCommandSuccessful() ) {
 					log.error( "command failed: exit code: "
@@ -165,6 +178,10 @@ public class ProcessNextUploadedScanFile {
 					UploadProcessingWriteOrUpdateStatusFile.getInstance()
 					.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED, scanFileDirectory );
 
+					sendProcessFailedEmail( scanFileDirectory );
+
+					processingSuccessFail_Result = ProcessingSuccessFail.FAIL;
+					
 				} else {
 					
 					String scanFileHashKey =
@@ -178,6 +195,8 @@ public class ProcessNextUploadedScanFile {
 					.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_SUCCESSFUL, scanFileDirectory );
 
 					sendProcessSuccessEmail( scanFileDirectory );
+
+					processingSuccessFail_Result = ProcessingSuccessFail.FAIL;
 				}
 
 			}
@@ -197,6 +216,12 @@ public class ProcessNextUploadedScanFile {
 			
 		}
 		
+		if ( processingSuccessFail_Result == null ) {
+			//  Assume fail
+			processingSuccessFail_Result = ProcessingSuccessFail.FAIL;
+		}
+		
+		return processingSuccessFail_Result;
 	}
 	
 
