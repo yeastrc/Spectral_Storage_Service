@@ -79,7 +79,10 @@ public class SpectralFile_ScansLvlGt1Partial_File_Reader_V_003 {
 
 				short fileVersionInFile = dataInputStream_IndexFile.readShort();
 
-				if ( fileVersionInFile != FILE_VERSION ) {
+				if ( fileVersionInFile != FILE_VERSION 
+						//  TODO TEMP ALLOW zero
+						&& fileVersionInFile != 0
+						) {
 					String msg = "File version does not match programatic version.  File Version: " + fileVersionInFile
 							+ ", programatic version: " + FILE_VERSION
 							+ ".  spectralScans_Level_Gt_1_PartialFilename: " + spectralScans_Level_Gt_1_PartialFilename;
