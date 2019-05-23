@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.DataOrIndexFileFullyWrittenConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.StorageFile_Version_003_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.constants.SpectralFile_ScansLvlGt1Partial_Header_DTO_V_003__Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.from_data_file_writer_objects.SpectralFile_Index_FDFW_FileContents_Root_V_004;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.from_data_file_writer_objects.SpectralFile_Index_FDFW_SingleScan_V_004;
@@ -168,21 +169,21 @@ public class SpectralFile_ScansLvlGt1Partial_File_Writer_V_003 {
 
 		//  Save disk space and read time by not including scan number offset, compute from index file
 		
-		try ( DataOutputStream dataOutputStream_IndexFile = 
+		try ( DataOutputStream dataOutputStream_ToOutputFile = 
 				new DataOutputStream( new BufferedOutputStream( new FileOutputStream( scansLvlGt1PartialFileWhileWriting ) ) )
 				) {
 
 			//  Write Version - ALWAYS FIRST
 
-			dataOutputStream_IndexFile.writeShort( spectralFile_Index_FDFW_FileContents_Root_V_004.getVersion() );
+			dataOutputStream_ToOutputFile.writeShort( StorageFile_Version_003_Constants.FILE_VERSION );
 			
 			//  Write File Fully Written Indicator - ALWAYS SECOND
 			
-			dataOutputStream_IndexFile.writeByte( DataOrIndexFileFullyWrittenConstants.FILE_FULLY_WRITTEN_NO );
+			dataOutputStream_ToOutputFile.writeByte( DataOrIndexFileFullyWrittenConstants.FILE_FULLY_WRITTEN_NO );
 
 //			dataOutputStream_IndexFile.writeByte( scanNumberOffsetType );
 			
-			dataOutputStream_IndexFile.writeByte( parentScanNumberOffsetType );
+			dataOutputStream_ToOutputFile.writeByte( parentScanNumberOffsetType );
 
 //			dataOutputStream_IndexFile.writeInt( first_SingleScan_ScanNumber );
 			
@@ -225,19 +226,19 @@ public class SpectralFile_ScansLvlGt1Partial_File_Writer_V_003 {
 
 					if ( parentScanNumberOffsetType == 
 							SpectralFile_ScansLvlGt1Partial_Header_DTO_V_003__Constants.PARENT_SCAN_NUMBER_OFFSET_TYPE_BYTE ) {
-						dataOutputStream_IndexFile.writeByte( parentScanNumberOffset );
+						dataOutputStream_ToOutputFile.writeByte( parentScanNumberOffset );
 					} else if ( parentScanNumberOffsetType == 
 							SpectralFile_ScansLvlGt1Partial_Header_DTO_V_003__Constants.PARENT_SCAN_NUMBER_OFFSET_TYPE_SHORT ) {
-						dataOutputStream_IndexFile.writeShort( parentScanNumberOffset );
+						dataOutputStream_ToOutputFile.writeShort( parentScanNumberOffset );
 					} else {
-						dataOutputStream_IndexFile.writeInt( parentScanNumberOffset );
+						dataOutputStream_ToOutputFile.writeInt( parentScanNumberOffset );
 					}
 				}
 				
 				//  write precursor charge and M/Z
 
-				dataOutputStream_IndexFile.writeByte( indexScanEntry.getPrecursorCharge() );
-				dataOutputStream_IndexFile.writeDouble( indexScanEntry.getPrecursor_M_Over_Z() );
+				dataOutputStream_ToOutputFile.writeByte( indexScanEntry.getPrecursorCharge() );
+				dataOutputStream_ToOutputFile.writeDouble( indexScanEntry.getPrecursor_M_Over_Z() );
 				
 			}
 		} catch( Exception e ) {
