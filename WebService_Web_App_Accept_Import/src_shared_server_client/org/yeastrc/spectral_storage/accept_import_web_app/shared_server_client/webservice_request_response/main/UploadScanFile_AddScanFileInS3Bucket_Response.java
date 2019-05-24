@@ -22,6 +22,9 @@ public class UploadScanFile_AddScanFileInS3Bucket_Response {
 	private boolean uploadScanFileTempKey_NotFound;
 	
 	@XmlAttribute // attribute name is property name
+	private boolean uploadScanFileTempKey_Expired;
+
+	@XmlAttribute // attribute name is property name
 	private boolean objectKeyOrFilenameSuffixNotValid;
 	
 	@XmlAttribute // attribute name is property name
@@ -89,6 +92,12 @@ public class UploadScanFile_AddScanFileInS3Bucket_Response {
 	}
 	public void setMaxSizeFormatted(String maxSizeFormatted) {
 		this.maxSizeFormatted = maxSizeFormatted;
+	}
+	public boolean isUploadScanFileTempKey_Expired() {
+		return uploadScanFileTempKey_Expired;
+	}
+	public void setUploadScanFileTempKey_Expired(boolean uploadScanFileTempKey_Expired) {
+		this.uploadScanFileTempKey_Expired = uploadScanFileTempKey_Expired;
 	}
 	
 }

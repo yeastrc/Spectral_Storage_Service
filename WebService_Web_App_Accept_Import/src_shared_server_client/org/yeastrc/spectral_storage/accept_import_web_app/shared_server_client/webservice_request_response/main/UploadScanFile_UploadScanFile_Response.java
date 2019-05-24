@@ -2,6 +2,7 @@ package org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -17,7 +18,9 @@ public class UploadScanFile_UploadScanFile_Response {
 	private boolean statusSuccess;
 
 	private boolean uploadScanFileTempKey_NotFound;
-		
+	
+	private boolean uploadScanFileTempKey_Expired;
+
 	private boolean uploadedFileHasNoFilename;
 	private boolean uploadedFileSuffixNotValid;
 	
@@ -69,6 +72,12 @@ public class UploadScanFile_UploadScanFile_Response {
 	}
 	public void setUploadScanFileTempKey_NotFound(boolean uploadScanFileTempKey_NotFound) {
 		this.uploadScanFileTempKey_NotFound = uploadScanFileTempKey_NotFound;
+	}
+	public boolean isUploadScanFileTempKey_Expired() {
+		return uploadScanFileTempKey_Expired;
+	}
+	public void setUploadScanFileTempKey_Expired(boolean uploadScanFileTempKey_Expired) {
+		this.uploadScanFileTempKey_Expired = uploadScanFileTempKey_Expired;
 	}
 
 

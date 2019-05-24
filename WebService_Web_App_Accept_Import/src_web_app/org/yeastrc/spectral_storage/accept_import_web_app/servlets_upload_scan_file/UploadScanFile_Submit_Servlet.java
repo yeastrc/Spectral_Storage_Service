@@ -39,6 +39,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.w
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_Submit_Response;
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.CreateProcessScanFileDir;
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo;
+import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo.ValidationResponse;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingWriteOrUpdateStatusFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
@@ -205,22 +206,50 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 				
 				return;  // EARLY EXIT
 			}
-
-			if ( ! ValidateTempDirToUploadScanFileTo.getInstance().validateTempDirToUploadScanFileTo( uploadScanFileTempKey_Dir ) ) {
-				String msg = "ValidateTempDirToUploadScanFileTo.getInstance().validateTempDirToUploadScanFileTo(...) returns false. uploadScanFileTempKey from request: '" 
-						+ uploadScanFileTempKey 
-						+ "', uploadScanFileTempKey_Dir: " 
-						+ uploadScanFileTempKey_Dir.getAbsolutePath();
-				log.warn( msg );
 			
-				UploadScanFile_Submit_Response uploadResponse = new UploadScanFile_Submit_Response();
-				uploadResponse.setStatusSuccess(false);
-				uploadResponse.setUploadScanFileTempKey_NotFound(true);
+			{
+				ValidationResponse validationResponse = 
+						ValidateTempDirToUploadScanFileTo.getInstance()
+						.validateTempDirToUploadScanFileTo( uploadScanFileTempKey_Dir );
+				
+				if ( validationResponse != ValidationResponse.VALID ) {
 
-				WriteResponseObjectToOutputStream.getSingletonInstance()
-				.writeResponseObjectToOutputStream( uploadResponse, servetResponseFormat, response );
+					if ( validationResponse == ValidationResponse.KEY_NOT_FOUND ) {
+						String msg = "ValidateTempDirToUploadScanFileTo.getInstance().validateTempDirToUploadScanFileTo(...) returns KEY_NOT_FOUND. uploadScanFileTempKey from request: '" 
+								+ uploadScanFileTempKey 
+								+ "', uploadScanFileTempKey_Dir: " 
+								+ uploadScanFileTempKey_Dir.getAbsolutePath();
+						log.warn( msg );
 
-				return;  // EARLY EXIT
+						webserviceResponse.setStatusSuccess(false);
+						webserviceResponse.setUploadScanFileTempKey_NotFound(true);
+
+						WriteResponseObjectToOutputStream.getSingletonInstance()
+						.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
+
+						return;  // EARLY EXIT
+						
+					} else if ( validationResponse == ValidationResponse.KEY_EXPIRED ) {
+						String msg = "ValidateTempDirToUploadScanFileTo.getInstance().validateTempDirToUploadScanFileTo(...) returns KEY_EXPIRED. uploadScanFileTempKey from request: '" 
+								+ uploadScanFileTempKey 
+								+ "', uploadScanFileTempKey_Dir: " 
+								+ uploadScanFileTempKey_Dir.getAbsolutePath();
+						log.warn( msg );
+
+						webserviceResponse.setStatusSuccess(false);
+						webserviceResponse.setUploadScanFileTempKey_Expired(true);
+
+						WriteResponseObjectToOutputStream.getSingletonInstance()
+						.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
+
+						return;  // EARLY EXIT
+					} else {
+					
+						String msg = "validationResponse is not an expected value.  is: " + validationResponse;
+						log.error( msg );
+						throw new SpectralFileFileUploadInternalException( msg );
+					}
+				}
 			}
 			
 			String scanProcessStatusKey = null;

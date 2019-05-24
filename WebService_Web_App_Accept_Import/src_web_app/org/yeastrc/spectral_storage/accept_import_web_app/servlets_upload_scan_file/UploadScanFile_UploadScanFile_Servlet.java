@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.FileUploadConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ServetResponseFormatEnum;
+import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseObjectToOutputStream;
@@ -29,6 +30,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.c
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_UploadScanFile_Response;
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo;
+import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo.ValidationResponse;
 import org.yeastrc.spectral_storage.accept_import_web_app.utils.Create_S3_Object_Paths;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
@@ -221,15 +223,50 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 				
 				return;  // EARLY EXIT
 			}
-			
-			if ( ! ValidateTempDirToUploadScanFileTo.getInstance().validateTempDirToUploadScanFileTo( uploadScanFileTempKey_Dir ) ) {
 
-				webserviceResponse.setUploadScanFileTempKey_NotFound( true );
-			
-				WriteResponseObjectToOutputStream.getSingletonInstance()
-				.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
+			{
+				ValidationResponse validationResponse = 
+						ValidateTempDirToUploadScanFileTo.getInstance()
+						.validateTempDirToUploadScanFileTo( uploadScanFileTempKey_Dir );
 				
-				throw new FailResponseSentException();
+				if ( validationResponse != ValidationResponse.VALID ) {
+
+					if ( validationResponse == ValidationResponse.KEY_NOT_FOUND ) {
+						String msg = "ValidateTempDirToUploadScanFileTo.getInstance().validateTempDirToUploadScanFileTo(...) returns KEY_NOT_FOUND. uploadScanFileTempKey from request: '" 
+								+ uploadScanFileTempKey 
+								+ "', uploadScanFileTempKey_Dir: " 
+								+ uploadScanFileTempKey_Dir.getAbsolutePath();
+						log.warn( msg );
+
+						webserviceResponse.setStatusSuccess(false);
+						webserviceResponse.setUploadScanFileTempKey_NotFound(true);
+
+						WriteResponseObjectToOutputStream.getSingletonInstance()
+						.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
+
+						throw new FailResponseSentException();
+						
+					} else if ( validationResponse == ValidationResponse.KEY_EXPIRED ) {
+						String msg = "ValidateTempDirToUploadScanFileTo.getInstance().validateTempDirToUploadScanFileTo(...) returns KEY_EXPIRED. uploadScanFileTempKey from request: '" 
+								+ uploadScanFileTempKey 
+								+ "', uploadScanFileTempKey_Dir: " 
+								+ uploadScanFileTempKey_Dir.getAbsolutePath();
+						log.warn( msg );
+
+						webserviceResponse.setStatusSuccess(false);
+						webserviceResponse.setUploadScanFileTempKey_Expired(true);
+
+						WriteResponseObjectToOutputStream.getSingletonInstance()
+						.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
+
+						throw new FailResponseSentException();
+					} else {
+					
+						String msg = "validationResponse is not an expected value.  is: " + validationResponse;
+						log.error( msg );
+						throw new SpectralFileFileUploadInternalException( msg );
+					}
+				}
 			}
 
 			if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket() ) ) {

@@ -22,6 +22,9 @@ public class UploadScanFile_AddScanFileFromFilenameAndPath_Response {
 	private boolean uploadScanFileTempKey_NotFound;
 	
 	@XmlAttribute // attribute name is property name
+	private boolean uploadScanFileTempKey_Expired;
+
+	@XmlAttribute // attribute name is property name
 	private boolean filenameSuffixNotValid;
 
 	@XmlAttribute // attribute name is property name
@@ -105,6 +108,12 @@ public class UploadScanFile_AddScanFileFromFilenameAndPath_Response {
 	}
 	public void setUploadScanFileWithPath_FilePathNotAllowed(boolean uploadScanFileWithPath_FilePathNotAllowed) {
 		this.uploadScanFileWithPath_FilePathNotAllowed = uploadScanFileWithPath_FilePathNotAllowed;
+	}
+	public boolean isUploadScanFileTempKey_Expired() {
+		return uploadScanFileTempKey_Expired;
+	}
+	public void setUploadScanFileTempKey_Expired(boolean uploadScanFileTempKey_Expired) {
+		this.uploadScanFileTempKey_Expired = uploadScanFileTempKey_Expired;
 	}
 	
 	

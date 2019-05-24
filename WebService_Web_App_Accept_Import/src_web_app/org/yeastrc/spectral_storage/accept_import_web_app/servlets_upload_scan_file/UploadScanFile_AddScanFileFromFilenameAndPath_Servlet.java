@@ -19,6 +19,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.Servet
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileDeserializeRequestException;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadFileSystemException;
+import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.GetRequestObjectFromInputStream;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseObjectToOutputStream;
@@ -27,6 +28,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.c
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_AddScanFileFromFilenameAndPath_Request;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_AddScanFileFromFilenameAndPath_Response;
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo;
+import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo.ValidationResponse;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 
 
@@ -222,16 +224,49 @@ public class UploadScanFile_AddScanFileFromFilenameAndPath_Servlet extends HttpS
 				return;  // EARLY EXIT
 			}
 
-			if ( ! ValidateTempDirToUploadScanFileTo.getInstance().validateTempDirToUploadScanFileTo( uploadScanFileTempKey_Dir ) ) {
-
-				UploadScanFile_AddScanFileFromFilenameAndPath_Response uploadResponse = new UploadScanFile_AddScanFileFromFilenameAndPath_Response();
-				uploadResponse.setStatusSuccess(false);
-				uploadResponse.setUploadScanFileTempKey_NotFound(true);
-
-				WriteResponseObjectToOutputStream.getSingletonInstance()
-				.writeResponseObjectToOutputStream( uploadResponse, servetResponseFormat, response );
+			{
+				ValidationResponse validationResponse = 
+						ValidateTempDirToUploadScanFileTo.getInstance()
+						.validateTempDirToUploadScanFileTo( uploadScanFileTempKey_Dir );
 				
-				return;  // EARLY EXIT
+				if ( validationResponse != ValidationResponse.VALID ) {
+
+					if ( validationResponse == ValidationResponse.KEY_NOT_FOUND ) {
+						String msg = "ValidateTempDirToUploadScanFileTo.getInstance().validateTempDirToUploadScanFileTo(...) returns KEY_NOT_FOUND. uploadScanFileTempKey from request: '" 
+								+ uploadScanFileTempKey 
+								+ "', uploadScanFileTempKey_Dir: " 
+								+ uploadScanFileTempKey_Dir.getAbsolutePath();
+						log.warn( msg );
+
+						webserviceResponse.setStatusSuccess(false);
+						webserviceResponse.setUploadScanFileTempKey_NotFound(true);
+
+						WriteResponseObjectToOutputStream.getSingletonInstance()
+						.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
+
+						return;  // EARLY EXIT
+						
+					} else if ( validationResponse == ValidationResponse.KEY_EXPIRED ) {
+						String msg = "ValidateTempDirToUploadScanFileTo.getInstance().validateTempDirToUploadScanFileTo(...) returns KEY_EXPIRED. uploadScanFileTempKey from request: '" 
+								+ uploadScanFileTempKey 
+								+ "', uploadScanFileTempKey_Dir: " 
+								+ uploadScanFileTempKey_Dir.getAbsolutePath();
+						log.warn( msg );
+
+						webserviceResponse.setStatusSuccess(false);
+						webserviceResponse.setUploadScanFileTempKey_Expired(true);
+
+						WriteResponseObjectToOutputStream.getSingletonInstance()
+						.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
+
+						return;  // EARLY EXIT
+					} else {
+					
+						String msg = "validationResponse is not an expected value.  is: " + validationResponse;
+						log.error( msg );
+						throw new SpectralFileFileUploadInternalException( msg );
+					}
+				}
 			}
 			
 			//  Process Submitted Filename With Path

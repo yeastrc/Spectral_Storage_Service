@@ -15,6 +15,8 @@ import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanF
 public class ValidateTempDirToUploadScanFileTo {
 
 	private static final Logger log = Logger.getLogger(ValidateTempDirToUploadScanFileTo.class);
+	
+	public enum ValidationResponse { VALID, KEY_NOT_FOUND, KEY_EXPIRED }
 
 	//  private constructor
 	private ValidateTempDirToUploadScanFileTo() { }
@@ -32,7 +34,7 @@ public class ValidateTempDirToUploadScanFileTo {
 	 * @throws SpectralFileFileUploadFileSystemException
 	 * @throws IOException
 	 */
-	public boolean validateTempDirToUploadScanFileTo( File uploadScanFileTempKey_Dir ) throws SpectralFileFileUploadFileSystemException, IOException {
+	public ValidationResponse validateTempDirToUploadScanFileTo( File uploadScanFileTempKey_Dir ) throws SpectralFileFileUploadFileSystemException, IOException {
 		
 		File c_dir_created_trackingFile = new File( uploadScanFileTempKey_Dir, ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_SUB_DIR_CREATE_TRACKING_FILE );
 		
@@ -40,8 +42,9 @@ public class ValidateTempDirToUploadScanFileTo {
 
 			log.warn( "Validation of submit of dir " 
 					+ uploadScanFileTempKey_Dir.getAbsolutePath()
+					
 					+ " Failed. The tracking file is missing: " + ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_SUB_DIR_CREATE_TRACKING_FILE );
-			return false;
+			return ValidationResponse.KEY_NOT_FOUND;
 		}
 		
 		long lastModified = c_dir_created_trackingFile.lastModified();
@@ -56,10 +59,10 @@ public class ValidateTempDirToUploadScanFileTo {
 					+ ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_SUB_DIR_CREATE_TRACKING_FILE
 					+ "' to time of submit (aka now) exceeds time allowed (in milliseconds): " 
 					+ FileUploadConstants.UPLOAD_FILE_TEMP_SUB_DIR_ALLOWED_ACCESS_TIME );
-			return false;
+			return ValidationResponse.KEY_EXPIRED;
 		}
 		
-		return true;
+		return ValidationResponse.VALID;
 		
 	}
 }
