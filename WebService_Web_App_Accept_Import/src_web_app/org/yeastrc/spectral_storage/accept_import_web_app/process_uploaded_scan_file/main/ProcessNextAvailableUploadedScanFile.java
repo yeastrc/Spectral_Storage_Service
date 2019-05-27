@@ -200,7 +200,10 @@ public class ProcessNextAvailableUploadedScanFile {
 		File to_scanFileDir = new File( scanFilesProcessedBaseDir, from_scanFileDir_Name );
 		
 		if ( ! from_scanFileDir.renameTo( to_scanFileDir ) ) {
-			String msg = "Failed to create subdir': " + scanFilesProcessedBaseDir.getAbsolutePath();
+			String msg = "Failed to move processing from_scanFileDir': " 
+					+ from_scanFileDir.getAbsolutePath()
+					+ ", to processed subdir: "
+					+ to_scanFileDir.getAbsolutePath();
 			log.error(msg);
 			throw new SpectralFileWebappInternalException(msg);
 		}
