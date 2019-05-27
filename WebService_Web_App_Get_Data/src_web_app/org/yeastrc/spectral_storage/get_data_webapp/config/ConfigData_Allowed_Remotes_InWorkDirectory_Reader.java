@@ -46,11 +46,8 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory_Reader {
 	 */
 	public void readConfigDataInWebApp() throws Exception {
 		
-		ConfigData_Allowed_Remotes_InWorkDirectory configData_Allowed_Remotes_InWorkDirectory = ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance();
-
-		//   Clear all AllowedRemoteIP Collections
-		configData_Allowed_Remotes_InWorkDirectory.clear_ALL_AllowedRemoteIP_Collection_ALL();
-		
+		ConfigData_Allowed_Remotes_InWorkDirectory configData_Allowed_Remotes_InWorkDirectory = new ConfigData_Allowed_Remotes_InWorkDirectory();
+	
 		processPropertiesFilename( CONFIG_DEFAULTS_FILENAME, IsDefaultPropertiesFile.YES, AllowNoPropertiesFile.NO, configData_Allowed_Remotes_InWorkDirectory );
 		processPropertiesFilename( CONFIG_OVERRIDES_FILENAME, IsDefaultPropertiesFile.NO, AllowNoPropertiesFile.YES, configData_Allowed_Remotes_InWorkDirectory );
 		
@@ -76,6 +73,8 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory_Reader {
 				+ StringUtils.join( configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs_Admin() ) );
 		log.warn( "INFO: '" + PROPERTY_NAME__ALLOWED_REMOTE_IPS_QUERY + "' has value: " 
 				+ StringUtils.join( configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs_Query() ) );
+		
+		ConfigData_Allowed_Remotes_InWorkDirectory.setInstance( configData_Allowed_Remotes_InWorkDirectory );
 	}
 
 	/**

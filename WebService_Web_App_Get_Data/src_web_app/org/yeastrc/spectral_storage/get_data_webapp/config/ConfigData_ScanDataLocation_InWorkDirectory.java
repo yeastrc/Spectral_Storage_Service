@@ -13,10 +13,10 @@ import java.io.File;
  */
 public class ConfigData_ScanDataLocation_InWorkDirectory {
 	
-	private static final ConfigData_ScanDataLocation_InWorkDirectory instance = new ConfigData_ScanDataLocation_InWorkDirectory();
+	private static volatile ConfigData_ScanDataLocation_InWorkDirectory instance;
 
-	//  private constructor
-	private ConfigData_ScanDataLocation_InWorkDirectory() { }
+	//  packge private  constructor
+	ConfigData_ScanDataLocation_InWorkDirectory() { }
 	
 	/**
 	 * @return Singleton instance
@@ -24,7 +24,15 @@ public class ConfigData_ScanDataLocation_InWorkDirectory {
 	public static ConfigData_ScanDataLocation_InWorkDirectory getSingletonInstance() { 
 		return instance; 
 	}
-	
+
+	/**
+	 * Package Private Setter
+	 * @param newInstance
+	 */
+	static void setSingletonInstance( ConfigData_ScanDataLocation_InWorkDirectory newInstance ) { 
+		instance = newInstance; 
+	}
+
 	/**
 	 * The Base Directory that the scan data is written to for perm storage
 	 */
@@ -40,16 +48,7 @@ public class ConfigData_ScanDataLocation_InWorkDirectory {
 	 */
 	private String s3Region;
 	
-	//  Setters and "clear" are package private
-	
-	/**
-	 * 
-	 */
-	void clear() {
-		scanStorageBaseDirectory = null;
-		s3Bucket = null;
-		s3Region = null;
-	}
+	//  Setters are package private
 
 	public File getScanStorageBaseDirectory() {
 		return scanStorageBaseDirectory;

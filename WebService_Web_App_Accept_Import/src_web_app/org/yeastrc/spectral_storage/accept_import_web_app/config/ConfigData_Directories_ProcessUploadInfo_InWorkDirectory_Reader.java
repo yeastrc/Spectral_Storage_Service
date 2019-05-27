@@ -79,7 +79,7 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 	 */
 	public void readConfigDataInWebApp() throws Exception {
 		
-		ConfigData_Directories_ProcessUploadInfo_InWorkDirectory configData_Directories_ProcessUploadCommand_InWorkDirectory = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance();
+		ConfigData_Directories_ProcessUploadInfo_InWorkDirectory configData_Directories_ProcessUploadCommand_InWorkDirectory = new ConfigData_Directories_ProcessUploadInfo_InWorkDirectory();
 		
 		//  Local Internal class
 		
@@ -274,6 +274,7 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 					+ "' so will delete uploaded scan file on successful import" ); 
 		}
 		
+		ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.setInstance( configData_Directories_ProcessUploadCommand_InWorkDirectory );
 	}
 
 	/**

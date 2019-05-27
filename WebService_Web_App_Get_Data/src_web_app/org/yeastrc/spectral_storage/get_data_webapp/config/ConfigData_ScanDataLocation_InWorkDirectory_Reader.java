@@ -46,9 +46,7 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 	 */
 	public void readConfigDataInWebApp() throws Exception {
 		
-		ConfigData_ScanDataLocation_InWorkDirectory configData_ScanDataLocation_InWorkDirectory = ConfigData_ScanDataLocation_InWorkDirectory.getSingletonInstance();
-		
-		configData_ScanDataLocation_InWorkDirectory.clear();
+		ConfigData_ScanDataLocation_InWorkDirectory configData_ScanDataLocation_InWorkDirectory = new ConfigData_ScanDataLocation_InWorkDirectory();
 		
 		//  Local Internal class
 		
@@ -117,6 +115,7 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 					+ configData_ScanDataLocation_InWorkDirectory.getS3Region() );
 		}
 		
+		ConfigData_ScanDataLocation_InWorkDirectory.setSingletonInstance( configData_ScanDataLocation_InWorkDirectory );
 	}
 
 	/**

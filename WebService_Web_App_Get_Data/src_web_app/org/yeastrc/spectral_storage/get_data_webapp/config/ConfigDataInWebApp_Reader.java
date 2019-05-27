@@ -42,7 +42,7 @@ public class ConfigDataInWebApp_Reader {
 	 */
 	public void readConfigDataInWebApp() throws Exception {
 		
-		ConfigDataInWebApp configDataInWebApp = ConfigDataInWebApp.getSingletonInstance();
+		ConfigDataInWebApp configDataInWebApp = new ConfigDataInWebApp();
 
 		String webappWorkDirectoryDefaultString =
 				processPropertiesFilename( CONFIG_DEFAULTS_FILENAME, AllowNoPropertiesFile.NO, configDataInWebApp );
@@ -78,6 +78,7 @@ public class ConfigDataInWebApp_Reader {
 				+ "' has value: " 
 				+ configDataInWebApp.getWebappWorkDirectory().getCanonicalPath() );
 		
+		ConfigDataInWebApp.setInstance( configDataInWebApp );
 	}
 
 	/**

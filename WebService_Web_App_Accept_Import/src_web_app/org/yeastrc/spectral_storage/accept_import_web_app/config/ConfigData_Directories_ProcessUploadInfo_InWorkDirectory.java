@@ -14,18 +14,22 @@ import java.util.List;
  */
 public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	
-	private static final ConfigData_Directories_ProcessUploadInfo_InWorkDirectory instance = new ConfigData_Directories_ProcessUploadInfo_InWorkDirectory();
+	private static volatile ConfigData_Directories_ProcessUploadInfo_InWorkDirectory instance;
 
-	//  private constructor
-	private ConfigData_Directories_ProcessUploadInfo_InWorkDirectory() { }
+	//  package private constructor
+	ConfigData_Directories_ProcessUploadInfo_InWorkDirectory() { }
 	
 	/**
 	 * @return Singleton instance
 	 */
-	public static ConfigData_Directories_ProcessUploadInfo_InWorkDirectory getSingletonInstance() { 
+	public synchronized static ConfigData_Directories_ProcessUploadInfo_InWorkDirectory getSingletonInstance() { 
 		return instance; 
 	}
-	
+	public static void setInstance(ConfigData_Directories_ProcessUploadInfo_InWorkDirectory instanceNew) {
+		instance = instanceNew;
+	}
+
+
 	/**
 	 * The Base Directory that the scans are written to for perm storage
 	 */
@@ -260,6 +264,7 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	public void setEmailToEmailAddresses_FailedOnly(List<String> emailToEmailAddresses_FailedOnly) {
 		this.emailToEmailAddresses_FailedOnly = emailToEmailAddresses_FailedOnly;
 	}
+
 
 		
 }

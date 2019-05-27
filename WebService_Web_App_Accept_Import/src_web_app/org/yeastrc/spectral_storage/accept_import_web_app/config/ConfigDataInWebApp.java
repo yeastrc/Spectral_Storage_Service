@@ -13,16 +13,23 @@ import java.io.File;
  */
 public class ConfigDataInWebApp {
 	
-	private static final ConfigDataInWebApp instance = new ConfigDataInWebApp();
+	private static volatile ConfigDataInWebApp instance;
 
-	//  private constructor
-	private ConfigDataInWebApp() { }
+	// package private constructor
+	ConfigDataInWebApp() { }
 	
 	/**
 	 * @return Singleton instance
 	 */
 	public static ConfigDataInWebApp getSingletonInstance() { 
 		return instance; 
+	}
+	/**
+	 * package private
+	 * @param instance
+	 */
+	static void setInstance(ConfigDataInWebApp instance) {
+		ConfigDataInWebApp.instance = instance;
 	}
 
 	/**
@@ -46,5 +53,6 @@ public class ConfigDataInWebApp {
 	public void setWebappWorkDirectory(File webappWorkDirectory) {
 		this.webappWorkDirectory = webappWorkDirectory;
 	}
+
 
 }

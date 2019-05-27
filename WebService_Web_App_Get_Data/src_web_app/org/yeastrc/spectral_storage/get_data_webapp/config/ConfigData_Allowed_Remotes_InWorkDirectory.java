@@ -16,10 +16,10 @@ import java.util.Set;
  */
 public class ConfigData_Allowed_Remotes_InWorkDirectory {
 	
-	private static final ConfigData_Allowed_Remotes_InWorkDirectory instance = new ConfigData_Allowed_Remotes_InWorkDirectory();
+	private volatile static ConfigData_Allowed_Remotes_InWorkDirectory instance;
 
-	//  private constructor
-	private ConfigData_Allowed_Remotes_InWorkDirectory() { }
+	//  package private  constructor
+	ConfigData_Allowed_Remotes_InWorkDirectory() { }
 	
 	/**
 	 * @return Singleton instance
@@ -27,7 +27,16 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 	public static ConfigData_Allowed_Remotes_InWorkDirectory getSingletonInstance() { 
 		return instance; 
 	}
+	
+	
+	/** Package Private Setter
+	 * @param instance
+	 */
+	static void setInstance(ConfigData_Allowed_Remotes_InWorkDirectory instance) {
+		ConfigData_Allowed_Remotes_InWorkDirectory.instance = instance;
+	}
 
+	
 	//  !!!! Important:  Update clear_ALL_AllowedRemoteIP_Collection_ALL() if add any other AllowedRemoteIP collections
 	
 	/**
@@ -45,18 +54,6 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 	 */
 	private Set<String> allowedRemoteIPs_Query = new HashSet<>();
 	
-	
-	
-	//  !!!! Important:  Update clear_ALL_AllowedRemoteIP_Collection_ALL() if add any other AllowedRemoteIP collections
-	
-	/**
-	 * Clear ALL AllowedRemoteIP collections
-	 */
-	public void clear_ALL_AllowedRemoteIP_Collection_ALL() {
-		this.allowedRemoteIPs_Overall.clear();
-		this.allowedRemoteIPs_Admin.clear();
-		this.allowedRemoteIPs_Query.clear();
-	}
 	
 	/**
 	 * @param allowedRemoteIP
@@ -117,5 +114,6 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 	public void setAllowedRemoteIPs_Query(Set<String> allowedRemoteIPs_Query) {
 		this.allowedRemoteIPs_Query = allowedRemoteIPs_Query;
 	}
+
 
 }
