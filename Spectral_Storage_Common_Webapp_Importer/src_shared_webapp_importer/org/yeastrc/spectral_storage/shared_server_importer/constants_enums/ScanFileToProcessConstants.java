@@ -16,6 +16,12 @@ public class ScanFileToProcessConstants {
 
 
 	public static final String SCAN_FILES_TO_PROCESS_BASE_DIR = "scan_files_to_process_base_dir";
+
+
+	public static final String SCAN_FILES_PROCESSED_SUCCESS_BASE_DIR = "scan_files_processed_success_base_dir";
+	public static final String SCAN_FILES_PROCESSED_FAILED_BASE_DIR = "scan_files_processed_failed_base_dir";
+	public static final String SCAN_FILES_PROCESSED_KILLED_BASE_DIR = "scan_files_processed_killed_base_dir";
+	
 	
 	
 	/**

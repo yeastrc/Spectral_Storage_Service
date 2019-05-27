@@ -28,6 +28,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteR
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageAcceptImport_ProcessStatusEnum;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.Get_UploadedScanFileInfo_Request;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.Get_UploadedScanFileInfo_Response;
+import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.Get_scanProcessStatusKeyDir_PostProcessing;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_marked_deleted_file.UploadProcessing_MarkedDeletedFile_Create_Check;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingReadStatusFile;
@@ -155,26 +156,17 @@ public class Get_UploadedScan_Status_API_HashKey_Servlet extends HttpServlet {
 				throw new SpectralFileBadRequestToServletException( msg );
 			}
 
-			File uploadBaseDir = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getTempScanUploadBaseDirectory();
-
-			//  Get the File object for the Base Subdir used to store the scan file for processing 
-			String scanFilesToProcessBaseDirString = ScanFileToProcessConstants.SCAN_FILES_TO_PROCESS_BASE_DIR;
-			File scanFilesToProcessBaseDir = new File( uploadBaseDir, scanFilesToProcessBaseDirString );
-			if ( ! scanFilesToProcessBaseDir.exists() ) {
-				String msg = "scanFilesToProcessBaseDir does not exist.  scanFilesToProcessBaseDir: " 
-						+ scanFilesToProcessBaseDir.getAbsolutePath();
-				log.error( msg );
-				throw new SpectralFileFileUploadFileSystemException(msg);
-			}
-
-
 			Get_UploadedScanFileInfo_Response webserviceResponse = new Get_UploadedScanFileInfo_Response();
 
-			File scanProcessStatusKeyDir = new File( scanFilesToProcessBaseDir, scanProcessStatusKey );
-			if ( ! scanProcessStatusKeyDir.exists() ) {
+			File scanProcessStatusKeyDir = 
+					Get_scanProcessStatusKeyDir_PostProcessing.getInstance()
+					.get_scanProcessStatusKeyDir_PostProcessing( scanProcessStatusKey );
+			
+			
+			if ( scanProcessStatusKeyDir == null ) {
 				if ( log.isInfoEnabled() ) {
-					String msg = "scanProcessStatusKeyDir does not exist.  scanProcessStatusKeyDir: " 
-							+ scanProcessStatusKeyDir.getAbsolutePath();
+					String msg = "scanProcessStatusKeyDir does not exist for scanProcessStatusKey or there are errors: " 
+							+ scanProcessStatusKey;
 					log.info( msg );
 				}
 
@@ -210,8 +202,8 @@ public class Get_UploadedScan_Status_API_HashKey_Servlet extends HttpServlet {
 
 			if ( StringUtils.isEmpty( status ) ) {
 				if ( log.isInfoEnabled() ) {
-					String msg = "scanFilesToProcessBaseDir Status file not exist.  scanFilesToProcessBaseDir: " 
-							+ scanFilesToProcessBaseDir.getAbsolutePath();
+					String msg = "scanProcessStatusKeyDir Status file not exist.  scanProcessStatusKeyDir: " 
+							+ scanProcessStatusKeyDir.getAbsolutePath();
 					log.info( msg );
 				}
 

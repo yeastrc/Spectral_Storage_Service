@@ -22,6 +22,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteR
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseStringToOutputStream;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_Delete_For_ScanProcessStatusKey_Request;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_Delete_For_ScanProcessStatusKey_Response;
+import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.Get_scanProcessStatusKeyDir_PostProcessing;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_marked_deleted_file.UploadProcessing_MarkedDeletedFile_Create_Check;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingReadStatusFile;
@@ -149,11 +150,15 @@ public class UploadScanFile_Delete_For_ScanProcessStatusKey_Servlet extends Http
 
 			UploadScanFile_Delete_For_ScanProcessStatusKey_Response webserviceResponse = new UploadScanFile_Delete_For_ScanProcessStatusKey_Response();
 
-			File scanProcessStatusKeyDir = new File( scanFilesToProcessBaseDir, scanProcessStatusKey );
-			if ( ! scanProcessStatusKeyDir.exists() ) {
+			File scanProcessStatusKeyDir = 
+					Get_scanProcessStatusKeyDir_PostProcessing.getInstance()
+					.get_scanProcessStatusKeyDir_PostProcessing( scanProcessStatusKey );
+			
+			
+			if ( scanProcessStatusKeyDir == null ) {
 				if ( log.isInfoEnabled() ) {
-					String msg = "scanProcessStatusKeyDir does not exist.  scanProcessStatusKeyDir: " 
-							+ scanProcessStatusKeyDir.getAbsolutePath();
+					String msg = "scanProcessStatusKeyDir does not exist for scanProcessStatusKey or there are errors: " 
+							+ scanProcessStatusKey;
 					log.info( msg );
 				}
 

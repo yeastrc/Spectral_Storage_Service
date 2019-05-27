@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
+import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.run_system_command.RunSystemCommand;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.run_system_command.RunSystemCommandResponse;
 import org.yeastrc.spectral_storage.accept_import_web_app.send_email.SendEmail;
@@ -26,7 +27,7 @@ public class ProcessNextUploadedScanFile {
 
 	private static final String CMD_LINE_PARAM_DELETE_ON_SUCCESS = "--delete-scan-file-on-successful-processing";
 
-	public enum ProcessingSuccessFail { SUCCESS, FAIL, KILLED }
+	public enum ProcessingSuccessFailKilled { SUCCESS, FAIL, KILLED }
 	
 //	private volatile boolean shutdownRequested = false;
 	private volatile RunSystemCommand runSystemCommand;
@@ -71,18 +72,18 @@ public class ProcessNextUploadedScanFile {
 	}
 	
 	/**
-	 * Process all uploaded scan files that have not been fully processed
+	 * Process next uploaded scan file
 	 * 
-	 * Return after processing all uploaded scan files or shutdown() has been called
+	 * Return after processing next uploaded scan file or shutdown() has been called
 	 * @throws Exception 
 	 */
-	public ProcessingSuccessFail processNextUploadedScanFile( File scanFileDirectory ) throws Exception {
+	public ProcessingSuccessFailKilled processNextUploadedScanFile( File scanFileDirectory ) throws Exception {
 		
 		if ( log.isInfoEnabled() ) {
 			log.info( "processNextUploadedScanFile(..): Processing Scan File in Directory: " + scanFileDirectory );
 		}
 		
-		ProcessingSuccessFail processingSuccessFail_Result = null;
+		ProcessingSuccessFailKilled processingSuccessFail_Result = null;
 		
 		UploadProcessingWriteOrUpdateStatusFile.getInstance()
 		.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_STARTED, scanFileDirectory );
@@ -165,7 +166,7 @@ public class ProcessNextUploadedScanFile {
 
 				sendProcessKilledEmail( scanFileDirectory );
 				
-				processingSuccessFail_Result = ProcessingSuccessFail.KILLED;
+				processingSuccessFail_Result = ProcessingSuccessFailKilled.KILLED;
 				
 			} else {
 				if ( ! runSystemCommandResponse.isCommandSuccessful() ) {
@@ -180,7 +181,7 @@ public class ProcessNextUploadedScanFile {
 
 					sendProcessFailedEmail( scanFileDirectory );
 
-					processingSuccessFail_Result = ProcessingSuccessFail.FAIL;
+					processingSuccessFail_Result = ProcessingSuccessFailKilled.FAIL;
 					
 				} else {
 					
@@ -196,7 +197,7 @@ public class ProcessNextUploadedScanFile {
 
 					sendProcessSuccessEmail( scanFileDirectory );
 
-					processingSuccessFail_Result = ProcessingSuccessFail.FAIL;
+					processingSuccessFail_Result = ProcessingSuccessFailKilled.SUCCESS;
 				}
 
 			}
@@ -209,7 +210,7 @@ public class ProcessNextUploadedScanFile {
 
 			sendProcessFailedEmail( scanFileDirectory );
 			
-			throw new Exception( e );
+			throw new SpectralFileWebappInternalException( e );
 			
 		} finally {
 			runSystemCommand = null;
@@ -218,7 +219,7 @@ public class ProcessNextUploadedScanFile {
 		
 		if ( processingSuccessFail_Result == null ) {
 			//  Assume fail
-			processingSuccessFail_Result = ProcessingSuccessFail.FAIL;
+			processingSuccessFail_Result = ProcessingSuccessFailKilled.FAIL;
 		}
 		
 		return processingSuccessFail_Result;
