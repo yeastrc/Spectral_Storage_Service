@@ -56,6 +56,8 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 	
 	private static String PROPERTY_NAME__EMAIL_TO_ADDRESSES = "email.to.addresses";
 
+	private static String PROPERTY_NAME__EMAIL_TO_ADDRESSES_FAILED_ONLY = "email.to.addresses.failed.only";
+
 	private static String PROPERTY_NAME__EMAIL_MACHINE_NAME = "email.machine.name";
 
 	private static enum IsDefaultPropertiesFile { YES, NO }
@@ -250,6 +252,14 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 					+ StringUtils.join( configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailToEmailAddresses(), ' ' ) );
 		}
 
+		if ( configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailToEmailAddresses_FailedOnly()== null ) {
+			log.warn( "INFO: '" + PROPERTY_NAME__EMAIL_TO_ADDRESSES_FAILED_ONLY + "' does NOT have a value." );
+		} else {
+			log.warn( "INFO: '" + PROPERTY_NAME__EMAIL_TO_ADDRESSES_FAILED_ONLY + "' has value(s) [Comma delimited]: " 
+					+ StringUtils.join( configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailToEmailAddresses_FailedOnly(), ' ' ) );
+		}
+		
+
 		if ( StringUtils.isEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getEmailMachineName() ) ) {
 			log.warn( "INFO: '" + PROPERTY_NAME__EMAIL_MACHINE_NAME + "' does NOT have a value." );
 		} else {
@@ -428,6 +438,21 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 				}
 				if ( ! propertyValues.isEmpty() ) {
 					configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailToEmailAddresses( propertyValues );
+				}
+			}
+
+
+			propertyValue = configProps.getProperty( PROPERTY_NAME__EMAIL_TO_ADDRESSES_FAILED_ONLY );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				String[] propertyValueSplitArray = propertyValue.split( "," );
+				List<String> propertyValues = new ArrayList<>( propertyValueSplitArray.length );
+				for ( String propertyValueSingle : propertyValueSplitArray ) {
+					if ( StringUtils.isNotEmpty(propertyValueSingle) ) {
+						propertyValues.add( propertyValueSingle );
+					}
+				}
+				if ( ! propertyValues.isEmpty() ) {
+					configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailToEmailAddresses_FailedOnly( propertyValues );
 				}
 			}
 

@@ -232,7 +232,7 @@ public class ProcessNextUploadedScanFile {
 	private void sendProcessFailedEmail( File scanFileDirectory ) {
 		
 		final String successFailString = "Failed";
-		sendProcessEmail( scanFileDirectory, successFailString );
+		sendProcessEmail( scanFileDirectory, successFailString, true /* isFailed */ );
 	}
 
 	/**
@@ -241,7 +241,7 @@ public class ProcessNextUploadedScanFile {
 	private void sendProcessSuccessEmail( File scanFileDirectory ) {
 		
 		final String successFailString = "Success";
-		sendProcessEmail( scanFileDirectory, successFailString );
+		sendProcessEmail( scanFileDirectory, successFailString, false /* isFailed */ );
 	}
 
 	/**
@@ -250,13 +250,13 @@ public class ProcessNextUploadedScanFile {
 	private void sendProcessKilledEmail( File scanFileDirectory ) {
 		
 		final String successFailString = "Killed";
-		sendProcessEmail( scanFileDirectory, successFailString );
+		sendProcessEmail( scanFileDirectory, successFailString, false /* isFailed */ );
 	}
 	
 	/**
 	 * 
 	 */
-	private void sendProcessEmail( File scanFileDirectory, String successFailString ) {
+	private void sendProcessEmail( File scanFileDirectory, String successFailString, boolean isFailed ) {
 
 		try {
 			if ( ! isSendEmailConfigured() ) {
@@ -287,7 +287,26 @@ public class ProcessNextUploadedScanFile {
 			sendEmailDTO.setEmailSubject( emailSubject );
 			sendEmailDTO.setEmailBody( emailBody );
 
-			sendSendEmailDTO_ToToList( sendEmailDTO );
+			sendEmailDTO.setFromEmailAddress( config.getEmailFromEmailAddress() );
+			
+			if ( config.getEmailToEmailAddresses() != null ) {
+				for ( String toEmailAddress : config.getEmailToEmailAddresses() ) {
+	
+					sendEmailDTO.setToEmailAddress( toEmailAddress );
+					
+					sendSendEmailDTO( sendEmailDTO );
+				}
+			}
+			
+			if ( isFailed && config.getEmailToEmailAddresses_FailedOnly() != null ) {
+				for ( String toEmailAddress : config.getEmailToEmailAddresses_FailedOnly() ) {
+					
+					sendEmailDTO.setToEmailAddress( toEmailAddress );
+					
+					sendSendEmailDTO( sendEmailDTO );
+				}
+			}
+			
 		} catch (Throwable t) {
 			String msg = "Failed to send email";
 			log.error( msg, t );
@@ -304,7 +323,8 @@ public class ProcessNextUploadedScanFile {
 				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance();
 		
 		if ( config.getEmailFromEmailAddress() != null 
-				&& config.getEmailToEmailAddresses() != null 
+				&& ( config.getEmailToEmailAddresses() != null
+					|| config.getEmailToEmailAddresses_FailedOnly() != null )
 				&& ( config.getEmailSmtpServerHost() != null 
 						|| config.getEmailWebserviceURL() != null ) ) {
 			return true;
@@ -315,23 +335,14 @@ public class ProcessNextUploadedScanFile {
 	/**
 	 * @param sendEmailDTO
 	 */
-	private void sendSendEmailDTO_ToToList( SendEmailDTO sendEmailDTO ) {
+	private void sendSendEmailDTO( SendEmailDTO sendEmailDTO ) {
 
-		ConfigData_Directories_ProcessUploadInfo_InWorkDirectory config = 
-				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance();
-
-		sendEmailDTO.setFromEmailAddress( config.getEmailFromEmailAddress() );
-		
-		for ( String toEmailAddress : config.getEmailToEmailAddresses() ) {
-			sendEmailDTO.setToEmailAddress( toEmailAddress );
-
-			try {
-				SendEmail.getInstance().sendEmail( sendEmailDTO );
-			} catch (Throwable t) {
-				String msg = "Failed to send email";
-				log.error( msg, t );
-				//  Eat exception
-			}
+		try {
+			SendEmail.getInstance().sendEmail( sendEmailDTO );
+		} catch (Throwable t) {
+			String msg = "Failed to send email";
+			log.error( msg, t );
+			//  Eat exception
 		}
 	}
 	

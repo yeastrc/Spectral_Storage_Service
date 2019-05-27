@@ -87,6 +87,11 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 
 	private List<String> emailToEmailAddresses;
 
+	/**
+	 * Only send to these email addresses if processing failed
+	 */
+	private List<String> emailToEmailAddresses_FailedOnly;
+
 	private String emailMachineName;
 	
 	/**
@@ -246,6 +251,14 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 
 	public void setSubmittedScanFilePathRestrictions(List<String> submittedScanFilePathRestrictions) {
 		this.submittedScanFilePathRestrictions = submittedScanFilePathRestrictions;
+	}
+
+	public List<String> getEmailToEmailAddresses_FailedOnly() {
+		return emailToEmailAddresses_FailedOnly;
+	}
+
+	public void setEmailToEmailAddresses_FailedOnly(List<String> emailToEmailAddresses_FailedOnly) {
+		this.emailToEmailAddresses_FailedOnly = emailToEmailAddresses_FailedOnly;
 	}
 
 		
