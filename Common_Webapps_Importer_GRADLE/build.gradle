@@ -1,0 +1,28 @@
+/*
+ *  Application 'Common_Webapps_Importer_GRADLE' folder
+ *
+ */
+
+plugins {
+    // Apply the java-library plugin to add support for Java Library
+    id 'java-library'
+}
+
+//    defaults to currently installed JVM
+sourceCompatibility = 1.8
+
+//    defaults to sourceCompatibility
+targetCompatibility  = 1.8
+
+
+dependencies {
+
+	
+}
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use jcenter for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+}

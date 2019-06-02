@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="US-ASCII" ?>
+<project name="Build All - Create Zip Download File" default="build_all_create_zip" basedir=".">
+
+	<!--
+
+	  Ant build to to create the zip file to post to Github Release.
+
+	  Run the default target to create the zip file.
+
+	  If ant is installed and on the PATH,
+	  enter on the command line   "ant -f  ant_create_download_zip_file.xml"
+	  in the base directory to create the zip file to post to Google Code in the downloads section.
+
+
+		First Build the sub projects using their Ant scripts. 
+	  -->
+
+  <target name="build_all_create_zip" depends="compileAllSubmodules">
+
+	<delete dir="download_zip_file" />
+	<mkdir dir="download_zip_file" />
+
+	<zip destfile="download_zip_file/spectral_storage_service_deploy.zip" >
+	    <fileset dir="." includes="WebService_Web_App_Accept_Import_GRADLE/build/libs/**">
+	    </fileset>
+	    <fileset dir="." includes="WebService_Web_App_Accept_Import_GRADLE/Config_Sample_Files/**">
+	    </fileset>
+	    <fileset dir="." includes="WebService_Web_App_Get_Data_GRADLE/build/libs/**">
+	    </fileset>
+	    <fileset dir="." includes="WebService_Web_App_Get_Data_GRADLE/Config_Sample_Files/**">
+	    </fileset>
+		<fileset dir="." includes="Scan_File_Processor_Importer_GRADLE/build/libs/**">
+	    </fileset>
+	</zip>
+
+  </target>
+
+
+	<target name="compileAllSubmodules" >
+
+		<!--  Build submodules and create runnable jars -->
+		
+		<ant antfile="ant__create_jar_accept_import_client_connector.xml"  dir="Client_Connector_Library_Accept_Import_GRADLE" />
+
+		<ant antfile="ant__create_jar_get_data_client_connector.xml"  dir="Client_Connector_Library_Get_Data_GRADLE" />
+
+		<ant antfile="ant__create_runnable_jar_scan_file_processor.xml"  dir="Scan_File_Processor_Importer_GRADLE" />
+			
+		<ant antfile="ant_create_war.xml"  dir="WebService_Web_App_Accept_Import_GRADLE" />
+
+		<ant antfile="ant_create_war.xml"  dir="WebService_Web_App_Get_Data_GRADLE" />
+
+	</target>	
+
+</project>
