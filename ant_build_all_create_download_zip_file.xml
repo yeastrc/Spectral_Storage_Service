@@ -21,15 +21,15 @@
 	<mkdir dir="download_zip_file" />
 
 	<zip destfile="download_zip_file/spectral_storage_service_deploy.zip" >
-	    <fileset dir="." includes="WebService_Web_App_Accept_Import_GRADLE/build/libs/**">
+	    <fileset dir="." includes="WebService_Web_App_Accept_Import/build/libs/**">
 	    </fileset>
-	    <fileset dir="." includes="WebService_Web_App_Accept_Import_GRADLE/Config_Sample_Files/**">
+	    <fileset dir="." includes="WebService_Web_App_Accept_Import/Config_Sample_Files/**">
 	    </fileset>
-	    <fileset dir="." includes="WebService_Web_App_Get_Data_GRADLE/build/libs/**">
+	    <fileset dir="." includes="WebService_Web_App_Get_Data/build/libs/**">
 	    </fileset>
-	    <fileset dir="." includes="WebService_Web_App_Get_Data_GRADLE/Config_Sample_Files/**">
+	    <fileset dir="." includes="WebService_Web_App_Get_Data/Config_Sample_Files/**">
 	    </fileset>
-		<fileset dir="." includes="Scan_File_Processor_Importer_GRADLE/build/libs/**">
+		<fileset dir="." includes="Scan_File_Processor_Importer/build/libs/**">
 	    </fileset>
 	</zip>
 
@@ -40,15 +40,15 @@
 
 		<!--  Build submodules and create runnable jars -->
 		
-		<ant antfile="ant__create_jar_accept_import_client_connector.xml"  dir="Client_Connector_Library_Accept_Import_GRADLE" />
+		<ant antfile="ant__create_jar_accept_import_client_connector.xml"  dir="Client_Connector_Library_Accept_Import" />
 
-		<ant antfile="ant__create_jar_get_data_client_connector.xml"  dir="Client_Connector_Library_Get_Data_GRADLE" />
+		<ant antfile="ant__create_jar_get_data_client_connector.xml"  dir="Client_Connector_Library_Get_Data" />
 
-		<ant antfile="ant__create_runnable_jar_scan_file_processor.xml"  dir="Scan_File_Processor_Importer_GRADLE" />
+		<ant antfile="ant__create_runnable_jar_scan_file_processor.xml"  dir="Scan_File_Processor_Importer" />
 			
-		<ant antfile="ant_create_war.xml"  dir="WebService_Web_App_Accept_Import_GRADLE" />
+		<ant antfile="ant_create_war.xml"  dir="WebService_Web_App_Accept_Import" />
 
-		<ant antfile="ant_create_war.xml"  dir="WebService_Web_App_Get_Data_GRADLE" />
+		<ant antfile="ant_create_war.xml"  dir="WebService_Web_App_Get_Data" />
 
 	</target>	
 

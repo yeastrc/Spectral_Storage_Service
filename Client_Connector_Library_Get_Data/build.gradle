@@ -1,7 +1,7 @@
 /*
- *  Application 'Client_Connector_Library_Get_Data_GRADLE' folder
+ *  Application 'Client_Connector_Library_Get_Data' folder
  *
- 	Build using shadowJar so contents of project 'Common_Get_Data_Webapp_Client_Connector_Library_GRADLE'
+ 	Build using shadowJar so contents of project 'Common_Get_Data_Webapp_Client_Connector_Library'
  	  are embedded in this jar so only have single "Client Connector" jar
  
  		defaultTasks 'shadowJar'
@@ -54,13 +54,13 @@ defaultTasks 'shadowJar'
 
 dependencies {
 
-	//  Specify dependency on Common_Get_Data_Webapp_Client_Connector_Library_GRADLE
+	//  Specify dependency on Common_Get_Data_Webapp_Client_Connector_Library
 	
-	compile project(":Common_Get_Data_Webapp_Client_Connector_Library_GRADLE")
+	compile project(":Common_Get_Data_Webapp_Client_Connector_Library")
 	
-	//  Specify dependency on Common_Importer_Get_Data_Client_Connector_GRADLE
+	//  Specify dependency on Common_Importer_Get_Data_Client_Connector
 	
-	compile project(":Common_Importer_Get_Data_Client_Connector_GRADLE")
+	compile project(":Common_Importer_Get_Data_Client_Connector")
 
 
 	//  Only for the Java class CallSpectralStorageGetDataWebservice_JSON_Parse_Helper 

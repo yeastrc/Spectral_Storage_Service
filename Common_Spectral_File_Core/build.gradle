@@ -1,5 +1,5 @@
 /*
- *  Application 'Common_Spectral_File_Core_GRADLE' folder
+ *  Application 'Common_Spectral_File_Core' folder
  *
  */
 
@@ -19,11 +19,11 @@ dependencies {
 
 //  Specify dependency on Projects in this repo (other dirs under main root dir)
 	
-	compile project(":Common_Importer_Get_Data_Client_Connector_GRADLE")
+	compile project(":Common_Importer_Get_Data_Client_Connector")
 
-	compile project(":Common_Webapps_Importer_GRADLE")
+	compile project(":Common_Webapps_Importer")
 
-	compile project(":Common_Get_Data_Webapp_Client_Connector_Library_GRADLE")
+	compile project(":Common_Get_Data_Webapp_Client_Connector_Library")
 	
 
 	// https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3

@@ -7,4 +7,4 @@
  * in the user guide at https://docs.gradle.org/4.10.2/userguide/multi_project_builds.html
  */
 
-rootProject.name = 'Common_Importer_Get_Data_Client_Connector_GRADLE'
+rootProject.name = 'Common_Importer_Get_Data_Client_Connector'

@@ -7,4 +7,8 @@
  * in the user guide at https://docs.gradle.org/4.10.2/userguide/multi_project_builds.html
  */
 
-rootProject.name = 'Common_Get_Data_Webapp_Client_Connector_Library_GRADLE'
+rootProject.name = 'Client_Connector_Library_Accept_Import'
+
+include "Common_Accept_Import_Webapp_Client_Connector_Library"
+project(":Common_Accept_Import_Webapp_Client_Connector_Library").projectDir = 
+	new File( settingsDir, "../Common_Accept_Import_Webapp_Client_Connector_Library")
