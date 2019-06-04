@@ -32,26 +32,27 @@ import com.amazonaws.AmazonServiceException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.yeastrc.spectral_storage.scan_file_processor.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_LocalFilesystem;
-import org.yeastrc.spectral_storage.scan_file_processor.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_S3_Object;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.constants_enums.ImporterTempSubDirNameConstants;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetInputScanFile_CurrentLocalDirectory;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetScanFileFrom_S3_IfHave_S3_Info_File;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Process_ScanFile_Create_SpectralFile;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
-import org.yeastrc.spectral_storage.scan_file_processor.s3_aws_interface.S3_AWS_InterfaceObjectHolder;
 import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.SpectralStorage_DataFiles_S3_Prefix_Constants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_LocalFilesystem;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_S3_Object;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.Compute_File_Hashes;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.Compute_File_Hashes.Compute_File_Hashes_Result;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_File_Hashes;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.s3_aws_interface.S3_AWS_InterfaceObjectHolder;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ComputeFromScanFileContentHashes;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ToFileReadWrite;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.GetOrCreateSpectralStorageSubPath;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.ScanFileHashToFileReadWrite;
 
 /**
  * 
@@ -88,8 +89,7 @@ public class ProcessUploadedScanFileRequest {
 	
 
 	/**
-	 * @param fileAnd_S3_CommonAccess
-	 * @param deleteScanFileOnSuccess
+	 * @param pgmParams
 	 * @throws Exception
 	 */
 	public void processUploadedScanFileRequest( Scan_File_Processor_MainProgram_Params pgmParams ) throws Exception {
@@ -118,7 +118,7 @@ public class ProcessUploadedScanFileRequest {
 		
 		System.out.println( "Starting Compute hashes for scan file.  Now: " + new Date() );
 		
-		Compute_File_Hashes_Result compute_File_Hashes_Result =
+		Compute_Hashes compute_Hashes =
 				Compute_File_Hashes.getInstance().compute_File_Hashes( inputScanFile );
 		
 		System.out.println( "Finished Compute hashes for scan file.  Now: " + new Date() );
@@ -126,7 +126,7 @@ public class ProcessUploadedScanFileRequest {
 		processInputFileWithComputedHash(
 				pgmParams,
 				inputScanFile, 
-				compute_File_Hashes_Result);
+				compute_Hashes);
 
 		//  Don't get here if here is a failure since an exception will be thrown.  
 		if ( pgmParams.isDeleteScanFileOnSuccess() ) {
@@ -137,9 +137,9 @@ public class ProcessUploadedScanFileRequest {
 	}
 	
 	/**
-	 * @param fileAnd_S3_CommonAccess
+	 * @param pgmParams
 	 * @param inputScanFile
-	 * @param compute_File_Hashes_Result
+	 * @param compute_Hashes
 	 * @return
 	 * @throws Exception
 	 * @throws IOException
@@ -147,35 +147,36 @@ public class ProcessUploadedScanFileRequest {
 	public  String processInputFileWithComputedHash(
 			Scan_File_Processor_MainProgram_Params pgmParams,
 			File inputScanFile,
-			Compute_File_Hashes_Result compute_File_Hashes_Result ) throws Exception, IOException {
+			Compute_Hashes compute_Hashes ) throws Exception, IOException {
 		
-		byte[] hash_sha384_Bytes = compute_File_Hashes_Result.getSha_384_Hash();
+		//  String of the API Key for this scan file, based on the hash of the file contents
+		String apiKey = 
+				ScanFileAPIKey_ComputeFromScanFileContentHashes.getInstance()
+				.scanFileAPIKey_ComputeFromScanFileContentHashes( compute_Hashes );
 		
-		String hash_sha384_String = Compute_File_Hashes.getInstance().hashBytesToHexString( hash_sha384_Bytes );
+		System.out.println( "API Key (Computed from Hash): " + apiKey );
 		
-		System.out.println( "Main hash string: " + hash_sha384_String );
-		
-		ScanFileHashToFileReadWrite.getInstance().writeScanFileHashToInProcessFileInCurrentDir( hash_sha384_String );
+		ScanFileAPIKey_ToFileReadWrite.getInstance().writeScanFileHashToInProcessFileInCurrentDir( apiKey );
 		
 		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
 			
 			if ( CheckIfSpectralFileAlreadyExists_S3_Object.getInstance()
-					.doesSpectralFileAlreadyExist( pgmParams.getS3_OutputBucket(), hash_sha384_String ) ) {
+					.doesSpectralFileAlreadyExist( pgmParams.getS3_OutputBucket(), apiKey ) ) {
 
 				System.out.println( "Data object in S3 already exists so no processing needed");
 
-				return hash_sha384_String;
+				return apiKey;
 			}
 
 		} else {
 			if ( CheckIfSpectralFileAlreadyExists_LocalFilesystem.getInstance()
 					.doesSpectralFileAlreadyExist( 
 							pgmParams.getOutputBaseDir(), 
-							hash_sha384_String ) ) {
+							apiKey ) ) {
 
 				System.out.println( "Data File already exists so no processing needed");
 
-				return hash_sha384_String;
+				return apiKey;
 			}
 		}
 
@@ -211,7 +212,7 @@ public class ProcessUploadedScanFileRequest {
 
 		try {
 			Process_ScanFile_Create_SpectralFile.getInstance()
-			.processScanFile( inputScanFile, tempOutputDir, hash_sha384_String, compute_File_Hashes_Result );
+			.processScanFile( inputScanFile, tempOutputDir, apiKey, compute_Hashes );
 
 		} catch ( SpectralStorageDataException e ) {
 			
@@ -234,12 +235,12 @@ public class ProcessUploadedScanFileRequest {
 
 		} else {
 			//  Move files in temp dir to final output dir
-			moveFilesToFinalSubdirLocalFilesytem( pgmParams, hash_sha384_String, tempOutputDir );
+			moveFilesToFinalSubdirLocalFilesytem( pgmParams, apiKey, tempOutputDir );
 		}
 		
 		System.out.println( "DONE Successfully processing the scan file.  Now: " + new Date() );
 		
-		return hash_sha384_String;
+		return apiKey;
 	}
 
 	/**
@@ -619,17 +620,17 @@ public class ProcessUploadedScanFileRequest {
 	
 	/**
 	 * @param pgmParams
-	 * @param hash_sha384_String
+	 * @param apiKey
 	 * @param tempOutputDir
 	 * @throws Exception
 	 * @throws SpectralStorageProcessingException
 	 */
-	private void moveFilesToFinalSubdirLocalFilesytem(Scan_File_Processor_MainProgram_Params pgmParams, String hash_sha384_String,
+	private void moveFilesToFinalSubdirLocalFilesytem(Scan_File_Processor_MainProgram_Params pgmParams, String apiKey,
 			File tempOutputDir) throws Exception, SpectralStorageProcessingException {
 		
 		File subDir =
 				GetOrCreateSpectralStorageSubPath.getInstance()
-				.createDirsForHashIfNotExists(hash_sha384_String, pgmParams.getOutputBaseDir() );
+				.createDirsForHashIfNotExists(apiKey, pgmParams.getOutputBaseDir() );
 		
 		//  First move all but complete file:
 		File[] tempOutputDirItems = tempOutputDir.listFiles();

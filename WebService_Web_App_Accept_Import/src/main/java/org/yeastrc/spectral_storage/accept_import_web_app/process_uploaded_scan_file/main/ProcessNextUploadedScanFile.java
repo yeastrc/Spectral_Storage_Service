@@ -10,11 +10,9 @@ import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Dire
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.run_system_command.RunSystemCommand;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.run_system_command.RunSystemCommandResponse;
-import org.yeastrc.spectral_storage.accept_import_web_app.send_email.SendEmail;
-import org.yeastrc.spectral_storage.accept_import_web_app.send_email.SendEmailDTO;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingWriteOrUpdateStatusFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.ScanFileHashToFileReadWrite;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ToFileReadWrite;
 
 /**
  * 
@@ -77,16 +75,16 @@ public class ProcessNextUploadedScanFile {
 	 * Return after processing next uploaded scan file or shutdown() has been called
 	 * @throws Exception 
 	 */
-	public ProcessingSuccessFailKilled processNextUploadedScanFile( File scanFileDirectory ) throws Exception {
+	public ProcessingSuccessFailKilled processNextUploadedScanFile( File importScanFileProcsesingDirectory ) throws Exception {
 		
 		if ( log.isInfoEnabled() ) {
-			log.info( "processNextUploadedScanFile(..): Processing Scan File in Directory: " + scanFileDirectory );
+			log.info( "processNextUploadedScanFile(..): Processing Scan File in Directory: " + importScanFileProcsesingDirectory );
 		}
 		
 		ProcessingSuccessFailKilled processingSuccessFail_Result = null;
 		
 		UploadProcessingWriteOrUpdateStatusFile.getInstance()
-		.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_STARTED, scanFileDirectory );
+		.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_STARTED, importScanFileProcsesingDirectory );
 		
 		ConfigData_Directories_ProcessUploadInfo_InWorkDirectory configData_Directories_ProcessUploadInfo_InWorkDirectory = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance();
 		
@@ -146,25 +144,25 @@ public class ProcessNextUploadedScanFile {
 		
 		String filenameToWriteSysoutTo = "processScanUploadCommand.sysout.txt";
 		String filenameToWriteSyserrTo = "processScanUploadCommand.syserr.txt";
-		File fileToWriteSysoutTo = new File( scanFileDirectory, filenameToWriteSysoutTo );
-		File fileToWriteSyserrTo = new File( scanFileDirectory, filenameToWriteSyserrTo );
+		File fileToWriteSysoutTo = new File( importScanFileProcsesingDirectory, filenameToWriteSysoutTo );
+		File fileToWriteSyserrTo = new File( importScanFileProcsesingDirectory, filenameToWriteSyserrTo );
 		runSystemCommand = RunSystemCommand.getInstance();
 		try {
 			RunSystemCommandResponse runSystemCommandResponse = 
 					runSystemCommand.runCmd( 
 							commandAndItsArgumentsAsList, 
-							scanFileDirectory /* dirToRunCommandIn*/, 
+							importScanFileProcsesingDirectory /* dirToRunCommandIn*/, 
 							fileToWriteSysoutTo /* fileToWriteSysoutTo*/,
 							fileToWriteSyserrTo /* fileToWriteSyserrTo*/,
 							false /* throwExceptionOnCommandFailure */ );
 			if ( runSystemCommandResponse.isShutdownRequested() ) {
 				log.warn( "command was aborted for run importer program shutdown: " + commandAndItsArgumentsAsList
-						+ ", scanFileDirectory:  " + scanFileDirectory.getCanonicalPath() );
+						+ ", scanFileDirectory:  " + importScanFileProcsesingDirectory.getCanonicalPath() );
 				
 				UploadProcessingWriteOrUpdateStatusFile.getInstance()
-				.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_KILLED, scanFileDirectory );
+				.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_KILLED, importScanFileProcsesingDirectory );
 
-				sendProcessKilledEmail( scanFileDirectory );
+				ProcessUploadedScanFile_SendStatusEmail.getInstance().sendProcessKilledEmail( importScanFileProcsesingDirectory );
 				
 				processingSuccessFail_Result = ProcessingSuccessFailKilled.KILLED;
 				
@@ -174,28 +172,22 @@ public class ProcessNextUploadedScanFile {
 							+ runSystemCommandResponse.getCommandExitCode()
 							+ ", command: "
 							+ commandAndItsArgumentsAsList
-							+ ", scanFileDirectory:  " + scanFileDirectory.getCanonicalPath() );
+							+ ", scanFileDirectory:  " + importScanFileProcsesingDirectory.getCanonicalPath() );
 					
 					UploadProcessingWriteOrUpdateStatusFile.getInstance()
-					.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED, scanFileDirectory );
+					.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED, importScanFileProcsesingDirectory );
 
-					sendProcessFailedEmail( scanFileDirectory );
+					ProcessUploadedScanFile_SendStatusEmail.getInstance().sendProcessFailedEmail( importScanFileProcsesingDirectory );
 
 					processingSuccessFail_Result = ProcessingSuccessFailKilled.FAIL;
 					
 				} else {
 					
 					String scanFileHashKey =
-							ScanFileHashToFileReadWrite.getInstance()
-							.readScanFileHashFromInProcessFile( scanFileDirectory );
+							ScanFileAPIKey_ToFileReadWrite.getInstance()
+							.readScanFileHashFromInProcessFile( importScanFileProcsesingDirectory );
 					
-					ScanFileHashToFileReadWrite.getInstance()
-					.writeScanFileHashToFinalHashKeyFile( scanFileHashKey, scanFileDirectory );
-					
-					UploadProcessingWriteOrUpdateStatusFile.getInstance()
-					.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_SUCCESSFUL, scanFileDirectory );
-
-					sendProcessSuccessEmail( scanFileDirectory );
+					ProcessUploadedScanFile_Final_OnSuccess.getInstance().processUploadedScanFile_Final_OnSuccess( scanFileHashKey, importScanFileProcsesingDirectory );
 
 					processingSuccessFail_Result = ProcessingSuccessFailKilled.SUCCESS;
 				}
@@ -203,12 +195,12 @@ public class ProcessNextUploadedScanFile {
 			}
 		} catch (Throwable e) {
 			log.error( "command failed: " + commandAndItsArgumentsAsList
-					+ ", scanFileDirectory:  " + scanFileDirectory.getCanonicalPath() );
+					+ ", scanFileDirectory:  " + importScanFileProcsesingDirectory.getCanonicalPath() );
 
 			UploadProcessingWriteOrUpdateStatusFile.getInstance()
-			.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED, scanFileDirectory );
+			.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED, importScanFileProcsesingDirectory );
 
-			sendProcessFailedEmail( scanFileDirectory );
+			ProcessUploadedScanFile_SendStatusEmail.getInstance().sendProcessFailedEmail( importScanFileProcsesingDirectory );
 			
 			throw new SpectralFileWebappInternalException( e );
 			
@@ -226,124 +218,5 @@ public class ProcessNextUploadedScanFile {
 	}
 	
 
-	/**
-	 * 
-	 */
-	private void sendProcessFailedEmail( File scanFileDirectory ) {
-		
-		final String successFailString = "Failed";
-		sendProcessEmail( scanFileDirectory, successFailString, true /* isFailed */ );
-	}
-
-	/**
-	 * 
-	 */
-	private void sendProcessSuccessEmail( File scanFileDirectory ) {
-		
-		final String successFailString = "Success";
-		sendProcessEmail( scanFileDirectory, successFailString, false /* isFailed */ );
-	}
-
-	/**
-	 * 
-	 */
-	private void sendProcessKilledEmail( File scanFileDirectory ) {
-		
-		final String successFailString = "Killed";
-		sendProcessEmail( scanFileDirectory, successFailString, false /* isFailed */ );
-	}
-	
-	/**
-	 * 
-	 */
-	private void sendProcessEmail( File scanFileDirectory, String successFailString, boolean isFailed ) {
-
-		try {
-			if ( ! isSendEmailConfigured() ) {
-				return;  // EARLY EXIT
-			}
-
-			ConfigData_Directories_ProcessUploadInfo_InWorkDirectory config = 
-					ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance();
-
-			String machineNameForSubject = "";
-			String machineNameForBody = "";
-
-			if ( config.getEmailMachineName() != null ) {
-				machineNameForSubject = "Machine name: " + config.getEmailMachineName() + ".  ";
-				machineNameForBody = "Machine name: " + config.getEmailMachineName() + ".\n\n";
-			}
-
-			String emailSubject = "Processing of scan file in spectral storage app: " + successFailString + ".  "
-					+ machineNameForSubject
-					+ "Processing dir: " + scanFileDirectory.getAbsolutePath();
-
-			String emailBody = "Processing of scan file in spectral storage app " + successFailString + ".\n\n"
-					+ machineNameForBody
-					+ "Processing dir: " + scanFileDirectory.getAbsolutePath()
-					+ "\n\n";
-
-			SendEmailDTO sendEmailDTO = new SendEmailDTO();
-			sendEmailDTO.setEmailSubject( emailSubject );
-			sendEmailDTO.setEmailBody( emailBody );
-
-			sendEmailDTO.setFromEmailAddress( config.getEmailFromEmailAddress() );
-			
-			if ( config.getEmailToEmailAddresses() != null ) {
-				for ( String toEmailAddress : config.getEmailToEmailAddresses() ) {
-	
-					sendEmailDTO.setToEmailAddress( toEmailAddress );
-					
-					sendSendEmailDTO( sendEmailDTO );
-				}
-			}
-			
-			if ( isFailed && config.getEmailToEmailAddresses_FailedOnly() != null ) {
-				for ( String toEmailAddress : config.getEmailToEmailAddresses_FailedOnly() ) {
-					
-					sendEmailDTO.setToEmailAddress( toEmailAddress );
-					
-					sendSendEmailDTO( sendEmailDTO );
-				}
-			}
-			
-		} catch (Throwable t) {
-			String msg = "Failed to send email";
-			log.error( msg, t );
-			//  Eat exception
-		}
-	}
-
-	/**
-	 * @return
-	 */
-	private boolean isSendEmailConfigured() {
-		
-		ConfigData_Directories_ProcessUploadInfo_InWorkDirectory config = 
-				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance();
-		
-		if ( config.getEmailFromEmailAddress() != null 
-				&& ( config.getEmailToEmailAddresses() != null
-					|| config.getEmailToEmailAddresses_FailedOnly() != null )
-				&& ( config.getEmailSmtpServerHost() != null 
-						|| config.getEmailWebserviceURL() != null ) ) {
-			return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * @param sendEmailDTO
-	 */
-	private void sendSendEmailDTO( SendEmailDTO sendEmailDTO ) {
-
-		try {
-			SendEmail.getInstance().sendEmail( sendEmailDTO );
-		} catch (Throwable t) {
-			String msg = "Failed to send email";
-			log.error( msg, t );
-			//  Eat exception
-		}
-	}
 	
 }

@@ -19,8 +19,9 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.Compute_File_Hashes;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.Compute_File_Hashes.Compute_File_Hashes_Result;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_File_Hashes;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes.Compute_Hashes_Result;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.Accumulate_RT_MZ_Binned_ScanLevel_1;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.ScanLevel_1_RT_MZ_Binned_WriteFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.ScanLevel_1_RT_MZ_Binned_WriteFile_JSON_GZIP_NoIntensities;
@@ -605,8 +606,10 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 		File dataIndexSpectralFilesCompleteFile = new File( subDirForStorageFiles, dataIndexSpectralFilesCompleteFilename );
 
 		//  Compute hashes on just created Spectral Storage Data File
-		Compute_File_Hashes_Result compute_File_Hashes_Result =
+		Compute_Hashes compute_Hashes =
 				Compute_File_Hashes.getInstance().compute_File_Hashes( outputFile_MainDataFileFinal );
+		
+		Compute_Hashes_Result compute_Hashes_Result = compute_Hashes.compute_Hashes();
 		
 		try ( BufferedOutputStream filesCompleteOutput = new BufferedOutputStream( new FileOutputStream( dataIndexSpectralFilesCompleteFile) ) ) {
 
@@ -617,22 +620,22 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 
 			//      Write Main hash length and then the bytes
 
-			dataOutputStream.writeShort( compute_File_Hashes_Result.getSha_384_Hash().length );
-			dataOutputStream.write( compute_File_Hashes_Result.getSha_384_Hash() );
+			dataOutputStream.writeShort( compute_Hashes_Result.getSha_384_Hash().length );
+			dataOutputStream.write( compute_Hashes_Result.getSha_384_Hash() );
 
 			//  Write Alt Hash SHA512
 
 			//      Write Alt Hash SHA512 length and then the bytes
 
-			dataOutputStream.writeShort( compute_File_Hashes_Result.getSha_512_Hash().length );
-			dataOutputStream.write( compute_File_Hashes_Result.getSha_512_Hash());
+			dataOutputStream.writeShort( compute_Hashes_Result.getSha_512_Hash().length );
+			dataOutputStream.write( compute_Hashes_Result.getSha_512_Hash());
 
 			//  Write Alt Hash SHA1
 
 			//      Write Alt Hash SHA1 length and then the bytes
 
-			dataOutputStream.writeShort( compute_File_Hashes_Result.getSha_1_Hash().length );
-			dataOutputStream.write( compute_File_Hashes_Result.getSha_1_Hash() );
+			dataOutputStream.writeShort( compute_Hashes_Result.getSha_1_Hash().length );
+			dataOutputStream.write( compute_Hashes_Result.getSha_1_Hash() );
 
 			dataOutputStream.flush();
 			

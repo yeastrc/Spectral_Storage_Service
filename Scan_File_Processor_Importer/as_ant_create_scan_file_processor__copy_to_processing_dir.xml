@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." name="Create Scan File Processing Jar/Copy to Processing Dir" default="build-copy-jar">
+
+<!--  
+	as_ant_create_scan_file_processor__copy_to_processing_dir.xml
+	
+	build the Scan File Processor Jar and copy to processing directory
+-->
+
+	<property name="config_file" value="az_ant_config.properties" />
+	
+	<echo>Using Config file ${config_file}</echo>
+	
+	<fail message="ERROR: '${config_file}' file not found, check the path.">
+		<condition>
+		    <not>
+		    	<available file="${config_file}" />
+		    </not>
+		</condition>
+	</fail>
+	
+	<echo>config_file_with_path: ${config_file}</echo>
+	
+	<!-- This does not fail if the file is not found -->
+	<property file="${config_file}" />
+	
+	<echo>processing.directory: ${processing.directory}</echo>
+
+	<target name="build-copy-jar" description="">
+		
+		<!-- Build Jar  -->
+		
+		<ant antfile="ant__create_runnable_jar_scan_file_processor.xml"  dir="." />
+
+		<!-- Copy Built Jar to local dir for updating -->
+		
+		<copy  overwrite="true"
+			 file="build${file.separator}libs${file.separator}spectralStorage_ProcessScanFile.jar"
+				todir="${processing.directory}" >
+		</copy>	
+
+	</target>
+
+</project>

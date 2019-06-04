@@ -1,16 +1,16 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.background_thread;
 
 import org.apache.log4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextAvailableUploadedScanFile;
+import org.yeastrc.spectral_storage.accept_import_web_app.process_import_request_compute_api_key_store_in_file.Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.move_old_processed_directories.MoveOldProcessedUploadScanFileDirectories;
 
 /**
- * Executes the code to run the Scan File Processor on an submitted Scan File
+ * Executes the code to compute the API Key for a scan file
  *
  */
-public class ProcessScanFileThread extends Thread {
+public class ComputeAPIKeyForScanFileThread extends Thread {
 
-	private static final Logger log = Logger.getLogger(ProcessScanFileThread.class);
+	private static final Logger log = Logger.getLogger(ComputeAPIKeyForScanFileThread.class);
 	
 	//  A long sleep/wait time since it is awaken whenever a file is uploaded
 	
@@ -27,13 +27,13 @@ public class ProcessScanFileThread extends Thread {
 	private static final int WAIT_TIME_BRIEF_WAIT_AFTER_AWAKEN_FOR_FILE_SYSTEM = 3 * 1000;  // in milliseconds
 	
 	
-	private static ProcessScanFileThread instance = null;
+	private static ComputeAPIKeyForScanFileThread instance = null;
 	
 	private static int threadCreateCount = 0;
 	
 	
 	
-	private volatile ProcessNextAvailableUploadedScanFile processNextAvailableUploadedScanFile;
+	private volatile Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir;
 	
 
 
@@ -52,7 +52,7 @@ public class ProcessScanFileThread extends Thread {
 	/**
 	 * @return
 	 */
-	public static synchronized ProcessScanFileThread getInstance(){
+	public static synchronized ComputeAPIKeyForScanFileThread getInstance(){
 		
 		try {
 			if ( instance != null && ( ! instance.keepRunning ) ) {
@@ -75,7 +75,7 @@ public class ProcessScanFileThread extends Thread {
 
 				Exception exception = new Exception( "Fake Exception to get call stack" );
 
-				log.error( "ProcessScanFileThread has died and will be replaced.", exception );
+				log.error( "ComputeAPIKeyForScanFileThread has died and will be replaced.", exception );
 			}
 			
 			createThread( false );
@@ -100,7 +100,7 @@ public class ProcessScanFileThread extends Thread {
 
 				Exception exception = new Exception( "Fake Exception to get call stack" );
 
-				log.error( "ProcessScanFileThread has died and will be replaced.", exception );
+				log.error( "ComputeAPIKeyForScanFileThread has died and will be replaced.", exception );
 			}
 			
 			createThread( true );
@@ -115,11 +115,11 @@ public class ProcessScanFileThread extends Thread {
 		threadCreateCount++;
 
 		if ( log.isInfoEnabled() ) {
-			log.info( "Creating new ProcessScanFileThread (extends Thread) object. threadCreateCount: " + threadCreateCount );
+			log.info( "Creating new ComputeAPIKeyForScanFileThread (extends Thread) object. threadCreateCount: " + threadCreateCount );
 		}
 		
 		
-		instance = new ProcessScanFileThread();
+		instance = new ComputeAPIKeyForScanFileThread();
 		instance.setName( "ProcessImportFASTAFile-Thread-" + threadCreateCount );
 		
 		if ( startThread ) {
@@ -160,8 +160,8 @@ public class ProcessScanFileThread extends Thread {
 
 		//  awaken this thread if it is in 'wait' state ( not currently processing a job )
 		this.awaken();
-		if ( processNextAvailableUploadedScanFile != null ) {
-			processNextAvailableUploadedScanFile.shutdown();
+		if ( compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir != null ) {
+			compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir.shutdown();
 		}
 	}
 
@@ -202,7 +202,7 @@ public class ProcessScanFileThread extends Thread {
 	 * @return
 	 */
 	public boolean isProcessingFiles() {
-		if ( processNextAvailableUploadedScanFile != null ) {
+		if ( compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir != null ) {
 			return true;
 		}
 		return false;
@@ -263,7 +263,7 @@ public class ProcessScanFileThread extends Thread {
 							long timeAfter_WAIT_TIME_WHEN_NO_WORK_TO_DO = System.currentTimeMillis();
 
 							if ( log.isDebugEnabled() ) {
-								log.debug("IN 'while ( keepRunning )', after wait( WAIT_TIME_WHEN_NO_WORK_TO_DO ) called:  ProcessScanFileThread.getId() = " + this.getId() );
+								log.debug("IN 'while ( keepRunning )', after wait( WAIT_TIME_WHEN_NO_WORK_TO_DO ) called:  ComputeAPIKeyForScanFileThread.getId() = " + this.getId() );
 							}
 
 							long timeInWait = timeAfter_WAIT_TIME_WHEN_NO_WORK_TO_DO - timeBefore_WAIT_TIME_WHEN_NO_WORK_TO_DO;
@@ -296,7 +296,7 @@ public class ProcessScanFileThread extends Thread {
 						}
 
 						if ( log.isDebugEnabled() ) {
-							log.debug("before 'while ( keepRunning )', after wait() called:  ProcessScanFileThread.getId() = " + this.getId() );
+							log.debug("before 'while ( keepRunning )', after wait() called:  ComputeAPIKeyForScanFileThread.getId() = " + this.getId() );
 						}
 					}
 				} catch (InterruptedException e) {
@@ -325,12 +325,12 @@ public class ProcessScanFileThread extends Thread {
 			
 //			try {
 
-			processNextAvailableUploadedScanFile = ProcessNextAvailableUploadedScanFile.getInstance();
+			compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir = Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir.getInstance();
 
 			//  Process all available uploaded scan files
-			processed_A_Scanfile = processNextAvailableUploadedScanFile.processNextAvailableUploadedScanFile();
+			processed_A_Scanfile = compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir.compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir();
 
-			processNextAvailableUploadedScanFile = null;
+			compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir = null;
 				
 			if ( log.isDebugEnabled() ) {
 				if ( processed_A_Scanfile ) {

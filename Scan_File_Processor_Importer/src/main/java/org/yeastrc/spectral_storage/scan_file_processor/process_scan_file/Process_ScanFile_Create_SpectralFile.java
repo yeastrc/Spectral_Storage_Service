@@ -11,7 +11,8 @@ import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.MzML
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.ScanPeak;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.reader.MzMl_MzXml_FileReader;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.Compute_File_Hashes.Compute_File_Hashes_Result;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes.Compute_Hashes_Result;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_Header_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
@@ -44,8 +45,9 @@ public class Process_ScanFile_Create_SpectralFile {
 			File scanFile, 
 			File subDirForOutputFiles,
 			String hash_String, 
-			Compute_File_Hashes_Result compute_File_Hashes_Result ) throws Exception {
+			Compute_Hashes compute_Hashes ) throws Exception {
 
+		Compute_Hashes_Result compute_Hashes_Result = compute_Hashes.compute_Hashes();
 		
 		if ( ! scanFile.exists() ) {
 			String msg = "Input scan file does not exist: " + scanFile.getAbsolutePath();
@@ -70,9 +72,9 @@ public class Process_ScanFile_Create_SpectralFile {
 			
 			SpectralFile_Header_Common spectralFile_Header_Common = new SpectralFile_Header_Common();
 			spectralFile_Header_Common.setScanFileLength_InBytes( scanFileLength_InBytes );
-			spectralFile_Header_Common.setMainHash( compute_File_Hashes_Result.getSha_384_Hash() );
-			spectralFile_Header_Common.setAltHashSHA512( compute_File_Hashes_Result.getSha_512_Hash() );
-			spectralFile_Header_Common.setAltHashSHA1( compute_File_Hashes_Result.getSha_1_Hash() );
+			spectralFile_Header_Common.setMainHash( compute_Hashes_Result.getSha_384_Hash() );
+			spectralFile_Header_Common.setAltHashSHA512( compute_Hashes_Result.getSha_512_Hash() );
+			spectralFile_Header_Common.setAltHashSHA1( compute_Hashes_Result.getSha_1_Hash() );
 
 			spectralFile_Writer = SpectralFile_Writer_CurrentFormat_Factory.getInstance().getSpectralFile_Writer_LatestVersion();
 			

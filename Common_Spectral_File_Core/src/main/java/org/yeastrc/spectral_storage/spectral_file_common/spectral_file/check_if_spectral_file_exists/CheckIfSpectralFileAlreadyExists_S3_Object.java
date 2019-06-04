@@ -1,9 +1,9 @@
-package org.yeastrc.spectral_storage.scan_file_processor.check_if_spectral_file_exists;
+package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists;
 
 import org.apache.log4j.Logger;
-import org.yeastrc.spectral_storage.scan_file_processor.s3_aws_interface.S3_AWS_InterfaceObjectHolder;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.SpectralStorage_DataFiles_S3_Prefix_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.s3_aws_interface.S3_AWS_InterfaceObjectHolder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
 
 import com.amazonaws.services.s3.AmazonS3;

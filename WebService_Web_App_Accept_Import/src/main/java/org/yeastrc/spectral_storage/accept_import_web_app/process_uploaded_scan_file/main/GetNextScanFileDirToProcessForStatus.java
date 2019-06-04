@@ -8,28 +8,29 @@ import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingReadStatusFile;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 
 /**
  * 
  *
  */
-public class GetNextScanFileDirToProcess {
+public class GetNextScanFileDirToProcessForStatus {
 
-	private static final Logger log = Logger.getLogger(GetNextScanFileDirToProcess.class);
+	private static final Logger log = Logger.getLogger(GetNextScanFileDirToProcessForStatus.class);
 
-	private GetNextScanFileDirToProcess() { }
-	public static GetNextScanFileDirToProcess getInstance() { 
-		return new GetNextScanFileDirToProcess(); 
+	private GetNextScanFileDirToProcessForStatus() { }
+	public static GetNextScanFileDirToProcessForStatus getInstance() { 
+		return new GetNextScanFileDirToProcessForStatus(); 
 	}
 	
 	/**
-	 * Get oldest directory with status of pending 
+	 * Get oldest directory with status of parameter 
+	 * 
+	 * @param statusValueToFind - Status in directory must be this value
 	 * 
 	 * @return directory to process, null if no directory to process
 	 * @throws Exception 
 	 */
-	public File getNextScanFileDirToProcess() throws Exception {
+	public File getNextScanFileDirToProcessForStatus( String statusValueToFind ) throws Exception {
 		
 		File tempScanUploadBaseDirectoryFile =
 				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getTempScanUploadBaseDirectory();
@@ -62,7 +63,7 @@ public class GetNextScanFileDirToProcess {
 		});
 		
 		for ( File scanFileDir : scanFilesToProcessBaseDirContents ) {
-			if ( isNextScanFileDirToProcess( scanFileDir ) ) {
+			if ( isNextScanFileDirToProcess( scanFileDir, statusValueToFind ) ) {
 				return scanFileDir;  //  EARLY EXIT
 			}
 		}
@@ -73,10 +74,11 @@ public class GetNextScanFileDirToProcess {
 	
 	/**
 	 * @param scanFilesToProcessBaseDirContent
+	 * @param statusValueToFind
 	 * @return
 	 * @throws Exception 
 	 */
-	private boolean isNextScanFileDirToProcess( File scanFileDir ) throws Exception {
+	private boolean isNextScanFileDirToProcess( File scanFileDir, String statusValueToFind ) throws Exception {
 		
 		if ( ! scanFileDir.isDirectory() ) {
 			//  Must be a directory
@@ -91,7 +93,7 @@ public class GetNextScanFileDirToProcess {
 			
 		}
 		
-		if ( UploadProcessingStatusFileConstants.STATUS_PENDING.equals( status ) ) {
+		if ( statusValueToFind.equals( status ) ) {
 			//  status is pending so process it next
 			return true;
 		}

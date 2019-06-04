@@ -9,13 +9,18 @@ public class UploadProcessingStatusFileConstants {
 	//  (Must not contain spaces or special characters)
 	//  (Also appended to STATUS_FILENAME to create another filename)
 	
-	//	Written after dir created and all files put into it
+	//	1 of next 2 will be written after dir created and all files put into it
+
+	//  Written when need to compute the API Key
+	public static final String STATUS_COMPUTE_API_KEY = "compute_api_key"; 
+	
+	//  Written when ready to run the Importer on it
 	public static final String STATUS_PENDING = "pending"; 
 	
 	//  Written when Scan File Processor starts processing the directory
 	public static final String STATUS_PROCESSING_STARTED = "processing_started";
 	
-	//  Written when Scan File Processor finished processing the directory successfully
+	//  Written when Scan File Processor finished processing the directory successfully, or the Accept Import Webapp finds the API Key in the already 
 	public static final String STATUS_PROCESSING_SUCCESSFUL = "processing_successful";
 	
 	//  Written when Scan File Processor finished processing the directory and failed

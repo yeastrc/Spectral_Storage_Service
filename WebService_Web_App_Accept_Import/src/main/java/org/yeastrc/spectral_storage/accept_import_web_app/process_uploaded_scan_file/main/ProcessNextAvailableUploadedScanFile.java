@@ -7,6 +7,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Dire
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextUploadedScanFile.ProcessingSuccessFailKilled;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 
 /**
  * Pro
@@ -55,9 +56,9 @@ public class ProcessNextAvailableUploadedScanFile {
 	 */
 	public void shutdown() {
 		log.info("shutdown() called");
-		synchronized (this) {
+//		synchronized (this) {
 //			this.keepRunning = false;
-		}
+//		}
 		
 		if ( processNextUploadedScanFile != null ) {
 			processNextUploadedScanFile.shutdown();
@@ -82,7 +83,7 @@ public class ProcessNextAvailableUploadedScanFile {
 
 			File scanFileDir = null;
 			try {
-				scanFileDir = GetNextScanFileDirToProcess.getInstance().getNextScanFileDirToProcess();
+				scanFileDir = GetNextScanFileDirToProcessForStatus.getInstance().getNextScanFileDirToProcessForStatus( UploadProcessingStatusFileConstants.STATUS_PENDING );
 
 			} catch ( Exception e ) {
 				log.error( "Exception getting next Scan file to process", e );

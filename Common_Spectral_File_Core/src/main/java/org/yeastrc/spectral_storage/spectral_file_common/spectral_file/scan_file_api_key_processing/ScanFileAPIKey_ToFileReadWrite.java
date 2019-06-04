@@ -1,4 +1,4 @@
-package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing;
+package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,21 +11,22 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 
 /**
- * Take the scan file hash and write it to a file or read it from a file
+ * Take the scan file API Key (Based on Hash) and write it to a file or read it from a file
  *
  */
-public class ScanFileHashToFileReadWrite {
+public class ScanFileAPIKey_ToFileReadWrite {
 
-	private static final Logger log = Logger.getLogger(ScanFileHashToFileReadWrite.class);
+	private static final Logger log = Logger.getLogger(ScanFileAPIKey_ToFileReadWrite.class);
 
 	/**
 	 * private constructor
 	 */
-	private ScanFileHashToFileReadWrite(){}
-	public static ScanFileHashToFileReadWrite getInstance( ) throws Exception {
-		ScanFileHashToFileReadWrite instance = new ScanFileHashToFileReadWrite();
+	private ScanFileAPIKey_ToFileReadWrite(){}
+	public static ScanFileAPIKey_ToFileReadWrite getInstance( ) throws Exception {
+		ScanFileAPIKey_ToFileReadWrite instance = new ScanFileAPIKey_ToFileReadWrite();
 		return instance;
 	}
 
@@ -35,7 +36,7 @@ public class ScanFileHashToFileReadWrite {
 	 */
 	public void writeScanFileHashToInProcessFileInCurrentDir( String scanFilehash_String ) throws Exception {
 
-		File hashFile = new File( ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_HASH_STRING );
+		File hashFile = new File( ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_HASH_STRING_API_KEY_FILENAME );
 
 		try ( BufferedWriter writer = new BufferedWriter( new OutputStreamWriter(new FileOutputStream( hashFile ), StandardCharsets.UTF_8 ) ) ) {
 			writer.write( scanFilehash_String );
@@ -47,11 +48,34 @@ public class ScanFileHashToFileReadWrite {
 	}
 
 	/**
+	 * @param hashString
+	 * @throws Exception 
+	 */
+	public void writeScanFileHashToInProcessFileInDir( String scanFilehash_String, File dir ) throws Exception {
+		
+		if ( ! dir.exists() ) {
+			String msg = "dir passed to writeScanFileHashToInProcessFileInDir(...) does not exist: " + dir.getAbsolutePath();
+			log.error( msg );
+			throw new SpectralStorageProcessingException( msg );
+		}
+
+		File hashFile = new File( dir, ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_HASH_STRING_API_KEY_FILENAME );
+
+		try ( BufferedWriter writer = new BufferedWriter( new OutputStreamWriter(new FileOutputStream( hashFile ), StandardCharsets.UTF_8 ) ) ) {
+			writer.write( scanFilehash_String );
+		} catch ( Exception e ) {
+			String msg = "Failed to write hash to file: " + hashFile.getAbsolutePath();
+			log.error( msg );
+			throw new Exception(msg);
+		}
+	}
+	
+	/**
 	 * @throws Exception 
 	 */
 	public String readScanFileHashFromInProcessFile( File subDir ) throws Exception {
 
-		File hashFile = new File( subDir, ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_HASH_STRING );
+		File hashFile = new File( subDir, ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_HASH_STRING_API_KEY_FILENAME );
 
 		String hash = null;
 

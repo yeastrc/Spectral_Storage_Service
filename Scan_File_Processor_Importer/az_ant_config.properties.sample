@@ -1,0 +1,14 @@
+
+# Make a copy named:  az_ant_config.properties
+
+#   and update the properties below
+
+#  Input to Ant script: as_ant_create_scan_file_processor__copy_to_processing_dir.xml
+
+
+#   WINDOWS warning:   All \ need to be \\ (double \)
+
+#  Where to copy the Jar to
+processing.directory=/Spectral_Data_Storage_Webapp/WebApp_Work_Dir
+
+

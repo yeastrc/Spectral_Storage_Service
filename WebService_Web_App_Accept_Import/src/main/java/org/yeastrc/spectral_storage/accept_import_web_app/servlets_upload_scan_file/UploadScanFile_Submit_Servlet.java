@@ -23,7 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFileThread;
+import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ComputeAPIKeyForScanFileThread;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.FileUploadConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ServetResponseFormatEnum;
@@ -31,6 +31,8 @@ import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFil
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileDeserializeRequestException;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
+import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk.ImportScanFilename_LocalDisk;
+import org.yeastrc.spectral_storage.accept_import_web_app.process_import_request_api_key_value_in_file.ProcessImportRequest_APIKey_Value_InFile;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.GetRequestObjectFromInputStream;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseObjectToOutputStream;
@@ -44,6 +46,7 @@ import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanF
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingWriteOrUpdateStatusFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
 
@@ -265,7 +268,7 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 				// Scan File on local disk
 				
 				//  Find the scan file 
-				String scanFilenameToMove = getScanFileToMove( uploadScanFileTempKey_Dir );
+				String scanFilenameToMove = ImportScanFilename_LocalDisk.getInstance().getImportScanFilename_LocalDisk( uploadScanFileTempKey_Dir );
 
 				if ( scanFilenameToMove == null ) {
 					
@@ -337,47 +340,6 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 		}
 	}
 	
-	/**
-	 * @param uploadFileTempDir
-	 * @return
-	 * @throws SpectralFileFileUploadInternalException
-	 */
-	private String getScanFileToMove( File uploadFileTempDir ) throws SpectralFileFileUploadInternalException {
-		
-		//  Find the scan filename
-		String scanFilenameToMove = null;
-		
-		File[] uploadFileTempDir_Files = uploadFileTempDir.listFiles();
-
-		for ( File dirEntry : uploadFileTempDir_Files ) {
-			String dirEntryFilename = dirEntry.getName();
-			if ( dirEntryFilename.startsWith( ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_FILENAME_PREFIX )
-					&& ( dirEntryFilename.endsWith( ScanFileToProcessConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML ) 
-							|| dirEntryFilename.endsWith( ScanFileToProcessConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML ) ) ) {
-				if ( scanFilenameToMove != null ) {
-					String msg = "Found more than one scan file. Previous filename: " + scanFilenameToMove
-							+ ", current filename: " + dirEntry.getName();
-					log.error( msg );
-					throw new SpectralFileFileUploadInternalException(msg);
-				}
-				scanFilenameToMove = dirEntry.getName();
-			}
-		}
-		if ( scanFilenameToMove == null ) {
-			String msg = "No Scan file Found. Allowed filenames are: " 
-					+ ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_FILENAME_PREFIX 
-					+ ScanFileToProcessConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML
-					+ ", and "
-					+ ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_FILENAME_PREFIX 
-					+ ScanFileToProcessConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML
-					;
-			log.warn( msg );
-			
-			return null;  //  EARLY EXIT
-		}
-		
-		return scanFilenameToMove;
-	}
 
 	/**
 	 * @param scanFilenameToMove
@@ -404,7 +366,7 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 		
 		createScanFileS3Location_File( scanProcessStatusKey, uploadFileTempDir, dirToProcessScanFile );
 		
-		commonProcessingOfUploadedScanFile(uploadFileTempDir, dirToProcessScanFile, scanProcessStatusKey);
+		commonProcessingOfUploadedScanFile( uploadFileTempDir, dirToProcessScanFile, scanProcessStatusKey );
 		
 		return scanProcessStatusKey;
 	}
@@ -537,8 +499,8 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 		
 		///   move the uploaded Scan file into processing dir.
 		moveFileToScanProcessDir( scanFilenameToMove, uploadFileTempDir, dirToProcessScanFile );
-		
-		commonProcessingOfUploadedScanFile(uploadFileTempDir, dirToProcessScanFile, scanProcessStatusKey);
+
+		commonProcessingOfUploadedScanFile( uploadFileTempDir, dirToProcessScanFile, scanProcessStatusKey );
 		
 		return scanProcessStatusKey;
 	}
@@ -549,7 +511,20 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 	 * @param scanProcessStatusKey
 	 * @throws Exception
 	 */
-	private void commonProcessingOfUploadedScanFile( File uploadFileTempDir, File dirToProcessScanFile, String scanProcessStatusKey ) throws Exception {
+	private void commonProcessingOfUploadedScanFile( 
+			File uploadFileTempDir, 
+			File dirToProcessScanFile, 
+			String scanProcessStatusKey
+			) throws Exception {
+		
+		boolean apiKeyComputed = false;
+
+		///   If exists, move the computed API Key from hash into processing dir.
+		File computedAPIKeyFromhashFile = new File( uploadFileTempDir, ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_HASH_STRING_API_KEY_FILENAME );
+		if ( computedAPIKeyFromhashFile.exists() ) {
+			moveFileToScanProcessDir( ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_HASH_STRING_API_KEY_FILENAME, uploadFileTempDir, dirToProcessScanFile );
+			apiKeyComputed = true;
+		}
 		
 		//  Empty and delete temp upload directory uploadFileTempDir
 		
@@ -589,19 +564,38 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 			}
 		}
 		
+		if ( apiKeyComputed ) {
+
+			//  API Key computed
+			
+			ProcessImportRequest_APIKey_Value_InFile.getInstance().
+			processImportRequest_APIKey_Value_InFile( dirToProcessScanFile );
+		
+		} else {
+			
+			//  API Key NOT computed
+			compute_API_Key_InProcessingDir( dirToProcessScanFile );
+		}
+	}
+	
+
+	/**
+	 * @param dirToProcessScanFile
+	 * @throws Exception
+	 */
+	private void compute_API_Key_InProcessingDir(  File dirToProcessScanFile ) throws Exception {
 		
 		try {
 			//  Create status file for pending
 			UploadProcessingWriteOrUpdateStatusFile.getInstance()
-			.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PENDING, dirToProcessScanFile );
+			.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_COMPUTE_API_KEY, dirToProcessScanFile );
 		} catch ( Exception e ) {
 			String msg = "Failed to create status file, dirToProcessScanFile: " + dirToProcessScanFile.getAbsolutePath();
 			log.error( msg, e );
-			throw new Exception(msg, e);
+			throw new SpectralStorageProcessingException( msg, e );
 		}
 		
-		//  Awaken the thead that will process the newly created process scan file directory
-		ProcessScanFileThread.getInstance().awaken();
+		ComputeAPIKeyForScanFileThread.getInstance().awaken();
 	}
 	
 	/**

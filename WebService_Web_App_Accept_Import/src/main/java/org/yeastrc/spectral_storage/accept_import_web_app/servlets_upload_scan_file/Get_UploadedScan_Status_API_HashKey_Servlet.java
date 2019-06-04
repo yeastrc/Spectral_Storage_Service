@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ProcessingFailDefaultErrorMsgConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileBadRequestToServletException;
@@ -34,7 +33,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingReadStatusFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_hash_processing.ScanFileHashToFileReadWrite;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ToFileReadWrite;
 
 /**
  * This gets the status and if successful the hash key
@@ -216,7 +215,8 @@ public class Get_UploadedScan_Status_API_HashKey_Servlet extends HttpServlet {
 			}
 
 
-			if ( UploadProcessingStatusFileConstants.STATUS_PENDING.equals( status ) 
+			if ( UploadProcessingStatusFileConstants.STATUS_COMPUTE_API_KEY.equals( status )
+					|| UploadProcessingStatusFileConstants.STATUS_PENDING.equals( status ) 
 					|| UploadProcessingStatusFileConstants.STATUS_PROCESSING_STARTED.equals( status ) 
 					|| UploadProcessingStatusFileConstants.STATUS_PROCESSING_KILLED.equals( status ) ) {
 
@@ -233,7 +233,7 @@ public class Get_UploadedScan_Status_API_HashKey_Servlet extends HttpServlet {
 
 			} else if ( UploadProcessingStatusFileConstants.STATUS_PROCESSING_SUCCESSFUL.equals( status ) ) {
 
-				String hashKey = ScanFileHashToFileReadWrite.getInstance().readScanFileHashFromFinalHashKeyFile( scanProcessStatusKeyDir );
+				String hashKey = ScanFileAPIKey_ToFileReadWrite.getInstance().readScanFileHashFromFinalHashKeyFile( scanProcessStatusKeyDir );
 
 				webserviceResponse.setScanFileAPIKey( hashKey );
 				webserviceResponse.setStatus( WebserviceSpectralStorageAcceptImport_ProcessStatusEnum.SUCCESS );

@@ -4,6 +4,7 @@ import java.util.Properties;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import org.apache.log4j.Logger;
+import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ComputeAPIKeyForScanFileThread;
 import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFileThread;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.A_Load_Config;
 
@@ -39,9 +40,17 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 		try {
 			ProcessScanFileThread.getInstance().start();
 		} catch (Exception e) {
-			//  already logged
+			log.error( "Failed: ProcessScanFileThread.getInstance().start();", e );
 			throw new RuntimeException( e );
 		} 
+
+		try {
+			ComputeAPIKeyForScanFileThread.getInstance().start();
+		} catch (Exception e) {
+			log.error( "Failed: ComputeAPIKeyForScanFileThread.getInstance().start();", e );
+			throw new RuntimeException( e );
+		} 
+		
 
 		
 		log.warn( "INFO:  !!!!!!!!!!!!!!!   Start up of web app  'Spectral Storage' complete  !!!!!!!!!!!!!!!!!!!! " );

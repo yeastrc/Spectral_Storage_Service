@@ -1,4 +1,4 @@
-package org.yeastrc.spectral_storage.scan_file_processor.s3_aws_interface;
+package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.s3_aws_interface;
 
 import org.apache.log4j.Logger;
 

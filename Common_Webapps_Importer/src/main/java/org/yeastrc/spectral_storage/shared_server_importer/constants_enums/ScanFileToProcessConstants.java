@@ -56,9 +56,9 @@ public class ScanFileToProcessConstants {
 	public static final String SCAN_FILE_TO_PROCESS_SUB_DIR_CREATE_TRACKING_FILE = "c_dir_created_tracking.txt";
 
 	/**
-	 * Hash string of the uploaded scan file 
+	 * Hash string (API Key) of the uploaded scan file 
 	 */
-	public static final String SCAN_FILE_TO_PROCESS_HASH_STRING = "process__scan_file_hash_string.txt";
+	public static final String SCAN_FILE_TO_PROCESS_HASH_STRING_API_KEY_FILENAME = "process__scan_file_hash_string_api_key.txt";
 	
 	/**
 	 * 
@@ -72,7 +72,7 @@ public class ScanFileToProcessConstants {
 
 
 	/**
-	 * Hash string copied from file SCAN_FILE_TO_PROCESS_HASH_STRING 
+	 * Hash string copied from file SCAN_FILE_TO_PROCESS_HASH_STRING_API_KEY_FILENAME 
 	 */
 	public static final String Z_FINAL_HASH_KEY = "z_hash_key.txt";
 }

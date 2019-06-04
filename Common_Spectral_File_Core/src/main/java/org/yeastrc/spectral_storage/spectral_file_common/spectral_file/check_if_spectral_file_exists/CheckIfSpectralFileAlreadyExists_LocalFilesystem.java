@@ -1,4 +1,4 @@
-package org.yeastrc.spectral_storage.scan_file_processor.check_if_spectral_file_exists;
+package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists;
 
 import java.io.File;
 

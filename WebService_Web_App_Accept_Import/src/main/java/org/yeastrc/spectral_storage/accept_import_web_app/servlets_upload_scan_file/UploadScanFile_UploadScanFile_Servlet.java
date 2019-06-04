@@ -34,6 +34,9 @@ import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.Valid
 import org.yeastrc.spectral_storage.accept_import_web_app.utils.Create_S3_Object_Paths;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ComputeFromScanFileContentHashes;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ToFileReadWrite;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
 
@@ -335,6 +338,10 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 			String scanFilenameToProcess, 
 			File uploadScanFileTempKey_Dir ) throws Exception {
 		
+
+		//  Compute the API key on the fly as the scan file data comes in: 
+		Compute_Hashes compute_Hashes = Compute_Hashes.getNewInstance();
+		
 		final String bucketName = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket();
 		
 		String uploadScanFileTempKey_Dir_Name = uploadScanFileTempKey_Dir.getName();
@@ -404,6 +411,9 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 	        try {
 	        	//  Step 2:  Upload parts.
 	        	while ( ( bytesRead = populateBufferFromScanDataFile( scanDataFileOnDiskIS, uploadPartByteBuffer ) ) > 0 ) {
+
+					compute_Hashes.updateHashesComputing( uploadPartByteBuffer, bytesRead );
+					
 	        		partNumber++;
 	        		boolean lastPart = false;
 	        		if ( bytesRead < uploadPartByteBuffer.length ) { // uploadPartByteBuffer not full so is at end of file
@@ -477,6 +487,9 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 	        	throw e;
 	        }
 		}
+		
+
+		writeAPIKeyToFile( compute_Hashes, uploadScanFileTempKey_Dir );
 	}
 	
 	/**
@@ -508,12 +521,16 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 	 * @param response
 	 * @param scanFilenameToProcess
 	 * @param uploadScanFileTempKey_Dir
-	 * @throws FailResponseSentException
+	 * @throws Exception 
 	 */
 	private void saveUploadedScanFileToLocalDiskFile(HttpServletRequest request, HttpServletResponse response,
-			String scanFilenameToProcess, File uploadScanFileTempKey_Dir) throws FailResponseSentException {
-		File uploadedFileOnDisk;
-		uploadedFileOnDisk = new File( uploadScanFileTempKey_Dir, scanFilenameToProcess );
+			String scanFilenameToProcess, File uploadScanFileTempKey_Dir) throws Exception {
+		
+		//  Compute the API key on the fly as the scan file data comes in: 
+		Compute_Hashes compute_Hashes = Compute_Hashes.getNewInstance();
+		
+		//  File to write the incoming data to:
+		File uploadedFileOnDisk = new File( uploadScanFileTempKey_Dir, scanFilenameToProcess );
 				
 		//  Transfer the file from the stream to a disk file
 		InputStream inputStream = null;
@@ -527,6 +544,8 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 			long bytesReadTotal = 0;
 
 			while ( ( bytesRead = inputStream.read( byteBuffer ) ) > 0 ){
+				
+				compute_Hashes.updateHashesComputing( byteBuffer, bytesRead );
 				
 				bytesReadTotal += bytesRead;
 
@@ -593,6 +612,22 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 				}
 			}
 		}
+		
+		writeAPIKeyToFile( compute_Hashes, uploadScanFileTempKey_Dir );
+	}
+	
+	/**
+	 * @param compute_Hashes
+	 * @param uploadScanFileTempKey_Dir
+	 * @throws Exception 
+	 */
+	private void writeAPIKeyToFile( Compute_Hashes compute_Hashes, File uploadScanFileTempKey_Dir ) throws Exception {
+		
+		String apiKey_String = 
+				ScanFileAPIKey_ComputeFromScanFileContentHashes.getInstance()
+				.scanFileAPIKey_ComputeFromScanFileContentHashes( compute_Hashes );
+		
+		ScanFileAPIKey_ToFileReadWrite.getInstance().writeScanFileHashToInProcessFileInDir( apiKey_String, uploadScanFileTempKey_Dir );
 	}
 	
 	
