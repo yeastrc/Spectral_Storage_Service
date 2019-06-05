@@ -14,9 +14,11 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
 
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.constants.WebserviceSpectralStorageGetDataPathConstants;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.exceptions.YRCSpectralStorageGetDataWebserviceCallErrorException;
@@ -379,9 +381,11 @@ public class CallSpectralStorageGetDataWebservice {
 			}
 			//  Confirm that the generated XML can be parsed.
 //			ByteArrayInputStream bais = new ByteArrayInputStream( byteArrayOutputStream_ToSend.toByteArray() );
+//			XMLInputFactory xmlInputFactory = create_XMLInputFactory_XXE_Safe();
+//			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader( new StreamSource( bais ) );
 //			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 //			@SuppressWarnings("unused")
-//			Object unmarshalledObject = unmarshaller.unmarshal( bais );
+//			Object unmarshalledObject = unmarshaller.unmarshal( xmlStreamReader );
 
 		} catch ( Exception e ) {
 			String msg = "Error. Fail to encode request to send to server: "
@@ -427,9 +431,11 @@ public class CallSpectralStorageGetDataWebservice {
 			}
 			//  Confirm that the generated XML can be parsed.
 //			ByteArrayInputStream bais = new ByteArrayInputStream( byteArrayOutputStream_ToSend.toByteArray() );
+//			XMLInputFactory xmlInputFactory = create_XMLInputFactory_XXE_Safe();
+//			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader( new StreamSource( bais ) );
 //			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 //			@SuppressWarnings("unused")
-//			Object unmarshalledObject = unmarshaller.unmarshal( bais );
+//			Object unmarshalledObject = unmarshaller.unmarshal( xmlStreamReader );
 
 		} catch ( Exception e ) {
 			String msg = "Error. Fail to encode request to send to server: "
@@ -471,9 +477,11 @@ public class CallSpectralStorageGetDataWebservice {
 				new ByteArrayInputStream( serverResponseByteArray );
 		// Unmarshal received XML into Java objects
 		try {
+			XMLInputFactory xmlInputFactory = create_XMLInputFactory_XXE_Safe();
+			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader( new StreamSource( inputStreamBufferOfServerResponse ) );
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			webserviceResponseAsObject = unmarshaller.unmarshal( inputStreamBufferOfServerResponse );
-		} catch ( JAXBException e ) {
+			webserviceResponseAsObject = unmarshaller.unmarshal( xmlStreamReader );
+		} catch ( Exception e ) {
 			YRCSpectralStorageGetDataWebserviceCallErrorException wcee = 
 					new YRCSpectralStorageGetDataWebserviceCallErrorException( "JAXBException unmarshalling XML received from server at URL: " + webserviceURL, e );
 			wcee.setFailToDecodeDataReceivedFromServer(true);
@@ -752,4 +760,22 @@ public class CallSpectralStorageGetDataWebservice {
 		return baos.toByteArray();
 	}
 
+	/**
+	 * Create XMLInputFactory that has the settings that make it safe from XXE
+	 * 
+	 * @return
+	 */
+	private XMLInputFactory create_XMLInputFactory_XXE_Safe() {
+
+	    XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+
+	    //  XXE  Mitigation
+	    //  prevents using external resources when parsing xml
+	    xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+
+	    //  prevents using external document type definition when parsing xml
+	    xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+	  
+		return xmlInputFactory;
+	}
 }

@@ -18,6 +18,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.FileWriterWithEncoding;
@@ -43,6 +46,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.Creat
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo;
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo.ValidationResponse;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
+import org.yeastrc.spectral_storage.shared_server_importer.create__xml_input_factory__xxe_safe.Create_XMLInputFactory_XXE_Safe;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingWriteOrUpdateStatusFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
@@ -460,10 +464,11 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 			throw new SpectralFileWebappInternalException(msg);
 		}
 		
-		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-	
 		try ( InputStream is = new FileInputStream( scanfileS3InfoFile) ) {
-			Object uploadScanfileS3LocationObj = unmarshaller.unmarshal( is );
+			XMLInputFactory xmlInputFactory = Create_XMLInputFactory_XXE_Safe.create_XMLInputFactory_XXE_Safe();
+			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader( new StreamSource( is ) );
+			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			Object uploadScanfileS3LocationObj = unmarshaller.unmarshal( xmlStreamReader );
 			if ( ! ( uploadScanfileS3LocationObj instanceof UploadScanfileS3Location ) ) {
 				String msg = "Unmarshaled object is not type UploadScanfileS3Location. Source file: " +
 						scanfileS3InfoFile.getAbsolutePath();

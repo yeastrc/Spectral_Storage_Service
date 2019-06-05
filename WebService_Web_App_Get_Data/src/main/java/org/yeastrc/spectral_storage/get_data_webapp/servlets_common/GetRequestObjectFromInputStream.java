@@ -7,11 +7,14 @@ import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileDeserializeRequestException;
+import org.yeastrc.spectral_storage.shared_server_importer.create__xml_input_factory__xxe_safe.Create_XMLInputFactory_XXE_Safe;
 
 /**
  * Read the Request Object off the input stream and de-serialize it and return it
@@ -44,7 +47,7 @@ public class GetRequestObjectFromInputStream {
 	 */
 	public Object getRequestObjectFromStream( 
 			HttpServletRequest request ) throws Exception {
-		Object webserviceResponseAsObject = null;
+		Object webserviceRequestAsObject = null;
 		try {
 
 			//  Get request XML from client
@@ -73,20 +76,22 @@ public class GetRequestObjectFromInputStream {
 			
 			JAXBContext jaxbContext = Z_JAXBContext_ForRequestResponse.getSingletonInstance().getJAXBContext();
 			
-			byte[] serverResponseByteArrayFromServer = outputStreamBufferOfClientRequest.toByteArray();
-			byte[] serverResponseByteArray = serverResponseByteArrayFromServer;
-			ByteArrayInputStream inputStreamBufferOfServerResponse = 
-					new ByteArrayInputStream( serverResponseByteArray );
+			byte[] outputStreamBufferOfClientRequest_ByteArray = outputStreamBufferOfClientRequest.toByteArray();
+			ByteArrayInputStream inputStreamBufferOfClientRequest = 
+					new ByteArrayInputStream( outputStreamBufferOfClientRequest_ByteArray );
 			// Unmarshal received XML into Java objects
 			try {
+				XMLInputFactory xmlInputFactory = Create_XMLInputFactory_XXE_Safe.create_XMLInputFactory_XXE_Safe();
+				XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader( new StreamSource( inputStreamBufferOfClientRequest ) );
 				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-				webserviceResponseAsObject = unmarshaller.unmarshal( inputStreamBufferOfServerResponse );
-			} catch ( JAXBException e ) {
+				webserviceRequestAsObject = unmarshaller.unmarshal( xmlStreamReader );
+			} catch ( Exception e ) {
 				String msg = "Failed to deserialize request object";
 				log.error( msg, e );
 				throw new SpectralFileDeserializeRequestException( msg, e );
 			}
-			return webserviceResponseAsObject; 
+			
+			return webserviceRequestAsObject; 
 		} finally {
 
 		}

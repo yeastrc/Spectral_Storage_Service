@@ -4,15 +4,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
+import org.yeastrc.spectral_storage.shared_server_importer.create__xml_input_factory__xxe_safe.Create_XMLInputFactory_XXE_Safe;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.s3_aws_interface.S3_AWS_InterfaceObjectHolder;
@@ -74,8 +77,12 @@ public class GetScanFileFrom_S3_IfHave_S3_Info_File {
 //		}
 		
 		try ( InputStream is = new FileInputStream( scanFile_S3_LocationFile ) ) {
+
+			XMLInputFactory xmlInputFactory = Create_XMLInputFactory_XXE_Safe.create_XMLInputFactory_XXE_Safe();
+			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader( new StreamSource( is ) );
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			Object uploadScanfileS3LocationAsObject = unmarshaller.unmarshal( is );
+			Object uploadScanfileS3LocationAsObject = unmarshaller.unmarshal( xmlStreamReader );
+
 			if ( uploadScanfileS3LocationAsObject instanceof UploadScanfileS3Location ) {
 				uploadScanfileS3Location = ( UploadScanfileS3Location ) uploadScanfileS3LocationAsObject;
 			} else {

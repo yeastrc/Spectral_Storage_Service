@@ -17,6 +17,9 @@ import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
@@ -40,6 +43,7 @@ import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Proces
 import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.SpectralStorage_DataFiles_S3_Prefix_Constants;
+import org.yeastrc.spectral_storage.shared_server_importer.create__xml_input_factory__xxe_safe.Create_XMLInputFactory_XXE_Safe;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_LocalFilesystem;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_S3_Object;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
@@ -712,8 +716,12 @@ public class ProcessUploadedScanFileRequest {
 		JAXBContext jaxbContext = JAXBContext.newInstance( UploadScanfileS3Location.class ); 
 		
 		try ( InputStream is = new FileInputStream( scanFile_S3_LocationFile ) ) {
+
+			XMLInputFactory xmlInputFactory = Create_XMLInputFactory_XXE_Safe.create_XMLInputFactory_XXE_Safe();
+			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader( new StreamSource( is ) );
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			Object uploadScanfileS3LocationAsObject = unmarshaller.unmarshal( is );
+			Object uploadScanfileS3LocationAsObject = unmarshaller.unmarshal( xmlStreamReader );
+
 			if ( uploadScanfileS3LocationAsObject instanceof UploadScanfileS3Location ) {
 				uploadScanfileS3Location = ( UploadScanfileS3Location ) uploadScanfileS3LocationAsObject;
 			} else {
