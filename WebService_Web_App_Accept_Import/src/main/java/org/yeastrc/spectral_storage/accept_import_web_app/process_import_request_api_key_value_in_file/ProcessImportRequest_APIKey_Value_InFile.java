@@ -8,7 +8,9 @@ import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.Proc
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk.ImportScanFilename_LocalDisk;
+import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.MoveProcessingDirectoryToOneof_Processed_Directories;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessUploadedScanFile_Final_OnSuccess;
+import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextUploadedScanFile.ProcessingSuccessFailKilled;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingWriteOrUpdateStatusFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_LocalFilesystem;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
@@ -98,11 +100,25 @@ public class ProcessImportRequest_APIKey_Value_InFile {
 				//  Need to do same things that Importer would do when found API key already existing
 				ProcessUploadedScanFile_Final_OnSuccess.getInstance().processUploadedScanFile_Final_OnSuccess( apiKey, dirToProcessScanFile );
 
-				//  Don't get here if here is a failure since an exception will be thrown.  
 				if ( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().isDeleteUploadedScanFileOnSuccessfulImport() ) {
-					
-					cleanupInputScanFile( dirToProcessScanFile );
+					try {
+						//  Don't get here if here is a failure since an exception will be thrown.  
+						if ( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().isDeleteUploadedScanFileOnSuccessfulImport() ) {
+							
+							cleanupInputScanFile( dirToProcessScanFile );
+						}
+					} catch ( Exception e ) {
+						String msg = "Error removing scan file when delete is true.  dirToProcessScanFile: " + dirToProcessScanFile.getAbsolutePath();
+						log.error( msg );
+						//  Eat this exception
+					}
 				}
+
+				//  Move Processing directory to 'after processing' directory under base directory  
+			
+				MoveProcessingDirectoryToOneof_Processed_Directories.getInstance()
+				.moveProcessingDirectoryToOneof_Processed_Directories( dirToProcessScanFile, ProcessingSuccessFailKilled.SUCCESS );
+				
 
 //				System.out.println( "Data File already exists so no processing needed");
 				

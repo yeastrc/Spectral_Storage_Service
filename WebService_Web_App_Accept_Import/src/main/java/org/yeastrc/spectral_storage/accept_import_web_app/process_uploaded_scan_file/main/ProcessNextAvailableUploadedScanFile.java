@@ -1,13 +1,17 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
-import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextUploadedScanFile.ProcessingSuccessFailKilled;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingReadStatusFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ToFileReadWrite;
 
 /**
  * Pro
@@ -102,27 +106,52 @@ public class ProcessNextAvailableUploadedScanFile {
 				
 				scanFileDirString = scanFileDir.getAbsolutePath();
 				
+				ProcessingSuccessFailKilled processingSuccessFailKilled_Result = null;
+				
 				try {
 
 					processNextUploadedScanFile = ProcessNextUploadedScanFile.getInstance();
 
 					//				processUploadedFilesState = ProcessUploadedFilesState.PROCESSING;
 
-					ProcessingSuccessFailKilled processingSuccessFailKilled_Result = processNextUploadedScanFile.processNextUploadedScanFile( scanFileDir );
+					processingSuccessFailKilled_Result = processNextUploadedScanFile.processNextUploadedScanFile( scanFileDir );
 
-					//  Move Processing directory to 'after processing' directory under base directory  
-				
-					moveProcessingDirectoryToOneof_Processed_Directories( scanFileDir, processingSuccessFailKilled_Result );
-					
 				} catch ( Throwable e ) {
 					
-					moveProcessingDirectoryToOneof_Processed_Directories( scanFileDir, ProcessingSuccessFailKilled.FAIL );
+					MoveProcessingDirectoryToOneof_Processed_Directories.getInstance().moveProcessingDirectoryToOneof_Processed_Directories( scanFileDir, ProcessingSuccessFailKilled.FAIL );
 					
 					throw e;
 				}
 
+				String scanFileHashKey_API_Key = null;
+				
+				try {
+					scanFileHashKey_API_Key =
+							ScanFileAPIKey_ToFileReadWrite.getInstance()
+							.readScanFileHashFromInProcessFile( scanFileDir );
+				} catch ( Exception e ) {
+					String msg = "Failed Call to ScanFileAPIKey_ToFileReadWrite.getInstance(). readScanFileHashFromInProcessFile( scanFileDir ); scanFileDir: " + scanFileDir.getAbsolutePath();
+					log.error( msg );
+				}
+				
+				//  Move Processing directory to 'after processing' directory under base directory  
+			
+				MoveProcessingDirectoryToOneof_Processed_Directories.getInstance().moveProcessingDirectoryToOneof_Processed_Directories( scanFileDir, processingSuccessFailKilled_Result );
+				
 				if ( log.isInfoEnabled() ) {
 					log.info( "processNextAvailableUploadedScanFile(): END Processing Scan File in Directory [after calling processNextUploadedScanFile(...): " + scanFileDir.getAbsolutePath() );
+				}
+				
+				if ( processingSuccessFailKilled_Result == ProcessingSuccessFailKilled.SUCCESS && StringUtils.isNotEmpty( scanFileHashKey_API_Key ) ) {
+					
+					if ( log.isInfoEnabled() ) {
+						log.info( "processNextAvailableUploadedScanFile(): Processing Scan File in Directory Successful so update other Pending processing dirs with same scan file key to Success: " + scanFileDir.getAbsolutePath() );
+					}
+					
+					if ( StringUtils.isNotEmpty( scanFileHashKey_API_Key ) ) {
+					
+						updateOtherProcessingDirsPendingToSuccessForSameAPIKey( scanFileHashKey_API_Key );
+					}
 				}
 				
 			}
@@ -155,60 +184,104 @@ public class ProcessNextAvailableUploadedScanFile {
 		return true;
 	}
 	
+
+
 	/**
-	 * @param from_scanFileDir
-	 * @param processingSuccessFailKilled_Result
+	 * @param scanFileHashKey_API_Key
 	 * @throws Exception
 	 */
-	private void moveProcessingDirectoryToOneof_Processed_Directories( 
-			File from_scanFileDir,
-			ProcessingSuccessFailKilled processingSuccessFailKilled_Result ) throws Exception {
-
+	private void updateOtherProcessingDirsPendingToSuccessForSameAPIKey( String scanFileHashKey_API_Key ) throws Exception {
+		
+		//  Processing is successful
+		
+		//  Update other processing subdirectories with same hash key / API key to Success since the API Key is now in Spectr
+		
 		File tempScanUploadBaseDirectoryFile =
 				ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getTempScanUploadBaseDirectory();
 		
-		//  Get the scan files processed base dir to move to 
+		//  Get the File object for the Base Subdir used to store the scan file for processing 
+		String scanFilesToProcessBaseDirString = ScanFileToProcessConstants.SCAN_FILES_TO_PROCESS_BASE_DIR;
 		
-		String scanFilesProcessedBaseDirString = null;
-
-		if ( processingSuccessFailKilled_Result == ProcessingSuccessFailKilled.SUCCESS ) {
-			scanFilesProcessedBaseDirString = ScanFileToProcessConstants.SCAN_FILES_PROCESSED_SUCCESS_BASE_DIR;
-			
-		} else if ( processingSuccessFailKilled_Result == ProcessingSuccessFailKilled.FAIL ) {
-			scanFilesProcessedBaseDirString = ScanFileToProcessConstants.SCAN_FILES_PROCESSED_FAILED_BASE_DIR;
-			
-		} else if ( processingSuccessFailKilled_Result == ProcessingSuccessFailKilled.KILLED ) {
-			scanFilesProcessedBaseDirString = ScanFileToProcessConstants.SCAN_FILES_PROCESSED_KILLED_BASE_DIR;
-			
-		} else {
-			String msg = "Invalid value for 'processingSuccessFailKilled_Result': " + processingSuccessFailKilled_Result;
-			log.error(msg);
-			throw new SpectralFileWebappInternalException(msg);
+		File scanFilesToProcessBaseDir = new File( tempScanUploadBaseDirectoryFile, scanFilesToProcessBaseDirString );
+		if ( ! scanFilesToProcessBaseDir.exists() ) {
+			//  Scan Files Uploaded Base Dir does not exist.  Nothing uploaded yet
+			return;  //  EARLY EXIT
 		}
 		
-		File scanFilesProcessedBaseDir = new File( tempScanUploadBaseDirectoryFile, scanFilesProcessedBaseDirString );
-		if ( ! scanFilesProcessedBaseDir.exists() ) {
-			//  Scan Files Processed (for result) Base Dir does not exist.  Create it
-			if ( ! scanFilesProcessedBaseDir.mkdir() ) {
-				String msg = "Failed to create subdir': " + scanFilesProcessedBaseDir.getAbsolutePath();
-				log.error(msg);
-				throw new SpectralFileWebappInternalException(msg);
+		//  Get oldest directory with a scan file to process 
+		
+		File[] scanFilesToProcessBaseDirContents = scanFilesToProcessBaseDir.listFiles();
+		
+		//  sort oldest to newest
+		Arrays.sort( scanFilesToProcessBaseDirContents, new Comparator<File>() {
+			@Override
+			public int compare(File o1, File o2) {
+				if (  o1.lastModified() < o2.lastModified() ) {
+					return -1;
+				}
+				if (  o1.lastModified() > o2.lastModified() ) {
+					return 1;
+				}
+				return 0;
 			}
+		});
+		
+		for ( File scanFileDir : scanFilesToProcessBaseDirContents ) {
+			//  Process each Subdir Scan File Processing dir
+			processProcessDir( scanFileHashKey_API_Key, scanFileDir );
 		}
 		
-		String from_scanFileDir_Name = from_scanFileDir.getName();
-		
-		File to_scanFileDir = new File( scanFilesProcessedBaseDir, from_scanFileDir_Name );
-		
-		if ( ! from_scanFileDir.renameTo( to_scanFileDir ) ) {
-			String msg = "Failed to move processing from_scanFileDir': " 
-					+ from_scanFileDir.getAbsolutePath()
-					+ ", to processed subdir: "
-					+ to_scanFileDir.getAbsolutePath();
-			log.error(msg);
-			throw new SpectralFileWebappInternalException(msg);
-		}
 	}
+	
+	
+	/**
+	 * @param scanFilesToProcessBaseDirContent
+	 * @param statusValueToFind
+	 * @return
+	 * @throws Exception 
+	 */
+	private void processProcessDir( String scanFileHashKey_API_Key_InSuccessProcessedDir, File scanFileDir ) throws Exception {
+		
+		if ( ! scanFileDir.isDirectory() ) {
+			//  Must be a directory
+			return;  //  EARLY EXIT
+		}
+		
+		String status =
+				UploadProcessingReadStatusFile.getInstance().uploadProcessingReadStatusFile( scanFileDir );
+		
+		if ( status == null ) {
+			//  No status file
+			return;  //  EARLY EXIT
+		}
+		
+		if ( ! UploadProcessingStatusFileConstants.STATUS_PENDING.equals( status ) ) {
+			//  status is NOT pending so return
+			return;  //  EARLY EXIT
+		}
+		
 
+		String scanFileHashKey_API_Key_InCurrent_scanFileDir =
+				ScanFileAPIKey_ToFileReadWrite.getInstance()
+				.readScanFileHashFromInProcessFile( scanFileDir );
+		
+		if ( ! scanFileHashKey_API_Key_InSuccessProcessedDir.equals( scanFileHashKey_API_Key_InCurrent_scanFileDir ) ) {
+			//  Not same API Key or no API key in current dir
+			return;  //  EARLY EXIT
+		}
+
+		//  Update other processing subdirectories with same hash key / API key to Success since the API Key is now in Spectr
+
+		ProcessUploadedScanFile_Final_OnSuccess.getInstance()
+		.processUploadedScanFile_Final_OnSuccess( scanFileHashKey_API_Key_InCurrent_scanFileDir, scanFileDir );
+		
+
+		//  Move Processing directory to 'after processing' directory under base directory  
+	
+		MoveProcessingDirectoryToOneof_Processed_Directories.getInstance()
+		.moveProcessingDirectoryToOneof_Processed_Directories( scanFileDir, ProcessingSuccessFailKilled.SUCCESS );
+		
+	}
+	
 	
 }
