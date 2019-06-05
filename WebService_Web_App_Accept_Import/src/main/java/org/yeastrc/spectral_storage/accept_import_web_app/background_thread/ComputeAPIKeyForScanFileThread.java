@@ -2,7 +2,6 @@ package org.yeastrc.spectral_storage.accept_import_web_app.background_thread;
 
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_import_request_compute_api_key_store_in_file.Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir;
-import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.move_old_processed_directories.MoveOldProcessedUploadScanFileDirectories;
 
 /**
  * Executes the code to compute the API Key for a scan file
@@ -217,15 +216,6 @@ public class ComputeAPIKeyForScanFileThread extends Thread {
 	public void run() {
 		
 //		RestartAndResetInProgressRequestsOnWebappStartup.getInstance().process();
-		
-		try {
-			//  On first thread start, move existing directories
-			if ( threadCreateCount <= 1 ) {
-				MoveOldProcessedUploadScanFileDirectories.getInstance().moveOldProcessedUploadScanFileDirectories();
-			}
-		} catch ( Throwable t ) {
-			log.warn( "Error calling MoveOldProcessedUploadScanFileDirectories.getInstance().moveOldProcessedUploadScanFileDirectories();", t );
-		}
 		
 		while ( keepRunning ) {
 

@@ -3,6 +3,7 @@ package org.yeastrc.spectral_storage.accept_import_web_app.background_thread;
 import org.apache.log4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextAvailableUploadedScanFile;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.move_old_processed_directories.MoveOldProcessedUploadScanFileDirectories;
+import org.yeastrc.spectral_storage.accept_import_web_app.reset_killed_import_to_pending_on_webapp_startup.ResetKilledImportToPendingOnWebappStartup;
 
 /**
  * Executes the code to run the Scan File Processor on an submitted Scan File
@@ -222,6 +223,8 @@ public class ProcessScanFileThread extends Thread {
 			//  On first thread start, move existing directories
 			if ( threadCreateCount <= 1 ) {
 				MoveOldProcessedUploadScanFileDirectories.getInstance().moveOldProcessedUploadScanFileDirectories();
+				
+				ResetKilledImportToPendingOnWebappStartup.getInstance().resetKilledImportToPendingOnWebappStartup();
 			}
 		} catch ( Throwable t ) {
 			log.warn( "Error calling MoveOldProcessedUploadScanFileDirectories.getInstance().moveOldProcessedUploadScanFileDirectories();", t );

@@ -134,9 +134,14 @@ public class ProcessNextAvailableUploadedScanFile {
 					log.error( msg );
 				}
 				
-				//  Move Processing directory to 'after processing' directory under base directory  
-			
-				MoveProcessingDirectoryToOneof_Processed_Directories.getInstance().moveProcessingDirectoryToOneof_Processed_Directories( scanFileDir, processingSuccessFailKilled_Result );
+				if ( processingSuccessFailKilled_Result != ProcessingSuccessFailKilled.KILLED ) {
+					
+					//  Only move if not Killed
+				
+					//  Move Processing directory to 'after processing' directory under base directory  
+
+					MoveProcessingDirectoryToOneof_Processed_Directories.getInstance().moveProcessingDirectoryToOneof_Processed_Directories( scanFileDir, processingSuccessFailKilled_Result );
+				}
 				
 				if ( log.isInfoEnabled() ) {
 					log.info( "processNextAvailableUploadedScanFile(): END Processing Scan File in Directory [after calling processNextUploadedScanFile(...): " + scanFileDir.getAbsolutePath() );

@@ -43,7 +43,7 @@ public class MoveOldProcessedUploadScanFileDirectories {
 			return;  //  EARLY EXIT
 		}
 
-		//  Get oldest directory with a scan file to process 
+		//  Process all directories 
 
 		File[] scanFilesToProcessBaseDirContents = scanFilesToProcessBaseDir.listFiles();
 
@@ -88,9 +88,6 @@ public class MoveOldProcessedUploadScanFileDirectories {
 			
 		} else if ( UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED.equals( status ) ) {
 			scanFilesProcessedBaseDirString = ScanFileToProcessConstants.SCAN_FILES_PROCESSED_FAILED_BASE_DIR;
-			
-		} else if ( UploadProcessingStatusFileConstants.STATUS_PROCESSING_KILLED.equals( status ) ) {
-			scanFilesProcessedBaseDirString = ScanFileToProcessConstants.SCAN_FILES_PROCESSED_KILLED_BASE_DIR;
 			
 		} else {
 			//  Status is other so skip this directory

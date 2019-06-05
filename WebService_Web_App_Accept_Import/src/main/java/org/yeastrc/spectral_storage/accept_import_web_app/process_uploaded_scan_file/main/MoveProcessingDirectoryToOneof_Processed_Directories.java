@@ -43,11 +43,8 @@ public class MoveProcessingDirectoryToOneof_Processed_Directories {
 		} else if ( processingSuccessFailKilled_Result == ProcessingSuccessFailKilled.FAIL ) {
 			scanFilesProcessedBaseDirString = ScanFileToProcessConstants.SCAN_FILES_PROCESSED_FAILED_BASE_DIR;
 			
-		} else if ( processingSuccessFailKilled_Result == ProcessingSuccessFailKilled.KILLED ) {
-			scanFilesProcessedBaseDirString = ScanFileToProcessConstants.SCAN_FILES_PROCESSED_KILLED_BASE_DIR;
-			
 		} else {
-			String msg = "Invalid value for 'processingSuccessFailKilled_Result': " + processingSuccessFailKilled_Result;
+			String msg = "In moveProcessingDirectoryToOneof_Processed_Directories(...): Invalid value for 'processingSuccessFailKilled_Result' (Killed not allowed): " + processingSuccessFailKilled_Result;
 			log.error(msg);
 			throw new SpectralFileWebappInternalException(msg);
 		}

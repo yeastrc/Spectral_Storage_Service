@@ -57,10 +57,6 @@ public class Get_scanProcessStatusKeyDir_PostProcessing {
 			resultDir = get_scanProcessStatusKeyDir_SpecificDirectory(
 					scanProcessStatusKey, ScanFileToProcessConstants.SCAN_FILES_PROCESSED_FAILED_BASE_DIR, uploadBaseDir );
 		}
-		if ( resultDir == null ) {
-			resultDir = get_scanProcessStatusKeyDir_SpecificDirectory(
-					scanProcessStatusKey, ScanFileToProcessConstants.SCAN_FILES_PROCESSED_KILLED_BASE_DIR, uploadBaseDir );
-		}
 
 		return resultDir;
 	}
