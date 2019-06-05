@@ -1,6 +1,7 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.background_thread;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.yeastrc.spectral_storage.accept_import_web_app.cleanup_temp_upload_dir.CleanupUploadFileTempBaseDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextAvailableUploadedScanFile;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.move_old_processed_directories.MoveOldProcessedUploadScanFileDirectories;
 import org.yeastrc.spectral_storage.accept_import_web_app.reset_killed_import_to_pending_on_webapp_startup.ResetKilledImportToPendingOnWebappStartup;
@@ -222,12 +223,27 @@ public class ProcessScanFileThread extends Thread {
 		try {
 			//  On first thread start, move existing directories
 			if ( threadCreateCount <= 1 ) {
+				
 				MoveOldProcessedUploadScanFileDirectories.getInstance().moveOldProcessedUploadScanFileDirectories();
+			}
+		} catch ( Throwable t ) {
+			log.warn( "Error calling MoveOldProcessedUploadScanFileDirectories.getInstance().moveOldProcessedUploadScanFileDirectories();", t );
+		}
+
+		try {
+			//  On first thread start, Reset imports with status Killed to Pending
+			if ( threadCreateCount <= 1 ) {
 				
 				ResetKilledImportToPendingOnWebappStartup.getInstance().resetKilledImportToPendingOnWebappStartup();
 			}
 		} catch ( Throwable t ) {
-			log.warn( "Error calling MoveOldProcessedUploadScanFileDirectories.getInstance().moveOldProcessedUploadScanFileDirectories();", t );
+			log.warn( "Error calling ResetKilledImportToPendingOnWebappStartup.getInstance().resetKilledImportToPendingOnWebappStartup();", t );
+		}
+
+		try {
+			CleanupUploadFileTempBaseDirectory.getSingletonInstance().cleanupUploadFileTempBaseDirectory();
+		} catch ( Throwable t ) {
+			log.warn( "Error calling CleanupUploadFileTempBaseDirectory.getSingletonInstance().cleanupUploadFileTempBaseDirectory();", t );
 		}
 		
 		while ( keepRunning ) {
@@ -241,8 +257,13 @@ public class ProcessScanFileThread extends Thread {
 
 			} catch (Throwable e) {
 
-				log.error("Exception from: ProcessAvailableUploadedScanFiles.getInstance().processAvailableUploadedScanFiles()", e );
+				log.error("Exception from: processAvailableUploadedScanFiles()", e );
+			}
 
+			try {
+				CleanupUploadFileTempBaseDirectory.getSingletonInstance().cleanupUploadFileTempBaseDirectory();
+			} catch ( Throwable t ) {
+				log.warn( "Error calling CleanupUploadFileTempBaseDirectory.getSingletonInstance().cleanupUploadFileTempBaseDirectory();", t );
 			}
 			
 			////////////////////////////////////
