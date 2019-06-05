@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ProcessingFailDefaultErrorMsgConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileDeserializeRequestException;
@@ -229,7 +228,7 @@ public class Get_UploadedScan_Status_API_HashKey_Servlet extends HttpServlet {
 			} else if ( UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED.equals( status ) ) {
 
 				webserviceResponse.setStatus( WebserviceSpectralStorageAcceptImport_ProcessStatusEnum.FAIL );
-				webserviceResponse.setFailMessage( getFailMessage( scanProcessStatusKeyDir ) );
+				webserviceResponse.setDataErrorFailMessage( getDataErrorFailMessage( scanProcessStatusKeyDir ) );
 
 			} else if ( UploadProcessingStatusFileConstants.STATUS_PROCESSING_SUCCESSFUL.equals( status ) ) {
 
@@ -268,27 +267,27 @@ public class Get_UploadedScan_Status_API_HashKey_Servlet extends HttpServlet {
 	/**
 	 * @return
 	 */
-	private String getFailMessage( File scanProcessStatusKeyDir ) throws Exception {
+	private String getDataErrorFailMessage( File scanProcessStatusKeyDir ) throws Exception {
 		
-		File failMsgFile = new File( scanProcessStatusKeyDir, ScanFileToProcessConstants.DATA_ERROR_HUMAN_READABLE_FILENAME );
+		File dataErrorFailMsgFile = new File( scanProcessStatusKeyDir, ScanFileToProcessConstants.DATA_ERROR_HUMAN_READABLE_FILENAME );
 		
-		if ( ! failMsgFile.exists() ) {
-			// No fail msg file, return default msg
-			return ProcessingFailDefaultErrorMsgConstants.DEFAULT_MSG; // EARLY EXIT
+		if ( ! dataErrorFailMsgFile.exists() ) {
+			// No data error fail msg file, return null
+			return null;
 		}
 		
-		long failMsgFileLength = failMsgFile.length();
+		long dataErrorFailMsgFileLength = dataErrorFailMsgFile.length();
 		
-		if ( failMsgFileLength > Integer.MAX_VALUE ) {
-			String msg = "failMsgFileLength > Integer.MAX_VALUE.  Unable to retrieve error msg file: "
-					+ failMsgFile.getAbsolutePath();
+		if ( dataErrorFailMsgFileLength > Integer.MAX_VALUE ) {
+			String msg = "dataErrorFailMsgFileLength > Integer.MAX_VALUE.  Unable to retrieve error msg file: "
+					+ dataErrorFailMsgFile.getAbsolutePath();
 			log.error( msg );
 			throw new SpectralStorageProcessingException( msg );
 		}
 		
-		ByteArrayOutputStream baosErrorMsgFileContents = new ByteArrayOutputStream( ((int) failMsgFileLength ) );
+		ByteArrayOutputStream baosErrorMsgFileContents = new ByteArrayOutputStream( ((int) dataErrorFailMsgFileLength ) );
 		
-		try ( InputStream is = new FileInputStream(failMsgFile) ) {
+		try ( InputStream is = new FileInputStream(dataErrorFailMsgFile) ) {
 			byte[] buffer = new byte[ 10000 ];
 			int bytesRead = 0;
 			while ( ( bytesRead = is.read( buffer ) ) != -1 ) {
@@ -296,10 +295,10 @@ public class Get_UploadedScan_Status_API_HashKey_Servlet extends HttpServlet {
 			}
 		}
 		
-		byte[] errorMsgFileContents = baosErrorMsgFileContents.toByteArray();
+		byte[] dataErrorMsgFileContents = baosErrorMsgFileContents.toByteArray();
 		
-		String errorMsgFileContentsString = new String( errorMsgFileContents, StandardCharsets.UTF_8 );
+		String dataErrorMsgFileContentsString = new String( dataErrorMsgFileContents, StandardCharsets.UTF_8 );
 		
-		return errorMsgFileContentsString;
+		return dataErrorMsgFileContentsString;
 	}
 }

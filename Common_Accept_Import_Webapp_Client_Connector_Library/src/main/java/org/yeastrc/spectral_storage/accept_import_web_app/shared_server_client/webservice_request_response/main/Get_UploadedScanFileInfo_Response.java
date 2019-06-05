@@ -30,10 +30,10 @@ public class Get_UploadedScanFileInfo_Response extends BaseAcceptImportWebservic
 	private String scanFileAPIKey;
 
 	/**
-	 * Populated if status fail
+	 * Populated if status fail with Data Error
 	 */
 	@XmlAttribute
-	private String failMessage;
+	private String dataErrorFailMessage;
 
 	public boolean isScanProcessStatusKey_NotFound() {
 		return scanProcessStatusKey_NotFound;
@@ -59,12 +59,12 @@ public class Get_UploadedScanFileInfo_Response extends BaseAcceptImportWebservic
 		this.scanFileAPIKey = scanFileAPIKey;
 	}
 
-	public String getFailMessage() {
-		return failMessage;
+	public String getDataErrorFailMessage() {
+		return dataErrorFailMessage;
 	}
 
-	public void setFailMessage(String failMessage) {
-		this.failMessage = failMessage;
+	public void setDataErrorFailMessage(String dataErrorFailMessage) {
+		this.dataErrorFailMessage = dataErrorFailMessage;
 	}
 
 }
