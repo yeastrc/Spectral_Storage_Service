@@ -1,6 +1,6 @@
 package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing;
 
-//import org.apache.log4j.Logger;
+//import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes.Compute_Hashes_Result;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Get_HashBytes_As_HexString;
@@ -11,7 +11,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_cont
  */
 public class ScanFileAPIKey_ComputeFromScanFileContentHashes {
 
-//	private static final Logger log = Logger.getLogger(ScanFileAPIKey_ComputeFromScanFileContentHashes.class);
+//	private static final Logger log = LoggerFactory.getLogger(ScanFileAPIKey_ComputeFromScanFileContentHashes.class);
 	
 	/**
 	 * private constructor

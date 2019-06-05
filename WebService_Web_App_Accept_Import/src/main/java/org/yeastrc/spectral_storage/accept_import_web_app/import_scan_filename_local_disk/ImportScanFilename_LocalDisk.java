@@ -2,7 +2,7 @@ package org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadInternalException;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 
@@ -14,7 +14,7 @@ import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanF
  */
 public class ImportScanFilename_LocalDisk {
 
-	private static final Logger log = Logger.getLogger( ImportScanFilename_LocalDisk.class );
+	private static final Logger log = LoggerFactory.getLogger( ImportScanFilename_LocalDisk.class );
 
 	//  private constructor
 	private ImportScanFilename_LocalDisk() { }

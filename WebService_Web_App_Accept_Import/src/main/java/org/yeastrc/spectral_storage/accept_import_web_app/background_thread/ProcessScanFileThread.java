@@ -1,6 +1,6 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.background_thread;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextAvailableUploadedScanFile;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.move_old_processed_directories.MoveOldProcessedUploadScanFileDirectories;
 import org.yeastrc.spectral_storage.accept_import_web_app.reset_killed_import_to_pending_on_webapp_startup.ResetKilledImportToPendingOnWebappStartup;
@@ -11,7 +11,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.reset_killed_import_to
  */
 public class ProcessScanFileThread extends Thread {
 
-	private static final Logger log = Logger.getLogger(ProcessScanFileThread.class);
+	private static final Logger log = LoggerFactory.getLogger(ProcessScanFileThread.class);
 	
 	//  A long sleep/wait time since it is awaken whenever a file is uploaded
 	

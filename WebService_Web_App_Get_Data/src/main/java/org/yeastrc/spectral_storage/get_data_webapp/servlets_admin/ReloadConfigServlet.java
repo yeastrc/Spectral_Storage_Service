@@ -9,13 +9,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.get_data_webapp.config.A_Load_Config_Populate_Objects;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.AdminPageConstants;
 
 public class ReloadConfigServlet extends HttpServlet {
 
-	private static final Logger log = Logger.getLogger(ReloadConfigServlet.class);
+	private static final Logger log = LoggerFactory.getLogger(ReloadConfigServlet.class);
 
 
 	/**

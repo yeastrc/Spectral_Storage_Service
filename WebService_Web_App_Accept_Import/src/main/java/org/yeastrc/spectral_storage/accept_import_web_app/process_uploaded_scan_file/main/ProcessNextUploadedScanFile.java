@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.run_system_command.RunSystemCommand;
@@ -20,7 +20,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file
  */
 public class ProcessNextUploadedScanFile {
 
-	private static final Logger log = Logger.getLogger(ProcessNextUploadedScanFile.class);
+	private static final Logger log = LoggerFactory.getLogger(ProcessNextUploadedScanFile.class);
 
 
 	private static final String CMD_LINE_PARAM_DELETE_ON_SUCCESS = "--delete-scan-file-on-successful-processing";

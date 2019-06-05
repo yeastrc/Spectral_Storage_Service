@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.AdminPageConstants;
 
 /**
@@ -18,7 +18,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.AdminP
  */
 public class AdminInitServlet extends HttpServlet {
 
-	private static final Logger log = Logger.getLogger(AdminInitServlet.class);
+	private static final Logger log = LoggerFactory.getLogger(AdminInitServlet.class);
 
 	/**
 	 * 

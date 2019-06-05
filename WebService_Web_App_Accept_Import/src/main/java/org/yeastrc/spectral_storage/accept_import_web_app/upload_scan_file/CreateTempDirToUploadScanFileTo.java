@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.FileUploadConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadFileSystemException;
@@ -16,7 +16,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFil
  */
 public class CreateTempDirToUploadScanFileTo {
 
-	private static final Logger log = Logger.getLogger(CreateTempDirToUploadScanFileTo.class);
+	private static final Logger log = LoggerFactory.getLogger(CreateTempDirToUploadScanFileTo.class);
 
 	//  private constructor
 	private CreateTempDirToUploadScanFileTo() { }

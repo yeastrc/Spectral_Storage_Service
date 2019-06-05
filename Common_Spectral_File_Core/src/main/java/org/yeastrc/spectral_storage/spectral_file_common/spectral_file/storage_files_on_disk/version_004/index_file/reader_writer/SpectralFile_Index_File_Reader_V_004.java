@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.DataOrIndexFileFullyWrittenConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralFileDataFileNotFullyWrittenException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
@@ -32,7 +32,7 @@ public class SpectralFile_Index_File_Reader_V_004 {
 	
 	private static final int BUFFERED_READER_BUFFER_SIZE = 1 * 1024 * 1024; // 1MB
 
-	private static final Logger log = Logger.getLogger(SpectralFile_Index_File_Reader_V_004.class);
+	private static final Logger log = LoggerFactory.getLogger(SpectralFile_Index_File_Reader_V_004.class);
 	
 	/**
 	 * private constructor

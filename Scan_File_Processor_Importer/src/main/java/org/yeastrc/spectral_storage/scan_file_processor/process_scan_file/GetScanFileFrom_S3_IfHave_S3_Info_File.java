@@ -11,7 +11,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
@@ -36,7 +36,7 @@ import com.amazonaws.services.s3.model.S3Object;
  */
 public class GetScanFileFrom_S3_IfHave_S3_Info_File {
 
-	private static final Logger log = Logger.getLogger( GetScanFileFrom_S3_IfHave_S3_Info_File.class );
+	private static final Logger log = LoggerFactory.getLogger( GetScanFileFrom_S3_IfHave_S3_Info_File.class );
 			
 	private GetScanFileFrom_S3_IfHave_S3_Info_File() {}
 	public static GetScanFileFrom_S3_IfHave_S3_Info_File getInstance() {

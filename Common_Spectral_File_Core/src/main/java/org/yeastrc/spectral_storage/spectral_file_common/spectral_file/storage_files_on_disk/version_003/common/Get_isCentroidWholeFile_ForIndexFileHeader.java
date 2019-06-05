@@ -3,7 +3,7 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.ScanCentroidedConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 
@@ -13,7 +13,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exception
  */
 public class Get_isCentroidWholeFile_ForIndexFileHeader {
 
-	private static final Logger log = Logger.getLogger(Get_isCentroidWholeFile_ForIndexFileHeader.class);
+	private static final Logger log = LoggerFactory.getLogger(Get_isCentroidWholeFile_ForIndexFileHeader.class);
 	
 	/**
 	 * private constructor

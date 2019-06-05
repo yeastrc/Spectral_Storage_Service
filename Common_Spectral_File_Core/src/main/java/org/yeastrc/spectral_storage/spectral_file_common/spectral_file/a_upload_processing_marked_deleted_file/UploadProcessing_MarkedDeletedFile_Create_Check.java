@@ -3,7 +3,7 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingMarkedDeletedFileConstants;
 
 /**
@@ -12,7 +12,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants
  */
 public class UploadProcessing_MarkedDeletedFile_Create_Check {
 
-	private static final Logger log = Logger.getLogger(UploadProcessing_MarkedDeletedFile_Create_Check.class);
+	private static final Logger log = LoggerFactory.getLogger(UploadProcessing_MarkedDeletedFile_Create_Check.class);
 	/**
 	 * private constructor
 	 */

@@ -2,7 +2,7 @@ package org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.send_email.SendEmail;
 import org.yeastrc.spectral_storage.accept_import_web_app.send_email.SendEmailDTO;
@@ -13,7 +13,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.send_email.SendEmailDT
  */
 public class ProcessUploadedScanFile_SendStatusEmail {
 
-	private static final Logger log = Logger.getLogger(ProcessUploadedScanFile_SendStatusEmail.class);
+	private static final Logger log = LoggerFactory.getLogger(ProcessUploadedScanFile_SendStatusEmail.class);
 
 	private ProcessUploadedScanFile_SendStatusEmail() { }
 	public static ProcessUploadedScanFile_SendStatusEmail getInstance() { 

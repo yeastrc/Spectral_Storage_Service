@@ -9,7 +9,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileSerializeRequestException;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileWebappConfigException;
@@ -23,7 +23,7 @@ import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileWebap
  */
 public class WriteResponseObjectToOutputStream {
 
-	private static final Logger log = Logger.getLogger( WriteResponseObjectToOutputStream.class );
+	private static final Logger log = LoggerFactory.getLogger( WriteResponseObjectToOutputStream.class );
 
 	private static WriteResponseObjectToOutputStream instance = null;
 

@@ -9,7 +9,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  */
 public class Single_ScanRetentionTime_ScanNumber_SubResponse_Factory {
 
-//	private static final Logger log = Logger.getLogger( Single_ScanRetentionTime_ScanNumber_SubResponse_Factory.class );
+//	private static final Logger log = LoggerFactory.getLogger( Single_ScanRetentionTime_ScanNumber_SubResponse_Factory.class );
 
 	//  private constructor
 	private Single_ScanRetentionTime_ScanNumber_SubResponse_Factory() { }

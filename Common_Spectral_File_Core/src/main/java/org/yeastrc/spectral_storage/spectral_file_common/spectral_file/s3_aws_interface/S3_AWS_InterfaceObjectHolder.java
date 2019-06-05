@@ -1,6 +1,6 @@
 package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.s3_aws_interface;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -11,7 +11,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
  */
 public class S3_AWS_InterfaceObjectHolder {
 
-	private static final Logger log = Logger.getLogger( S3_AWS_InterfaceObjectHolder.class );
+	private static final Logger log = LoggerFactory.getLogger( S3_AWS_InterfaceObjectHolder.class );
 			
 	private S3_AWS_InterfaceObjectHolder() {}
 	public static S3_AWS_InterfaceObjectHolder getSingletonInstance() {

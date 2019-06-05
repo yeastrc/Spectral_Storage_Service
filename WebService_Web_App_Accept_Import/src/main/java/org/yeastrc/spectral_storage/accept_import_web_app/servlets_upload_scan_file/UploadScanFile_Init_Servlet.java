@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.FileUploadConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadFileSystemException;
@@ -27,7 +27,7 @@ import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanF
  */
 public class UploadScanFile_Init_Servlet extends HttpServlet {
 
-	private static final Logger log = Logger.getLogger( UploadScanFile_Init_Servlet.class );
+	private static final Logger log = LoggerFactory.getLogger( UploadScanFile_Init_Servlet.class );
 
 	private static final long serialVersionUID = 1L;
 

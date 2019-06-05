@@ -2,7 +2,7 @@ package org.yeastrc.spectral_storage.scan_file_processor.process_scan_file;
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
 
@@ -12,7 +12,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exception
  */
 public class GetInputScanFile_CurrentLocalDirectory {
 
-	private static final Logger log = Logger.getLogger( GetInputScanFile_CurrentLocalDirectory.class );
+	private static final Logger log = LoggerFactory.getLogger( GetInputScanFile_CurrentLocalDirectory.class );
 			
 	private GetInputScanFile_CurrentLocalDirectory() {}
 	public static GetInputScanFile_CurrentLocalDirectory getInstance() {

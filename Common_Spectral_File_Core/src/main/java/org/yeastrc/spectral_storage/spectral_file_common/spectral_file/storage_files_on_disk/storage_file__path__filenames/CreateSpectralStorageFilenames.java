@@ -1,6 +1,6 @@
 package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
 
 /**
@@ -9,7 +9,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants
  */
 public class CreateSpectralStorageFilenames {
 
-	private static final Logger log = Logger.getLogger(CreateSpectralStorageFilenames.class);
+	private static final Logger log = LoggerFactory.getLogger(CreateSpectralStorageFilenames.class);
 	
 	/**
 	 * private constructor

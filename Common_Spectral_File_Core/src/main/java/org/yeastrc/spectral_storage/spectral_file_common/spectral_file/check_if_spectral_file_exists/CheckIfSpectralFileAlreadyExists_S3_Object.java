@@ -1,6 +1,6 @@
 package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.SpectralStorage_DataFiles_S3_Prefix_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.s3_aws_interface.S3_AWS_InterfaceObjectHolder;
@@ -16,7 +16,7 @@ import com.amazonaws.services.s3.AmazonS3;
  */
 public class CheckIfSpectralFileAlreadyExists_S3_Object {
 
-	private static final Logger log = Logger.getLogger(CheckIfSpectralFileAlreadyExists_S3_Object.class);
+	private static final Logger log = LoggerFactory.getLogger(CheckIfSpectralFileAlreadyExists_S3_Object.class);
 	/**
 	 * private constructor
 	 */

@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadFileSystemException;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
@@ -16,7 +16,7 @@ import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanF
  */
 public class CreateProcessScanFileDir {
 
-	private static final Logger log = Logger.getLogger(CreateProcessScanFileDir.class);
+	private static final Logger log = LoggerFactory.getLogger(CreateProcessScanFileDir.class);
 
 	//  private constructor
 	private CreateProcessScanFileDir() { }

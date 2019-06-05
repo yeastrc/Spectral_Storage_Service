@@ -2,7 +2,7 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.GetOrCreateSpectralStorageSubPath;
@@ -15,7 +15,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  */
 public class CheckIfSpectralFileAlreadyExists_LocalFilesystem {
 
-	private static final Logger log = Logger.getLogger(CheckIfSpectralFileAlreadyExists_LocalFilesystem.class);
+	private static final Logger log = LoggerFactory.getLogger(CheckIfSpectralFileAlreadyExists_LocalFilesystem.class);
 	/**
 	 * private constructor
 	 */

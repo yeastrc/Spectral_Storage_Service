@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 
@@ -19,7 +19,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exception
  */
 public class ScanFileAPIKey_ToFileReadWrite {
 
-	private static final Logger log = Logger.getLogger(ScanFileAPIKey_ToFileReadWrite.class);
+	private static final Logger log = LoggerFactory.getLogger(ScanFileAPIKey_ToFileReadWrite.class);
 
 	/**
 	 * private constructor

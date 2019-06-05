@@ -18,7 +18,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  */
 public class AccumulateSummaryDataPerScanLevel {
 	
-//	private static final Logger log = Logger.getLogger(AccumulateSummaryDataPerScanLevel.class);
+//	private static final Logger log = LoggerFactory.getLogger(AccumulateSummaryDataPerScanLevel.class);
 	private AccumulateSummaryDataPerScanLevel() { }
 	public static AccumulateSummaryDataPerScanLevel getInstance() { return new AccumulateSummaryDataPerScanLevel(); }
 

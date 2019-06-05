@@ -3,7 +3,7 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_con
 import java.io.File;
 import java.io.FileInputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 
 /**
  * 
@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
  */
 public class Compute_File_Hashes {
 
-	private static final Logger log = Logger.getLogger(Compute_File_Hashes.class);
+	private static final Logger log = LoggerFactory.getLogger(Compute_File_Hashes.class);
 	
 	/**
 	 * private constructor

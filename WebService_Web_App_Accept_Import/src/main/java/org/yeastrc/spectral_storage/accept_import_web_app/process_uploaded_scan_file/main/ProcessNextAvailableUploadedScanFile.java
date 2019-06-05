@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextUploadedScanFile.ProcessingSuccessFailKilled;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
@@ -19,7 +19,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file
  */
 public class ProcessNextAvailableUploadedScanFile {
 
-	private static final Logger log = Logger.getLogger(ProcessNextAvailableUploadedScanFile.class);
+	private static final Logger log = LoggerFactory.getLogger(ProcessNextAvailableUploadedScanFile.class);
 
 	
 //	private static enum ProcessUploadedFilesState {

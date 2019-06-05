@@ -1,7 +1,7 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.move_old_processed_directories;
 
 import java.io.File;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
@@ -16,7 +16,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants
  */
 public class MoveOldProcessedUploadScanFileDirectories {
 
-	private static final Logger log = Logger.getLogger( MoveOldProcessedUploadScanFileDirectories.class );
+	private static final Logger log = LoggerFactory.getLogger( MoveOldProcessedUploadScanFileDirectories.class );
 	
 	// Private constructor
 	private MoveOldProcessedUploadScanFileDirectories() {}

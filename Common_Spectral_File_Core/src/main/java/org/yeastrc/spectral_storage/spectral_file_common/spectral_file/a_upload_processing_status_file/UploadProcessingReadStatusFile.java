@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 
 /**
@@ -17,7 +17,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants
  */
 public class UploadProcessingReadStatusFile {
 
-	private static final Logger log = Logger.getLogger(UploadProcessingReadStatusFile.class);
+	private static final Logger log = LoggerFactory.getLogger(UploadProcessingReadStatusFile.class);
 	/**
 	 * private constructor
 	 */

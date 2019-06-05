@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServlet;
 //import org.apache.commons.io.FileUtils;
 //import org.apache.commons.io.output.FileWriterWithEncoding;
 //import org.apache.commons.lang3.StringUtils;
-//import org.apache.log4j.Logger;
+//import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 //import org.yeastrc.spectral_storage.shared_server_client.constants.WebserviceSpectralStorageScanFileAllowedSuffixesConstants;
 //import org.yeastrc.spectral_storage.shared_server_client.webservice_request_response.main.UploadScanFile_Response;
 //import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingWriteOrUpdateStatusFile;
@@ -41,7 +41,7 @@ import javax.servlet.http.HttpServlet;
  */
 public class UploadScanFile_As_Form_Servlet extends HttpServlet {
 
-//	private static final Logger log = Logger.getLogger( UploadScanFile_As_Form_Servlet.class );
+//	private static final Logger log = LoggerFactory.getLogger( UploadScanFile_As_Form_Servlet.class );
 //
 //	private static final long serialVersionUID = 1L;
 //	

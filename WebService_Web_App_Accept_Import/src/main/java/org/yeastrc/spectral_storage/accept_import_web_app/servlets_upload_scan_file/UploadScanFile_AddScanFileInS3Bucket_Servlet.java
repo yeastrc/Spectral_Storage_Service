@@ -14,7 +14,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.amazon_s3_client_builder.SpectralStorageWebappAmazonS3ClientBuilder;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.FileUploadConstants;
@@ -50,7 +50,7 @@ import com.amazonaws.services.s3.model.S3Object;
  */
 public class UploadScanFile_AddScanFileInS3Bucket_Servlet extends HttpServlet {
 
-	private static final Logger log = Logger.getLogger( UploadScanFile_AddScanFileInS3Bucket_Servlet.class );
+	private static final Logger log = LoggerFactory.getLogger( UploadScanFile_AddScanFileInS3Bucket_Servlet.class );
 
 	private static final long serialVersionUID = 1L;
 	

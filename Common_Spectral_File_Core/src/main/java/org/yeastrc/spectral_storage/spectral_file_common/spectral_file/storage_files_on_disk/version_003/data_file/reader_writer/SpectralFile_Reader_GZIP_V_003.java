@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.DataOrIndexFileFullyWrittenConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.ScanCentroidedConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralFileDataFileNotFullyWrittenException;
@@ -56,7 +56,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	private static final short FILE_VERSION = StorageFile_Version_003_Constants.FILE_VERSION;
 	
 	
-	private static final Logger log = Logger.getLogger(SpectralFile_Reader_GZIP_V_003.class);
+	private static final Logger log = LoggerFactory.getLogger(SpectralFile_Reader_GZIP_V_003.class);
 	
 	private static final int SIZE_OF_SCAN_MINUS_SCAN_PEAKS = sizeOfScanMinusScanPeaks();
 	

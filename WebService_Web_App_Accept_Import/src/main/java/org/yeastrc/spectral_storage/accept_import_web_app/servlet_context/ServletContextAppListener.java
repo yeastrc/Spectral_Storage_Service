@@ -3,7 +3,7 @@ package org.yeastrc.spectral_storage.accept_import_web_app.servlet_context;
 import java.util.Properties;
 import javax.servlet.*;
 import javax.servlet.http.*;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ComputeAPIKeyForScanFileThread;
 import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFileThread;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.A_Load_Config;
@@ -14,7 +14,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.config.A_Load_Config;
  */
 public class ServletContextAppListener extends HttpServlet implements ServletContextListener {
 	
-	private static Logger log = Logger.getLogger( ServletContextAppListener.class );
+	private static final Logger log = LoggerFactory.getLogger( ServletContextAppListener.class );
 	private static final long serialVersionUID = 1L;
 	
 	/* (non-Javadoc)

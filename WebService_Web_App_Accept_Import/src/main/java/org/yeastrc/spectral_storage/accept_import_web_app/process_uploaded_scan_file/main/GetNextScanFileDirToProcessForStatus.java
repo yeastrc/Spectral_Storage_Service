@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingReadStatusFile;
@@ -15,7 +15,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_
  */
 public class GetNextScanFileDirToProcessForStatus {
 
-	private static final Logger log = Logger.getLogger(GetNextScanFileDirToProcessForStatus.class);
+	private static final Logger log = LoggerFactory.getLogger(GetNextScanFileDirToProcessForStatus.class);
 
 	private GetNextScanFileDirToProcessForStatus() { }
 	public static GetNextScanFileDirToProcessForStatus getInstance() { 

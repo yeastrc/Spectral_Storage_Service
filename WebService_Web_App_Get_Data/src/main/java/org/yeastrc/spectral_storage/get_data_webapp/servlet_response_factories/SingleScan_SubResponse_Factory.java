@@ -3,7 +3,7 @@ package org.yeastrc.spectral_storage.get_data_webapp.servlet_response_factories;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.sub_parts.SingleScanPeak_SubResponse;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.sub_parts.SingleScan_SubResponse;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
@@ -17,7 +17,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  */
 public class SingleScan_SubResponse_Factory {
 
-	private static final Logger log = Logger.getLogger( SingleScan_SubResponse_Factory.class );
+	private static final Logger log = LoggerFactory.getLogger( SingleScan_SubResponse_Factory.class );
 
 	//  private constructor
 	private SingleScan_SubResponse_Factory() { }

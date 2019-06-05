@@ -1,14 +1,14 @@
 package org.yeastrc.spectral_storage.get_data_webapp.config;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileWebappConfigException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Builder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 
 public class A_Load_Config_Populate_Objects {
 
-	private static final Logger log = Logger.getLogger(A_Load_Config_Populate_Objects.class);
+	private static final Logger log = LoggerFactory.getLogger(A_Load_Config_Populate_Objects.class);
 
 	//  private constructor
 	private A_Load_Config_Populate_Objects() { }

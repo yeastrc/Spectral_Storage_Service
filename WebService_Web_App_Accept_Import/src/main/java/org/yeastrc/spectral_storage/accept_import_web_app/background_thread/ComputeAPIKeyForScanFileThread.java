@@ -1,6 +1,6 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.background_thread;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_import_request_compute_api_key_store_in_file.Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir;
 
 /**
@@ -9,7 +9,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.process_import_request
  */
 public class ComputeAPIKeyForScanFileThread extends Thread {
 
-	private static final Logger log = Logger.getLogger(ComputeAPIKeyForScanFileThread.class);
+	private static final Logger log = LoggerFactory.getLogger(ComputeAPIKeyForScanFileThread.class);
 	
 	//  A long sleep/wait time since it is awaken whenever a file is uploaded
 	

@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.output.FileWriterWithEncoding;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappConfigException;
 
 
@@ -22,7 +22,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFil
 public class RunSystemCommand {
 
 
-	private static Logger log = Logger.getLogger(RunSystemCommand.class);
+	private static final Logger log = LoggerFactory.getLogger( RunSystemCommand.class );
 
 	//  private constructor
 	private RunSystemCommand() { }

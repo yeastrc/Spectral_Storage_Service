@@ -26,7 +26,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  */
 public class Accumulate_RT_MZ_Binned_ScanLevel_1 {
 
-//	private static final Logger log = Logger.getLogger(Accumulate_RT_MZ_Binned_ScanLevel_1.class);
+//	private static final Logger log = LoggerFactory.getLogger(Accumulate_RT_MZ_Binned_ScanLevel_1.class);
 	private Accumulate_RT_MZ_Binned_ScanLevel_1() { }
 	public static Accumulate_RT_MZ_Binned_ScanLevel_1 getInstance() { return new Accumulate_RT_MZ_Binned_ScanLevel_1(); }
 

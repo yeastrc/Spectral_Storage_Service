@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_summary_data.AccumulateSummaryDataPerScanLevel;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_summary_data.AccumulateSummaryDataPerScanLevelResult;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_summary_data.AccumulateSummaryDataPerScanLevelSingleLevelResult;
@@ -34,7 +34,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  */
 public class SpectralFile_Index_File_Writer_V_004 {
 
-	private static final Logger log = Logger.getLogger(SpectralFile_Index_File_Writer_V_004.class);
+	private static final Logger log = LoggerFactory.getLogger(SpectralFile_Index_File_Writer_V_004.class);
 
 	/**
 	 * Version for Index File, written at beginning of the file

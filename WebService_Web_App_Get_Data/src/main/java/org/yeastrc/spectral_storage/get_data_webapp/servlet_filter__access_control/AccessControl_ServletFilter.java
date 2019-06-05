@@ -12,7 +12,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_Allowed_Remotes_InWorkDirectory;
 
 /**
@@ -22,7 +22,7 @@ import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_Allowed_Re
  */
 public class AccessControl_ServletFilter implements Filter {
 
-	private static final Logger log = Logger.getLogger( AccessControl_ServletFilter.class );
+	private static final Logger log = LoggerFactory.getLogger( AccessControl_ServletFilter.class );
 
 	private static enum AccessControlType { OVERALL, ADMIN, QUERY }
 	

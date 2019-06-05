@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.index_file_rebuild.constants.RunControlConstants;
 
 /**
@@ -15,7 +15,7 @@ import org.yeastrc.spectral_storage.index_file_rebuild.constants.RunControlConst
  */
 public class RunControlFile_Create_Read {
 
-	private static final Logger log = Logger.getLogger(RunControlFile_Create_Read.class);
+	private static final Logger log = LoggerFactory.getLogger(RunControlFile_Create_Read.class);
 	/**
 	 * private constructor
 	 */

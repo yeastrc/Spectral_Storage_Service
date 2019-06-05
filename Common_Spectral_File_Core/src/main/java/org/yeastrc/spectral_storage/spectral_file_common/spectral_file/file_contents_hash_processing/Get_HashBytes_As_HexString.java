@@ -1,10 +1,10 @@
 package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 
 public class Get_HashBytes_As_HexString {
 
-	private static final Logger log = Logger.getLogger(Get_HashBytes_As_HexString.class);
+	private static final Logger log = LoggerFactory.getLogger(Get_HashBytes_As_HexString.class);
 
 	/**
 	 * private constructor

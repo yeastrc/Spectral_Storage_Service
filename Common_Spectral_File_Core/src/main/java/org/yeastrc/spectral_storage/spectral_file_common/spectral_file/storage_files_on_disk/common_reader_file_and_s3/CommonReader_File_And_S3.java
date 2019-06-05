@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.SpectralStorage_DataFiles_S3_Prefix_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageConfigException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
@@ -30,7 +30,7 @@ import com.amazonaws.services.s3.model.S3Object;
  */
 public class CommonReader_File_And_S3 {
 
-	private static final Logger log = Logger.getLogger( CommonReader_File_And_S3.class );
+	private static final Logger log = LoggerFactory.getLogger( CommonReader_File_And_S3.class );
 
 	private static final String FILE_MODE_READ = "r"; // Used in RandomAccessFile constructor below
 	

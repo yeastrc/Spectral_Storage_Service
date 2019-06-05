@@ -31,7 +31,7 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.constants_enums.ImporterTempSubDirNameConstants;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetInputScanFile_CurrentLocalDirectory;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetScanFileFrom_S3_IfHave_S3_Info_File;
@@ -60,7 +60,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_sc
  */
 public class ProcessUploadedScanFileRequest {
 
-	private static final Logger log = Logger.getLogger(ProcessUploadedScanFileRequest.class);
+	private static final Logger log = LoggerFactory.getLogger(ProcessUploadedScanFileRequest.class);
 
 	private static final int RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_MAX = 10;
 	private static final int RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_DELAY = 500;  // milliseconds

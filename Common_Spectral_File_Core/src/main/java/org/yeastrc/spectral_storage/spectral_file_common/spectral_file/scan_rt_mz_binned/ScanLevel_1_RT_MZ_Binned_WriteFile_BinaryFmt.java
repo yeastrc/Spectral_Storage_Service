@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.shared_server_client_importer.accum_scan_rt_mz_binned.dto.MS1_IntensitiesBinnedSummedMapRoot;
 import org.yeastrc.spectral_storage.shared_server_client_importer.accum_scan_rt_mz_binned.dto.MS1_IntensitiesBinnedSummed_Summary_DataRoot;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
@@ -35,7 +35,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  */
 public class ScanLevel_1_RT_MZ_Binned_WriteFile_BinaryFmt {
 
-	private static final Logger log = Logger.getLogger(ScanLevel_1_RT_MZ_Binned_WriteFile_BinaryFmt.class);
+	private static final Logger log = LoggerFactory.getLogger(ScanLevel_1_RT_MZ_Binned_WriteFile_BinaryFmt.class);
 	private ScanLevel_1_RT_MZ_Binned_WriteFile_BinaryFmt() { }
 	public static ScanLevel_1_RT_MZ_Binned_WriteFile_BinaryFmt getInstance() { return new ScanLevel_1_RT_MZ_Binned_WriteFile_BinaryFmt(); }
 

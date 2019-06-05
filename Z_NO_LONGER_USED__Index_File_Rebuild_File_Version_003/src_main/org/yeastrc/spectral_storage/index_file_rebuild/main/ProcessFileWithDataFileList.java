@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.mutable.MutableLong;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.index_file_rebuild.constants.DataFile_Version_BeingProcessed_Constants;
 import org.yeastrc.spectral_storage.index_file_rebuild.constants.OldIndexFilesDirConstants;
 import org.yeastrc.spectral_storage.index_file_rebuild.run_control.RunControlFile_Create_Read;
@@ -33,7 +33,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  */
 public class ProcessFileWithDataFileList {
 
-	private static final Logger log = Logger.getLogger(ProcessFileWithDataFileList.class);
+	private static final Logger log = LoggerFactory.getLogger(ProcessFileWithDataFileList.class);
 	/**
 	 * private constructor
 	 */

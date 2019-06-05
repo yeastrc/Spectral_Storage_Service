@@ -2,7 +2,7 @@ package org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextUploadedScanFile.ProcessingSuccessFailKilled;
@@ -14,7 +14,7 @@ import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanF
  */
 public class MoveProcessingDirectoryToOneof_Processed_Directories {
 
-	private static final Logger log = Logger.getLogger(MoveProcessingDirectoryToOneof_Processed_Directories.class);
+	private static final Logger log = LoggerFactory.getLogger(MoveProcessingDirectoryToOneof_Processed_Directories.class);
 
 	private MoveProcessingDirectoryToOneof_Processed_Directories() { }
 	public static MoveProcessingDirectoryToOneof_Processed_Directories getInstance() { 

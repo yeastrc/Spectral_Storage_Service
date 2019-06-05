@@ -2,7 +2,7 @@ package org.yeastrc.spectral_storage.accept_import_web_app.process_import_reques
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.GetNextScanFileDirToProcessForStatus;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 
@@ -12,7 +12,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants
  */
 public class Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir {
 
-	private static final Logger log = Logger.getLogger( Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir.class );
+	private static final Logger log = LoggerFactory.getLogger( Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir.class );
 
 	//  private constructor
 	private Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir() { }

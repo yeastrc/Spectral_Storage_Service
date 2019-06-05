@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_ScanDataLocation_InWorkDirectory;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileBadRequestToServletException;
@@ -38,7 +38,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  */
 public class GetSummaryDataPerScanLevel_Servlet extends HttpServlet {
 
-	private static final Logger log = Logger.getLogger( GetSummaryDataPerScanLevel_Servlet.class );
+	private static final Logger log = LoggerFactory.getLogger( GetSummaryDataPerScanLevel_Servlet.class );
 
 	private static final long serialVersionUID = 1L;
 

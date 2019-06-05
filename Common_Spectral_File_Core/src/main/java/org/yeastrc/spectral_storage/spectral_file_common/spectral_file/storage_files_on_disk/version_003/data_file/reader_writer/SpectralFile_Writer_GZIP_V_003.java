@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_summary_data.AccumulateSummaryDataPerScanLevel;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.DataOrIndexFileFullyWrittenConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
@@ -46,7 +46,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  */
 public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  {
 
-	private static final Logger log = Logger.getLogger(SpectralFile_Writer_GZIP_V_003.class);
+	private static final Logger log = LoggerFactory.getLogger(SpectralFile_Writer_GZIP_V_003.class);
 	
 	private static final short FILE_VERSION = StorageFile_Version_003_Constants.FILE_VERSION;
 	

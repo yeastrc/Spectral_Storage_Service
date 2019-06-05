@@ -2,7 +2,7 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.StorageFile_Version_003_Constants;
@@ -14,7 +14,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  */
 public class SpectralFile_Reader_Factory {
 
-	private static final Logger log = Logger.getLogger(SpectralFile_Reader_Factory.class);
+	private static final Logger log = LoggerFactory.getLogger(SpectralFile_Reader_Factory.class);
 	
 	/**
 	 * private constructor

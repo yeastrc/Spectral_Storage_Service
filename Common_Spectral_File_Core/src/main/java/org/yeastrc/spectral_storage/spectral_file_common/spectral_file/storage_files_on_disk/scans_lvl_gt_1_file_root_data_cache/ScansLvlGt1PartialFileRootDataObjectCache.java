@@ -4,7 +4,7 @@ import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.scans_lvl_gt_1_partial.SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
@@ -21,7 +21,7 @@ import com.google.common.cache.LoadingCache;
  */
 public class ScansLvlGt1PartialFileRootDataObjectCache {
 
-	private static final Logger log = Logger.getLogger(ScansLvlGt1PartialFileRootDataObjectCache.class);
+	private static final Logger log = LoggerFactory.getLogger(ScansLvlGt1PartialFileRootDataObjectCache.class);
 	
 	private static final int CACHE_MAX_SIZE_FULL_SIZE = 100;
 //	private static final int CACHE_MAX_SIZE_SMALL = 10;

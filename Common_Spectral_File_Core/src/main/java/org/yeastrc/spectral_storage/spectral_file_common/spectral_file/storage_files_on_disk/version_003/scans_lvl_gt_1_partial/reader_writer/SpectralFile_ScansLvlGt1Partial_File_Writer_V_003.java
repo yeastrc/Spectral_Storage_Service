@@ -8,7 +8,7 @@ import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.DataOrIndexFileFullyWrittenConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
@@ -23,7 +23,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  */
 public class SpectralFile_ScansLvlGt1Partial_File_Writer_V_003 {
 
-	private static final Logger log = Logger.getLogger(SpectralFile_ScansLvlGt1Partial_File_Writer_V_003.class);
+	private static final Logger log = LoggerFactory.getLogger(SpectralFile_ScansLvlGt1Partial_File_Writer_V_003.class);
 	
 
 	private static final short FILE_VERSION = StorageFile_Version_003_Constants.FILE_VERSION;

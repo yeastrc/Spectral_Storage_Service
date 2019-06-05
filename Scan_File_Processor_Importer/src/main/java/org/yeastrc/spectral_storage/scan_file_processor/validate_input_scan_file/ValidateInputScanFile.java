@@ -4,7 +4,7 @@ import java.io.File;
 import java.text.NumberFormat;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.MzML_MzXmlHeader;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.MzML_MzXmlScan;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.reader.MzMl_MzXml_FileReader;
@@ -18,7 +18,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exception
  */
 public class ValidateInputScanFile {
 
-	private static final Logger log = Logger.getLogger(ValidateInputScanFile.class);
+	private static final Logger log = LoggerFactory.getLogger(ValidateInputScanFile.class);
 	/**
 	 * private constructor
 	 */

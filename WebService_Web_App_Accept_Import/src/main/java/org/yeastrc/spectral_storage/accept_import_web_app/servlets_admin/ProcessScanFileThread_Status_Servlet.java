@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFileThread;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.AdminPageConstants;
 
@@ -19,7 +19,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.AdminP
  */
 public class ProcessScanFileThread_Status_Servlet extends HttpServlet {
 
-	private static final Logger log = Logger.getLogger(ProcessScanFileThread_Status_Servlet.class);
+	private static final Logger log = LoggerFactory.getLogger(ProcessScanFileThread_Status_Servlet.class);
 
 
 	/**
