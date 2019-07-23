@@ -48,20 +48,22 @@ public class CheckIfSpectralFileAlreadyExists_LocalFilesystem {
 		File dataFile = new File( subDir, dataFilename );
 		File dataIndexSpectralFilesCompleteFile = new File( subDir, dataIndexSpectralFilesCompleteFilename );
 
-		if ( dataFile.exists() ) {
-			System.out.println( "dataFile DOES exist: "
-					+ dataFile.getAbsolutePath() );
-		} else {
-			System.out.println( "dataFile does NOT exist: "
-					+ dataFile.getAbsolutePath() );
-		}
-		
-		if ( dataIndexSpectralFilesCompleteFile.exists() ) {
-			System.out.println( "dataIndexSpectralFilesCompleteFile DOES exist: "
-					+ dataIndexSpectralFilesCompleteFile.getAbsolutePath() );
-		} else {
-			System.out.println( "dataIndexSpectralFilesCompleteFile does NOT exist: "
-					+ dataIndexSpectralFilesCompleteFile.getAbsolutePath() );
+		if ( log.isDebugEnabled() ) {
+			if ( dataFile.exists() ) {
+				log.debug( "dataFile DOES exist: "
+						+ dataFile.getAbsolutePath() );
+			} else {
+				log.debug( "dataFile does NOT exist: "
+						+ dataFile.getAbsolutePath() );
+			}
+			
+			if ( dataIndexSpectralFilesCompleteFile.exists() ) {
+				log.debug( "dataIndexSpectralFilesCompleteFile DOES exist: "
+						+ dataIndexSpectralFilesCompleteFile.getAbsolutePath() );
+			} else {
+				log.debug( "dataIndexSpectralFilesCompleteFile does NOT exist: "
+						+ dataIndexSpectralFilesCompleteFile.getAbsolutePath() );
+			}
 		}
 
 		if ( dataIndexSpectralFilesCompleteFile.exists() ) {

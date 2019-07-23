@@ -52,28 +52,30 @@ public class CheckIfSpectralFileAlreadyExists_S3_Object {
 		boolean dataIndexSpectralFilesCompleteFile_ObjectName_Exists = 
 				s3.doesObjectExist( s3_bucketName, dataIndexSpectralFilesCompleteFile_ObjectName );
 
-		if ( dataFile_ObjectName_Exists ) {
-			System.out.println( "dataFile_Object DOES exist in in S3. bucket: "
-					+ s3_bucketName 
-					+ ", objectKey: " 
-					+ dataFile_ObjectName );
-		} else {
-			System.out.println( "dataFile_Object does NOT exist in in S3. bucket: "
-					+ s3_bucketName 
-					+ ", objectKey: " 
-					+ dataFile_ObjectName );
-		}
+		if ( log.isDebugEnabled() ) {
+			if ( dataFile_ObjectName_Exists ) {
+				log.debug( "dataFile_Object DOES exist in in S3. bucket: "
+						+ s3_bucketName 
+						+ ", objectKey: " 
+						+ dataFile_ObjectName );
+			} else {
+				log.debug( "dataFile_Object does NOT exist in in S3. bucket: "
+						+ s3_bucketName 
+						+ ", objectKey: " 
+						+ dataFile_ObjectName );
+			}
 
-		if ( dataIndexSpectralFilesCompleteFile_ObjectName_Exists ) {
-			System.out.println( "dataIndexSpectralFilesCompleteFile_Object DOES exist in in S3. bucket: "
-					+ s3_bucketName 
-					+ ", objectKey: " 
-					+ dataIndexSpectralFilesCompleteFile_ObjectName );
-		} else {
-			System.out.println( "dataIndexSpectralFilesCompleteFile_Object does NOT exist in in S3. bucket: "
-					+ s3_bucketName 
-					+ ", objectKey: " 
-					+ dataIndexSpectralFilesCompleteFile_ObjectName );
+			if ( dataIndexSpectralFilesCompleteFile_ObjectName_Exists ) {
+				log.debug( "dataIndexSpectralFilesCompleteFile_Object DOES exist in in S3. bucket: "
+						+ s3_bucketName 
+						+ ", objectKey: " 
+						+ dataIndexSpectralFilesCompleteFile_ObjectName );
+			} else {
+				log.debug( "dataIndexSpectralFilesCompleteFile_Object does NOT exist in in S3. bucket: "
+						+ s3_bucketName 
+						+ ", objectKey: " 
+						+ dataIndexSpectralFilesCompleteFile_ObjectName );
+			}
 		}
 		
 		if ( dataIndexSpectralFilesCompleteFile_ObjectName_Exists ) {

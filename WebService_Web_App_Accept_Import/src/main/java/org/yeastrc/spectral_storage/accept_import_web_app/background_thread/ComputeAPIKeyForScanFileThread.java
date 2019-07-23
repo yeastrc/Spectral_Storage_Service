@@ -119,7 +119,7 @@ public class ComputeAPIKeyForScanFileThread extends Thread {
 		
 		
 		instance = new ComputeAPIKeyForScanFileThread();
-		instance.setName( "ProcessImportFASTAFile-Thread-" + threadCreateCount );
+		instance.setName( "ComputeAPIKeyForScanFileThread-Thread-" + threadCreateCount );
 		
 		if ( startThread ) {
 			instance.start();

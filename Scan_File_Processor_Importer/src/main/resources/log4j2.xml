@@ -6,7 +6,14 @@
     </Console>
   </Appenders>
   <Loggers>
+
     <Logger name="org.apache.log4j.xml" level="info"/>
+
+    <Logger name="org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_LocalFilesystem"
+    	level="debug"/>
+    <Logger name="org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_S3_Object"
+    	level="debug"/>
+
     <Root level="warn">
       <AppenderRef ref="STDOUT"/>
     </Root>

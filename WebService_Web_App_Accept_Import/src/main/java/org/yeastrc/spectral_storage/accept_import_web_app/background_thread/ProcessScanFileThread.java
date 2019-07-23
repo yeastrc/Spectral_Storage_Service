@@ -122,7 +122,7 @@ public class ProcessScanFileThread extends Thread {
 		
 		
 		instance = new ProcessScanFileThread();
-		instance.setName( "ProcessImportFASTAFile-Thread-" + threadCreateCount );
+		instance.setName( "ProcessScanFileThread-Thread-" + threadCreateCount );
 		
 		if ( startThread ) {
 			instance.start();
