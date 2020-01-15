@@ -3,6 +3,8 @@ package org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_fil
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.MzML_MzXmlHeader;
@@ -58,6 +60,10 @@ public class ValidateInputScanFile {
 			MzML_MzXmlHeader mzXmlHeader = scanFileReader.getRunHeader();
 			
 			validateAllScans( scanFileReader, scanFile );
+			
+		} catch ( SpectralStorageDataException e ) {
+			
+			throw e;
 
 		} catch ( Exception e ) {
 			String msg = "AAAAA  Error Exception processing mzML or mzXml Scan file: " + scanFile.getAbsolutePath()
@@ -99,6 +105,10 @@ public class ValidateInputScanFile {
 	private void validateAllScans( 
 			MzMl_MzXml_FileReader scanFileReader, 
 			File scanFile ) throws Exception {
+
+		//  Ensure no scan number is duplicated
+		
+		Set<Integer> scanNumbersInFile = new HashSet<>();
 		
 		NumberFormat numberFormatInsertedScansCounter = NumberFormat.getInstance();
 		
@@ -107,6 +117,7 @@ public class ValidateInputScanFile {
 		long scanCounter = 0;
 		long ms1_ScanCounter = 0;
 		long ms_gt_1_ScanCounter = 0;
+		
 		
 		try {
 			MzML_MzXmlScan scanIn = null;
@@ -126,7 +137,22 @@ public class ValidateInputScanFile {
     				ms_gt_1_ScanCounter++;
     			}
 
+
+    			//  Ensure no scan number is duplicated
+    			
+    			int scanNumber = scanIn.getScanNumber();
+    			
+    			if ( ( ! scanNumbersInFile.add( scanNumber ) ) ) {
+    				String msg = "Error in Scan File: Duplicate scan number in file: " + scanNumber;
+    				log.error( msg );
+    				throw new SpectralStorageDataException( msg );
+    			}
+
 			}
+		} catch ( SpectralStorageDataException e ) {
+			
+			throw e;
+			
 //		} catch (IOException e) {
 //			String msg = "Error IOException processing mzML or MzXml Scan file: " + scanFileWithPath.getAbsolutePath();
 //			log.error( msg, e );
