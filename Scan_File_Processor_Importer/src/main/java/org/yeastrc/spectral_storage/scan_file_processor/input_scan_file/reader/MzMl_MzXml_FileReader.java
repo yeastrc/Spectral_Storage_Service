@@ -155,6 +155,8 @@ public class MzMl_MzXml_FileReader { // implements MzXmlDataProvider {
         }
         mScan.setRetentionTime(getRetentionTime(header));
         
+        mScan.setIonInjectionTime( header.getIonInjectionTime() );
+        mScan.setTotalIonCurrent( header.getTotIonCurrent() );
         
 //        if(header.getCentroided() != -1)
 //            mScan.setDataConversionType(getDataConversionType(header.getCentroided()));

@@ -122,6 +122,11 @@ public class ScanHeader implements Serializable
     
     /** for S(M)RM */
     protected String filterLine = null;
+    
+    /**
+     * 2020: YRC: Spectral Storage Service change to add support for ion injection time
+     */
+    protected Float ionInjectionTime;
 
     /**Peaks attribute for mzXML_3.0*/
     protected String byteOrder = null;
@@ -759,6 +764,7 @@ public class ScanHeader implements Serializable
 	 * Note: This is most likely not an optimal way to build the string.
 	 * Hopefully this method will only be used for testing.
 	 */
+	@Override
 	public String toString()
 	{
 		StringBuffer tmpStrBuffer = new StringBuffer(1000);
@@ -818,4 +824,20 @@ public class ScanHeader implements Serializable
     {
         this.scanOffset = scanOffset;
     }
+
+	/**
+	 * 2020: YRC: Spectral Storage Service change to add support for ion injection time
+	 * @return
+	 */
+	public Float getIonInjectionTime() {
+		return ionInjectionTime;
+	}
+
+	/**
+	 * 2020: YRC: Spectral Storage Service change to add support for ion injection time
+	 * @param ionInjectionTime
+	 */
+	public void setIonInjectionTime(Float ionInjectionTime) {
+		this.ionInjectionTime = ionInjectionTime;
+	}
 }

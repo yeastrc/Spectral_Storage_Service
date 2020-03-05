@@ -42,6 +42,9 @@ public class SingleScan_SubResponse_Factory {
 		singleScan_SubResponse.setLevel( spectralFile_SingleScan_Common.getLevel() );
 		singleScan_SubResponse.setScanNumber( spectralFile_SingleScan_Common.getScanNumber() );
 		singleScan_SubResponse.setRetentionTime( spectralFile_SingleScan_Common.getRetentionTime() );
+		singleScan_SubResponse.setTotalIonCurrent_ForScan( spectralFile_SingleScan_Common.getTotalIonCurrent() );
+		
+		singleScan_SubResponse.setIonInjectionTime( spectralFile_SingleScan_Common.getIonInjectionTime() );
 		singleScan_SubResponse.setIsCentroid( spectralFile_SingleScan_Common.getIsCentroid() );
 		
 		//  Only applicable where level > 1

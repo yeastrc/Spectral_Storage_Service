@@ -9,7 +9,14 @@ public class SpectralStorage_Filename_Constants {
 	public static final String DATA_FILENAME_SUFFIX = ".data";
 	public static final String INDEX_FILENAME_SUFFIX = ".index";
 	
+	/**
+	 * Appended to both Data and Index Filenames to indicate what the version is.  Version is written as file contents
+	 */
+	public static final String DATA_INDEX_FILENAME_FILE_FORMAT_VERSION_EXTRA_SUFFIX = "_v_";
+	
 	public static final String SCANS_LEVEL_GT_1_PARTIAL_FILENAME_SUFFIX = ".scnlvlgt1p";
+
+	public static final String SCANS_OTHER_EXTRACT_DATA_FILENAME_SUFFIX = ".scn_other_extact_data";
 	
 	
 	/**

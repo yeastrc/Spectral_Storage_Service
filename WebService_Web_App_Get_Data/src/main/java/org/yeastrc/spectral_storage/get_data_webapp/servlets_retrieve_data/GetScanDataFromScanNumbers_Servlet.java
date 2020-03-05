@@ -1,6 +1,5 @@
 package org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_ScanDataLocation_InWorkDirectory;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.MaxNumberScansReturnConstants;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileBadRequestToServletException;
@@ -28,12 +26,18 @@ import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteRespons
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteResponseStringToOutputStream;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanDataFromScanNumbers_IncludeParentScans;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_ExcludeReturnScanPeakData;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_IncludeReturnIonInjectionTimeData;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_IncludeReturnScanLevelTotalIonCurrentData;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_ScanFileAPI_Key_NotFound;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Request;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Response;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.sub_parts.SingleScan_SubResponse;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.CommonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.CommonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader_Factory;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader__IF;
 
@@ -137,6 +141,10 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 					get_ScanDataFromScanNumbers_Request.getIncludeParentScans();
 			Get_ScanData_ExcludeReturnScanPeakData excludeReturnScanPeakData =
 					get_ScanDataFromScanNumbers_Request.getExcludeReturnScanPeakData();
+			Get_ScanData_IncludeReturnIonInjectionTimeData includeReturnIonInjectionTimeData =
+					get_ScanDataFromScanNumbers_Request.getIncludeReturnIonInjectionTimeData();
+			Get_ScanData_IncludeReturnScanLevelTotalIonCurrentData includeReturnScanLevelTotalIonCurrentData =
+					get_ScanDataFromScanNumbers_Request.getIncludeReturnScanLevelTotalIonCurrentData();
 
 			if ( StringUtils.isEmpty( scanFileAPIKey ) ) {
 				String msg = "missing scanFileAPIKey ";
@@ -169,16 +177,14 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 				}
 			}
 			
-			File scanStorageBaseDirectoryFile =
-					ConfigData_ScanDataLocation_InWorkDirectory.getSingletonInstance()
-					.getScanStorageBaseDirectory();
-			
 			SpectralFile_Reader__IF spectralFile_Reader = null;
 			
 			try {
-				//  null returned if directory does not exist
+				CommonReader_File_And_S3 commonReader_File_And_S3 = CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3();
+				
+				//  SpectralStorageDataNotFoundException thrown if Data File (and complete) does not exist
 				spectralFile_Reader = SpectralFile_Reader_Factory.getInstance()
-						.getSpectralFile_Reader_ForHash( scanFileAPIKey, scanStorageBaseDirectoryFile );
+						.getSpectralFile_Reader_ForHash( scanFileAPIKey, commonReader_File_And_S3 );
 
 				if ( spectralFile_Reader == null ) {
 					webserviceResponse.setStatus_scanFileAPIKeyNotFound( Get_ScanData_ScanFileAPI_Key_NotFound.YES );
@@ -253,6 +259,8 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 								scanNumber, 
 								includeParentScans,
 								excludeReturnScanPeakData,
+								includeReturnIonInjectionTimeData,
+								includeReturnScanLevelTotalIonCurrentData,
 								scans, 
 								insertedScansScanNumbers, 
 								spectralFile_Reader,
@@ -308,6 +316,8 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 			Integer scanNumber, 
 			Get_ScanDataFromScanNumbers_IncludeParentScans includeParentScans,
 			Get_ScanData_ExcludeReturnScanPeakData excludeReturnScanPeakData,
+			Get_ScanData_IncludeReturnIonInjectionTimeData includeReturnIonInjectionTimeData,
+			Get_ScanData_IncludeReturnScanLevelTotalIonCurrentData includeReturnScanLevelTotalIonCurrentData,
 			List<SingleScan_SubResponse> scans,
 			Set<Integer> insertedScansScanNumbers,
 			SpectralFile_Reader__IF spectralFile_Reader,
@@ -324,8 +334,36 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 		if ( excludeReturnScanPeakData != null
 				&& excludeReturnScanPeakData == Get_ScanData_ExcludeReturnScanPeakData.YES ) {
 			//  Get scan WITHOUT scan peak data
+			
+//			Get_ScanData_IncludeReturnIonInjectionTimeData includeReturnIonInjectionTimeData
+			
+			CommonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum commonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum =
+					CommonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum.NO;
+			
+			if ( includeReturnIonInjectionTimeData == Get_ScanData_IncludeReturnIonInjectionTimeData.YES ) {
+				commonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum = CommonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum.YES;
+			}
+			
+			CommonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum commonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum =
+					CommonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum.NO;
+			
+			if ( includeReturnScanLevelTotalIonCurrentData == Get_ScanData_IncludeReturnScanLevelTotalIonCurrentData.YES ) {
+				commonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum = CommonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum.YES;
+			}
+				
+			
+			//  Parameter commonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum 
+			//  will be ignored in version 003 of Data File since NO Ion Inject Time is stored in version 003 of Data File
+			
+			//  Parameter commonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum
+			//  will be ignored if there is no value stored for Ion Injection Time
+			
 			spectralFile_SingleScan_Common = 
-					spectralFile_Reader.getScanDataNoScanPeaksForScanNumber( scanNumber );
+					spectralFile_Reader.getScanDataNoScanPeaksForScanNumber( 
+							scanNumber, 
+							commonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum,
+							commonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum );
+			
 		} else {
 			//  Get scan WITH scan peak data
 			spectralFile_SingleScan_Common = 
@@ -355,6 +393,8 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 								parentScanNumber, 
 								includeParentScans,
 								excludeReturnScanPeakData,
+								includeReturnIonInjectionTimeData,
+								includeReturnScanLevelTotalIonCurrentData,
 								scans, 
 								insertedScansScanNumbers, 
 								spectralFile_Reader,
@@ -375,6 +415,8 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 								parentScanNumber, 
 								includeParentScans,
 								excludeReturnScanPeakData,
+								includeReturnIonInjectionTimeData,
+								includeReturnScanLevelTotalIonCurrentData,
 								scans, 
 								insertedScansScanNumbers, 
 								spectralFile_Reader,

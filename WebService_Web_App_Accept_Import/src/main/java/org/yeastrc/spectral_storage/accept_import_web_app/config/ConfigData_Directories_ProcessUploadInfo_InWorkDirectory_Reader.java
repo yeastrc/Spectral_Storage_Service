@@ -31,6 +31,12 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 	private static String PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY = "scan.storage.base.directory";
 	private static String PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY = "temp.upload.base.directory";
 	
+
+//	#  Files moved here from 'scan.storage.base.directory' here when a new file is created for a newer File Format version
+//	#     Need to be able to do simple move of files from 'scan.storage.base.directory' to this directory
+//	#     Valid to not configure this. 
+	private static String PROPERTY_NAME__BACKUP_OLD_BASE_DIRECTORY = "backup.old.base.directory";
+	
 	private static String PROPERTY_NAME__S3_BUCKET = "s3.bucket";
 	private static String PROPERTY_NAME__S3_REGION = "s3.region";
 	
@@ -146,6 +152,7 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			log.warn( "INFO: '" + PROPERTY_NAME__S3_REGION + "' has value: " 
 					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region() );
 		}
+		
 
 		if ( configData_Directories_ProcessUploadCommand_InWorkDirectory.getSubmittedScanFilePathRestrictions() != null 
 				&& ( !  configData_Directories_ProcessUploadCommand_InWorkDirectory.getSubmittedScanFilePathRestrictions().isEmpty() ) ) {
@@ -197,6 +204,25 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 		}
 
 		configData_Directories_ProcessUploadCommand_InWorkDirectory.setTempScanUploadBaseDirectory( tempScanUploadBaseDirectory );
+
+
+		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.backupOldBaseDirectory ) ) {
+
+			File backupOldBaseDirectory = new File( internalConfigDirectoryStrings.backupOldBaseDirectory );
+
+			if ( ! ( backupOldBaseDirectory.exists() && backupOldBaseDirectory.isDirectory() && backupOldBaseDirectory.canRead() ) ) {
+				String msg = "!!Property '" + PROPERTY_NAME__BACKUP_OLD_BASE_DIRECTORY 
+						+ "' in config does not exist or is not a directory or is not readable.  Value:  " 
+						+ internalConfigDirectoryStrings.backupOldBaseDirectory;
+				log.error( msg );
+				throw new SpectralFileWebappConfigException( msg );
+			}
+
+			configData_Directories_ProcessUploadCommand_InWorkDirectory.setBackupOldBaseDirectory( backupOldBaseDirectory );
+
+			log.warn( "INFO: '" + PROPERTY_NAME__BACKUP_OLD_BASE_DIRECTORY + "' has value: " 
+					+ internalConfigDirectoryStrings.backupOldBaseDirectory );
+		}
 
 
 		if ( StringUtils.isEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) ) {
@@ -364,6 +390,12 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 				internalConfigDirectoryStrings.tempScanUploadBaseDirectory = propertyValue;
 			}
+			
+			propertyValue = configProps.getProperty( PROPERTY_NAME__BACKUP_OLD_BASE_DIRECTORY );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				internalConfigDirectoryStrings.backupOldBaseDirectory = propertyValue;
+			}
+			
 
 			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_BUCKET );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
@@ -499,6 +531,10 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 		 */
 		private String tempScanUploadBaseDirectory;
 
+		/**
+		 * The Base Directory that the Old scan Files are written When there is a new Version of the File Format
+		 */
+		private String backupOldBaseDirectory;
 	}
 	
 }

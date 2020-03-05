@@ -21,6 +21,15 @@ public class SingleScan_SubResponse {
 	private int scanNumber;
 	@XmlAttribute // attribute name is property name
 	private float retentionTime;
+	@XmlAttribute // attribute name is property name
+	private Float totalIonCurrent_ForScan;
+	
+	/**
+	 * Not Populated when Data file is version < 5 since not stored in those data files
+	 */
+	@XmlAttribute // attribute name is property name
+	private Float ionInjectionTime;  // In Milliseconds
+	
 	/**
 	 * Not populated if request other than peaks and scan file contains more than one unique value
 	 */
@@ -58,6 +67,16 @@ public class SingleScan_SubResponse {
 		this.isCentroid = isCentroid;
 	}
 
+	/**
+	 * Not Populated when Data file is version < 5 since not stored in those data files
+	 * @return null if not populated
+	 */
+	public Float getIonInjectionTime() {
+		return ionInjectionTime;
+	}
+	public void setIonInjectionTime(Float ionInjectionTime) {
+		this.ionInjectionTime = ionInjectionTime;
+	}
 	
 	public byte getLevel() {
 		return level;
@@ -103,5 +122,14 @@ public class SingleScan_SubResponse {
 	public void setPeaks(List<SingleScanPeak_SubResponse> peaks) {
 		this.peaks = peaks;
 	}
+
+	public Float getTotalIonCurrent_ForScan() {
+		return totalIonCurrent_ForScan;
+	}
+
+	public void setTotalIonCurrent_ForScan(Float totalIonCurrent_ForScan) {
+		this.totalIonCurrent_ForScan = totalIonCurrent_ForScan;
+	}
+
 	
 }

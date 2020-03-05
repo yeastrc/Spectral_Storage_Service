@@ -25,6 +25,15 @@ public class AccumulateSummaryDataPerScanLevelSingleLevelResult {
 	 *            ScanCentroidedConstants.SCAN_CENTROIDED_VALUES_IN_FILE_BOTH
 	 */
 	Byte isCentroidScanLevel;
+
+	/**
+	 * Is the IonInjectionTime Set values for this scan level
+	 * 0 - false - IonInjectionTime == null
+	 * 1 - true - IonInjectionTime != null
+	 * 2 - both - both IonInjectionTime == null and IonInjectionTime != null
+	 *            ScanHasIonInjectionTimeConstants.SCAN_HAS_ION_INJECTION_TIME_VALUES_IN_FILE_BOTH
+	 */
+	Byte isIonInjectionTime_Set_ScanLevel;
 	
 	/**
 	 * Sum of intensity of all peaks for all scans with this scan level
@@ -48,6 +57,28 @@ public class AccumulateSummaryDataPerScanLevelSingleLevelResult {
 	 */
 	public void setIsCentroidScanLevel(Byte isCentroidScanLevel) {
 		this.isCentroidScanLevel = isCentroidScanLevel;
+	}
+	/**
+	 * Is the IonInjectionTime Set values for this scan level
+	 * 0 - false - IonInjectionTime == null
+	 * 1 - true - IonInjectionTime != null
+	 * 2 - both - both IonInjectionTime == null and IonInjectionTime != null
+	 *            ScanHasIonInjectionTimeConstants.SCAN_HAS_ION_INJECTION_TIME_VALUES_IN_FILE_BOTH
+	 * @return
+	 */
+	public Byte getIsIonInjectionTime_Set_ScanLevel() {
+		return isIonInjectionTime_Set_ScanLevel;
+	}
+	/**
+	 * Is the IonInjectionTime Set values for this scan level
+	 * 0 - false - IonInjectionTime == null
+	 * 1 - true - IonInjectionTime != null
+	 * 2 - both - both IonInjectionTime == null and IonInjectionTime != null
+	 *            ScanHasIonInjectionTimeConstants.SCAN_HAS_ION_INJECTION_TIME_VALUES_IN_FILE_BOTH
+	 * @param isIonInjectionTime_Set_ScanLevel
+	 */
+	public void setIsIonInjectionTime_Set_ScanLevel(Byte isIonInjectionTime_Set_ScanLevel) {
+		this.isIonInjectionTime_Set_ScanLevel = isIonInjectionTime_Set_ScanLevel;
 	}
 	
 	public byte getScanLevel() {

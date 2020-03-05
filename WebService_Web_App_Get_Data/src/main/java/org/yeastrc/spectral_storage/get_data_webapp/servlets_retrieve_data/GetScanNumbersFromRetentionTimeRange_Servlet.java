@@ -1,6 +1,5 @@
 package org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -12,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_ScanDataLocation_InWorkDirectory;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileDeserializeRequestException;
@@ -24,6 +22,8 @@ import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webserv
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanNumbersFromRetentionTimeRange_Request;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanNumbersFromRetentionTimeRange_Response;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader_Factory;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader__IF;
 
@@ -213,17 +213,14 @@ public class GetScanNumbersFromRetentionTimeRange_Servlet extends HttpServlet {
 
 			Get_ScanNumbersFromRetentionTimeRange_Response webserviceResponse = new Get_ScanNumbersFromRetentionTimeRange_Response();
 			
-
-			File scanStorageBaseDirectoryFile =
-					ConfigData_ScanDataLocation_InWorkDirectory.getSingletonInstance()
-					.getScanStorageBaseDirectory();
-			
 			SpectralFile_Reader__IF spectralFile_Reader = null;
 			
 			try {
-				//  null returned if directory does not exist
+				CommonReader_File_And_S3 commonReader_File_And_S3 = CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3();
+				
+				//  SpectralStorageDataNotFoundException thrown if Data File (and complete) does not exist
 				spectralFile_Reader = SpectralFile_Reader_Factory.getInstance()
-						.getSpectralFile_Reader_ForHash( scanFileAPIKey, scanStorageBaseDirectoryFile );
+						.getSpectralFile_Reader_ForHash( scanFileAPIKey, commonReader_File_And_S3 );
 
 				if ( spectralFile_Reader == null ) {
 					webserviceResponse.setStatus_scanFileAPIKeyNotFound( Get_ScanData_ScanFileAPI_Key_NotFound.YES );

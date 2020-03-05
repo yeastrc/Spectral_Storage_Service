@@ -50,6 +50,22 @@ public class WriteResponseObjectToOutputStream {
 			Object webserviceResponseAsObject,
 			ServetResponseFormatEnum servetResponseFormat,
 			HttpServletResponse response ) throws Exception {
+		
+		this.writeResponseObjectToOutputStream( webserviceResponseAsObject, null, servetResponseFormat, response );
+	}
+	
+
+	/**
+	 * @param webserviceResponseAsObject
+	 * @param servetResponseFormat
+	 * @param response
+	 * @throws Exception
+	 */
+	public void writeResponseObjectToOutputStream( 
+			Object webserviceResponseAsObject,
+			Class callingClass,
+			ServetResponseFormatEnum servetResponseFormat,
+			HttpServletResponse response ) throws Exception {
 		try {
 
 			ByteArrayOutputStream outputStreamBufferOfServerResponse = 
@@ -85,12 +101,27 @@ public class WriteResponseObjectToOutputStream {
 				throw new SpectralFileWebappConfigException( msg );
 			}
 			
-			response.setContentLength( outputStreamBufferOfServerResponse.size() );
+			int outputStreamBufferOfServerResponseSize = outputStreamBufferOfServerResponse.size();
+			
+//			{
+//				String msgcallingClass = "";
+//				if ( callingClass != null ) {
+//					 msgcallingClass =",  Calling class" + callingClass.getCanonicalName();
+//				}
+//				
+//				log.warn( "outputStreamBufferOfServerResponseSize: " + outputStreamBufferOfServerResponseSize + msgcallingClass );
+//			}
+			
+			response.setContentLength( outputStreamBufferOfServerResponseSize );
 			
 			try ( OutputStream outputStream = response.getOutputStream() ) {
 				outputStreamBufferOfServerResponse.writeTo( outputStream );
 			} catch ( IOException e ) {
-				String msg = "Failed to write response object to output stream";
+				String msgcallingClass = "";
+				if ( callingClass != null ) {
+					 msgcallingClass ="  Calling class" + callingClass.getCanonicalName();
+				}
+				String msg = "Failed to write response object to output stream." + msgcallingClass;
 				log.error( msg, e );
 				throw e;
 			} finally {

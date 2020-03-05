@@ -120,13 +120,14 @@ public class CommonReader_File_And_S3 {
 	 * @param startOffset
 	 * @param length
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
+	 * @throws SpectralStorageDataNotFoundException
 	 */
 	public byte[] getBytesFromScanStorageItem( 
 			String mainFilename, 
 			String hash_String, 
 			long startOffset,
-			int length ) throws Exception {
+			int length ) throws Exception, SpectralStorageDataNotFoundException {
 
 		byte[] bytesReadArray = new byte[ length ];
 

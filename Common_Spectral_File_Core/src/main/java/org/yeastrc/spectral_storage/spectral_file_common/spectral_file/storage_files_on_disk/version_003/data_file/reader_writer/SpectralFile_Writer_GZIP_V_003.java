@@ -109,6 +109,16 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 	 */
 	Accumulate_RT_MZ_Binned_ScanLevel_1 accumulate_RT_MZ_Binned_ScanLevel_1;
 	
+
+	
+	/* (non-Javadoc)
+	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Writer__IF#getVersion()
+	 */
+	@Override
+	public int getVersion() {
+
+		return StorageFile_Version_003_Constants.FILE_VERSION;
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.writer.SpectralFile_Writer__IF#close()
@@ -665,5 +675,4 @@ public class SpectralFile_Writer_GZIP_V_003 implements SpectralFile_Writer__IF  
 	public long getScanPeaksTotalCount() {
 		return scanPeaksTotalCount;
 	}
-	
 }

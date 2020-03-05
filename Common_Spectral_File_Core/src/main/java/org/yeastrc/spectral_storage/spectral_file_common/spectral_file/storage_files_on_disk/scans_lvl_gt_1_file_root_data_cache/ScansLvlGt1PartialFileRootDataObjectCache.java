@@ -6,9 +6,13 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.scans_lvl_gt_1_partial.SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.StorageFile_Version_003_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.reader_writer.SpectralFile_ScansLvlGt1Partial_File_Reader_V_003;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.StorageFile_Version_005_Constants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.scans_lvl_gt_1_partial.reader_writer.SpectralFile_ScansLvlGt1Partial_File_Reader_V_005;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -96,11 +100,11 @@ public class ScansLvlGt1PartialFileRootDataObjectCache {
 
 	/**
 	 * @param hashKey
-	 * @return - retrieved from DB or null if not found
+	 * @return - retrieved from File or null if not found
 	 * @throws Exception
 	 */
 	public SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF getSpectralFile_ScansLvlGt1Partial_FileContents_Root_IF( 
-			String hashKey ) throws Exception {
+			String hashKey, int fileVersionNumber ) throws Exception {
 		
 		printPrevCacheHitCounts( false /* forcePrintNow */ );
 		
@@ -109,14 +113,20 @@ public class ScansLvlGt1PartialFileRootDataObjectCache {
 		}
 
 		try {
-			LoadingCache<String, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF> cache = cacheHolderInternal.getCache();
+			LoadingCache<CacheKey, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF> cache = cacheHolderInternal.getCache();
 
+			CacheKey cacheKey = new CacheKey();
+			
+			cacheKey.hashKey = hashKey;
+			cacheKey.fileVersionNumber = fileVersionNumber;
+			
 			if ( cache != null ) {
-				SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF spectralFile_ScansLvlGt1Partial_FileContents_Root_IF = cache.get( hashKey );
+				SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF spectralFile_ScansLvlGt1Partial_FileContents_Root_IF = cache.get( cacheKey );
 				return spectralFile_ScansLvlGt1Partial_FileContents_Root_IF; // EARLY return
 			}
 
-			SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF spectralFile_ScansLvlGt1Partial_FileContents_Root_IF = cacheHolderInternal.loadFromDB( hashKey );
+			SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF spectralFile_ScansLvlGt1Partial_FileContents_Root_IF = 
+					cacheHolderInternal.loadFromScansLvlGt1PartialFile( hashKey, fileVersionNumber );
 			return spectralFile_ScansLvlGt1Partial_FileContents_Root_IF;
 			
 		} catch ( ExecutionException e ) {
@@ -129,6 +139,43 @@ public class ScansLvlGt1PartialFileRootDataObjectCache {
 		} catch ( SpectralStorageDataNotFoundException e ) {
 			//  DB query returned null so return null here
 			return null;
+		}
+	}
+
+	/**
+	 * Key to Cache
+	 * 
+	 */
+	private static class CacheKey {
+		
+		String hashKey;
+		int fileVersionNumber;
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + fileVersionNumber;
+			result = prime * result + ((hashKey == null) ? 0 : hashKey.hashCode());
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			CacheKey other = (CacheKey) obj;
+			if (fileVersionNumber != other.fileVersionNumber)
+				return false;
+			if (hashKey == null) {
+				if (other.hashKey != null)
+					return false;
+			} else if (!hashKey.equals(other.hashKey))
+				return false;
+			return true;
 		}
 	}
 
@@ -150,7 +197,7 @@ public class ScansLvlGt1PartialFileRootDataObjectCache {
 		/**
 		 * cached data, left null if no caching
 		 */
-		private LoadingCache<String, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF> dbRecordsDataCache = null;
+		private LoadingCache<CacheKey, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF> fileDataCache = null;
 		
 		private int cacheMaxSize;
 
@@ -171,7 +218,7 @@ public class ScansLvlGt1PartialFileRootDataObjectCache {
 		 * @throws Exception
 		 */
 		@SuppressWarnings("static-access")
-		private synchronized LoadingCache<String, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF> getCache(  ) throws Exception {
+		private synchronized LoadingCache<CacheKey, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF> getCache(  ) throws Exception {
 			if ( ! cacheDataInitialized ) { 
 //				CachedDataSizeOptions cachedDataSizeOptions = 
 //						CachedDataCentralConfigStorageAndProcessing.getInstance().getCurrentSizeConfigValue();
@@ -183,7 +230,7 @@ public class ScansLvlGt1PartialFileRootDataObjectCache {
 //				}
 				
 //				int cacheTimeout = CACHE_TIMEOUT_FULL_SIZE;
-				cacheMaxSize = parentObject.CACHE_MAX_SIZE_FULL_SIZE;
+				cacheMaxSize = ScansLvlGt1PartialFileRootDataObjectCache.CACHE_MAX_SIZE_FULL_SIZE;
 //				if ( cachedDataSizeOptions == CachedDataSizeOptions.HALF ) {
 ////					cacheMaxSize = cacheMaxSize / 2;
 //				} else if ( cachedDataSizeOptions == CachedDataSizeOptions.SMALL ) {
@@ -191,38 +238,41 @@ public class ScansLvlGt1PartialFileRootDataObjectCache {
 ////					cacheTimeout = CACHE_TIMEOUT_SMALL;
 //				}
 				
-				dbRecordsDataCache = CacheBuilder.newBuilder()
+				fileDataCache = CacheBuilder.newBuilder()
 //						.expireAfterAccess( cacheTimeout, TimeUnit.DAYS ) // always in cache
 						.maximumSize( cacheMaxSize )
 						.build(
-								new CacheLoader<String, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF>() {
-									public SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF load( String hashKey ) throws Exception {
+								new CacheLoader<CacheKey, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF>() {
+									@Override
+									public SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF load( CacheKey cacheKey ) throws Exception {
+
+										String hashKey = cacheKey.hashKey;
+										int fileVersionNumber = cacheKey.fileVersionNumber;
 										
 										//   WARNING  cannot return null.  
 										//   If would return null, throw SpectralStorageDataNotFoundException and catch at the .get(...)
 										
 										//  value is NOT in cache so get it and return it
-										return loadFromDB( hashKey );
+										return loadFromScansLvlGt1PartialFile( hashKey, fileVersionNumber );
 									}
 								});
 			//			    .build(); // no CacheLoader
 				cacheDataInitialized = true;
 			}
-			return dbRecordsDataCache;
+			return fileDataCache;
 		}
 
 		private synchronized void invalidate() {
-			dbRecordsDataCache = null;
+			fileDataCache = null;
 			cacheDataInitialized = false;
 		}
 		
 
 		/**
-		 * @param linkerId
 		 * @return
 		 * @throws Exception
 		 */
-		private SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF loadFromDB( String hashKey ) throws Exception {
+		private SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF loadFromScansLvlGt1PartialFile( String hashKey, int fileVersionNumber ) throws Exception {
 			
 			//   WARNING  cannot return null.  
 			//   If would return null, throw SpectralStorageDataNotFoundException and catch at the .get(...)
@@ -233,15 +283,31 @@ public class ScansLvlGt1PartialFileRootDataObjectCache {
 			}
 			
 			try {
+				SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF spectralFile_ScansLvlGt1Partial_FileContents_Root_IF = null;
 
-				//  WARNING   Hard coded since only single version supported
+				if ( fileVersionNumber == StorageFile_Version_003_Constants.FILE_VERSION ) {
+					
+					spectralFile_ScansLvlGt1Partial_FileContents_Root_IF =
+							SpectralFile_ScansLvlGt1Partial_File_Reader_V_003.getInstance()
+							.readScansLvlGt1PartialFile( 
+									hashKey, 
+									CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3() );
+
+				} else if ( fileVersionNumber == StorageFile_Version_005_Constants.FILE_VERSION ) {
+
+					spectralFile_ScansLvlGt1Partial_FileContents_Root_IF =
+							SpectralFile_ScansLvlGt1Partial_File_Reader_V_005.getInstance()
+							.readScansLvlGt1PartialFile( 
+									hashKey, 
+									CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3() );
+
+				} else {
+					
+					String msg = "fileVersionNumber not a supported value.  fileVersionNumber: " + fileVersionNumber;
+					log.error(msg);
+					throw new SpectralStorageProcessingException( msg );
+				}
 				
-				SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF spectralFile_ScansLvlGt1Partial_FileContents_Root_IF =
-						SpectralFile_ScansLvlGt1Partial_File_Reader_V_003.getInstance()
-						.readScansLvlGt1PartialFile( 
-								hashKey, 
-								CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3() );
-
 				if ( spectralFile_ScansLvlGt1Partial_FileContents_Root_IF == null ) {
 					// Throw this exception since cannot return null to Cache
 					throw new SpectralStorageDataNotFoundException();
@@ -250,8 +316,9 @@ public class ScansLvlGt1PartialFileRootDataObjectCache {
 
 			} catch ( Exception e ) {
 				
-				log.error( "loadFromDB(...): readScansLvlGt1PartialFile(...) threw exception for hashKey: " 
+				log.error( "loadFromScansLvlGt1PartialFile(...): readScansLvlGt1PartialFile(...) threw exception for hashKey: " 
 						+ hashKey
+						+ ", fileVersionNumber: " + fileVersionNumber
 						+ ", Scan File Storage Location: " 
 						+ CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3(), e );
 				throw e;

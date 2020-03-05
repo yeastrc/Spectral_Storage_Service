@@ -42,6 +42,12 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	
 
 	/**
+	 * The Base Directory that the Old scan Files are written When there is a new Version of the File Format
+	 */
+	private File backupOldBaseDirectory;
+	
+
+	/**
 	 * The S3 bucket that the scan data is written to for perm storage
 	 */
 	private String s3Bucket;
@@ -129,6 +135,22 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	public void setTempScanUploadBaseDirectory(File tempScanUploadDirectory) {
 		this.tempScanUploadBaseDirectory = tempScanUploadDirectory;
 	}
+
+	/**
+	 * The Base Directory that the Old scan Files are written When there is a new Version of the File Format
+	 * @return
+	 */
+	public File getBackupOldBaseDirectory() {
+		return backupOldBaseDirectory;
+	}
+	/**
+	 * The Base Directory that the Old scan Files are written When there is a new Version of the File Format
+	 * @param backupOldBaseDirectory
+	 */
+	public void setBackupOldBaseDirectory(File backupOldBaseDirectory) {
+		this.backupOldBaseDirectory = backupOldBaseDirectory;
+	}
+
 
 	/**
 	 * command (filename and path to Java executable)
@@ -264,7 +286,6 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	public void setEmailToEmailAddresses_FailedOnly(List<String> emailToEmailAddresses_FailedOnly) {
 		this.emailToEmailAddresses_FailedOnly = emailToEmailAddresses_FailedOnly;
 	}
-
 
 		
 }

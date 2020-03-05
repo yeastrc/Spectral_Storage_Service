@@ -19,6 +19,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.index_file_root_data_object_cache.IndexFileRootDataObjectCache;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.StorageFile_Version_003_Constants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.StorageFile_Version_004_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_FileContents_Root_V_004;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SingleScan_V_004;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.constants.SpectralFile_ScansLvlGt1Partial_Header_DTO_V_003__Constants;
@@ -265,7 +266,7 @@ public class SpectralFile_ScansLvlGt1Partial_File_Reader_V_003 {
 		//  First get Index File Data
 
 		SpectralFile_Index_FileContents_Root_IF spectralFile_Index_FileContents_Root_IF =
-				IndexFileRootDataObjectCache.getSingletonInstance().getSpectralFile_Index_FileContents_Root_IF( hash_String );
+				IndexFileRootDataObjectCache.getSingletonInstance().getSpectralFile_Index_FileContents_Root_IF( hash_String, StorageFile_Version_004_Constants.FILE_VERSION );
 
 		if ( spectralFile_Index_FileContents_Root_IF == null ) {
 			String msg = "Failed to read index file for hash: " + hash_String;

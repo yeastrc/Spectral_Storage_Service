@@ -11,6 +11,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanDataFromScanNumbers_IncludeParentScans;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_ExcludeReturnScanPeakData;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_IncludeReturnIonInjectionTimeData;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_IncludeReturnScanLevelTotalIonCurrentData;
 
 /**
  * Request object for POST to Webservice GetScanDataFromScanNumbers_Servlet
@@ -36,6 +38,22 @@ public class Get_ScanDataFromScanNumbers_Request extends BaseGetDataWebserviceRe
 	 */
 	@XmlAttribute // attribute name is property name
 	private Get_ScanData_ExcludeReturnScanPeakData excludeReturnScanPeakData;
+
+	/**
+	 * Indicates Do populate Ion Injection Time SingleScan_SubResponse
+	 *
+	 * If null, assumed to be no
+	 */
+	@XmlAttribute // attribute name is property name
+	private Get_ScanData_IncludeReturnIonInjectionTimeData includeReturnIonInjectionTimeData;
+	
+	/**
+	 * Indicates Do populate Scan Level Total Ion Current in SingleScan_SubResponse
+	 * 
+	 * If null, assumed to be no
+	 */
+	@XmlAttribute // attribute name is property name
+	private Get_ScanData_IncludeReturnScanLevelTotalIonCurrentData includeReturnScanLevelTotalIonCurrentData;
 	
 	/**
 	 * Main Query element, list of scan numbers
@@ -116,6 +134,24 @@ public class Get_ScanDataFromScanNumbers_Request extends BaseGetDataWebserviceRe
 
 	public void setExcludeReturnScanPeakData(Get_ScanData_ExcludeReturnScanPeakData excludeReturnScanPeakData) {
 		this.excludeReturnScanPeakData = excludeReturnScanPeakData;
+	}
+
+	public Get_ScanData_IncludeReturnIonInjectionTimeData getIncludeReturnIonInjectionTimeData() {
+		return includeReturnIonInjectionTimeData;
+	}
+
+	public void setIncludeReturnIonInjectionTimeData(
+			Get_ScanData_IncludeReturnIonInjectionTimeData includeReturnIonInjectionTimeData) {
+		this.includeReturnIonInjectionTimeData = includeReturnIonInjectionTimeData;
+	}
+
+	public Get_ScanData_IncludeReturnScanLevelTotalIonCurrentData getIncludeReturnScanLevelTotalIonCurrentData() {
+		return includeReturnScanLevelTotalIonCurrentData;
+	}
+
+	public void setIncludeReturnScanLevelTotalIonCurrentData(
+			Get_ScanData_IncludeReturnScanLevelTotalIonCurrentData includeReturnScanLevelTotalIonCurrentData) {
+		this.includeReturnScanLevelTotalIonCurrentData = includeReturnScanLevelTotalIonCurrentData;
 	}
 
 

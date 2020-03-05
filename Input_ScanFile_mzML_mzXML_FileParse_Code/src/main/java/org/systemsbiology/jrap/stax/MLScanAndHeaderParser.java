@@ -34,8 +34,11 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+
+import org.yeastrc.spectr.exceptions_for_parser.MzML_Parser_DataError_YRC_Exception;
 
 /**
  * djaschob:  Changed this copy of this code to add getDoubleValue which is used
@@ -169,7 +172,7 @@ public class MLScanAndHeaderParser
         while(xmlSR.hasNext())
         {
             int event = xmlSR.next();
-            if(event == xmlSR.START_ELEMENT)
+            if(event == XMLStreamConstants.START_ELEMENT)
             {
                 elementName = xmlSR.getLocalName();
                 if(elementName.equals("spectrum"))
@@ -212,6 +215,61 @@ public class MLScanAndHeaderParser
                             tmpScanHeader.setHighMz(getFloatValue(xmlSR, "value"));
                         if(attriAccession.equals("MS:1000512"))
                             tmpScanHeader.setFilterLine(getStringValue(xmlSR,"value"));
+                        
+                        if(attriAccession.equals("MS:1000927")) {
+                        	
+                        	//  2020: YRC: Spectral Storage Service change to add support for ion injection time
+                        	
+                        	//  ion injection time
+                        	// <cvParam cvRef="MS" accession="MS:1000927" name="ion injection time" value="50.000000745058" 
+                        	// 		unitCvRef="UO" unitAccession="UO:0000028" unitName="millisecond"/>
+                        	
+                        	if ( ! "ion injection time".equals( attriName ) ) {
+                        		String msg = "Scan XML attribute name is not value 'ion injection time' For Scan XML element with accession='MS:1000927'";
+                        		System.out.println( msg );
+                        		System.err.println( msg );
+                        		throw new MzML_Parser_DataError_YRC_Exception( msg );
+                        	}
+                        	
+                        	String ion_injection_timeString = getStringValue(xmlSR,"value");
+                        	String unitAccession = getStringValue(xmlSR,"unitAccession");
+                        	String unitName = getStringValue(xmlSR,"unitName");
+
+                        	if ( ion_injection_timeString == null || ion_injection_timeString.length() == 0 ) {
+                        		String msg = "Scan XML attribute 'value' is not found or is empty For Scan XML element with accession='MS:1000927' and name='ion injection time' ";
+                        		System.out.println( msg );
+                        		System.err.println( msg );
+                        		throw new MzML_Parser_DataError_YRC_Exception( msg );
+                        	}
+                        	
+                        	if ( ! "UO:0000028".equals( unitAccession ) ) {
+                        		String msg = "Scan XML attribute unitAccession is not value 'UO:0000028' For Scan XML element with accession='MS:1000927' and name='ion injection time' ";
+                        		System.out.println( msg );
+                        		System.err.println( msg );
+                        		throw new MzML_Parser_DataError_YRC_Exception( msg );
+                        	}
+
+                        	if ( ! "millisecond".equals( unitName ) ) {
+                        		String msg = "Scan XML attribute unitName is not value 'millisecond' For Scan XML element with accession='MS:1000927' and name='ion injection time' ";
+                        		System.out.println( msg );
+                        		System.err.println( msg );
+                        		throw new MzML_Parser_DataError_YRC_Exception( msg );
+                        	}
+                        	
+                        	try {
+                        		Float ion_injection_timeFloat = Float.parseFloat( ion_injection_timeString );
+                        		
+                        		tmpScanHeader.setIonInjectionTime( ion_injection_timeFloat );
+                        		
+                        	} catch ( Exception e ) {
+                        		String msg = "Scan XML attribute 'value' cannot be parsed to Float For Scan XML element with accession='MS:1000927' and name='ion injection time'. value: " + ion_injection_timeString;
+                        		System.out.println( msg );
+                        		System.err.println( msg );
+                        		throw new MzML_Parser_DataError_YRC_Exception( msg );
+                        	}
+                        	
+                        }
+                        
                         if(attriAccession.equals("MS:1000498"))
                             tmpScanHeader.setScanType("full scan");
                         if(attriAccession.equals("MS:1000130"))
@@ -317,12 +375,12 @@ public class MLScanAndHeaderParser
                     peaksBuffer = new StringBuffer();
                 }
             }
-            if(event == xmlSR.CHARACTERS)
+            if(event == XMLStreamConstants.CHARACTERS)
             {
                 if(isPeaks)
                     peaksBuffer.append(xmlSR.getText());
             }
-            if(event ==xmlSR.END_ELEMENT)
+            if(event ==XMLStreamConstants.END_ELEMENT)
             {
                 elementName = xmlSR.getLocalName();
                 if(elementName.equals("spectrumDescription"))
@@ -504,7 +562,7 @@ public class MLScanAndHeaderParser
                 int i=0;
                 while(peakBuffer.hasRemaining())
                 {
-                    doubleMassList[i] = (double)peakBuffer.getFloat();
+                    doubleMassList[i] = peakBuffer.getFloat();
                     i++;
                 }
                 tmpScan.setDoubleMassList(doubleMassList);
@@ -515,7 +573,7 @@ public class MLScanAndHeaderParser
                 int i=0;
                 while(peakBuffer.hasRemaining())
                 {
-                    doubleIntenList[i] = (double)peakBuffer.getFloat();
+                    doubleIntenList[i] = peakBuffer.getFloat();
                     i++;
                 }
                 tmpScan.setDoubleIntensityList(doubleIntenList);

@@ -105,6 +105,14 @@ public class ProcessNextUploadedScanFile {
 			scanFileStorageBaseDirString = "--output_base_dir=" + scanFileStorageBaseDir.getCanonicalPath();
 		}
 
+		String backupOldBaseDirString = null;
+
+		File backupOldBaseDir = 
+				configData_Directories_ProcessUploadInfo_InWorkDirectory.getBackupOldBaseDirectory();
+		if ( backupOldBaseDir != null ) {
+			backupOldBaseDirString = "--backup_old_base_dir=" + backupOldBaseDir.getCanonicalPath();
+		}
+
 
 		List<String> commandAndItsArgumentsAsList = new ArrayList<>( 20 );
 		commandAndItsArgumentsAsList.add( javaExecutable );
@@ -121,6 +129,11 @@ public class ProcessNextUploadedScanFile {
 		if ( scanFileStorageBaseDirString != null ) {
 			// writing to local filesystem: output dir
 			commandAndItsArgumentsAsList.add( scanFileStorageBaseDirString );
+		}
+		
+		if ( backupOldBaseDirString != null ) {
+			// writing to local filesystem: backup old dir
+			commandAndItsArgumentsAsList.add( backupOldBaseDirString );
 		}
 		
 		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Bucket() ) ) {

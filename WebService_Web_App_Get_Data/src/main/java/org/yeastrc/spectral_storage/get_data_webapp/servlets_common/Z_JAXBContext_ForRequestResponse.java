@@ -39,6 +39,8 @@ public class Z_JAXBContext_ForRequestResponse {
 				JAXBContext.newInstance( 
 						Get_ScanNumbers_Request.class,
 						Get_ScanNumbers_Response.class,
+						Get_ScanData_AllScans_ExcludePeaks_Request.class,
+						Get_ScanData_AllScans_ExcludePeaks_Response.class,
 						Get_ScanDataFromScanNumbers_Request.class,
 						Get_ScanDataFromScanNumbers_Response.class,
 						Get_ScanRetentionTimes_Request.class,

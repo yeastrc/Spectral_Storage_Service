@@ -1,6 +1,5 @@
 package org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_ScanDataLocation_InWorkDirectory;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileDeserializeRequestException;
@@ -29,6 +27,8 @@ import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webserv
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanRetentionTimes_Response;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.sub_parts.Single_ScanRetentionTime_ScanNumber_SubResponse;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_request_results.SpectralFile_Result_RetentionTime_ScanNumber;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader_Factory;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader__IF;
@@ -72,7 +72,7 @@ public class GetScanRetentionTimes_Servlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		Get_ScanRetentionTimes_Request get_ScanDataFromScanNumbers_Request = null;
+		Get_ScanRetentionTimes_Request get_ScanRetentionTimes_Request = null;
 
 		try {
 			Object requestObj = null;
@@ -88,7 +88,7 @@ public class GetScanRetentionTimes_Servlet extends HttpServlet {
 			}
 
 			try {
-				get_ScanDataFromScanNumbers_Request = (Get_ScanRetentionTimes_Request) requestObj;
+				get_ScanRetentionTimes_Request = (Get_ScanRetentionTimes_Request) requestObj;
 			} catch (Exception e) {
 				String msg = "Failed to cast requestObj to Get_ScanRetentionTimes_All_Request";
 				log.error( msg, e );
@@ -113,23 +113,23 @@ public class GetScanRetentionTimes_Servlet extends HttpServlet {
 			return;
 		}
 		
-		processRequest( get_ScanDataFromScanNumbers_Request, request, response );
+		processRequest( get_ScanRetentionTimes_Request, request, response );
 	}
 	
 	/**
-	 * @param get_ScanDataFromScanNumbers_Request
+	 * @param get_ScanRetentionTimes_Request
 	 * @param request
 	 * @param response
 	 * @throws ServletException
 	 * @throws IOException
 	 */
 	private void processRequest( 
-			Get_ScanRetentionTimes_Request get_ScanDataFromScanNumbers_Request,
+			Get_ScanRetentionTimes_Request get_ScanRetentionTimes_Request,
 			HttpServletRequest request, 
 			HttpServletResponse response) throws ServletException, IOException {
 	
 		try {
-			String scanFileAPIKey = get_ScanDataFromScanNumbers_Request.getScanFileAPIKey();
+			String scanFileAPIKey = get_ScanRetentionTimes_Request.getScanFileAPIKey();
 
 			if ( StringUtils.isEmpty( scanFileAPIKey ) ) {
 				String msg = "missing scanFileAPIKey ";
@@ -137,12 +137,12 @@ public class GetScanRetentionTimes_Servlet extends HttpServlet {
 				throw new SpectralFileBadRequestToServletException( msg );
 			}
 			
-			if ( ( get_ScanDataFromScanNumbers_Request.getScanNumbers() != null
-					&& ( ! get_ScanDataFromScanNumbers_Request.getScanNumbers().isEmpty() ) )
-					&& ( ( get_ScanDataFromScanNumbers_Request.getScanLevelsToInclude() != null 
-							&& ( ! get_ScanDataFromScanNumbers_Request.getScanLevelsToInclude().isEmpty() ) ) 
-							|| ( get_ScanDataFromScanNumbers_Request.getScanLevelsToInclude() != null 
-							&& ( ! get_ScanDataFromScanNumbers_Request.getScanLevelsToInclude().isEmpty() ) ) ) ) {
+			if ( ( get_ScanRetentionTimes_Request.getScanNumbers() != null
+					&& ( ! get_ScanRetentionTimes_Request.getScanNumbers().isEmpty() ) )
+					&& ( ( get_ScanRetentionTimes_Request.getScanLevelsToInclude() != null 
+							&& ( ! get_ScanRetentionTimes_Request.getScanLevelsToInclude().isEmpty() ) ) 
+							|| ( get_ScanRetentionTimes_Request.getScanLevelsToInclude() != null 
+							&& ( ! get_ScanRetentionTimes_Request.getScanLevelsToInclude().isEmpty() ) ) ) ) {
 				
 				String msg = "Cannot populate other options if 'scanNumbers' is populated.";
 				log.warn( msg );
@@ -152,19 +152,16 @@ public class GetScanRetentionTimes_Servlet extends HttpServlet {
 
 			Get_ScanRetentionTimes_Response webserviceResponse = new Get_ScanRetentionTimes_Response();
 
-			
-			File scanStorageBaseDirectoryFile =
-					ConfigData_ScanDataLocation_InWorkDirectory.getSingletonInstance()
-					.getScanStorageBaseDirectory();
-			
 			SpectralFile_Reader__IF spectralFile_Reader = null;
 			
 			try {
 				List<Single_ScanRetentionTime_ScanNumber_SubResponse> scanParts = null;
-			
-				//  null returned if directory does not exist
+
+				CommonReader_File_And_S3 commonReader_File_And_S3 = CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3();
+				
+				//  SpectralStorageDataNotFoundException thrown if Data File (and complete) does not exist
 				spectralFile_Reader = SpectralFile_Reader_Factory.getInstance()
-						.getSpectralFile_Reader_ForHash( scanFileAPIKey, scanStorageBaseDirectoryFile );
+						.getSpectralFile_Reader_ForHash( scanFileAPIKey, commonReader_File_And_S3 );
 
 				if ( spectralFile_Reader == null ) {
 					webserviceResponse.setStatus_scanFileAPIKeyNotFound( Get_ScanData_ScanFileAPI_Key_NotFound.YES );
@@ -174,7 +171,7 @@ public class GetScanRetentionTimes_Servlet extends HttpServlet {
 					Single_ScanRetentionTime_ScanNumber_SubResponse_Factory single_ScanRetentionTime_ScanNumber_SubResponse_Factory =
 							Single_ScanRetentionTime_ScanNumber_SubResponse_Factory.getInstance();
 
-					List<Integer> scanNumbers = get_ScanDataFromScanNumbers_Request.getScanNumbers();
+					List<Integer> scanNumbers = get_ScanRetentionTimes_Request.getScanNumbers();
 
 					if ( scanNumbers != null && ( ! scanNumbers.isEmpty() ) ) {
 
@@ -198,7 +195,7 @@ public class GetScanRetentionTimes_Servlet extends HttpServlet {
 
 						Set<Integer> scanLevelsToIncludeSet = null;
 
-						List<Integer> scanLevelsToIncludeList = get_ScanDataFromScanNumbers_Request.getScanLevelsToInclude();
+						List<Integer> scanLevelsToIncludeList = get_ScanRetentionTimes_Request.getScanLevelsToInclude();
 						boolean haveScanLevelsToInclude = false;
 						boolean have_One_ScanLevelToInclude = false;
 						int onlyScanLevelToInclude = -1;
@@ -219,7 +216,7 @@ public class GetScanRetentionTimes_Servlet extends HttpServlet {
 
 						Set<Integer> scanLevelsToExcludeSet = null;
 
-						List<Integer> scanLevelsToExcludeList = get_ScanDataFromScanNumbers_Request.getScanLevelsToExclude();
+						List<Integer> scanLevelsToExcludeList = get_ScanRetentionTimes_Request.getScanLevelsToExclude();
 						boolean haveScanLevelsToExclude = false;
 						boolean have_One_ScanLevelToExclude = false;
 						int onlyScanLevelToExclude = -1;

@@ -37,6 +37,7 @@ public class Scan_File_Processor_MainProgram {
 		CmdLineParser cmdLineParser = new CmdLineParser();
 //		CmdLineParser.Option configFileFromCommandLineFileNameCommandLineOpt = cmdLineParser.addStringOption( 'c', "config" );
 		CmdLineParser.Option outputBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "output_base_dir" );
+		CmdLineParser.Option backupOldBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "backup_old_base_dir" );
 		CmdLineParser.Option s3OutputBucketCommandLineOpt = cmdLineParser.addStringOption( 'Z', "s3_output_bucket" );
 		CmdLineParser.Option s3OutputRegionCommandLineOpt = cmdLineParser.addStringOption( 'Z', "s3_output_region" );
 		CmdLineParser.Option s3InputRegionCommandLineOpt = cmdLineParser.addStringOption( 'Z', "s3_input_region" );
@@ -44,6 +45,7 @@ public class Scan_File_Processor_MainProgram {
 		CmdLineParser.Option helpOpt = cmdLineParser.addBooleanOption('h', "help"); 
 
 		String outputBaseDirString = null; 
+		String backupOldBaseDirString = null;
 		String s3_OutputBucket = null;
 		String s3_OutputRegion = null;
 		String s3_InputRegion = null;
@@ -83,6 +85,8 @@ public class Scan_File_Processor_MainProgram {
 			
 			outputBaseDirString = (String)cmdLineParser.getOptionValue( outputBaseDirStringCommandLineOpt );
 			
+			backupOldBaseDirString = (String)cmdLineParser.getOptionValue( backupOldBaseDirStringCommandLineOpt );
+			
 			s3_OutputBucket = (String)cmdLineParser.getOptionValue( s3OutputBucketCommandLineOpt );
 			
 			s3_OutputRegion = (String)cmdLineParser.getOptionValue( s3OutputRegionCommandLineOpt );
@@ -115,6 +119,7 @@ public class Scan_File_Processor_MainProgram {
 			Scan_File_Processor_MainProgram_Params pgmParams = new Scan_File_Processor_MainProgram_Params();
 			
 			if ( StringUtils.isNotEmpty( outputBaseDirString ) ) {
+				
 				File outputBaseDir = new File( outputBaseDirString );
 
 				System.out.println( "Output Base Dir canonical: " + outputBaseDir.getCanonicalPath() );
@@ -123,9 +128,38 @@ public class Scan_File_Processor_MainProgram {
 					System.err.println( "Output Base Dir command line Not Exist: " + outputBaseDirString );
 					System.exit( 1 );
 				}
+				if ( ! outputBaseDir.canWrite() ) {
+					System.err.println( "Check of canWrite of Output Base Dir on command line Failed: " + outputBaseDirString );
+					System.exit( 1 );
+				}
 				
 				pgmParams.setOutputBaseDir( outputBaseDir );
 			}
+
+			if ( StringUtils.isNotEmpty( backupOldBaseDirString ) ) {
+				
+				File backupOldBaseDir = new File( backupOldBaseDirString );
+
+				System.out.println( "Backup Old Base Dir canonical: " + backupOldBaseDir.getCanonicalPath() );
+
+				if ( ! backupOldBaseDir.exists() ) {
+					System.err.println( "Backup Old Base Dir command line Not Exist: " + backupOldBaseDirString );
+					System.exit( 1 );
+				}
+				if ( ! backupOldBaseDir.canWrite() ) {
+					System.err.println( "Check of canWrite of Backup Old Base Dir on command line Failed: " + backupOldBaseDirString );
+					System.exit( 1 );
+				}
+				
+				pgmParams.setBackupOldBaseDir( backupOldBaseDir );
+			} else {
+
+				System.out.println( "!!!!!!!!!!!!!!!!!!!!!!!!!");
+				System.out.println( "No Value for command line parameter 'backup_old_base_dir' so data files will not be backed up before they are replaced with a newer version.");
+				System.out.println( "See Accept Webapp configuration.");
+				System.out.println( "!!!!!!!!!!!!!!!!!!!!!!!!!");
+			}
+			
 			
 			if ( StringUtils.isNotEmpty( s3_OutputBucket ) ) {
 				pgmParams.setS3_OutputBucket( s3_OutputBucket );

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.ScanCentroidedConstants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.ScanHasIonInjectionTimeConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
 
 /**
@@ -30,13 +30,6 @@ public class AccumulateSummaryDataPerScanLevel {
 	 */
 	public void addScanToAccum( SpectralFile_SingleScan_Common scan ) {
 
-        double scanIntensitiesSummedForScan = 0;
-        
-		List<SpectralFile_SingleScanPeak_Common> peakList = scan.getScanPeaksAsObjectArray();
-		for ( SpectralFile_SingleScanPeak_Common peak : peakList ) {
-        	scanIntensitiesSummedForScan += peak.getIntensity();
-		}
-		
 		Byte scanLevel = scan.getLevel();
 		
 		InternalPerScanLevelHolder holder = totalsPerScanLevelMap.get( scanLevel );
@@ -46,7 +39,11 @@ public class AccumulateSummaryDataPerScanLevel {
 		}
 		
 		holder.scanCount++;
-		holder.scanIntensitiesSummedForLevel += scanIntensitiesSummedForScan;
+		
+		//  scan.getTotalIonCurrent() is total ion current element under scan element in mzML, if available 
+		//     Otherwise scan.getTotalIonCurrent() is computed elsewhere from the scan peaks
+		
+		holder.scanIntensitiesSummedForLevel += scan.getTotalIonCurrent();
 		
 		Byte isCentroidOfScan = scan.getIsCentroid();
 		
@@ -59,6 +56,27 @@ public class AccumulateSummaryDataPerScanLevel {
 			} else if ( holder.isCentroidScanLevel.byteValue() !=  isCentroidOfScan.byteValue() ) {
 				// Have both values so set to both values in map for level
 				holder.isCentroidScanLevel = ScanCentroidedConstants.SCAN_CENTROIDED_VALUES_IN_FILE_BOTH;
+			}
+		}
+		{ //  Update holder.isIonInjectionTime_Set_ScanLevel
+			if ( holder.isIonInjectionTime_Set_ScanLevel == null ) {
+				// Not set for level so add it
+				if ( scan.getIonInjectionTime() == null ) {
+					holder.isIonInjectionTime_Set_ScanLevel = ScanHasIonInjectionTimeConstants.SCAN_HAS_ION_INJECTION_TIME_FALSE;
+				} else {
+					holder.isIonInjectionTime_Set_ScanLevel = ScanHasIonInjectionTimeConstants.SCAN_HAS_ION_INJECTION_TIME_TRUE;
+				}
+			} else if ( holder.isIonInjectionTime_Set_ScanLevel == ScanHasIonInjectionTimeConstants.SCAN_HAS_ION_INJECTION_TIME_VALUES_IN_FILE_BOTH ) {
+				//  Already set to both values for level so just skip to next scan
+			} else {
+				if ( scan.getIonInjectionTime() == null && holder.isIonInjectionTime_Set_ScanLevel == ScanHasIonInjectionTimeConstants.SCAN_HAS_ION_INJECTION_TIME_TRUE ) {
+					// Have both values so set to both values in map for level
+					holder.isIonInjectionTime_Set_ScanLevel = ScanHasIonInjectionTimeConstants.SCAN_HAS_ION_INJECTION_TIME_VALUES_IN_FILE_BOTH;
+					
+				} else if ( scan.getIonInjectionTime() != null && holder.isIonInjectionTime_Set_ScanLevel == ScanHasIonInjectionTimeConstants.SCAN_HAS_ION_INJECTION_TIME_FALSE ) {
+					// Have both values so set to both values in map for level
+					holder.isIonInjectionTime_Set_ScanLevel = ScanHasIonInjectionTimeConstants.SCAN_HAS_ION_INJECTION_TIME_VALUES_IN_FILE_BOTH;
+				}
 			}
 		}
 		
@@ -99,11 +117,15 @@ public class AccumulateSummaryDataPerScanLevel {
 			if ( internalPerScanLevelHolder.isCentroidScanLevel == null ) {
 				throw new IllegalStateException( "internalPerScanLevelHolder.isCentroidScanLevelisCentroidScanLevel == null.  scanLevel: " + String.valueOf( scanLevel ) );
 			}
+			if ( internalPerScanLevelHolder.isIonInjectionTime_Set_ScanLevel == null ) {
+				throw new IllegalStateException( "internalPerScanLevelHolder.isIonInjectionTime_Set_ScanLevel == null.  scanLevel: " + String.valueOf( scanLevel ) );
+			}
 			AccumulateSummaryDataPerScanLevelSingleLevelResult singleLevelResult = new AccumulateSummaryDataPerScanLevelSingleLevelResult();
 			singleLevelResultList.add( singleLevelResult );
 			singleLevelResult.setScanLevel( scanLevel );
 			singleLevelResult.setNumberOfScans( internalPerScanLevelHolder.scanCount );
-			singleLevelResult.setIsCentroidScanLevel( internalPerScanLevelHolder.isCentroidScanLevel ); 
+			singleLevelResult.setIsCentroidScanLevel( internalPerScanLevelHolder.isCentroidScanLevel );
+			singleLevelResult.setIsIonInjectionTime_Set_ScanLevel( internalPerScanLevelHolder.isIonInjectionTime_Set_ScanLevel );
 			singleLevelResult.setTotalIonCurrent( internalPerScanLevelHolder.scanIntensitiesSummedForLevel );
 		}
 		
@@ -127,6 +149,15 @@ public class AccumulateSummaryDataPerScanLevel {
 		 *            ScanCentroidedConstants.SCAN_CENTROIDED_VALUES_IN_FILE_BOTH
 		 */
 		Byte isCentroidScanLevel;
+
+		/**
+		 * Is the IonInjectionTime Set values for this scan level
+		 * 0 - false - IonInjectionTime == null
+		 * 1 - true - IonInjectionTime != null
+		 * 2 - both - both IonInjectionTime == null and IonInjectionTime != null
+		 *            ScanCentroidedConstants.SCAN_CENTROIDED_VALUES_IN_FILE_BOTH
+		 */
+		Byte isIonInjectionTime_Set_ScanLevel;
 	}
 	
 }

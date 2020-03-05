@@ -2,6 +2,8 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_
 
 import java.util.List;
 
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.CommonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.CommonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_Header_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
@@ -37,10 +39,15 @@ public interface SpectralFile_Reader__IF {
 	/**
 	 * No Scan Peaks will be returned
 	 * @param scanNumber
+	 * @param commonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum TODO
 	 * @return
 	 * @throws Exception
 	 */
-	public SpectralFile_SingleScan_Common getScanDataNoScanPeaksForScanNumber( int scanNumber) throws Exception;
+	public SpectralFile_SingleScan_Common getScanDataNoScanPeaksForScanNumber( 
+			int scanNumber, 
+			CommonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum commonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum,
+			CommonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum commonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum
+			) throws Exception;
 	
 	public Byte getScanLevelForScanNumber( int scanNumber) throws Exception;
 	

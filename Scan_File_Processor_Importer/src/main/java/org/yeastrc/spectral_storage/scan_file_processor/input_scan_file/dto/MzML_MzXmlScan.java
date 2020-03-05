@@ -28,6 +28,23 @@ public class MzML_MzXmlScan { // implements MsScanIn {
     private double precursorMz;
     private byte precursorCharge;
     private float retentionTime;
+
+    /**
+     * 2020: YRC: Spectral Storage Service change to add support for ion injection time
+     */
+    private Float ionInjectionTime;  // In Milliseconds
+
+	/**
+	 * 2020: YRC: Spectral Storage Service change to add support for total ion current per scan
+	 * 
+	 * Value per Scan, retrieved from file, not computed: mzML: <cvParam cvRef="MS" accession="MS:1000285" name="total ion current" value="5.0278541e05"/>
+	 * Set to Float.NEGATIVE_INFINITY in disk file if not available.  Set to null in Java objects.
+	 * 
+	 * In Data file Reader, if value read from disk is Float.NEGATIVE_INFINITY, then the Java object property is not set.
+	 *  
+	 *  New for Data File Version V005
+	 */
+	private Float totalIonCurrent;
     
     private String activationType; //  setter/getter match property name fragmentationType which is in the MSDaPl msScan table
 
@@ -157,5 +174,25 @@ public class MzML_MzXmlScan { // implements MsScanIn {
 
 	public void setPrecursorCharge(byte precursorCharge) {
 		this.precursorCharge = precursorCharge;
+	}
+
+
+	public Float getIonInjectionTime() {
+		return ionInjectionTime;
+	}
+
+
+	public void setIonInjectionTime(Float ionInjectionTime) {
+		this.ionInjectionTime = ionInjectionTime;
+	}
+
+
+	public Float getTotalIonCurrent() {
+		return totalIonCurrent;
+	}
+
+
+	public void setTotalIonCurrent(Float totalIonCurrent) {
+		this.totalIonCurrent = totalIonCurrent;
 	}
 }

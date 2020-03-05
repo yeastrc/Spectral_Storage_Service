@@ -18,7 +18,29 @@ public class SpectralFile_SingleScan_Common {
 	private float retentionTime;
 	
 	/**
-	 * Not populated if request other than peaks and scan file contains more than one unique value
+	 *  in milliseconds
+	 *  
+	 *  Not populated if request other than peaks 
+	 *  
+	 *  Set to Float.NEGATIVE_INFINITY in disk file if not available.  Set to null in Java objects.
+	 *  
+	 *  In Data file Reader, if value read from disk is Float.NEGATIVE_INFINITY, then the Java object property is not set.
+	 *  
+	 *  New for Data File Version V005
+	 */
+	private Float ionInjectionTime; // in milliseconds
+
+	/**
+	 * Value per Scan, retrieved from file, From (if available): mzML: <cvParam cvRef="MS" accession="MS:1000285" name="total ion current" value="5.0278541e05"/>
+	 * 
+	 * Otherwise computed from scan peaks
+	 *  
+	 *  New for Data File Version V005
+	 */
+	private Float totalIonCurrent;
+	
+	/**
+	 * Not populated if request other than peaks and scan file contains more than one unique value for this scan level
 	 */
 	private Byte isCentroid;
 	
@@ -158,7 +180,7 @@ public class SpectralFile_SingleScan_Common {
 
 
 	/**
-	 * Not populated if request other than peaks and scan file contains more than one unique value
+	 * Not populated if request other than peaks and scan file contains more than one unique value for this scan level
 	 * @return null if not populated
 	 */
 	public Byte getIsCentroid() {
@@ -218,6 +240,70 @@ public class SpectralFile_SingleScan_Common {
 
 	public void setScanTotalBytesInDataFile(int scanTotalBytesInDataFile) {
 		this.scanTotalBytesInDataFile = scanTotalBytesInDataFile;
+	}
+
+
+	/**
+	 * in milliseconds
+	 * 
+	 * Not populated if request other than peaks 
+	 * 
+	 * Set to Float.NEGATIVE_INFINITY in disk file if not available.  Set to null in Java objects.
+	 * 
+	 * In Data file Reader, if value read from disk is this value, then the Java object property is not set.
+	 * 
+	 * New for Data File Version V005
+	 *  
+	 * @return
+	 */
+	public Float getIonInjectionTime() {
+		return ionInjectionTime;
+	}
+
+
+	/**
+	 * in milliseconds
+	 * 
+	 * Not populated if request other than peaks 
+	 *  
+	 * Set to Float.NEGATIVE_INFINITY in disk file if not available.  Set to null in Java objects.
+	 * 
+	 * In Data file Reader, if value read from disk is Float.NEGATIVE_INFINITY, then the Java object property is not set.
+	 * 
+	 * New for Data File Version V005
+	 * 
+	 * @param ionInjectionTime
+	 */
+	public void setIonInjectionTime(Float ionInjectionTime) {
+		this.ionInjectionTime = ionInjectionTime;
+	}
+
+
+	/**
+	 * Value per Scan, retrieved from file, From (if available): mzML: <cvParam cvRef="MS" accession="MS:1000285" name="total ion current" value="5.0278541e05"/>
+	 * 
+	 * Otherwise computed from scan peaks
+	 * 
+	 * New for Data File Version V005
+	 * 
+	 * @return
+	 */
+	public Float getTotalIonCurrent() {
+		return totalIonCurrent;
+	}
+
+
+	/**
+	 * Value per Scan, retrieved from file, From (if available): mzML: <cvParam cvRef="MS" accession="MS:1000285" name="total ion current" value="5.0278541e05"/>
+	 * 
+	 * Otherwise computed from scan peaks
+	 * 
+	 * New for Data File Version V005
+	 * 
+	 * @param totalIonCurrent
+	 */
+	public void setTotalIonCurrent(Float totalIonCurrent) {
+		this.totalIonCurrent = totalIonCurrent;
 	}
 
 

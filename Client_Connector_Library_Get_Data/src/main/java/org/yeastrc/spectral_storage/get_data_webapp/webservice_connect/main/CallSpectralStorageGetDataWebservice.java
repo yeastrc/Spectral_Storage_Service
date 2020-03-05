@@ -24,6 +24,8 @@ import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.constan
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.exceptions.YRCSpectralStorageGetDataWebserviceCallErrorException;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Request;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Response;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanData_AllScans_ExcludePeaks_Request;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanData_AllScans_ExcludePeaks_Response;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanNumbersFromRetentionTimeRange_Request;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanNumbersFromRetentionTimeRange_Response;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanNumbers_Request;
@@ -78,6 +80,8 @@ public class CallSpectralStorageGetDataWebservice {
 				JAXBContext.newInstance( 
 						Get_ScanNumbers_Request.class,
 						Get_ScanNumbers_Response.class,
+						Get_ScanData_AllScans_ExcludePeaks_Request.class,
+						Get_ScanData_AllScans_ExcludePeaks_Response.class,
 						Get_ScanDataFromScanNumbers_Request.class,
 						Get_ScanDataFromScanNumbers_Response.class,
 						Get_ScanRetentionTimes_Request.class,
@@ -96,6 +100,7 @@ public class CallSpectralStorageGetDataWebservice {
 	}
 	
 	/////////////////////////////
+	
 	
 	/**
 	 * @param webserviceRequest
@@ -133,6 +138,45 @@ public class CallSpectralStorageGetDataWebservice {
 		return webserviceResponse;
 	}
 
+	/**
+	 * If specify exclude scan peaks, the "IsCentroid" may not be populated if there is more than 1 value for the file.
+	 * If "IsCentroid" is not populated, it will be null.
+	 * 
+	 * @param webserviceRequest
+	 * @return
+	 * @throws Exception 
+	 */
+	public Get_ScanData_AllScans_ExcludePeaks_Response call_Get_ScanData_AllScans_ExcludePeaks_Webservice( Get_ScanData_AllScans_ExcludePeaks_Request webserviceRequest ) throws Exception {
+		if ( ! instanceInitialized ) {
+			throw new IllegalStateException( "Not initialized" );
+		}
+		if ( webserviceRequest == null ) {
+			throw new IllegalArgumentException( "webserviceRequest param must not be null in call to call_Get_ScanDataFromScanNumbers_Webservice(...)" );
+		}
+
+		String webserviceURL = spectralStorageServerBaseURL
+				+ WebserviceSpectralStorageGetDataPathConstants.GET_SCAN_DATA_ALL_SCANS_EXCLUDE_PEAKS_SERVLET_XML;
+		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
+		if ( ! ( webserviceResponseAsObject instanceof Get_ScanData_AllScans_ExcludePeaks_Response ) ) {
+			String msg = "Response unmarshaled to class other than Get_ScanData_AllScans_ExcludePeaks_Response.  "
+					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
+			exception.setFailToDecodeDataReceivedFromServer(true);
+			throw exception;
+		}
+		Get_ScanData_AllScans_ExcludePeaks_Response webserviceResponse = null;
+		try {
+			webserviceResponse = (Get_ScanData_AllScans_ExcludePeaks_Response) webserviceResponseAsObject;
+		} catch ( Exception e ) {
+			String msg = "Error. Fail to cast response as Get_ScanData_AllScans_ExcludePeaks_Response: "
+					+ e.toString();
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
+			exception.setFailToDecodeDataReceivedFromServer(true);
+			throw exception;
+		}
+		return webserviceResponse;
+	}
+	
 	/**
 	 * If specify exclude scan peaks, the "IsCentroid" may not be populated if there is more than 1 value for the file.
 	 * If "IsCentroid" is not populated, it will be null.

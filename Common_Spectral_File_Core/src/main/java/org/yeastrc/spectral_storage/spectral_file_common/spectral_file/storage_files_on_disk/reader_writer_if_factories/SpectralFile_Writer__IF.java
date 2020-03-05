@@ -12,6 +12,8 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  *
  */
 public interface SpectralFile_Writer__IF {
+	
+	public int getVersion();
 
 	/**
 	 * @throws Exception

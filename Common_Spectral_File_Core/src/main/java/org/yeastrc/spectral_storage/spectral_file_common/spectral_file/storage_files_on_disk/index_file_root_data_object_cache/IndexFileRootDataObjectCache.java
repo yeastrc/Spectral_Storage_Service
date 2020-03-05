@@ -6,9 +6,13 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.index_file.SpectralFile_Index_FileContents_Root_IF;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.StorageFile_Version_004_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.reader_writer.SpectralFile_Index_File_Reader_V_004;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.StorageFile_Version_005_Constants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.index_file.reader_writer.SpectralFile_Index_File_Reader_V_005;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -32,7 +36,7 @@ public class IndexFileRootDataObjectCache {
 
 
 	private static final AtomicLong cacheGetCount = new AtomicLong();
-	private static final AtomicLong cacheDBRetrievalCount = new AtomicLong();
+	private static final AtomicLong cacheGetIndexFileCount = new AtomicLong();
 	
 	private static volatile int prevDayOfYear = -1;
 
@@ -100,7 +104,7 @@ public class IndexFileRootDataObjectCache {
 	 * @throws Exception
 	 */
 	public SpectralFile_Index_FileContents_Root_IF getSpectralFile_Index_FileContents_Root_IF( 
-			String hashKey ) throws Exception {
+			String hashKey, int indexVersion ) throws Exception {
 		
 		printPrevCacheHitCounts( false /* forcePrintNow */ );
 		
@@ -109,14 +113,19 @@ public class IndexFileRootDataObjectCache {
 		}
 
 		try {
-			LoadingCache<String, SpectralFile_Index_FileContents_Root_IF> cache = cacheHolderInternal.getCache();
+			LoadingCache<CacheKey, SpectralFile_Index_FileContents_Root_IF> cache = cacheHolderInternal.getCache();
+			
+			CacheKey cacheKey = new CacheKey();
+			
+			cacheKey.hashKey = hashKey;
+			cacheKey.indexVersion = indexVersion;
 
 			if ( cache != null ) {
-				SpectralFile_Index_FileContents_Root_IF spectralFile_Index_FileContents_Root_IF = cache.get( hashKey );
+				SpectralFile_Index_FileContents_Root_IF spectralFile_Index_FileContents_Root_IF = cache.get( cacheKey );
 				return spectralFile_Index_FileContents_Root_IF; // EARLY return
 			}
 
-			SpectralFile_Index_FileContents_Root_IF spectralFile_Index_FileContents_Root_IF = cacheHolderInternal.loadFromDB( hashKey );
+			SpectralFile_Index_FileContents_Root_IF spectralFile_Index_FileContents_Root_IF = cacheHolderInternal.loadIndexFile( hashKey, indexVersion );
 			return spectralFile_Index_FileContents_Root_IF;
 			
 		} catch ( ExecutionException e ) {
@@ -129,6 +138,43 @@ public class IndexFileRootDataObjectCache {
 		} catch ( SpectralStorageDataNotFoundException e ) {
 			//  DB query returned null so return null here
 			return null;
+		}
+	}
+	
+	/**
+	 * Key to Cache
+	 * 
+	 */
+	private static class CacheKey {
+		
+		String hashKey;
+		int indexVersion;
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((hashKey == null) ? 0 : hashKey.hashCode());
+			result = prime * result + indexVersion;
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			CacheKey other = (CacheKey) obj;
+			if (hashKey == null) {
+				if (other.hashKey != null)
+					return false;
+			} else if (!hashKey.equals(other.hashKey))
+				return false;
+			if (indexVersion != other.indexVersion)
+				return false;
+			return true;
 		}
 	}
 
@@ -150,7 +196,7 @@ public class IndexFileRootDataObjectCache {
 		/**
 		 * cached data, left null if no caching
 		 */
-		private LoadingCache<String, SpectralFile_Index_FileContents_Root_IF> dbRecordsDataCache = null;
+		private LoadingCache<CacheKey, SpectralFile_Index_FileContents_Root_IF> dataCache = null;
 		
 		private int cacheMaxSize;
 
@@ -171,7 +217,7 @@ public class IndexFileRootDataObjectCache {
 		 * @throws Exception
 		 */
 		@SuppressWarnings("static-access")
-		private synchronized LoadingCache<String, SpectralFile_Index_FileContents_Root_IF> getCache(  ) throws Exception {
+		private synchronized LoadingCache<CacheKey, SpectralFile_Index_FileContents_Root_IF> getCache(  ) throws Exception {
 			if ( ! cacheDataInitialized ) { 
 //				CachedDataSizeOptions cachedDataSizeOptions = 
 //						CachedDataCentralConfigStorageAndProcessing.getInstance().getCurrentSizeConfigValue();
@@ -191,29 +237,32 @@ public class IndexFileRootDataObjectCache {
 ////					cacheTimeout = CACHE_TIMEOUT_SMALL;
 //				}
 				
-				dbRecordsDataCache = CacheBuilder.newBuilder()
+				dataCache = CacheBuilder.newBuilder()
 //						.expireAfterAccess( cacheTimeout, TimeUnit.DAYS ) // always in cache
 						.maximumSize( cacheMaxSize )
 						.build(
-								new CacheLoader<String, SpectralFile_Index_FileContents_Root_IF>() {
+								new CacheLoader<CacheKey, SpectralFile_Index_FileContents_Root_IF>() {
 									@Override
-									public SpectralFile_Index_FileContents_Root_IF load( String hashKey ) throws Exception {
+									public SpectralFile_Index_FileContents_Root_IF load( CacheKey cacheKey ) throws Exception {
+										
+										String hashKey = cacheKey.hashKey;
+										int indexVersion = cacheKey.indexVersion;
 										
 										//   WARNING  cannot return null.  
 										//   If would return null, throw SpectralStorageDataNotFoundException and catch at the .get(...)
 										
 										//  value is NOT in cache so get it and return it
-										return loadFromDB( hashKey );
+										return loadIndexFile( hashKey, indexVersion );
 									}
 								});
 			//			    .build(); // no CacheLoader
 				cacheDataInitialized = true;
 			}
-			return dbRecordsDataCache;
+			return dataCache;
 		}
 
 		private synchronized void invalidate() {
-			dbRecordsDataCache = null;
+			dataCache = null;
 			cacheDataInitialized = false;
 		}
 		
@@ -223,26 +272,42 @@ public class IndexFileRootDataObjectCache {
 		 * @return
 		 * @throws Exception
 		 */
-		private SpectralFile_Index_FileContents_Root_IF loadFromDB( String hashKey ) throws Exception {
+		private SpectralFile_Index_FileContents_Root_IF loadIndexFile( String hashKey, int indexVersion ) throws Exception {
 			
 			//   WARNING  cannot return null.  
 			//   If would return null, throw SpectralStorageDataNotFoundException and catch at the .get(...)
 			
 			//  value is NOT in cache so get it and return it
 			if ( debugLogLevelEnabled ) {
-				cacheDBRetrievalCount.incrementAndGet();
+				cacheGetIndexFileCount.incrementAndGet();
 			}
 			
 			try {
-
-				//  WARNING   Harded since only single version supported
+				SpectralFile_Index_FileContents_Root_IF spectralFile_Index_FileContents_Root_IF = null;
 				
-				SpectralFile_Index_FileContents_Root_IF spectralFile_Index_FileContents_Root_IF =
-						SpectralFile_Index_File_Reader_V_004.getInstance()
-						.readIndexFile( 
-								hashKey, 
-								CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3() );
+				if ( indexVersion == StorageFile_Version_004_Constants.FILE_VERSION ) {
+				
+					spectralFile_Index_FileContents_Root_IF =
+							SpectralFile_Index_File_Reader_V_004.getInstance()
+							.readIndexFile( 
+									hashKey, 
+									CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3() );
 
+				} else if ( indexVersion == StorageFile_Version_005_Constants.FILE_VERSION ) {
+				
+					spectralFile_Index_FileContents_Root_IF =
+							SpectralFile_Index_File_Reader_V_005.getInstance()
+							.readIndexFile( 
+									hashKey, 
+									CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3() );
+
+				} else {
+					
+					String msg = "indexVersion not a supported value.  indexVersion: " + indexVersion;
+					log.error(msg);
+					throw new SpectralStorageProcessingException( msg );
+				}
+				
 				if ( spectralFile_Index_FileContents_Root_IF == null ) {
 					// Throw this exception since cannot return null to Cache
 					throw new SpectralStorageDataNotFoundException();
@@ -251,7 +316,7 @@ public class IndexFileRootDataObjectCache {
 
 			} catch ( Exception e ) {
 				
-				log.error( "loadFromDB(...): readIndexFile(...) threw exception for hashKey: " 
+				log.error( "loadIndexFile(...): readIndexFile(...) threw exception for hashKey: " 
 						+ hashKey
 						+ ", Scan File Storage Location: " 
 						+ CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3(), e );
@@ -274,20 +339,20 @@ public class IndexFileRootDataObjectCache {
 			if ( prevDayOfYear != -1 ) {
 				if ( debugLogLevelEnabled ) {
 					log.debug( "Cache total gets and db loads(misses) for previous day (or since last cache recreate): 'total gets': " + cacheGetCount.intValue() 
-					+ ", misses: " + cacheDBRetrievalCount.intValue() );
+					+ ", misses: " + cacheGetIndexFileCount.intValue() );
 				}
 			}
 			if ( forcePrintNow ) {
 				if ( debugLogLevelEnabled ) {
 					log.debug( "Cache total gets and db loads(misses) since last print: 'total gets': " + cacheGetCount.intValue() 
-					+ ", misses: " + cacheDBRetrievalCount.intValue() );
+					+ ", misses: " + cacheGetIndexFileCount.intValue() );
 				}
 			}
 			
 			prevDayOfYear = nowDayOfYear;
 			//  Reset cache hit and miss counters
 			cacheGetCount.set(0);
-			cacheDBRetrievalCount.set(0);
+			cacheGetIndexFileCount.set(0);
 		}
 		
 	}

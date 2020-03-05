@@ -1,11 +1,15 @@
-package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists;
+package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists_and_is_latest_version;
 
 import java.io.File;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_read_file_version_number_at_file_start.Common_Read_FileVersionNumber_AtFileStart;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.GetOrCreateSpectralStorageSubPath;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_999_latest.StorageFile_Version_999_LATEST_Constants;
 
 /**
  * Check if the spectral storage file already exists for this hash key
@@ -13,15 +17,15 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  * For when stored on local file system
  *
  */
-public class CheckIfSpectralFileAlreadyExists_LocalFilesystem {
+public class CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem {
 
-	private static final Logger log = LoggerFactory.getLogger(CheckIfSpectralFileAlreadyExists_LocalFilesystem.class);
+	private static final Logger log = LoggerFactory.getLogger(CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem.class);
 	/**
 	 * private constructor
 	 */
-	private CheckIfSpectralFileAlreadyExists_LocalFilesystem(){}
-	public static CheckIfSpectralFileAlreadyExists_LocalFilesystem getInstance( ) throws Exception {
-		CheckIfSpectralFileAlreadyExists_LocalFilesystem instance = new CheckIfSpectralFileAlreadyExists_LocalFilesystem();
+	private CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem(){}
+	public static CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem getInstance( ) throws Exception {
+		CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem instance = new CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem();
 		return instance;
 	}
 	
@@ -33,6 +37,7 @@ public class CheckIfSpectralFileAlreadyExists_LocalFilesystem {
 	 */
 	public boolean doesSpectralFileAlreadyExist( 
 			File outputBaseDir, 
+			CommonReader_File_And_S3 commonReader_File_And_S3,
 			String hash_String ) throws Exception {
 		
 		String dataFilename =
@@ -78,6 +83,21 @@ public class CheckIfSpectralFileAlreadyExists_LocalFilesystem {
 						+ ", data file: " + dataFile.getAbsolutePath();
 				log.error( msg );
 				throw new SpectralStorageProcessingException(msg);
+			}
+
+			try {
+				short fileVersionInFile = Common_Read_FileVersionNumber_AtFileStart.getInstance()
+						.common_Read_FileVersionNumber_AtFileStart( dataFilename, hash_String, commonReader_File_And_S3 );
+				
+				if ( fileVersionInFile != StorageFile_Version_999_LATEST_Constants.FILE_VERSION ) {
+					return false;
+				}
+			} catch ( SpectralStorageDataNotFoundException e ) {
+
+				String msg = "...Complete file exists. Data File does exist. Common_Read_FileVersionNumber_AtFileStart.getInstance():common_Read_FileVersionNumber_AtFileStart(...) throws SpectralStorageDataNotFoundException."
+						+ ", data file: " + dataFile.getAbsolutePath();
+				log.error( msg );
+				throw new SpectralStorageProcessingException( msg, e );
 			}
 			
 			return true;

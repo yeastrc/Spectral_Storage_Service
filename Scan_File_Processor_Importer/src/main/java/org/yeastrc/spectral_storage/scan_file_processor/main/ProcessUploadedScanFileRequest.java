@@ -41,11 +41,12 @@ import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetSca
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Process_ScanFile_Create_SpectralFile;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
 import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile;
+import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile.ValidateInputScanFile_Result;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.SpectralStorage_DataFiles_S3_Prefix_Constants;
 import org.yeastrc.spectral_storage.shared_server_importer.create__xml_input_factory__xxe_safe.Create_XMLInputFactory_XXE_Safe;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_LocalFilesystem;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_S3_Object;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists_and_is_latest_version.CheckIfSpectralFileAlreadyExists_And_IsLatestVersion__S3_Object;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists_and_is_latest_version.CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
@@ -55,6 +56,8 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_cont
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.s3_aws_interface.S3_AWS_InterfaceObjectHolder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ComputeFromScanFileContentHashes;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ToFileReadWrite;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Builder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.GetOrCreateSpectralStorageSubPath;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
 
@@ -105,9 +108,12 @@ public class ProcessUploadedScanFileRequest {
 		
 		System.out.println( "Starting validate scan file.  Now: " + new Date() );
 		
+		//  validateInputScanFile_Result: Values useful in main processing
+		ValidateInputScanFile_Result validateInputScanFile_Result = null;
+		
 		try {
 			//  Throws exception SpectralStorageDataException if any error
-			ValidateInputScanFile.getInstance().validateScanFile( inputScanFile );
+			validateInputScanFile_Result = ValidateInputScanFile.getInstance().validateScanFile( inputScanFile );
 
 		} catch ( SpectralStorageDataException e ) {
 			
@@ -130,7 +136,8 @@ public class ProcessUploadedScanFileRequest {
 		processInputFileWithComputedHash(
 				pgmParams,
 				inputScanFile, 
-				compute_Hashes);
+				compute_Hashes,
+				validateInputScanFile_Result );
 
 		//  Don't get here if here is a failure since an exception will be thrown.  
 		if ( pgmParams.isDeleteScanFileOnSuccess() ) {
@@ -151,7 +158,8 @@ public class ProcessUploadedScanFileRequest {
 	public  String processInputFileWithComputedHash(
 			Scan_File_Processor_MainProgram_Params pgmParams,
 			File inputScanFile,
-			Compute_Hashes compute_Hashes ) throws Exception, IOException {
+			Compute_Hashes compute_Hashes,
+			ValidateInputScanFile_Result validateInputScanFile_Result ) throws Exception, IOException {
 		
 		//  String of the API Key for this scan file, based on the hash of the file contents
 		String apiKey = 
@@ -162,32 +170,50 @@ public class ProcessUploadedScanFileRequest {
 		
 		ScanFileAPIKey_ToFileReadWrite.getInstance().writeScanFileHashToInProcessFileInCurrentDir( apiKey );
 		
+		
+		CommonReader_File_And_S3_Builder commonReader_File_And_S3_Builder = CommonReader_File_And_S3_Builder.newBuilder();
+		
+		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
+
+			commonReader_File_And_S3_Builder.setS3_Bucket( pgmParams.getS3_OutputBucket() );
+//			commonReader_File_And_S3_Builder.setS3_Region( pgmParams.get );
+		
+		} else {
+			commonReader_File_And_S3_Builder.setSubDirForStorageFiles( pgmParams.getOutputBaseDir() );
+		}
+		
+		CommonReader_File_And_S3 commonReader_File_And_S3 = commonReader_File_And_S3_Builder.build();
+		
 		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
 			
-			if ( CheckIfSpectralFileAlreadyExists_S3_Object.getInstance()
-					.doesSpectralFileAlreadyExist( pgmParams.getS3_OutputBucket(), apiKey ) ) {
+			if ( CheckIfSpectralFileAlreadyExists_And_IsLatestVersion__S3_Object.getInstance()
+					.doesSpectralFileAlreadyExist( 
+							pgmParams.getS3_OutputBucket(), 
+							commonReader_File_And_S3, 
+							apiKey ) ) {
 
-				System.out.println( "Data object in S3 already exists so no processing needed");
+				System.out.println( "Data object in S3 already exists and is latest version so no processing needed");
 
 				return apiKey;
 			}
 
 		} else {
-			if ( CheckIfSpectralFileAlreadyExists_LocalFilesystem.getInstance()
+			if ( CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem.getInstance()
 					.doesSpectralFileAlreadyExist( 
 							pgmParams.getOutputBaseDir(), 
+							commonReader_File_And_S3,
 							apiKey ) ) {
 
-				System.out.println( "Data File already exists so no processing needed");
+				System.out.println( "Data File already exists and is latest version so no processing needed");
 
 				return apiKey;
 			}
 		}
 
 		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
-			System.out.println( "Scan Data File does NOT already exist in S3 so STARTING processing the scan file.  Now: " + new Date() );
+			System.out.println( "Scan Data File does NOT already exist in S3 or is NOT latest Version so STARTING processing the scan file.  Now: " + new Date() );
 		} else {
-			System.out.println( "Scan Data File does NOT already exist on Local Filesystem so STARTING processing the scan file.  Now: " + new Date() );
+			System.out.println( "Scan Data File does NOT already exist on Local Filesystem or is NOT latest Version so STARTING processing the scan file.  Now: " + new Date() );
 		}
 
 		//  Create Temp dir if not exist
@@ -216,7 +242,7 @@ public class ProcessUploadedScanFileRequest {
 
 		try {
 			Process_ScanFile_Create_SpectralFile.getInstance()
-			.processScanFile( inputScanFile, tempOutputDir, apiKey, compute_Hashes );
+			.processScanFile( inputScanFile, tempOutputDir, apiKey, compute_Hashes, validateInputScanFile_Result );
 
 		} catch ( SpectralStorageDataException e ) {
 			
@@ -632,16 +658,19 @@ public class ProcessUploadedScanFileRequest {
 	private void moveFilesToFinalSubdirLocalFilesytem(Scan_File_Processor_MainProgram_Params pgmParams, String apiKey,
 			File tempOutputDir) throws Exception, SpectralStorageProcessingException {
 		
-		File subDir =
+		//  Backup existing files if configured to do so
+		moveExistingFilesTo_OLD_Subdir_LocalFilesytem( pgmParams, apiKey );
+		
+		File subDirToMoveFilesTo =
 				GetOrCreateSpectralStorageSubPath.getInstance()
-				.createDirsForHashIfNotExists(apiKey, pgmParams.getOutputBaseDir() );
+				.createDirsForHashIfNotExists( apiKey, pgmParams.getOutputBaseDir() );
 		
 		//  First move all but complete file:
 		File[] tempOutputDirItems = tempOutputDir.listFiles();
 		for ( File tempOutputDirItem : tempOutputDirItems ) {
 			String filename = tempOutputDirItem.getName();
 			if ( ! filename.endsWith( SpectralStorage_Filename_Constants.DATA_INDEX_FILES_COMPLETE_FILENAME_SUFFIX ) ) {
-				File fileRenameTo = new File( subDir, filename );
+				File fileRenameTo = new File( subDirToMoveFilesTo, filename );
 				if ( ! tempOutputDirItem.renameTo( fileRenameTo ) ) {
 					String msg = "Failed to move temp dir item: " 
 							+ tempOutputDirItem.getAbsolutePath()
@@ -656,7 +685,7 @@ public class ProcessUploadedScanFileRequest {
 		for ( File tempOutputDirItem : tempOutputDirItems ) {
 			String filename = tempOutputDirItem.getName();
 			if ( filename.endsWith( SpectralStorage_Filename_Constants.DATA_INDEX_FILES_COMPLETE_FILENAME_SUFFIX ) ) {
-				File fileRenameTo = new File( subDir, filename );
+				File fileRenameTo = new File( subDirToMoveFilesTo, filename );
 				if ( ! tempOutputDirItem.renameTo( fileRenameTo ) ) {
 					String msg = "Failed to move temp dir item: " 
 							+ tempOutputDirItem.getAbsolutePath()
@@ -667,9 +696,88 @@ public class ProcessUploadedScanFileRequest {
 			}
 		}
 		
-		System.out.println( "data files moved to to: " + subDir.getAbsolutePath() );
-		writeAssocStorageDirInCurrentDir( subDir.getAbsolutePath() );
+		System.out.println( "data files moved to to: " + subDirToMoveFilesTo.getAbsolutePath() );
+		writeAssocStorageDirInCurrentDir( subDirToMoveFilesTo.getAbsolutePath() );
 	}
+
+	/**
+	 * "Backup" the existing files if a "Backup Old" Directory is configured.
+	 * 
+	 * @param pgmParams
+	 * @param apiKey
+	 * @throws Exception
+	 * @throws SpectralStorageProcessingException
+	 */
+	private void moveExistingFilesTo_OLD_Subdir_LocalFilesytem(
+			
+			Scan_File_Processor_MainProgram_Params pgmParams, 
+			String apiKey ) throws Exception, SpectralStorageProcessingException {
+		
+		if ( pgmParams.getBackupOldBaseDir() == null ) {
+			
+			//  Not Configured so skip
+			
+			return; // EARLY RETURN
+		}
+		
+		File subDirToMoveFilesFrom =
+				GetOrCreateSpectralStorageSubPath.getInstance()
+				.createDirsForHashIfNotExists( apiKey, pgmParams.getOutputBaseDir() );
+		
+
+		File subDirToMoveFiles_To_BackupOldDir =
+				GetOrCreateSpectralStorageSubPath.getInstance()
+				.createDirsForHashIfNotExists( apiKey, pgmParams.getBackupOldBaseDir() );
+		
+
+		File[] tempOutputDirItems = subDirToMoveFilesFrom.listFiles();
+		
+		//  First move complete file:
+		for ( File tempOutputDirItem : tempOutputDirItems ) {
+			
+			String filename = tempOutputDirItem.getName();
+
+			if ( filename.startsWith( apiKey ) ) { //  Only move files for this API Key
+
+				if ( filename.endsWith( SpectralStorage_Filename_Constants.DATA_INDEX_FILES_COMPLETE_FILENAME_SUFFIX ) ) {
+
+					File fileRenameTo = new File( subDirToMoveFiles_To_BackupOldDir, filename );
+					if ( ! tempOutputDirItem.renameTo( fileRenameTo ) ) {
+						String msg = "Failed to move data dir item to Backup Old Dir: " 
+								+ tempOutputDirItem.getAbsolutePath()
+								+ ", to " + fileRenameTo.getAbsolutePath();
+						log.error( msg );
+						throw new SpectralStorageProcessingException(msg);
+					}
+				}
+			}
+		}
+		
+		//  Second move all but complete file:
+		for ( File tempOutputDirItem : tempOutputDirItems ) {
+			
+			String filename = tempOutputDirItem.getName();
+			
+			if ( filename.startsWith( apiKey ) ) { //  Only move files for this API Key
+				
+				if ( ! filename.endsWith( SpectralStorage_Filename_Constants.DATA_INDEX_FILES_COMPLETE_FILENAME_SUFFIX ) ) {
+					File fileRenameTo = new File( subDirToMoveFiles_To_BackupOldDir, filename );
+					if ( ! tempOutputDirItem.renameTo( fileRenameTo ) ) {
+						String msg = "Failed to move data dir item to Backup Old Dir: " 
+								+ tempOutputDirItem.getAbsolutePath()
+								+ ", to " + fileRenameTo.getAbsolutePath();
+						log.error( msg );
+						throw new SpectralStorageProcessingException(msg);
+					}
+				}
+			}
+		}
+
+		System.out.println( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+		System.out.println( "OLD data files moved to to: " + subDirToMoveFiles_To_BackupOldDir.getAbsolutePath() );
+		System.out.println( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+	}
+	
 	
 	/**
 	 * @param inputScanFile

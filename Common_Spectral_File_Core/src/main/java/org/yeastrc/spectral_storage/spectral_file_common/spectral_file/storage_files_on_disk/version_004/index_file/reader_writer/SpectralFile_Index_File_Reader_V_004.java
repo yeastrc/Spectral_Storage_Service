@@ -88,7 +88,7 @@ public class SpectralFile_Index_File_Reader_V_004 {
 
 				if ( fileFullWrittenIndicator != DataOrIndexFileFullyWrittenConstants.FILE_FULLY_WRITTEN_YES ) {
 					
-					String msg = "Index File not fully written.  First byte is not 1.  Index File: " + spectralIndexFilename;
+					String msg = "Index File not fully written.  First byte after Version (Short, 2 bytes) is not 1.  Index File: " + spectralIndexFilename;
 					log.error( msg );
 					throw new SpectralFileDataFileNotFullyWrittenException(msg);
 				}

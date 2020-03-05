@@ -12,10 +12,12 @@ import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessUploadedScanFile_Final_OnSuccess;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextUploadedScanFile.ProcessingSuccessFailKilled;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingWriteOrUpdateStatusFile;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_LocalFilesystem;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists_and_is_latest_version.CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ToFileReadWrite;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 
 /**
  * Process the Import Request once the API Key value has been computed and stored in the file.
@@ -58,6 +60,8 @@ public class ProcessImportRequest_APIKey_Value_InFile {
 			throw new SpectralStorageProcessingException(msg);
 		}
 		
+		CommonReader_File_And_S3 commonReader_File_And_S3 = CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3();
+		
 		//  If API Key already exists in Storage Dir, only set values in dirToProcessScanFile and exit
 
 		if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket() ) ) {
@@ -89,12 +93,13 @@ public class ProcessImportRequest_APIKey_Value_InFile {
 		} else {
 			File scanStorageBaseDirectory = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getScanStorageBaseDirectory();
 			
-			if ( CheckIfSpectralFileAlreadyExists_LocalFilesystem.getInstance()
+			if ( CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem.getInstance()
 					.doesSpectralFileAlreadyExist( 
 							scanStorageBaseDirectory, 
+							commonReader_File_And_S3,
 							apiKey ) ) {
 				
-				log.warn( "INFO: apiKey already in Scan Data Storage directory.  Request will be marked Successful and Processing Dir Cleaned Up. apiKey: " + apiKey 
+				log.warn( "INFO: apiKey already in Scan Data Storage directory and is Latest version.  Request will be marked Successful and Processing Dir Cleaned Up. apiKey: " + apiKey 
 						+ ", Scan File Processing Directory: " + dirToProcessScanFile.getAbsolutePath() );
 				
 				//  Need to do same things that Importer would do when found API key already existing

@@ -8,7 +8,9 @@ import java.io.File;
  */
 public class Scan_File_Processor_MainProgram_Params {
 
-	private File outputBaseDir; 
+	private File outputBaseDir;
+	private File backupOldBaseDir; 
+	
 	private String s3_OutputBucket;
 	
 	private boolean deleteScanFileOnSuccess;
@@ -30,5 +32,11 @@ public class Scan_File_Processor_MainProgram_Params {
 	}
 	public void setDeleteScanFileOnSuccess(boolean deleteScanFileOnSuccess) {
 		this.deleteScanFileOnSuccess = deleteScanFileOnSuccess;
+	}
+	public File getBackupOldBaseDir() {
+		return backupOldBaseDir;
+	}
+	public void setBackupOldBaseDir(File backupOldBaseDir) {
+		this.backupOldBaseDir = backupOldBaseDir;
 	}
 }

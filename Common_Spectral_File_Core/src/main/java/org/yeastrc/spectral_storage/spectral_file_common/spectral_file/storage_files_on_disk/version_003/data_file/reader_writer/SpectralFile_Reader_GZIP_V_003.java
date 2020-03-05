@@ -17,6 +17,8 @@ import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.CommonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.CommonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.DataOrIndexFileFullyWrittenConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.ScanCentroidedConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralFileDataFileNotFullyWrittenException;
@@ -36,6 +38,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.StorageFile_Version_003_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.to_data_file_reader_objects.SpectralFile_ScansLvlGt1Partial_TDFR_FileContents_Root_V_003;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_003.scans_lvl_gt_1_partial.to_data_file_reader_objects.SpectralFile_ScansLvlGt1Partial_TDFR_SingleScan_V_003;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.StorageFile_Version_004_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_FileContents_Root_V_004;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SingleScan_V_004;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_004.index_file.to_data_file_reader_objects.SpectralFile_Index_TDFR_SummaryDataPerScanLevel_V_004;
@@ -128,7 +131,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 //		validateVersion_FileFullyWritten();
 		
 		SpectralFile_Index_FileContents_Root_IF spectralFile_Index_FileContents_Root_IF =
-				IndexFileRootDataObjectCache.getSingletonInstance().getSpectralFile_Index_FileContents_Root_IF( hash_String );
+				IndexFileRootDataObjectCache.getSingletonInstance().getSpectralFile_Index_FileContents_Root_IF( hash_String, StorageFile_Version_004_Constants.FILE_VERSION );
 
 		if ( spectralFile_Index_FileContents_Root_IF == null ) {
 			String msg = "Failed to read index file for hash: " + hash_String;
@@ -308,7 +311,16 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader__IF#getScanForScanNumber(int)
 	 */
 	@Override
-	public SpectralFile_SingleScan_Common getScanDataNoScanPeaksForScanNumber(int scanNumber) throws Exception {
+	public SpectralFile_SingleScan_Common getScanDataNoScanPeaksForScanNumber(
+			
+			int scanNumber, 
+			
+			//  Added for later Data File formats.  Ignored here since don't have this data in the data file
+			
+			CommonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum commonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum,
+			CommonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum commonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum
+			
+			) throws Exception {
 		
 		//  First get entry from Index for scan number
 		
@@ -360,7 +372,7 @@ public class SpectralFile_Reader_GZIP_V_003 implements SpectralFile_Reader__IF {
 			try {
 				SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF spectralFile_ScansLvlGt1Partial_FileContents_Root_IF=
 						ScansLvlGt1PartialFileRootDataObjectCache.getSingletonInstance()
-						.getSpectralFile_ScansLvlGt1Partial_FileContents_Root_IF( hash_String );
+						.getSpectralFile_ScansLvlGt1Partial_FileContents_Root_IF( hash_String, StorageFile_Version_003_Constants.FILE_VERSION );
 
 				if ( spectralFile_ScansLvlGt1Partial_FileContents_Root_IF == null ) {
 					String msg = "Failed to read ScansLvlGt1Partial file for hash: " + hash_String;

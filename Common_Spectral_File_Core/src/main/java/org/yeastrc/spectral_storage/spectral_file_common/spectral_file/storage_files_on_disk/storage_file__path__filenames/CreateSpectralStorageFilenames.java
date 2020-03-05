@@ -1,6 +1,10 @@
 package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames;
 
-import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.DecimalFormat;
+
+import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
 
 /**
@@ -29,6 +33,24 @@ public class CreateSpectralStorageFilenames {
 		
 		return hash + SpectralStorage_Filename_Constants.DATA_FILENAME_SUFFIX;
 	}
+	
+	/**
+	 * @param hash
+	 * @return
+	 * @throws Exception
+	 */
+	public String createSpectraStorage_Data_Filename_FileFormatVersion_Suffix( String hash, int fileFormatVersion ) throws Exception {
+		
+		String fileFormatVersionString = String.format("%03d", fileFormatVersion ); // Zero pad to 3 decimals
+		
+		 String filename = 
+				 hash 
+				 + SpectralStorage_Filename_Constants.DATA_FILENAME_SUFFIX 
+				 + SpectralStorage_Filename_Constants.DATA_INDEX_FILENAME_FILE_FORMAT_VERSION_EXTRA_SUFFIX
+				 + fileFormatVersionString;
+		 
+		 return filename;
+	}
 
 	/**
 	 * @param hash
@@ -45,9 +67,37 @@ public class CreateSpectralStorageFilenames {
 	 * @return
 	 * @throws Exception
 	 */
+	public String createSpectraStorage_Index_Filename_FileFormatVersion_Suffix( String hash, int fileFormatVersion ) throws Exception {
+		
+		String fileFormatVersionString = String.format("%03d", fileFormatVersion ); // Zero pad to 3 decimals
+		
+		 String filename = 
+				 hash 
+				 + SpectralStorage_Filename_Constants.INDEX_FILENAME_SUFFIX 
+				 + SpectralStorage_Filename_Constants.DATA_INDEX_FILENAME_FILE_FORMAT_VERSION_EXTRA_SUFFIX
+				 + fileFormatVersionString;
+		 
+		 return filename;
+	}
+
+	/**
+	 * @param hash
+	 * @return
+	 * @throws Exception
+	 */
 	public String createSpectraStorage_Scans_Level_Gt_1_Partial_Filename( String hash ) throws Exception {
 		
 		return hash + SpectralStorage_Filename_Constants.SCANS_LEVEL_GT_1_PARTIAL_FILENAME_SUFFIX;
+	}
+	
+	/**
+	 * @param hash
+	 * @return
+	 * @throws Exception
+	 */
+	public String createSpectraStorage_Scans_OtherExtractData_Filename( String hash ) throws Exception {
+		
+		return hash + SpectralStorage_Filename_Constants.SCANS_OTHER_EXTRACT_DATA_FILENAME_SUFFIX;
 	}
 	
 	/**
