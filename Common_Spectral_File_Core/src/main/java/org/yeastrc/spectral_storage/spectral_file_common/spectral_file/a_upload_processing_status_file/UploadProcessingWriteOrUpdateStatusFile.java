@@ -6,7 +6,9 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
-import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 
 /**
@@ -33,7 +35,7 @@ public class UploadProcessingWriteOrUpdateStatusFile {
 	 */
 	public void uploadProcessingWriteOrUpdateStatusFileInLocalDir( String newStatus ) throws Exception {
 		
-		uploadProcessingWriteOrUpdateStatusFileLocal( newStatus, null );
+		uploadProcessingWriteOrUpdateStatusFileLocal( newStatus, null, null );
 	}
 
 
@@ -44,15 +46,27 @@ public class UploadProcessingWriteOrUpdateStatusFile {
 	 */
 	public void uploadProcessingWriteOrUpdateStatusFile( String newStatus, File subDir ) throws Exception {
 		
-		uploadProcessingWriteOrUpdateStatusFileLocal( newStatus, subDir );
+		uploadProcessingWriteOrUpdateStatusFileLocal( newStatus, subDir, null );
 	}
 
 	/**
 	 * @param newStatus
 	 * @param subDir
+	 * @param callerLabel
 	 * @throws Exception
 	 */
-	private void uploadProcessingWriteOrUpdateStatusFileLocal( String newStatus, File subDir ) throws Exception {
+	public void uploadProcessingWriteOrUpdateStatusFile( String newStatus, File subDir, String callerLabel ) throws Exception {
+		
+		uploadProcessingWriteOrUpdateStatusFileLocal( newStatus, subDir, callerLabel );
+	}
+
+	/**
+	 * @param newStatus
+	 * @param subDir
+	 * @param callerLabel TODO
+	 * @throws Exception
+	 */
+	private void uploadProcessingWriteOrUpdateStatusFileLocal( String newStatus, File subDir, String callerLabel ) throws Exception {
 		
 		File mainStatusFile = null;
 		
@@ -70,23 +84,46 @@ public class UploadProcessingWriteOrUpdateStatusFile {
 			throw new Exception(msg);
 		}
 		
-		String statusFileForStatusFilename = UploadProcessingStatusFileConstants.STATUS_FILENAME + newStatus;
+		{
+			String statusFileForStatusFilename = UploadProcessingStatusFileConstants.STATUS_FILENAME + newStatus;
 
-		File statusFileForStatus = null;
-		
-		if ( subDir == null ) {
-			statusFileForStatus = new File( statusFileForStatusFilename );
-		} else {
-			statusFileForStatus = new File( subDir, statusFileForStatusFilename );
+			File statusFileForStatus = null;
+
+			if ( subDir == null ) {
+				statusFileForStatus = new File( statusFileForStatusFilename );
+			} else {
+				statusFileForStatus = new File( subDir, statusFileForStatusFilename );
+			}
+
+			try ( BufferedWriter writer = new BufferedWriter( new OutputStreamWriter(new FileOutputStream( statusFileForStatus ), StandardCharsets.UTF_8 ) ) ) {
+				writer.write( newStatus );
+			} catch ( Exception e ) {
+				String msg = "Failed to write status to file: " + statusFileForStatus.getAbsolutePath();
+				log.error( msg );
+				throw new Exception(msg);
+			}
 		}
 		
-		try ( BufferedWriter writer = new BufferedWriter( new OutputStreamWriter(new FileOutputStream( statusFileForStatus ), StandardCharsets.UTF_8 ) ) ) {
-			writer.write( newStatus );
-		} catch ( Exception e ) {
-			String msg = "Failed to write status to file: " + statusFileForStatus.getAbsolutePath();
-			log.error( msg );
-			throw new Exception(msg);
+		if ( StringUtils.isNotEmpty( callerLabel ) ) {
+			
+
+			String statusFileForStatusFilename = UploadProcessingStatusFileConstants.STATUS_FILENAME + newStatus + callerLabel;
+
+			File statusFileForStatus = null;
+			
+			if ( subDir == null ) {
+				statusFileForStatus = new File( statusFileForStatusFilename );
+			} else {
+				statusFileForStatus = new File( subDir, statusFileForStatusFilename );
+			}
+			
+			try ( BufferedWriter writer = new BufferedWriter( new OutputStreamWriter(new FileOutputStream( statusFileForStatus ), StandardCharsets.UTF_8 ) ) ) {
+				writer.write( newStatus );
+			} catch ( Exception e ) {
+				String msg = "Failed to write status to file: " + statusFileForStatus.getAbsolutePath();
+				log.error( msg );
+				throw new Exception(msg);
+			}
 		}
-		
 	}
 }

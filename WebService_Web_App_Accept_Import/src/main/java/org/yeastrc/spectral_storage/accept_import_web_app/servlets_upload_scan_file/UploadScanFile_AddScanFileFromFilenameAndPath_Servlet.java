@@ -1,6 +1,8 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
@@ -411,6 +413,27 @@ public class UploadScanFile_AddScanFileFromFilenameAndPath_Servlet extends HttpS
 				}
 			}
 			
+			{ //  Create file with scanFilename with path
+				
+				File fileToWrite = new File( uploadScanFileTempKey_Dir, ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_SUBMITTED_SCAN_FILENAME_WITH_PATH );
+				
+//				log.warn( "Writing to file SCAN_FILE_TO_PROCESS_SUBMITTED_SCAN_FILENAME_WITH_PATH: fileToWrite: " + fileToWrite );
+				
+				try ( BufferedWriter writer = new BufferedWriter( new FileWriter( fileToWrite ) ) ) {
+					
+					writer.write( submitted_filenameWithPathString );
+					writer.newLine();
+					writer.write( "File Length: " );
+					writer.write( String.valueOf( scanFileLength ) );
+					writer.newLine();
+				}
+				
+			}
+			
+//			if ( true ) {
+//				throw new Exception("FORCE");
+//			}
+//			
 			webserviceResponse.setStatusSuccess(true);
 
 			WriteResponseObjectToOutputStream.getSingletonInstance()

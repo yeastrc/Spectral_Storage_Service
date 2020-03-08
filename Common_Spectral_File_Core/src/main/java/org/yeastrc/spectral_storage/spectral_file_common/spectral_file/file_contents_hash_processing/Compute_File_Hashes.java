@@ -3,7 +3,9 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_con
 import java.io.File;
 import java.io.FileInputStream;
 
-import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
+import org.slf4j.Logger;
 
 /**
  * 
@@ -31,6 +33,15 @@ public class Compute_File_Hashes {
 
 		if ( log.isInfoEnabled() ) {
 			log.info( "Computing File Hashes for file: " + inputFile.getAbsolutePath() );
+		}
+		
+		if ( ! inputFile.exists() ) {
+			String msg = "Input file for compute_File_Hashes does not exist.  inputFile Absolute Path: " 
+					+ inputFile.getAbsolutePath()
+					+ ", inputFile Canonical Path: " 
+					+ inputFile.getCanonicalPath();
+			log.error( msg );
+			throw new SpectralStorageProcessingException( msg );
 		}
 		
 		Compute_Hashes compute_Hashes = Compute_Hashes.getNewInstance();

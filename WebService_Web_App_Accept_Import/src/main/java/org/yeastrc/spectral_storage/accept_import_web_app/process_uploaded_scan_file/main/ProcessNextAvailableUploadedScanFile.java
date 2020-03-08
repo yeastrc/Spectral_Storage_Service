@@ -21,6 +21,12 @@ public class ProcessNextAvailableUploadedScanFile {
 
 	private static final Logger log = LoggerFactory.getLogger(ProcessNextAvailableUploadedScanFile.class);
 
+	/**
+	 * NOT USED
+	 * 
+	 * complete file must be created within this time limit of now.
+	 */
+//	private static final long COMPLETE_FILE_CREATE_TIME_LIMIT_SECONDS = 30;  
 	
 //	private static enum ProcessUploadedFilesState {
 //		
@@ -85,6 +91,12 @@ public class ProcessNextAvailableUploadedScanFile {
 		try {
 			//  Process next Scan file
 
+//			ConfigData_Directories_ProcessUploadInfo_InWorkDirectory configData_Directories_ProcessUploadInfo_InWorkDirectory = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance();
+
+			//  null if not local file system (is probably s3 then)
+//			File scanFileStorageBaseDir = 
+//					configData_Directories_ProcessUploadInfo_InWorkDirectory.getScanStorageBaseDirectory();
+
 			File scanFileDir = null;
 			try {
 				scanFileDir = GetNextScanFileDirToProcessForStatus.getInstance().getNextScanFileDirToProcessForStatus( UploadProcessingStatusFileConstants.STATUS_PENDING );
@@ -118,21 +130,89 @@ public class ProcessNextAvailableUploadedScanFile {
 
 				} catch ( Throwable e ) {
 					
+					//  Do Move here since rethrow this exception
 					MoveProcessingDirectoryToOneof_Processed_Directories.getInstance().moveProcessingDirectoryToOneof_Processed_Directories( scanFileDir, ProcessingSuccessFailKilled.FAIL );
 					
 					throw e;
 				}
 
+				
+
 				String scanFileHashKey_API_Key = null;
 				
-				try {
-					scanFileHashKey_API_Key =
-							ScanFileAPIKey_ToFileReadWrite.getInstance()
-							.readScanFileHashFromInProcessFile( scanFileDir );
-				} catch ( Exception e ) {
-					String msg = "Failed Call to ScanFileAPIKey_ToFileReadWrite.getInstance(). readScanFileHashFromInProcessFile( scanFileDir ); scanFileDir: " + scanFileDir.getAbsolutePath();
-					log.error( msg );
+				if ( processingSuccessFailKilled_Result == ProcessingSuccessFailKilled.SUCCESS ) {
+						
+					try {
+						scanFileHashKey_API_Key =
+								ScanFileAPIKey_ToFileReadWrite.getInstance()
+								.readScanFileHashFromInProcessFile( scanFileDir );
+					} catch ( Exception e ) {
+						String msg = "Failed Call to ScanFileAPIKey_ToFileReadWrite.getInstance(). readScanFileHashFromInProcessFile( scanFileDir ); scanFileDir: " + scanFileDir.getAbsolutePath();
+						log.error( msg );
+					}
 				}
+				
+				//  This next commented out code is not usable as is.  
+				//  It Has ISSUES since the import is already flagged successful by the Importer Program.
+				//   Would need a plan to change to failed and accept web app may have already returned success to calling application.
+				//   Also, at this point the files are out in the storage directory.
+
+//				if ( processingSuccessFailKilled_Result == ProcessingSuccessFailKilled.SUCCESS ) {
+//					
+//					if ( scanFileStorageBaseDir != null ) {
+//
+//						long completeFileLastModified = 0;
+//						
+//						File dataIndexSpectralFilesCompleteFile = null;
+//						
+//						try {
+//
+//							String dataFilename =
+//									CreateSpectralStorageFilenames.getInstance().createSpectraStorage_Data_Filename( scanFileHashKey_API_Key );
+//
+//							String dataIndexSpectralFilesCompleteFilename =
+//									CreateSpectralStorageFilenames.getInstance().createSpectraStorage_Data_Index_Files_Complete_Filename( scanFileHashKey_API_Key );
+//
+//							File subDir =
+//									GetOrCreateSpectralStorageSubPath.getInstance()
+//									.createDirsForHashIfNotExists( scanFileHashKey_API_Key, scanFileStorageBaseDir );
+//
+//							dataIndexSpectralFilesCompleteFile = new File( subDir, dataIndexSpectralFilesCompleteFilename );
+//
+//							completeFileLastModified = dataIndexSpectralFilesCompleteFile.lastModified();
+//
+//
+//						} catch ( Exception e ) {
+//							String msg = "Failed Call to ScanFileAPIKey_ToFileReadWrite.getInstance(). readScanFileHashFromInProcessFile( scanFileDir ); scanFileDir: " + scanFileDir.getAbsolutePath();
+//							log.error( msg );
+//
+//							processingSuccessFailKilled_Result = ProcessingSuccessFailKilled.FAIL;
+//
+//							//  Do in code further down since not rethrow this exception
+//							
+////							MoveProcessingDirectoryToOneof_Processed_Directories.getInstance().moveProcessingDirectoryToOneof_Processed_Directories( scanFileDir, ProcessingSuccessFailKilled.FAIL );
+//						}
+//
+//						if ( processingSuccessFailKilled_Result == ProcessingSuccessFailKilled.SUCCESS ) {
+//							
+//							long lastModified_NotBefore = System.currentTimeMillis() - ( COMPLETE_FILE_CREATE_TIME_LIMIT_SECONDS * 1000 );
+//
+//							log.error( "lastModified_NotBefore: " + lastModified_NotBefore + ", completeFileLastModified: " + completeFileLastModified );
+//							
+//							if ( completeFileLastModified < lastModified_NotBefore ) {
+//								long created_MilliSecondsAgo = ( System.currentTimeMillis() - completeFileLastModified );
+//								String msg = "Complete file created more than '" + COMPLETE_FILE_CREATE_TIME_LIMIT_SECONDS + "' ago.  created " 
+//										+ created_MilliSecondsAgo + " milliseconds ago. Complete file: " + dataIndexSpectralFilesCompleteFile.getAbsolutePath();
+//								log.error( msg );
+//
+//								processingSuccessFailKilled_Result = ProcessingSuccessFailKilled.FAIL;
+//
+//								MoveProcessingDirectoryToOneof_Processed_Directories.getInstance().moveProcessingDirectoryToOneof_Processed_Directories( scanFileDir, ProcessingSuccessFailKilled.FAIL );
+//							}
+//						}
+//					}
+//				}
+				
 				
 				if ( processingSuccessFailKilled_Result != ProcessingSuccessFailKilled.KILLED ) {
 					

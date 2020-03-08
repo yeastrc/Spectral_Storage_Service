@@ -28,7 +28,10 @@ public class ProcessUploadedScanFile_Final_OnSuccess {
 		.writeScanFileHashToFinalHashKeyFile( apiKey, importScanFileProcessingDirectory );
 
 		UploadProcessingWriteOrUpdateStatusFile.getInstance()
-		.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_SUCCESSFUL, importScanFileProcessingDirectory );
+		.uploadProcessingWriteOrUpdateStatusFile( 
+				UploadProcessingStatusFileConstants.STATUS_PROCESSING_SUCCESSFUL, 
+				importScanFileProcessingDirectory,
+				UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
 
 		ProcessUploadedScanFile_SendStatusEmail.getInstance().sendProcessSuccessEmail( importScanFileProcessingDirectory );
 	}

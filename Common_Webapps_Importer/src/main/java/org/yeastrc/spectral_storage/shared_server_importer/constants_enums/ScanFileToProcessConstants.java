@@ -54,6 +54,16 @@ public class ScanFileToProcessConstants {
 	public static final String SCAN_FILE_TO_PROCESS_SUB_DIR_CREATE_TRACKING_FILE = "c_dir_created_tracking.txt";
 
 	/**
+	 * File created to store the submitted scan filename with path, if one is passed as part of submission 
+	 */
+	public static final String SCAN_FILE_TO_PROCESS_SUBMITTED_SCAN_FILENAME_WITH_PATH = "d_submitted_scan_filename_with_path.txt";
+
+	/**
+	 * File created to store the importer exit code 
+	 */
+	public static final String IMPORTER_PROGRAM_EXIT_CODE_FILENAME = "e_importer_program_exit_code.txt";
+
+	/**
 	 * Hash string (API Key) of the uploaded scan file 
 	 */
 	public static final String SCAN_FILE_TO_PROCESS_HASH_STRING_API_KEY_FILENAME = "process__scan_file_hash_string_api_key.txt";

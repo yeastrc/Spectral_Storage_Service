@@ -1,6 +1,8 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Dire
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.run_system_command.RunSystemCommand;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.run_system_command.RunSystemCommandResponse;
+import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingWriteOrUpdateStatusFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ToFileReadWrite;
@@ -168,6 +171,19 @@ public class ProcessNextUploadedScanFile {
 							fileToWriteSysoutTo /* fileToWriteSysoutTo*/,
 							fileToWriteSyserrTo /* fileToWriteSyserrTo*/,
 							false /* throwExceptionOnCommandFailure */ );
+			
+			{  //  Write Importer Exit code to file
+				int commandExitCode = runSystemCommandResponse.getCommandExitCode();
+				
+				File codeFile = new File( importScanFileProcsesingDirectory, ScanFileToProcessConstants.IMPORTER_PROGRAM_EXIT_CODE_FILENAME );
+				
+				try ( BufferedWriter writer = new BufferedWriter( new FileWriter(codeFile ) ) ) {
+					writer.write( "Importer Program Exit Code: " );
+					writer.write( String.valueOf( commandExitCode ) );
+					writer.newLine();
+				}
+			}
+			
 			if ( runSystemCommandResponse.isShutdownRequested() ) {
 				log.warn( "command was aborted for run importer program shutdown: " + commandAndItsArgumentsAsList
 						+ ", scanFileDirectory:  " + importScanFileProcsesingDirectory.getCanonicalPath() );

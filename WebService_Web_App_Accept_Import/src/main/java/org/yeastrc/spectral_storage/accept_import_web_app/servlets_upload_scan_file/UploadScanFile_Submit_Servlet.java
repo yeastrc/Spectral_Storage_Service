@@ -524,12 +524,20 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 		
 		boolean apiKeyComputed = false;
 
-		///   If exists, move the computed API Key from hash into processing dir.
-		File computedAPIKeyFromhashFile = new File( uploadFileTempDir, ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_HASH_STRING_API_KEY_FILENAME );
-		if ( computedAPIKeyFromhashFile.exists() ) {
-			moveFileToScanProcessDir( ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_HASH_STRING_API_KEY_FILENAME, uploadFileTempDir, dirToProcessScanFile );
-			apiKeyComputed = true;
+		{ ///   If exists, move the computed API Key from hash into processing dir.
+			File computedAPIKeyFromhashFile = new File( uploadFileTempDir, ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_HASH_STRING_API_KEY_FILENAME );
+			if ( computedAPIKeyFromhashFile.exists() ) {
+				moveFileToScanProcessDir( ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_HASH_STRING_API_KEY_FILENAME, uploadFileTempDir, dirToProcessScanFile );
+				apiKeyComputed = true;
+			}
 		}
+		{  //  Move file containing submitted filename with path, if exists.  Only exists if filename with path submitted
+			File file = new File( uploadFileTempDir, ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_SUBMITTED_SCAN_FILENAME_WITH_PATH );
+			if ( file.exists() ) {
+				moveFileToScanProcessDir( ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_SUBMITTED_SCAN_FILENAME_WITH_PATH, uploadFileTempDir, dirToProcessScanFile );
+			}
+		}
+		
 		
 		//  Empty and delete temp upload directory uploadFileTempDir
 		

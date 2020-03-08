@@ -23,6 +23,11 @@ public class UploadProcessingStatusFileConstants {
 	//  Written when Scan File Processor finished processing the directory successfully, or the Accept Import Webapp finds the API Key in the already 
 	public static final String STATUS_PROCESSING_SUCCESSFUL = "processing_successful";
 	
+	/**
+	 * 
+	 */
+	public static final String STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP = "__accept_import";
+	
 	//  Written when Scan File Processor finished processing the directory and failed
 	public static final String STATUS_PROCESSING_FAILED = "processing_failed";
 
