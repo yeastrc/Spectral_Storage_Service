@@ -33,10 +33,10 @@ public class UploadProcessingWriteOrUpdateStatusFile {
 	 * @param newStatus
 	 * @throws Exception
 	 */
-	public void uploadProcessingWriteOrUpdateStatusFileInLocalDir( String newStatus ) throws Exception {
-		
-		uploadProcessingWriteOrUpdateStatusFileLocal( newStatus, null, null );
-	}
+//	public void uploadProcessingWriteOrUpdateStatusFileInLocalDir( String newStatus ) throws Exception {
+//		
+//		uploadProcessingWriteOrUpdateStatusFileLocal( newStatus, null, null );
+//	}
 
 
 	/**

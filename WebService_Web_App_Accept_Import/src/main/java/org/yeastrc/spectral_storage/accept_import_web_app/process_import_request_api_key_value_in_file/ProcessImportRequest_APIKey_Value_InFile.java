@@ -172,6 +172,7 @@ public class ProcessImportRequest_APIKey_Value_InFile {
 			if ( log.isInfoEnabled() ) {
 				log.info( "Deleted input scan file: " + inputScanFile.getAbsolutePath() );
 			}
+			log.warn( "INFO:  Deleted input scan file: " + inputScanFile.getAbsolutePath() );
 		}
 		
 	}

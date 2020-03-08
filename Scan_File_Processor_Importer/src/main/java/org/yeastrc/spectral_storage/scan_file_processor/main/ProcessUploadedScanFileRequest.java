@@ -106,6 +106,9 @@ public class ProcessUploadedScanFileRequest {
 		
 		File inputScanFile = GetInputScanFile_CurrentLocalDirectory.getInstance().getInputScanFile_CurrentLocalDirectory();
 		
+		System.out.println( "Input scan File Absolute Path: " + inputScanFile.getAbsolutePath() );
+		System.out.println( "Input scan File Canonical Path: " + inputScanFile.getCanonicalPath() );
+		
 		System.out.println( "Starting validate scan file.  Now: " + new Date() );
 		
 		//  validateInputScanFile_Result: Values useful in main processing
@@ -117,7 +120,7 @@ public class ProcessUploadedScanFileRequest {
 
 		} catch ( SpectralStorageDataException e ) {
 			
-			//  Data error so write messasge to data error file
+			//  Data error so write message to data error file
 			
 			log.error( "Caught SpectralStorageDataException: " + e.getMessage(), e );
 			processSpectralStorageDataException( e );
@@ -132,6 +135,8 @@ public class ProcessUploadedScanFileRequest {
 				Compute_File_Hashes.getInstance().compute_File_Hashes( inputScanFile );
 		
 		System.out.println( "Finished Compute hashes for scan file.  Now: " + new Date() );
+
+		System.out.println( "Processing scan file.  Now: " + new Date() );
 		
 		processInputFileWithComputedHash(
 				pgmParams,
@@ -141,6 +146,8 @@ public class ProcessUploadedScanFileRequest {
 
 		//  Don't get here if here is a failure since an exception will be thrown.  
 		if ( pgmParams.isDeleteScanFileOnSuccess() ) {
+			
+			System.out.println( "INFO: pgmParams.isDeleteScanFileOnSuccess() is true so removing input scan file  Now: " + new Date() );
 			
 			cleanupInputScanFile( inputScanFile );
 			deleteUploadedScanFileIn_S3_Object();
