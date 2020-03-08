@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -125,5 +126,13 @@ public class UploadProcessingWriteOrUpdateStatusFile {
 				throw new Exception(msg);
 			}
 		}
+		
+
+		Exception fakeException = new Exception("FAKE Exception for Stack Trace");
+				
+		
+		log.warn( "INFO: Updating Status File to new value.  Now: " + new Date() + ", newStatus: " +  newStatus
+				+ ", mainStatusFile.getAbsolutePath(): " + mainStatusFile.getAbsolutePath()
+				+ ", Fake Exception: " + fakeException.toString(), fakeException );
 	}
 }

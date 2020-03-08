@@ -298,6 +298,10 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			log.warn( "INFO: '" + PROPERTY_NAME__DELETE_UPLOADED_SCAN_FILE_ON_SUCCESSFUL_IMPORT
 					+ "' has value: '" + BOOLEAN_STRING_TRUE
 					+ "' so will delete uploaded scan file on successful import" ); 
+		} else {
+			log.warn( "INFO: '" + PROPERTY_NAME__DELETE_UPLOADED_SCAN_FILE_ON_SUCCESSFUL_IMPORT
+					+ "' does NOT have value: '" + BOOLEAN_STRING_TRUE
+					+ "' so will NOT delete uploaded scan file on successful import" ); 
 		}
 		
 		ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.setInstance( configData_Directories_ProcessUploadCommand_InWorkDirectory );
