@@ -87,7 +87,10 @@ public class ProcessNextUploadedScanFile {
 		ProcessingSuccessFailKilled processingSuccessFail_Result = null;
 		
 		UploadProcessingWriteOrUpdateStatusFile.getInstance()
-		.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_STARTED, importScanFileProcsesingDirectory );
+		.uploadProcessingWriteOrUpdateStatusFile( 
+				UploadProcessingStatusFileConstants.STATUS_PROCESSING_STARTED, 
+				importScanFileProcsesingDirectory,
+				UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
 		
 		ConfigData_Directories_ProcessUploadInfo_InWorkDirectory configData_Directories_ProcessUploadInfo_InWorkDirectory = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance();
 		
@@ -189,7 +192,10 @@ public class ProcessNextUploadedScanFile {
 						+ ", scanFileDirectory:  " + importScanFileProcsesingDirectory.getCanonicalPath() );
 				
 				UploadProcessingWriteOrUpdateStatusFile.getInstance()
-				.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_KILLED, importScanFileProcsesingDirectory );
+				.uploadProcessingWriteOrUpdateStatusFile( 
+						UploadProcessingStatusFileConstants.STATUS_PROCESSING_KILLED, 
+						importScanFileProcsesingDirectory,
+						UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
 
 				ProcessUploadedScanFile_SendStatusEmail.getInstance().sendProcessKilledEmail( importScanFileProcsesingDirectory );
 				
@@ -204,7 +210,10 @@ public class ProcessNextUploadedScanFile {
 							+ ", scanFileDirectory:  " + importScanFileProcsesingDirectory.getCanonicalPath() );
 					
 					UploadProcessingWriteOrUpdateStatusFile.getInstance()
-					.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED, importScanFileProcsesingDirectory );
+					.uploadProcessingWriteOrUpdateStatusFile( 
+							UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED, 
+							importScanFileProcsesingDirectory,
+							UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
 
 					ProcessUploadedScanFile_SendStatusEmail.getInstance().sendProcessFailedEmail( importScanFileProcsesingDirectory );
 
@@ -227,7 +236,10 @@ public class ProcessNextUploadedScanFile {
 					+ ", scanFileDirectory:  " + importScanFileProcsesingDirectory.getCanonicalPath() );
 
 			UploadProcessingWriteOrUpdateStatusFile.getInstance()
-			.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED, importScanFileProcsesingDirectory );
+			.uploadProcessingWriteOrUpdateStatusFile( 
+					UploadProcessingStatusFileConstants.STATUS_PROCESSING_FAILED, 
+					importScanFileProcsesingDirectory,
+					UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
 
 			ProcessUploadedScanFile_SendStatusEmail.getInstance().sendProcessFailedEmail( importScanFileProcsesingDirectory );
 			

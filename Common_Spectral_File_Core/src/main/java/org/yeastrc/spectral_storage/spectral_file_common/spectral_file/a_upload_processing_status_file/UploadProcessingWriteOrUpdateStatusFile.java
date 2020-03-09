@@ -45,10 +45,10 @@ public class UploadProcessingWriteOrUpdateStatusFile {
 	 * @param subDir
 	 * @throws Exception
 	 */
-	public void uploadProcessingWriteOrUpdateStatusFile( String newStatus, File subDir ) throws Exception {
-		
-		uploadProcessingWriteOrUpdateStatusFileLocal( newStatus, subDir, null );
-	}
+//	public void uploadProcessingWriteOrUpdateStatusFile( String newStatus, File subDir ) throws Exception {
+//		
+//		uploadProcessingWriteOrUpdateStatusFileLocal( newStatus, subDir, null );
+//	}
 
 	/**
 	 * @param newStatus
@@ -122,6 +122,31 @@ public class UploadProcessingWriteOrUpdateStatusFile {
 				writer.write( newStatus );
 			} catch ( Exception e ) {
 				String msg = "Failed to write status to file: " + statusFileForStatus.getAbsolutePath();
+				log.error( msg );
+				throw new Exception(msg);
+			}
+		}
+		
+		{
+			String threadName = Thread.currentThread().getName();
+			
+			String filename = UploadProcessingStatusFileConstants.STATUS_FILENAME + newStatus + ".threadname_of_status_change";
+			
+
+			File statusFileForStatus = null;
+			
+			if ( subDir == null ) {
+				statusFileForStatus = new File( filename );
+			} else {
+				statusFileForStatus = new File( subDir, filename );
+			}
+			
+			try ( BufferedWriter writer = new BufferedWriter( new OutputStreamWriter(new FileOutputStream( statusFileForStatus ), StandardCharsets.UTF_8 ) ) ) {
+				writer.write( "threadName: " );
+				writer.write( threadName );
+				writer.newLine();
+			} catch ( Exception e ) {
+				String msg = "Failed to write thread name to file: " + statusFileForStatus.getAbsolutePath();
 				log.error( msg );
 				throw new Exception(msg);
 			}

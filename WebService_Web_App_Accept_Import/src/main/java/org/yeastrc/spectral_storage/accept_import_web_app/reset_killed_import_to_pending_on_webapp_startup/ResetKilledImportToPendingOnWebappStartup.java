@@ -76,7 +76,10 @@ public class ResetKilledImportToPendingOnWebappStartup {
 			//  Status is Killed so change to Pending
 
 			UploadProcessingWriteOrUpdateStatusFile.getInstance()
-			.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PENDING, processing_scanFileDir );
+			.uploadProcessingWriteOrUpdateStatusFile( 
+					UploadProcessingStatusFileConstants.STATUS_PENDING, 
+					processing_scanFileDir,
+					UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
 
 		}
 	}

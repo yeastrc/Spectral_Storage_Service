@@ -138,7 +138,10 @@ public class ProcessImportRequest_APIKey_Value_InFile {
 		try {
 			//  Create status file for pending
 			UploadProcessingWriteOrUpdateStatusFile.getInstance()
-			.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PENDING, dirToProcessScanFile );
+			.uploadProcessingWriteOrUpdateStatusFile( 
+					UploadProcessingStatusFileConstants.STATUS_PENDING, 
+					dirToProcessScanFile,
+					UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
 		} catch ( Exception e ) {
 			String msg = "Failed to create status file, dirToProcessScanFile: " + dirToProcessScanFile.getAbsolutePath();
 			log.error( msg, e );

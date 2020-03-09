@@ -58,7 +58,10 @@ public class Compute_APIKey_Value_StoreInFile_SingleProcessingDir {
 			try {
 				//  Create status file for pending
 				UploadProcessingWriteOrUpdateStatusFile.getInstance()
-				.uploadProcessingWriteOrUpdateStatusFile( UploadProcessingStatusFileConstants.STATUS_PENDING, scanFileProcessingDir );
+				.uploadProcessingWriteOrUpdateStatusFile( 
+						UploadProcessingStatusFileConstants.STATUS_PENDING, 
+						scanFileProcessingDir,
+						UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
 			} catch ( Exception e ) {
 				String msg = "Failed to create status file, scanFileProcessingDir: " + scanFileProcessingDir.getAbsolutePath();
 				log.error( msg, e );
