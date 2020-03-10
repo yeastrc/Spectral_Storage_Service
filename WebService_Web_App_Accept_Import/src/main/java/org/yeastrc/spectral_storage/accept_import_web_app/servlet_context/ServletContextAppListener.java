@@ -5,7 +5,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ComputeAPIKeyForScanFileThread;
-import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFileThread;
+import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFile_Thread_Container;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.A_Load_Config;
 
 /**
@@ -38,9 +38,9 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 		} 
 		
 		try {
-			ProcessScanFileThread.getInstance().start();
+			ProcessScanFile_Thread_Container.getSingletonInstance().initial_CreateStart_Thread();
 		} catch (Exception e) {
-			log.error( "Failed: ProcessScanFileThread.getInstance().start();", e );
+			log.error( "Failed: ProcessScanFile_Thread_Container.getSingletonInstance().initial_CreateStart_Thread();", e );
 			throw new RuntimeException( e );
 		} 
 
@@ -68,7 +68,7 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 		log.warn("INFO:  !!!!!!!!  Web app Undeploying STARTING  !!!!!!!!");
 		
 		try {
-			ProcessScanFileThread.getInstance().shutdown();
+			ProcessScanFile_Thread_Container.getSingletonInstance().shutdown();
 		} catch (Exception e) {
 		}
 

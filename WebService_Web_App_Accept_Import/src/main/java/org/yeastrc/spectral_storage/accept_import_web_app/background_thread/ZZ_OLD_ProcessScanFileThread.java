@@ -8,17 +8,11 @@ import org.yeastrc.spectral_storage.accept_import_web_app.reset_killed_import_to
 
 /**
  * Executes the code to run the Scan File Processor on an submitted Scan File
- * 
- * Package Private
  *
  */
-class ProcessScanFileThread extends Thread {
+public class ZZ_OLD_ProcessScanFileThread extends Thread {
 
-	private static final Logger log = LoggerFactory.getLogger(ProcessScanFileThread.class);
-	
-	enum Reset_From_Request_stopAfterCurrentFile_Result {
-		SUCCESS, THREAD_DEAD, SHUTDOWN_IN_PROGRESS
-	}
+	private static final Logger log = LoggerFactory.getLogger(ZZ_OLD_ProcessScanFileThread.class);
 	
 	//  A long sleep/wait time since it is awaken whenever a file is uploaded
 	
@@ -34,30 +28,17 @@ class ProcessScanFileThread extends Thread {
 	//  Wait after being awakened for processing import to wait for File system to update
 	private static final int WAIT_TIME_BRIEF_WAIT_AFTER_AWAKEN_FOR_FILE_SYSTEM = 3 * 1000;  // in milliseconds
 	
+	
+	private static ZZ_OLD_ProcessScanFileThread instance = null;
+	
+	private static int threadCreateCount = 0;
+	
 
 	private volatile ProcessNextAvailableUploadedScanFile processNextAvailableUploadedScanFile;
 	
 	private volatile boolean keepRunning = true;
 	
-	//  internal private Setter/Getter for synchronized
-
-	private synchronized boolean isKeepRunning() {
-		return keepRunning;
-	}
-	private synchronized void setKeepRunning(boolean keepRunning) {
-		this.keepRunning = keepRunning;
-	}
 	
-	
-	/**
-	 * Set to true if keepRunning is false at bottom of main run loop.
-	 * Main Run loop is exitted if exited_Main_keepRunning_Loop is true at the top of the loop.
-	 * If true, then main run() method on Thread has exitted  or is about to exit.
-	 */
-	private volatile boolean exited_Main_keepRunning_Loop = false;
-	
-	private volatile boolean shutdownRequested = true;
-
 	private volatile boolean skipWait = false;
 	
 
@@ -65,29 +46,109 @@ class ProcessScanFileThread extends Thread {
 	
 	private volatile long awakenCalledTime = 0;
 	
+	
 
 	/**
-	 * Set when created
+	 * @return
 	 */
-	private int threadCreateCount;  
+	public static synchronized ZZ_OLD_ProcessScanFileThread getInstance(){
+		
+		if ( log.isInfoEnabled() ) {
+			
+			
+		}
+		
+		try {
+			if ( instance != null && ( ! instance.keepRunning ) ) {
+				
+				log.warn( "INFO: getInstance(): inside: if ( instance != null && ( ! instance.keepRunning ) )" );
+				
+				//  Requested that thread was stopped so just return it.
+				return instance;
+			}
+		} catch ( NullPointerException e ) {
+			//  Eat exception and continue, instance is now null
+			
+		}
+		
+		if ( instance == null ) {
+			
+			createThread( false );
+		
+		} else if ( ! instance.isAlive() ) {
+			
+			if ( ! instance.keepRunning ) {
 
-	public void setThreadCreateCount(int threadCreateCount) {
-		this.threadCreateCount = threadCreateCount;
+				Exception exception = new Exception( "Fake Exception to get call stack" );
+
+				log.error( "ProcessScanFileThread has died and will be replaced.", exception );
+			}
+			
+			createThread( false );
+		}
+		
+		return instance;
 	}
+	
 
+	/**
+	 * 
+	 */
+	private void createThreadAndStartIfNotExistOrDead() {
+		
+		if ( instance == null ) {
+			
+			createThread( true );
+		
+		} else if ( ! instance.isAlive() ) {
+			
+			if ( ! instance.keepRunning ) {
+
+				Exception exception = new Exception( "Fake Exception to get call stack" );
+
+				log.error( "ProcessScanFileThread has died and will be replaced.", exception );
+			}
+			
+			createThread( true );
+		}
+	}
 	
 	/**
-	 * Constructor - Package Private
+	 * 
 	 */
-	ProcessScanFileThread() {
-		super();
-	}
+	private synchronized static void createThread( boolean startThread ) {
+		
+		if ( log.isWarnEnabled() ) {
+			String msg = "INFO: Entered: createThread(startThread) Creating new ProcessScanFileThread (extends Thread) object. startThread: " + startThread
+					+ ", threadCreateCount: " + threadCreateCount
+					+ ", ProcessScanFileThread.instance: " + ZZ_OLD_ProcessScanFileThread.instance
+					+ ", ProcessScanFileThread.class.getClass(): " + ZZ_OLD_ProcessScanFileThread.class.getClass();
+			log.warn( msg );
+		}
 
+		threadCreateCount++;
+		
+		instance = new ZZ_OLD_ProcessScanFileThread();
+		instance.setName( "ProcessScanFileThread-Thread-" + threadCreateCount );
+		
+		if ( startThread ) {
+			instance.start();
+		}
+		
+		if ( log.isWarnEnabled() ) {
+			String msg = "INFO: Exit: createThread(startThread) Creating new ProcessScanFileThread (extends Thread) object. startThread: " + startThread
+					+ ", threadCreateCount: " + threadCreateCount
+					+ ", ProcessScanFileThread.instance: " + ZZ_OLD_ProcessScanFileThread.instance
+					+ ", ProcessScanFileThread.class.getClass(): " + ZZ_OLD_ProcessScanFileThread.class.getClass();
+			log.warn( msg );
+		}
+
+	}
 	
 	/**
 	 * awaken thread to process request, calls "notify()"
 	 */
-	void awaken() {
+	public void awaken() {
 
 		if ( log.isDebugEnabled() ) {
 			log.debug("awaken() called:  " );
@@ -108,11 +169,10 @@ class ProcessScanFileThread extends Thread {
 	/**
 	 * shutdown was received from the operating system.  This is called on a different thread.
 	 */
-	synchronized void shutdown() {
+	public void shutdown() {
 		
 		log.info("shutdown() called");
 		synchronized (this) {
-			this.shutdownRequested = true;
 			this.keepRunning = false;
 		}
 
@@ -122,30 +182,6 @@ class ProcessScanFileThread extends Thread {
 			processNextAvailableUploadedScanFile.shutdown();
 		}
 	}
-
-	/**
-	 * Reverse request: stopAfterCurrentFile
-	 * @return
-	 */
-	public synchronized Reset_From_Request_stopAfterCurrentFile_Result reset_From_Request_stopAfterCurrentFile() {
-		
-		if ( shutdownRequested ) {
-		
-			return Reset_From_Request_stopAfterCurrentFile_Result.SHUTDOWN_IN_PROGRESS;  // EARY RETURN
-		}
-		if ( ! isAlive() ) {
-			return Reset_From_Request_stopAfterCurrentFile_Result.THREAD_DEAD;  // EARY RETURN
-		}
-		if ( exited_Main_keepRunning_Loop ) {
-			return Reset_From_Request_stopAfterCurrentFile_Result.THREAD_DEAD;  // EARY RETURN
-		}
-
-		this.keepRunning = true;
-		
-		return Reset_From_Request_stopAfterCurrentFile_Result.SUCCESS;
-	}	
-
-
 
 	/**
 	 * 
@@ -158,10 +194,27 @@ class ProcessScanFileThread extends Thread {
 
 		log.warn("INFO: stopAfterCurrentFile() called:  " );
 		
-		setKeepRunning( false ); 
+		keepRunning = false; 
 		
 		awaken();
 	}
+
+	/**
+	 * 
+	 */
+	public void startIfStopped_ClearStopAfterCurrentFile() {
+
+		if ( log.isDebugEnabled() ) {
+			log.debug("startIfStopped_ClearStopAfterCurrentFile() called:  " );
+		}
+
+		log.warn("INFO: startIfStopped_ClearStopAfterCurrentFile() called:  " );
+
+		keepRunning = true; 
+		
+		createThreadAndStartIfNotExistOrDead();
+	}
+
 	
 	/**
 	 * @return
@@ -209,14 +262,7 @@ class ProcessScanFileThread extends Thread {
 			log.warn( "Error calling CleanupUploadFileTempBaseDirectory.getSingletonInstance().cleanupUploadFileTempBaseDirectory();", t );
 		}
 		
-		while ( isKeepRunning() ) {
-			
-			if ( exited_Main_keepRunning_Loop ) {
-				
-				//  exited_Main_keepRunning_Loop is set to true if keepRunning is false at the bottom of this loop
-				
-				break;  //  EARLY BREAK
-			}
+		while ( keepRunning ) {
 
 			/////////////////////////////////////////
 			
@@ -281,7 +327,7 @@ class ProcessScanFileThread extends Thread {
 							}
 						}
 						
-						if ( isKeepRunning() ) {
+						if ( keepRunning ) {
 							log.debug( "IN 'while ( keepRunning )', before 'if ( keepRunning )', before wait( WAIT_TIME_BRIEF_WAIT_AFTER_AWAKEN_FOR_FILE_SYSTEM ) called" );
 
 							wait( WAIT_TIME_BRIEF_WAIT_AFTER_AWAKEN_FOR_FILE_SYSTEM );
@@ -297,17 +343,9 @@ class ProcessScanFileThread extends Thread {
 					log.info("wait() interrupted with InterruptedException");
 				}
 			}
-			
-
-			if ( ! isKeepRunning()  ) {
-				
-				exited_Main_keepRunning_Loop = true;  //  Ensures that this is only true when about to exit this while loop
-			}
-				
-				//  exited_Main_keepRunning_Loop is set to true if keepRunning is false at the bottom of this loop
 		}
 		
-		log.warn("INFO: Exitting run()" );
+		log.info("Exitting run()" );
 	}
 
 
@@ -321,7 +359,7 @@ class ProcessScanFileThread extends Thread {
 
 		boolean processed_A_Scanfile = true; // init to true to prime loop
 		
-		while ( isKeepRunning() && processed_A_Scanfile ) {
+		while ( keepRunning && processed_A_Scanfile ) {
 
 			/////////////////////////////////////////
 			
@@ -345,12 +383,6 @@ class ProcessScanFileThread extends Thread {
 //			} ( catch)
 		}
 	}
-
-
-
-
-
-
 
 
 }
