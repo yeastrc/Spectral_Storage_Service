@@ -1,4 +1,4 @@
-package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file;
+package org.yeastrc.spectral_storage.accept_import_web_app.import_processing_status_file__read_write;
 
 import java.io.BufferedReader;
 import java.io.File;

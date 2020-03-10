@@ -53,9 +53,9 @@ public class CreateProcessScanFileDir {
 		
 		//  Create subdir for this specific scan file
 		
-		//  First part is YYYYMMDD 
+		//  First part is YYYYMMDD_Hour_minute_second  Hour: 0-23 
 		
-		String currentDate_yyyymmdd = new SimpleDateFormat("yyyy_MM_dd").format( new Date() );
+		String currentDate_yyyymmdd = new SimpleDateFormat("yyyy_MM_dd__H_m_s").format( new Date() );
 		
 		long processScanFileKey = System.currentTimeMillis();
 		File createdSubDir = null;

@@ -33,12 +33,9 @@ public class ProcessScanFileThread extends Thread {
 	
 	private static int threadCreateCount = 0;
 	
-	
-	
+
 	private volatile ProcessNextAvailableUploadedScanFile processNextAvailableUploadedScanFile;
 	
-
-
 	private volatile boolean keepRunning = true;
 	
 	
@@ -56,8 +53,15 @@ public class ProcessScanFileThread extends Thread {
 	 */
 	public static synchronized ProcessScanFileThread getInstance(){
 		
+		if ( log.isInfoEnabled() ) {
+			
+			
+		}
+		
 		try {
 			if ( instance != null && ( ! instance.keepRunning ) ) {
+				
+				log.warn( "INFO: getInstance(): inside: if ( instance != null && ( ! instance.keepRunning ) )" );
 				
 				//  Requested that thread was stopped so just return it.
 				return instance;
@@ -114,12 +118,15 @@ public class ProcessScanFileThread extends Thread {
 	 */
 	private synchronized static void createThread( boolean startThread ) {
 		
-		threadCreateCount++;
-
-		if ( log.isInfoEnabled() ) {
-			log.info( "Creating new ProcessScanFileThread (extends Thread) object. threadCreateCount: " + threadCreateCount );
+		if ( log.isWarnEnabled() ) {
+			String msg = "INFO: Entered: createThread(startThread) Creating new ProcessScanFileThread (extends Thread) object. startThread: " + startThread
+					+ ", threadCreateCount: " + threadCreateCount
+					+ ", ProcessScanFileThread.instance: " + ProcessScanFileThread.instance
+					+ ", ProcessScanFileThread.class.getClass(): " + ProcessScanFileThread.class.getClass();
+			log.warn( msg );
 		}
-		
+
+		threadCreateCount++;
 		
 		instance = new ProcessScanFileThread();
 		instance.setName( "ProcessScanFileThread-Thread-" + threadCreateCount );
@@ -127,6 +134,15 @@ public class ProcessScanFileThread extends Thread {
 		if ( startThread ) {
 			instance.start();
 		}
+		
+		if ( log.isWarnEnabled() ) {
+			String msg = "INFO: Exit: createThread(startThread) Creating new ProcessScanFileThread (extends Thread) object. startThread: " + startThread
+					+ ", threadCreateCount: " + threadCreateCount
+					+ ", ProcessScanFileThread.instance: " + ProcessScanFileThread.instance
+					+ ", ProcessScanFileThread.class.getClass(): " + ProcessScanFileThread.class.getClass();
+			log.warn( msg );
+		}
+
 	}
 	
 	/**

@@ -1,11 +1,13 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.move_old_processed_directories;
 
 import java.io.File;
+import java.util.Date;
+
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
+import org.yeastrc.spectral_storage.accept_import_web_app.import_processing_status_file__read_write.UploadProcessingReadStatusFile;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingReadStatusFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 
 /**
@@ -108,6 +110,13 @@ public class MoveOldProcessedUploadScanFileDirectories {
 		String from_scanFileDir_Name = processing_scanFileDir.getName();
 		
 		File to_scanFileDir = new File( scanFilesProcessedBaseDir, from_scanFileDir_Name );
+
+		Exception fakeException = new Exception("FAKE Exception for Stack Trace");
+				
+		
+		log.warn( "INFO: Moving OLD scan file processing dir.  Now: " + new Date() + ", From Dir: " + processing_scanFileDir.getAbsolutePath() 
+				+ ", To Dir: " + to_scanFileDir
+				+ ", Fake Exception: " + fakeException.toString(), fakeException );
 		
 		if ( ! processing_scanFileDir.renameTo( to_scanFileDir ) ) {
 			String msg = "Failed to move processing subdir': " 

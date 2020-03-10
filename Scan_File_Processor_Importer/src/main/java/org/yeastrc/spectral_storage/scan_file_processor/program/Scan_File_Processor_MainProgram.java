@@ -1,6 +1,7 @@
 package org.yeastrc.spectral_storage.scan_file_processor.program;
 
 import java.io.File;
+import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 import org.yeastrc.spectral_storage.scan_file_processor.main.ProcessUploadedScanFileRequest;
@@ -25,7 +26,24 @@ public class Scan_File_Processor_MainProgram {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-	
+		
+//		{
+//			{
+//				String msg = "Sleeping 100 seconds and then exit with exit code 1.  Now: " + new Date();
+//				System.out.println( msg );
+//				System.err.println( msg );
+//			}
+//			long sleepSeconds = 100;
+//			long sleepMilliSeconds = sleepSeconds * 1000;
+//			Thread.sleep( sleepMilliSeconds );
+//			{
+//				String msg = "Sleep Ended, now doing exit with exit code 1.  Now: " + new Date();
+//				System.out.println( msg );
+//				System.err.println( msg );
+//			}
+//			System.exit( 1 );
+//		}
+		
 		System.out.println( "INFO: Command Line args START");
 		for ( int index = 0; index < args.length; index++) {
 			System.out.println( "arg: " + args[ index ] );

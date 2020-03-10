@@ -34,6 +34,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFil
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileDeserializeRequestException;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
+import org.yeastrc.spectral_storage.accept_import_web_app.import_processing_status_file__read_write.UploadProcessingWriteOrUpdateStatusFile;
 import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk.ImportScanFilename_LocalDisk;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_import_request_api_key_value_in_file.ProcessImportRequest_APIKey_Value_InFile;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.GetRequestObjectFromInputStream;
@@ -47,7 +48,6 @@ import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.Valid
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo.ValidationResponse;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.shared_server_importer.create__xml_input_factory__xxe_safe.Create_XMLInputFactory_XXE_Safe;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file.UploadProcessingWriteOrUpdateStatusFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
@@ -551,11 +551,31 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 					log.error( msg );
 					throw new Exception( msg );
 				}
+
+				{
+					if ( log.isInfoEnabled() ) {
+						
+						String msg = "INFO: commonProcessingOfUploadedScanFile:  Deleted temp dir entry for uploaded file.  Entry: "
+								+ dirEntry.getAbsolutePath()
+								+ ", uploadFileTempDir: "
+								+ uploadFileTempDir.getAbsolutePath();
+						log.info( msg );
+					}
+				}
 			}
 			if ( ! uploadFileTempDir.delete() ) {
 				String msg = "Failed to delete temp dir for uploaded file, uploadFileTempDir: " + uploadFileTempDir.getAbsolutePath();
 				log.error( msg );
 				throw new Exception( msg );
+			}
+
+			{
+				if ( log.isInfoEnabled() ) {
+					
+					String msg = "INFO: commonProcessingOfUploadedScanFile:  Deleted temp dir for uploaded file. uploadFileTempDir: "
+							+ uploadFileTempDir.getAbsolutePath();
+					log.info( msg );
+				}
 			}
 		} catch ( Exception e ) {
 			String msg = "Failed to delete temp dir for uploaded file, uploadFileTempDir: " + uploadFileTempDir.getAbsolutePath();

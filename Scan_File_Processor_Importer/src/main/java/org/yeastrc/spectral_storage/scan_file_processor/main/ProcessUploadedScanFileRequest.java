@@ -241,6 +241,9 @@ public class ProcessUploadedScanFileRequest {
 					String msg = "Failed to delete temp dir item: " + tempOutputDirItem.getAbsolutePath();
 					log.error( msg );
 					throw new SpectralStorageProcessingException(msg);
+				} else {
+					String msg = "INFO: deleted temp dir item Before start writing to temp dir: " + tempOutputDirItem.getAbsolutePath();
+					log.warn( msg );
 				}
 			}
 		}

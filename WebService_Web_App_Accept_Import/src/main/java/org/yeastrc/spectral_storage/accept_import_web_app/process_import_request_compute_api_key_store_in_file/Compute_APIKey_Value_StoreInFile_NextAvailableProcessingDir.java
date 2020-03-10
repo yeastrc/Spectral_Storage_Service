@@ -90,7 +90,9 @@ public class Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir {
 				if ( log.isInfoEnabled() ) {
 					log.info( "compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir(): START Processing Scan File in Directory [calling compute_APIKey_Value_StoreInFile_SingleProcessingDir(...): " + scanFileProcessingDir.getAbsolutePath() );
 				}
-				
+
+				log.warn( "INFO: compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir(): START Processing Scan File in Directory [calling compute_APIKey_Value_StoreInFile_SingleProcessingDir(...): " + scanFileProcessingDir.getAbsolutePath() );
+
 				scanFileDirString = scanFileProcessingDir.getAbsolutePath();
 				
 				try {
@@ -107,7 +109,9 @@ public class Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir {
 				if ( log.isInfoEnabled() ) {
 					log.info( "compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir(): END Processing Scan File in Directory [after calling compute_APIKey_Value_StoreInFile_SingleProcessingDir(...): " + scanFileProcessingDir.getAbsolutePath() );
 				}
-				
+
+				log.warn( "INFO: compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir(): END Processing Scan File in Directory [after calling compute_APIKey_Value_StoreInFile_SingleProcessingDir(...): " + scanFileProcessingDir.getAbsolutePath() );
+
 			}
 
 		} catch ( Throwable e ) {

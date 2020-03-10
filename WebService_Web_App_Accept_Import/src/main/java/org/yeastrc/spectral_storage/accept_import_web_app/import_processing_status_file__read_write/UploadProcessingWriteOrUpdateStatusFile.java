@@ -1,4 +1,4 @@
-package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.a_upload_processing_status_file;
+package org.yeastrc.spectral_storage.accept_import_web_app.import_processing_status_file__read_write;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -152,12 +152,14 @@ public class UploadProcessingWriteOrUpdateStatusFile {
 			}
 		}
 		
+		if ( log.isInfoEnabled() ) {
 
-		Exception fakeException = new Exception("FAKE Exception for Stack Trace");
-				
-		
-		log.warn( "INFO: Updating Status File to new value.  Now: " + new Date() + ", newStatus: " +  newStatus
-				+ ", mainStatusFile.getAbsolutePath(): " + mainStatusFile.getAbsolutePath()
-				+ ", Fake Exception: " + fakeException.toString(), fakeException );
+//			Exception fakeException = new Exception("FAKE Exception for Stack Trace");
+
+			log.info( "INFO: Updating Status File to new value.  Now: " + new Date() + ", newStatus: " +  newStatus
+					+ ", mainStatusFile.getAbsolutePath(): " + mainStatusFile.getAbsolutePath()
+					// + ", Fake Exception: " + fakeException.toString(), fakeException 
+					);
+		}
 	}
 }

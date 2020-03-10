@@ -64,12 +64,15 @@ public class MoveProcessingDirectoryToOneof_Processed_Directories {
 		
 		File to_scanFileDir = new File( scanFilesProcessedBaseDir, from_scanFileDir_Name );
 		
-		Exception fakeException = new Exception("FAKE Exception for Stack Trace");
-				
 		
-		log.warn( "INFO: Moving scan file processing dir.  Now: " + new Date() + ", From Dir: " + from_scanFileDir.getAbsolutePath() 
+		if ( log.isInfoEnabled() ) {
+
+//			Exception fakeException = new Exception("FAKE Exception for Stack Trace");
+
+			log.info( "INFO: Moving scan file processing dir.  Now: " + new Date() + ", From Dir: " + from_scanFileDir.getAbsolutePath() 
 				+ ", To Dir: " + to_scanFileDir
-				+ ", Fake Exception: " + fakeException.toString(), fakeException );
+				+ ", Fake Exception: " /* + fakeException.toString(), fakeException */ );
+		}
 		
 		if ( ! from_scanFileDir.renameTo( to_scanFileDir ) ) {
 			String msg = "Failed to move processing from_scanFileDir': " 

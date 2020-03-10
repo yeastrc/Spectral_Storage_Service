@@ -173,6 +173,9 @@ public class GetScanFileFrom_S3_IfHave_S3_Info_File {
 					String msg = "Failed to delete file: " + dirEntry.getAbsolutePath();
 					log.error(msg);
 					throw new SpectralStorageProcessingException(msg);
+				} else {
+					String msg = "INFO:  cleanLocalDirOfScanFiles(): deleted file: " + dirEntry.getAbsolutePath();
+					log.warn(msg);
 				}
 			}
 		}

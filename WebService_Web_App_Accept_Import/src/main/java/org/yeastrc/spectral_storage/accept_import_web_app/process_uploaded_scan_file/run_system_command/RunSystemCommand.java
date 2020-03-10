@@ -108,6 +108,11 @@ public class RunSystemCommand {
 				log.error( msg );
 				throw new SpectralFileWebappConfigException(msg);
 			}
+			if ( log.isInfoEnabled() ) {
+				
+				String msg = "Deleted previous file to fileToWriteSysoutTo: " + fileToWriteSysoutTo.getCanonicalPath();
+				log.info( msg );
+			}
 		}
 
 		if ( fileToWriteSyserrTo.exists() ) {
@@ -117,6 +122,11 @@ public class RunSystemCommand {
 				String msg = "Unable to delete previous file to fileToWriteSyserrTo: " + fileToWriteSyserrTo.getCanonicalPath();
 				log.error( msg );
 				throw new SpectralFileWebappConfigException(msg);
+			}
+			if ( log.isInfoEnabled() ) {
+				
+				String msg = "Deleted previous file to fileToWriteSyserrTo: " + fileToWriteSyserrTo.getCanonicalPath();
+				log.info( msg );
 			}
 		}
 

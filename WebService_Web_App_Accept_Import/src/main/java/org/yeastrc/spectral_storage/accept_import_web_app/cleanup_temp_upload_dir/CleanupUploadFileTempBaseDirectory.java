@@ -145,11 +145,35 @@ public class CleanupUploadFileTempBaseDirectory {
 						+ tempUpload_scanFileDir.getAbsolutePath();
 				log.error( msg );
 			}
+			
+			{
+				if ( log.isInfoEnabled() ) {
+					
+					Exception fakeException = new Exception( "FAKE Exception for Stack Trace");
+					
+					String msg = "INFO: Deleted Entry of tempUpload_scanFileDir.  Entry: "
+							+ dirEntry.getAbsolutePath()
+							+ ", tempUpload_scanFileDir: "
+							+ tempUpload_scanFileDir.getAbsolutePath();
+					log.info( msg, fakeException );
+				}
+			}
 		}
 		if ( ! tempUpload_scanFileDir.delete() ) {
 			String msg = "tempUpload_scanFileDir Failed to delete. tempUpload_scanFileDir: "
 					+ tempUpload_scanFileDir.getAbsolutePath();
 			log.error( msg );
+		}
+
+		{
+			if ( log.isInfoEnabled() ) {
+				
+				Exception fakeException = new Exception( "FAKE Exception for Stack Trace");
+				
+				String msg = "INFO: Deleted tempUpload_scanFileDir. tempUpload_scanFileDir: "
+						+ tempUpload_scanFileDir.getAbsolutePath();
+				log.info( msg, fakeException );
+			}
 		}
 
 	}
