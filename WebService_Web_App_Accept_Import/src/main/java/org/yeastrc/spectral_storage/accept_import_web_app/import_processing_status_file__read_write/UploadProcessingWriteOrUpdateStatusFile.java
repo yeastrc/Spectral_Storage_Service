@@ -8,9 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import org.slf4j.LoggerFactory;
+import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.UploadProcessingStatusFileConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 
 /**
  * Create or update the upload_processing_status.txt file in the uploaded scan file dir

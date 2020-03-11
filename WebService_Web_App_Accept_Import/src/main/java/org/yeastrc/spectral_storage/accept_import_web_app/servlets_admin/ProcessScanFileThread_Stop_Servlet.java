@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFileThread;
+import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFile_Thread_Container;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.AdminPageConstants;
 
 /**
@@ -94,7 +94,7 @@ public class ProcessScanFileThread_Stop_Servlet extends HttpServlet {
 		
 		
 		try {
-			ProcessScanFileThread.getInstance().stopAfterCurrentFile();
+			ProcessScanFile_Thread_Container.getSingletonInstance().stopAfterCurrentFile();
 
 			try ( PrintWriter writer = response.getWriter() ) {
 				writer.append( "Stopping Processing files after current file" );

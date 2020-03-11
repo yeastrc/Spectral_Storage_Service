@@ -4,12 +4,12 @@ import java.io.File;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFileThread;
+import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFile_Thread_Container;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
+import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.import_processing_status_file__read_write.UploadProcessingWriteOrUpdateStatusFile;
 import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk.ImportScanFilename_LocalDisk;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_import_request_api_key_value_in_file.ProcessImportRequest_APIKey_Value_InFile;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_File_Hashes;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes;
@@ -36,8 +36,23 @@ public class Compute_APIKey_Value_StoreInFile_SingleProcessingDir {
 	
 	private volatile boolean shutdownReceived = false;
 	
+	private volatile Compute_File_Hashes compute_File_Hashes = null;
+	
+	/**
+	 * 
+	 */
 	public void shutdown() {
+		
 		shutdownReceived = true;
+		
+		if ( compute_File_Hashes != null ) {
+			
+			try {
+				compute_File_Hashes.shutdown();
+			} catch ( NullPointerException e ) {
+				
+			}
+		}
 	}
 	
 	/**
@@ -69,7 +84,7 @@ public class Compute_APIKey_Value_StoreInFile_SingleProcessingDir {
 			}
 					
 			//  Awaken the thread that will process the process scan file directory 
-			ProcessScanFileThread.getInstance().awaken();
+			ProcessScanFile_Thread_Container.getSingletonInstance().awakenToProcessAScanFile();
 			
 			return;  // EARLY EXIT
 		}
@@ -91,16 +106,64 @@ public class Compute_APIKey_Value_StoreInFile_SingleProcessingDir {
 	 */
 	public void compute_APIKey_Value_ScanFileLocalDisk( File scanFileProcessingDir ) throws Exception {
 
+		try {
+			//  Create status file for Compute API Key In Progress
+			UploadProcessingWriteOrUpdateStatusFile.getInstance()
+			.uploadProcessingWriteOrUpdateStatusFile( 
+					UploadProcessingStatusFileConstants.STATUS_COMPUTE_API_KEY_IN_PROGRESS, 
+					scanFileProcessingDir,
+					UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
+		} catch ( Exception e ) {
+			String msg = "Failed to create status file, scanFileProcessingDir: " + scanFileProcessingDir.getAbsolutePath();
+			log.error( msg, e );
+			throw new SpectralStorageProcessingException( msg, e );
+		}
+				
 		//  Find the scan file 
 		String scanFilename = ImportScanFilename_LocalDisk.getInstance().getImportScanFilename_LocalDisk( scanFileProcessingDir );
 		
 		File scanFile = new File( scanFileProcessingDir, scanFilename );
 
+		compute_File_Hashes = Compute_File_Hashes.getInstance();
 		
-		Compute_Hashes compute_Hashes = Compute_File_Hashes.getInstance().compute_File_Hashes( scanFile );
+		Compute_Hashes compute_Hashes = compute_File_Hashes.compute_File_Hashes( scanFile );
 		
 		if ( shutdownReceived ) {
-			return;
+
+			//  Reset to Status Compute API Key
+			try {
+				//  Create status file for Compute API Key In Progress
+				UploadProcessingWriteOrUpdateStatusFile.getInstance()
+				.uploadProcessingWriteOrUpdateStatusFile( 
+						UploadProcessingStatusFileConstants.STATUS_COMPUTE_API_KEY, 
+						scanFileProcessingDir,
+						UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
+			} catch ( Exception e ) {
+				String msg = "Failed to create status file, scanFileProcessingDir: " + scanFileProcessingDir.getAbsolutePath();
+				log.error( msg, e );
+				throw new SpectralStorageProcessingException( msg, e );
+			}
+			
+			return; // EARLY RETURN
+		}
+		if ( compute_Hashes == null ) {
+
+			//  Reset to Status Compute API Key
+			try {
+				//  Create status file for Compute API Key In Progress
+				UploadProcessingWriteOrUpdateStatusFile.getInstance()
+				.uploadProcessingWriteOrUpdateStatusFile( 
+						UploadProcessingStatusFileConstants.STATUS_COMPUTE_API_KEY, 
+						scanFileProcessingDir,
+						UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
+			} catch ( Exception e ) {
+				String msg = "Failed to create status file, scanFileProcessingDir: " + scanFileProcessingDir.getAbsolutePath();
+				log.error( msg, e );
+				throw new SpectralStorageProcessingException( msg, e );
+			}
+			
+			//  compute_Hashes null when compute_Hashes.shutdown(); is called
+			return; // EARLY RETURN
 		}
 
 		String apiKey_String = 
@@ -108,7 +171,22 @@ public class Compute_APIKey_Value_StoreInFile_SingleProcessingDir {
 				.scanFileAPIKey_ComputeFromScanFileContentHashes( compute_Hashes );
 
 		if ( shutdownReceived ) {
-			return;
+
+			//  Reset to Status Compute API Key
+			try {
+				//  Create status file for Compute API Key In Progress
+				UploadProcessingWriteOrUpdateStatusFile.getInstance()
+				.uploadProcessingWriteOrUpdateStatusFile( 
+						UploadProcessingStatusFileConstants.STATUS_COMPUTE_API_KEY, 
+						scanFileProcessingDir,
+						UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
+			} catch ( Exception e ) {
+				String msg = "Failed to create status file, scanFileProcessingDir: " + scanFileProcessingDir.getAbsolutePath();
+				log.error( msg, e );
+				throw new SpectralStorageProcessingException( msg, e );
+			}
+			
+			return; // EARLY RETURN
 		}
 		
 		//  If get here and shutdown() called, have 0.5 seconds of join() on this thread to write the file properly to disk

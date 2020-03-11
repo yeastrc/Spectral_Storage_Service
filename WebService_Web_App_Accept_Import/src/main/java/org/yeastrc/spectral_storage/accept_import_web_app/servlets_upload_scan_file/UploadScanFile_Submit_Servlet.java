@@ -26,10 +26,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ComputeAPIKeyForScanFileThread;
+import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ComputeAPIKeyForScanFile_Thread_Container;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.FileUploadConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ServetResponseFormatEnum;
+import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileDeserializeRequestException;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadInternalException;
@@ -48,7 +49,6 @@ import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.Valid
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo.ValidationResponse;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.shared_server_importer.create__xml_input_factory__xxe_safe.Create_XMLInputFactory_XXE_Safe;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
@@ -631,7 +631,7 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 			throw new SpectralStorageProcessingException( msg, e );
 		}
 		
-		ComputeAPIKeyForScanFileThread.getInstance().awaken();
+		ComputeAPIKeyForScanFile_Thread_Container.getSingletonInstance().awakenToProcessAScanFile();
 	}
 	
 	/**

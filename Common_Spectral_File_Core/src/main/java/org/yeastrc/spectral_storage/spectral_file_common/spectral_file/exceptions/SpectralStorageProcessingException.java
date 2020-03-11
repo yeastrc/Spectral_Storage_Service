@@ -4,7 +4,7 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptio
  * 
  *
  */
-public class SpectralStorageProcessingException extends Exception {
+public class SpectralStorageProcessingException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 

@@ -1,7 +1,9 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.background_thread;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.yeastrc.spectral_storage.accept_import_web_app.log_error_after_webapp_undeploy_started.Log_Info_Error_AfterWebAppUndeploy_Started;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_import_request_compute_api_key_store_in_file.Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir;
+import org.yeastrc.spectral_storage.accept_import_web_app.servlet_context.Webapp_Undeploy_Started_Completed;
 
 /**
  * Executes the code to compute the API Key for a scan file
@@ -26,11 +28,6 @@ public class ComputeAPIKeyForScanFileThread extends Thread {
 	private static final int WAIT_TIME_BRIEF_WAIT_AFTER_AWAKEN_FOR_FILE_SYSTEM = 3 * 1000;  // in milliseconds
 	
 	
-	private static ComputeAPIKeyForScanFileThread instance = null;
-	
-	private static int threadCreateCount = 0;
-	
-	
 	
 	private volatile Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir;
 	
@@ -46,86 +43,12 @@ public class ComputeAPIKeyForScanFileThread extends Thread {
 	
 	private volatile long awakenCalledTime = 0;
 	
-	
 
 	/**
-	 * @return
+	 * Constructor - Package Private
 	 */
-	public static synchronized ComputeAPIKeyForScanFileThread getInstance(){
-		
-		try {
-			if ( instance != null && ( ! instance.keepRunning ) ) {
-				
-				//  Requested that thread was stopped so just return it.
-				return instance;
-			}
-		} catch ( NullPointerException e ) {
-			//  Eat exception and continue, instance is now null
-			
-		}
-		
-		if ( instance == null ) {
-			
-			createThread( false );
-		
-		} else if ( ! instance.isAlive() ) {
-			
-			if ( ! instance.keepRunning ) {
+	ComputeAPIKeyForScanFileThread() {}
 
-				Exception exception = new Exception( "Fake Exception to get call stack" );
-
-				log.error( "ComputeAPIKeyForScanFileThread has died and will be replaced.", exception );
-			}
-			
-			createThread( false );
-		}
-		
-		return instance;
-	}
-	
-
-	/**
-	 * 
-	 */
-	private void createThreadAndStartIfNotExistOrDead() {
-		
-		if ( instance == null ) {
-			
-			createThread( true );
-		
-		} else if ( ! instance.isAlive() ) {
-			
-			if ( ! instance.keepRunning ) {
-
-				Exception exception = new Exception( "Fake Exception to get call stack" );
-
-				log.error( "ComputeAPIKeyForScanFileThread has died and will be replaced.", exception );
-			}
-			
-			createThread( true );
-		}
-	}
-	
-	/**
-	 * 
-	 */
-	private synchronized static void createThread( boolean startThread ) {
-		
-		threadCreateCount++;
-
-		if ( log.isInfoEnabled() ) {
-			log.info( "Creating new ComputeAPIKeyForScanFileThread (extends Thread) object. threadCreateCount: " + threadCreateCount );
-		}
-		
-		
-		instance = new ComputeAPIKeyForScanFileThread();
-		instance.setName( "ComputeAPIKeyForScanFileThread-Thread-" + threadCreateCount );
-		
-		if ( startThread ) {
-			instance.start();
-		}
-	}
-	
 	/**
 	 * awaken thread to process request, calls "notify()"
 	 */
@@ -165,39 +88,6 @@ public class ComputeAPIKeyForScanFileThread extends Thread {
 	}
 
 	/**
-	 * 
-	 */
-	public void stopAfterCurrentFile() {
-
-		if ( log.isDebugEnabled() ) {
-			log.debug("stopAfterCurrentFile() called:  " );
-		}
-
-		log.warn("INFO: stopAfterCurrentFile() called:  " );
-		
-		keepRunning = false; 
-		
-		awaken();
-	}
-
-	/**
-	 * 
-	 */
-	public void startIfStopped_ClearStopAfterCurrentFile() {
-
-		if ( log.isDebugEnabled() ) {
-			log.debug("startIfStopped_ClearStopAfterCurrentFile() called:  " );
-		}
-
-		log.warn("INFO: startIfStopped_ClearStopAfterCurrentFile() called:  " );
-
-		keepRunning = true; 
-		
-		createThreadAndStartIfNotExistOrDead();
-	}
-
-	
-	/**
 	 * @return
 	 */
 	public boolean isProcessingFiles() {
@@ -215,8 +105,6 @@ public class ComputeAPIKeyForScanFileThread extends Thread {
 	@Override
 	public void run() {
 		
-//		RestartAndResetInProgressRequestsOnWebappStartup.getInstance().process();
-		
 		while ( keepRunning ) {
 
 			/////////////////////////////////////////
@@ -226,10 +114,16 @@ public class ComputeAPIKeyForScanFileThread extends Thread {
 				
 				processAvailableUploadedScanFiles();
 
-			} catch (Throwable e) {
+			} catch (Throwable throwable) {
 
-				log.error("Exception from: ProcessAvailableUploadedScanFiles.getInstance().processAvailableUploadedScanFiles()", e );
+				String msg = "ComputeAPIKeyForScanFileThread:  Exception from: processAvailableUploadedScanFiles()";
+				
+				log.error( msg, throwable );
 
+				if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+					
+					Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(msg, throwable);
+				}
 			}
 			
 			////////////////////////////////////
@@ -295,7 +189,16 @@ public class ComputeAPIKeyForScanFileThread extends Thread {
 			}
 		}
 		
-		log.info("Exitting run()" );
+		log.warn("INFO: Exitting run()" );
+
+		if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+			
+			//  Log this way since Log4J is now stopped
+
+			String msg = "ProcessScanFileThread: Exitting run().";
+			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(msg);
+		}
+		
 	}
 
 

@@ -6,8 +6,9 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
+import org.slf4j.LoggerFactory;
+import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.UploadProcessingStatusFileConstants;
+import org.slf4j.Logger;
 
 /**
  * Read upload_processing_status.txt file in the uploaded scan file dir

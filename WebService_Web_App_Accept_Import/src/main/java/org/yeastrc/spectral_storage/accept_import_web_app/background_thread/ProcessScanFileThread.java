@@ -2,17 +2,25 @@ package org.yeastrc.spectral_storage.accept_import_web_app.background_thread;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.cleanup_temp_upload_dir.CleanupUploadFileTempBaseDirectory;
+import org.yeastrc.spectral_storage.accept_import_web_app.log_error_after_webapp_undeploy_started.Log_Info_Error_AfterWebAppUndeploy_Started;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextAvailableUploadedScanFile;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.move_old_processed_directories.MoveOldProcessedUploadScanFileDirectories;
 import org.yeastrc.spectral_storage.accept_import_web_app.reset_killed_import_to_pending_on_webapp_startup.ResetKilledImportToPendingOnWebappStartup;
+import org.yeastrc.spectral_storage.accept_import_web_app.servlet_context.Webapp_Undeploy_Started_Completed;
 
 /**
  * Executes the code to run the Scan File Processor on an submitted Scan File
+ * 
+ * Package Private
  *
  */
-public class ProcessScanFileThread extends Thread {
+class ProcessScanFileThread extends Thread {
 
 	private static final Logger log = LoggerFactory.getLogger(ProcessScanFileThread.class);
+	
+	enum Reset_From_Request_stopAfterCurrentFile_Result {
+		SUCCESS, THREAD_DEAD, SHUTDOWN_IN_PROGRESS
+	}
 	
 	//  A long sleep/wait time since it is awaken whenever a file is uploaded
 	
@@ -28,17 +36,30 @@ public class ProcessScanFileThread extends Thread {
 	//  Wait after being awakened for processing import to wait for File system to update
 	private static final int WAIT_TIME_BRIEF_WAIT_AFTER_AWAKEN_FOR_FILE_SYSTEM = 3 * 1000;  // in milliseconds
 	
-	
-	private static ProcessScanFileThread instance = null;
-	
-	private static int threadCreateCount = 0;
-	
 
 	private volatile ProcessNextAvailableUploadedScanFile processNextAvailableUploadedScanFile;
 	
 	private volatile boolean keepRunning = true;
 	
+	//  internal private Setter/Getter for synchronized
+
+	private synchronized boolean isKeepRunning() {
+		return keepRunning;
+	}
+	private synchronized void setKeepRunning(boolean keepRunning) {
+		this.keepRunning = keepRunning;
+	}
 	
+	
+	/**
+	 * Set to true if keepRunning is false at bottom of main run loop.
+	 * Main Run loop is exitted if exited_Main_keepRunning_Loop is true at the top of the loop.
+	 * If true, then main run() method on Thread has exitted  or is about to exit.
+	 */
+	private volatile boolean exited_Main_keepRunning_Loop = false;
+	
+	private volatile boolean shutdownRequested = true;
+
 	private volatile boolean skipWait = false;
 	
 
@@ -46,109 +67,29 @@ public class ProcessScanFileThread extends Thread {
 	
 	private volatile long awakenCalledTime = 0;
 	
-	
 
 	/**
-	 * @return
+	 * Set when created
 	 */
-	public static synchronized ProcessScanFileThread getInstance(){
-		
-		if ( log.isInfoEnabled() ) {
-			
-			
-		}
-		
-		try {
-			if ( instance != null && ( ! instance.keepRunning ) ) {
-				
-				log.warn( "INFO: getInstance(): inside: if ( instance != null && ( ! instance.keepRunning ) )" );
-				
-				//  Requested that thread was stopped so just return it.
-				return instance;
-			}
-		} catch ( NullPointerException e ) {
-			//  Eat exception and continue, instance is now null
-			
-		}
-		
-		if ( instance == null ) {
-			
-			createThread( false );
-		
-		} else if ( ! instance.isAlive() ) {
-			
-			if ( ! instance.keepRunning ) {
+	private int threadCreateCount;  
 
-				Exception exception = new Exception( "Fake Exception to get call stack" );
-
-				log.error( "ProcessScanFileThread has died and will be replaced.", exception );
-			}
-			
-			createThread( false );
-		}
-		
-		return instance;
+	public void setThreadCreateCount(int threadCreateCount) {
+		this.threadCreateCount = threadCreateCount;
 	}
-	
 
-	/**
-	 * 
-	 */
-	private void createThreadAndStartIfNotExistOrDead() {
-		
-		if ( instance == null ) {
-			
-			createThread( true );
-		
-		} else if ( ! instance.isAlive() ) {
-			
-			if ( ! instance.keepRunning ) {
-
-				Exception exception = new Exception( "Fake Exception to get call stack" );
-
-				log.error( "ProcessScanFileThread has died and will be replaced.", exception );
-			}
-			
-			createThread( true );
-		}
-	}
 	
 	/**
-	 * 
+	 * Constructor - Package Private
 	 */
-	private synchronized static void createThread( boolean startThread ) {
-		
-		if ( log.isWarnEnabled() ) {
-			String msg = "INFO: Entered: createThread(startThread) Creating new ProcessScanFileThread (extends Thread) object. startThread: " + startThread
-					+ ", threadCreateCount: " + threadCreateCount
-					+ ", ProcessScanFileThread.instance: " + ProcessScanFileThread.instance
-					+ ", ProcessScanFileThread.class.getClass(): " + ProcessScanFileThread.class.getClass();
-			log.warn( msg );
-		}
-
-		threadCreateCount++;
-		
-		instance = new ProcessScanFileThread();
-		instance.setName( "ProcessScanFileThread-Thread-" + threadCreateCount );
-		
-		if ( startThread ) {
-			instance.start();
-		}
-		
-		if ( log.isWarnEnabled() ) {
-			String msg = "INFO: Exit: createThread(startThread) Creating new ProcessScanFileThread (extends Thread) object. startThread: " + startThread
-					+ ", threadCreateCount: " + threadCreateCount
-					+ ", ProcessScanFileThread.instance: " + ProcessScanFileThread.instance
-					+ ", ProcessScanFileThread.class.getClass(): " + ProcessScanFileThread.class.getClass();
-			log.warn( msg );
-		}
-
+	ProcessScanFileThread() {
+		super();
 	}
+
 	
 	/**
 	 * awaken thread to process request, calls "notify()"
 	 */
-	public void awaken() {
+	void awaken() {
 
 		if ( log.isDebugEnabled() ) {
 			log.debug("awaken() called:  " );
@@ -169,10 +110,19 @@ public class ProcessScanFileThread extends Thread {
 	/**
 	 * shutdown was received from the operating system.  This is called on a different thread.
 	 */
-	public void shutdown() {
+	synchronized void shutdown() {
+
+		if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+			
+			//  Log this way since Log4J is now stopped
+
+			String msg = "ProcessScanFileThread: shutdown() called.";
+			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(msg);
+		}
 		
 		log.info("shutdown() called");
 		synchronized (this) {
+			this.shutdownRequested = true;
 			this.keepRunning = false;
 		}
 
@@ -182,6 +132,30 @@ public class ProcessScanFileThread extends Thread {
 			processNextAvailableUploadedScanFile.shutdown();
 		}
 	}
+
+	/**
+	 * Reverse request: stopAfterCurrentFile
+	 * @return
+	 */
+	public synchronized Reset_From_Request_stopAfterCurrentFile_Result reset_From_Request_stopAfterCurrentFile() {
+		
+		if ( shutdownRequested ) {
+		
+			return Reset_From_Request_stopAfterCurrentFile_Result.SHUTDOWN_IN_PROGRESS;  // EARY RETURN
+		}
+		if ( ! isAlive() ) {
+			return Reset_From_Request_stopAfterCurrentFile_Result.THREAD_DEAD;  // EARY RETURN
+		}
+		if ( exited_Main_keepRunning_Loop ) {
+			return Reset_From_Request_stopAfterCurrentFile_Result.THREAD_DEAD;  // EARY RETURN
+		}
+
+		this.keepRunning = true;
+		
+		return Reset_From_Request_stopAfterCurrentFile_Result.SUCCESS;
+	}	
+
+
 
 	/**
 	 * 
@@ -194,27 +168,10 @@ public class ProcessScanFileThread extends Thread {
 
 		log.warn("INFO: stopAfterCurrentFile() called:  " );
 		
-		keepRunning = false; 
+		setKeepRunning( false ); 
 		
 		awaken();
 	}
-
-	/**
-	 * 
-	 */
-	public void startIfStopped_ClearStopAfterCurrentFile() {
-
-		if ( log.isDebugEnabled() ) {
-			log.debug("startIfStopped_ClearStopAfterCurrentFile() called:  " );
-		}
-
-		log.warn("INFO: startIfStopped_ClearStopAfterCurrentFile() called:  " );
-
-		keepRunning = true; 
-		
-		createThreadAndStartIfNotExistOrDead();
-	}
-
 	
 	/**
 	 * @return
@@ -262,7 +219,26 @@ public class ProcessScanFileThread extends Thread {
 			log.warn( "Error calling CleanupUploadFileTempBaseDirectory.getSingletonInstance().cleanupUploadFileTempBaseDirectory();", t );
 		}
 		
-		while ( keepRunning ) {
+		while ( isKeepRunning() ) {
+			
+			if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Completed() ) {
+				
+				//  ERROR, this Thread should be dead before Undeploy has completed.
+
+				String msg = "ProcessScanFileThread: In run().  In while ( isKeepRunning() ) when is true: if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Completed() ).  Breaking from loop now so run() will exit.";
+				Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(msg);
+				
+				//   EXIT This loop and exit run() method immediately
+				
+				break;  //  EARLY BREAK
+			}
+			
+			if ( exited_Main_keepRunning_Loop ) {
+				
+				//  exited_Main_keepRunning_Loop is set to true if keepRunning is false at the bottom of this loop
+				
+				break;  //  EARLY BREAK
+			}
 
 			/////////////////////////////////////////
 			
@@ -271,15 +247,33 @@ public class ProcessScanFileThread extends Thread {
 				
 				processAvailableUploadedScanFiles();
 
-			} catch (Throwable e) {
+			} catch (Throwable throwable) {
+				
+				String msg = "ProcessScanFileThread:  Exception from: processAvailableUploadedScanFiles()";
 
-				log.error("Exception from: processAvailableUploadedScanFiles()", e );
+				log.error( msg, throwable );
+
+
+				if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+					
+					Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(msg, throwable);
+				}
 			}
 
 			try {
 				CleanupUploadFileTempBaseDirectory.getSingletonInstance().cleanupUploadFileTempBaseDirectory();
-			} catch ( Throwable t ) {
-				log.warn( "Error calling CleanupUploadFileTempBaseDirectory.getSingletonInstance().cleanupUploadFileTempBaseDirectory();", t );
+				
+			} catch ( Throwable throwable ) {
+				
+				String msg ="ProcessScanFileThread: Error calling CleanupUploadFileTempBaseDirectory.getSingletonInstance().cleanupUploadFileTempBaseDirectory();"; 
+				
+				log.warn( msg, throwable );
+				
+
+				if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+					
+					Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(msg, throwable);
+				}
 			}
 			
 			////////////////////////////////////
@@ -327,7 +321,7 @@ public class ProcessScanFileThread extends Thread {
 							}
 						}
 						
-						if ( keepRunning ) {
+						if ( isKeepRunning() ) {
 							log.debug( "IN 'while ( keepRunning )', before 'if ( keepRunning )', before wait( WAIT_TIME_BRIEF_WAIT_AFTER_AWAKEN_FOR_FILE_SYSTEM ) called" );
 
 							wait( WAIT_TIME_BRIEF_WAIT_AFTER_AWAKEN_FOR_FILE_SYSTEM );
@@ -343,9 +337,27 @@ public class ProcessScanFileThread extends Thread {
 					log.info("wait() interrupted with InterruptedException");
 				}
 			}
+			
+
+			if ( ! isKeepRunning()  ) {
+				
+				exited_Main_keepRunning_Loop = true;  //  Ensures that this is only true when about to exit this while loop
+			}
+				
+				//  exited_Main_keepRunning_Loop is set to true if keepRunning is false at the bottom of this loop
 		}
 		
-		log.info("Exitting run()" );
+		log.warn( "INFO: Exitting run()" );
+		
+
+		if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+			
+			//  Log this way since Log4J is now stopped
+
+			String msg = "ComputeAPIKeyForScanFileThread: Exitting run().";
+			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(msg);
+		}
+		
 	}
 
 
@@ -359,7 +371,7 @@ public class ProcessScanFileThread extends Thread {
 
 		boolean processed_A_Scanfile = true; // init to true to prime loop
 		
-		while ( keepRunning && processed_A_Scanfile ) {
+		while ( isKeepRunning() && processed_A_Scanfile ) {
 
 			/////////////////////////////////////////
 			
@@ -383,6 +395,12 @@ public class ProcessScanFileThread extends Thread {
 //			} ( catch)
 		}
 	}
+
+
+
+
+
+
 
 
 }
