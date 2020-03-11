@@ -3,8 +3,8 @@ package org.yeastrc.spectral_storage.accept_import_web_app.process_import_reques
 import java.io.File;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.GetNextScanFileDirToProcessForStatus;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessingStatusFileConstants;
 
 /**
  * Compute the API Key for the Scan File and store in the file

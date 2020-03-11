@@ -1,4 +1,4 @@
-package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums;
+package org.yeastrc.spectral_storage.accept_import_web_app.constants_enums;
 
 public class UploadProcessingStatusFileConstants {
 

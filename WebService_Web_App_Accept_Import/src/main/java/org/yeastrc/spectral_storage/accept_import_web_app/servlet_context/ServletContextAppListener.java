@@ -36,6 +36,10 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 			log.error( msg, e );
 			throw new RuntimeException( e );
 		} 
+
+		ServletContext context = event.getServletContext();
+		String contextPath = context.getContextPath();
+		CurrentContext.setCurrentWebAppContext( contextPath );
 		
 		try {
 			ProcessScanFile_Thread_Container.getSingletonInstance().initial_CreateStart_Thread();
@@ -54,8 +58,7 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 
 		
 		log.warn( "INFO:  !!!!!!!!!!!!!!!   Start up of web app  'Spectral Storage' complete  !!!!!!!!!!!!!!!!!!!! " );
-//		log.warn( "INFO: Application context values set.  Key = " + WebConstants.APP_CONTEXT_CONTEXT_PATH + ": value = " + contextPath
-//				+ "" );
+		log.warn( "INFO: contextPath: " + contextPath );
 	}
 	
 	/* (non-Javadoc)
@@ -67,13 +70,37 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 		
 		log.warn("INFO:  !!!!!!!!  Web app Undeploying STARTING  !!!!!!!!");
 		
+		System.out.println( 
+				"Spectral Storage Accept Import Webapp: CurrentContext: " + CurrentContext.getCurrentWebAppContext() 
+				+ ".  INFO:  !!!!!!!!  Web app Undeploying STARTING  !!!!!!!!" );
+
+		try {
+			ComputeAPIKeyForScanFileThread.getInstance().shutdown();
+		} catch (Exception e) {
+			log.error( "Failed: ComputeAPIKeyForScanFileThread.getInstance().shutdown();", e );
+
+			System.err.println( 
+					"Spectral Storage Accept Import Webapp: CurrentContext: " + CurrentContext.getCurrentWebAppContext() 
+					+ ". Failed: ComputeAPIKeyForScanFileThread.getInstance().shutdown();" );
+			e.printStackTrace();
+		} 
+		
 		try {
 			ProcessScanFile_Thread_Container.getSingletonInstance().shutdown();
 		} catch (Exception e) {
-		}
+			log.error( "ProcessScanFile_Thread_Container.getSingletonInstance().shutdown();", e );
 
-		log.warn("INFO:  !!!!!!!!  Web app Undeploying FINISHED  !!!!!!!!");
+			System.err.println( 
+					"Spectral Storage Accept Import Webapp: CurrentContext: " + CurrentContext.getCurrentWebAppContext() 
+					+ ". ProcessScanFile_Thread_Container.getSingletonInstance().shutdown();" );
+			e.printStackTrace();
+		}
 		
+		log.warn("INFO:  !!!!!!!!  Web app Undeploying FINISHED  !!!!!!!!");
+
+		System.out.println( 
+				"Spectral Storage Accept Import Webapp: CurrentContext: " + CurrentContext.getCurrentWebAppContext() 
+				+ ".  INFO:  !!!!!!!!  Web app Undeploying FINISHED  !!!!!!!!" );
 
 	}
 }
