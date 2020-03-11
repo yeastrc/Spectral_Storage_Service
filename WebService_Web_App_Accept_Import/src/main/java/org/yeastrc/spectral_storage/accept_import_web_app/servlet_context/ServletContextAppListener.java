@@ -5,6 +5,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ComputeAPIKeyForScanFileThread;
+import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ComputeAPIKeyForScanFile_Thread_Container;
 import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFile_Thread_Container;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.A_Load_Config;
 import org.yeastrc.spectral_storage.accept_import_web_app.log_error_after_webapp_undeploy_started.Log_Info_Error_AfterWebAppUndeploy_Started;
@@ -94,9 +95,9 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 			throw new RuntimeException( e );
 		} 
 		try {
-			ComputeAPIKeyForScanFileThread.getInstance().start();
+			ComputeAPIKeyForScanFile_Thread_Container.getSingletonInstance().initial_CreateStart_Thread();
 		} catch (Exception e) {
-			log.error( "Failed: ComputeAPIKeyForScanFileThread.getInstance().start();", e );
+			log.error( "Failed: ComputeAPIKeyForScanFile_Thread_Container.getSingletonInstance().initial_CreateStart_Thread();", e );
 			throw new RuntimeException( e );
 		}
 	}
@@ -109,14 +110,14 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 		try {
 
 			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(
-					" Calling ComputeAPIKeyForScanFileThread.getInstance().shutdown().  Check for log msg 'ComputeAPIKeyForScanFileThread: Exitting run().'" );
+					" Calling ComputeAPIKeyForScanFile_Thread_Container.getSingletonInstance().shutdown().  Check for log msg 'ComputeAPIKeyForScanFileThread: Exitting run().'" );
 
-			ComputeAPIKeyForScanFileThread.getInstance().shutdown();
+			ComputeAPIKeyForScanFile_Thread_Container.getSingletonInstance().shutdown();
 			
 		} catch (Exception e) {
 
 			Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(
-					" Failed: ComputeAPIKeyForScanFileThread.getInstance().shutdown()", e );
+					" Failed: ComputeAPIKeyForScanFile_Thread_Container.getSingletonInstance().shutdown()", e );
 		} 
 		try {
 			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(

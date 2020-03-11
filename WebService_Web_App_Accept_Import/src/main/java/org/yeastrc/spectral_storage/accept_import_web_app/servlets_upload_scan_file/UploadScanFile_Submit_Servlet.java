@@ -26,7 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ComputeAPIKeyForScanFileThread;
+import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ComputeAPIKeyForScanFile_Thread_Container;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.FileUploadConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ServetResponseFormatEnum;
@@ -631,7 +631,7 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 			throw new SpectralStorageProcessingException( msg, e );
 		}
 		
-		ComputeAPIKeyForScanFileThread.getInstance().awaken();
+		ComputeAPIKeyForScanFile_Thread_Container.getSingletonInstance().awakenToProcessAScanFile();
 	}
 	
 	/**
