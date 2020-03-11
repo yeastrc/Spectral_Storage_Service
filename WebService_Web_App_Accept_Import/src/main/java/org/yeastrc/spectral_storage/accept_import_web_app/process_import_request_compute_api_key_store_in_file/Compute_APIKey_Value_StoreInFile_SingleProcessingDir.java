@@ -36,8 +36,23 @@ public class Compute_APIKey_Value_StoreInFile_SingleProcessingDir {
 	
 	private volatile boolean shutdownReceived = false;
 	
+	private volatile Compute_File_Hashes compute_File_Hashes = null;
+	
+	/**
+	 * 
+	 */
 	public void shutdown() {
+		
 		shutdownReceived = true;
+		
+		if ( compute_File_Hashes != null ) {
+			
+			try {
+				compute_File_Hashes.shutdown();
+			} catch ( NullPointerException e ) {
+				
+			}
+		}
 	}
 	
 	/**
@@ -91,16 +106,64 @@ public class Compute_APIKey_Value_StoreInFile_SingleProcessingDir {
 	 */
 	public void compute_APIKey_Value_ScanFileLocalDisk( File scanFileProcessingDir ) throws Exception {
 
+		try {
+			//  Create status file for Compute API Key In Progress
+			UploadProcessingWriteOrUpdateStatusFile.getInstance()
+			.uploadProcessingWriteOrUpdateStatusFile( 
+					UploadProcessingStatusFileConstants.STATUS_COMPUTE_API_KEY_IN_PROGRESS, 
+					scanFileProcessingDir,
+					UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
+		} catch ( Exception e ) {
+			String msg = "Failed to create status file, scanFileProcessingDir: " + scanFileProcessingDir.getAbsolutePath();
+			log.error( msg, e );
+			throw new SpectralStorageProcessingException( msg, e );
+		}
+				
 		//  Find the scan file 
 		String scanFilename = ImportScanFilename_LocalDisk.getInstance().getImportScanFilename_LocalDisk( scanFileProcessingDir );
 		
 		File scanFile = new File( scanFileProcessingDir, scanFilename );
 
+		compute_File_Hashes = Compute_File_Hashes.getInstance();
 		
-		Compute_Hashes compute_Hashes = Compute_File_Hashes.getInstance().compute_File_Hashes( scanFile );
+		Compute_Hashes compute_Hashes = compute_File_Hashes.compute_File_Hashes( scanFile );
 		
 		if ( shutdownReceived ) {
-			return;
+
+			//  Reset to Status Compute API Key
+			try {
+				//  Create status file for Compute API Key In Progress
+				UploadProcessingWriteOrUpdateStatusFile.getInstance()
+				.uploadProcessingWriteOrUpdateStatusFile( 
+						UploadProcessingStatusFileConstants.STATUS_COMPUTE_API_KEY, 
+						scanFileProcessingDir,
+						UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
+			} catch ( Exception e ) {
+				String msg = "Failed to create status file, scanFileProcessingDir: " + scanFileProcessingDir.getAbsolutePath();
+				log.error( msg, e );
+				throw new SpectralStorageProcessingException( msg, e );
+			}
+			
+			return; // EARLY RETURN
+		}
+		if ( compute_Hashes == null ) {
+
+			//  Reset to Status Compute API Key
+			try {
+				//  Create status file for Compute API Key In Progress
+				UploadProcessingWriteOrUpdateStatusFile.getInstance()
+				.uploadProcessingWriteOrUpdateStatusFile( 
+						UploadProcessingStatusFileConstants.STATUS_COMPUTE_API_KEY, 
+						scanFileProcessingDir,
+						UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
+			} catch ( Exception e ) {
+				String msg = "Failed to create status file, scanFileProcessingDir: " + scanFileProcessingDir.getAbsolutePath();
+				log.error( msg, e );
+				throw new SpectralStorageProcessingException( msg, e );
+			}
+			
+			//  compute_Hashes null when compute_Hashes.shutdown(); is called
+			return; // EARLY RETURN
 		}
 
 		String apiKey_String = 
@@ -108,7 +171,22 @@ public class Compute_APIKey_Value_StoreInFile_SingleProcessingDir {
 				.scanFileAPIKey_ComputeFromScanFileContentHashes( compute_Hashes );
 
 		if ( shutdownReceived ) {
-			return;
+
+			//  Reset to Status Compute API Key
+			try {
+				//  Create status file for Compute API Key In Progress
+				UploadProcessingWriteOrUpdateStatusFile.getInstance()
+				.uploadProcessingWriteOrUpdateStatusFile( 
+						UploadProcessingStatusFileConstants.STATUS_COMPUTE_API_KEY, 
+						scanFileProcessingDir,
+						UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
+			} catch ( Exception e ) {
+				String msg = "Failed to create status file, scanFileProcessingDir: " + scanFileProcessingDir.getAbsolutePath();
+				log.error( msg, e );
+				throw new SpectralStorageProcessingException( msg, e );
+			}
+			
+			return; // EARLY RETURN
 		}
 		
 		//  If get here and shutdown() called, have 0.5 seconds of join() on this thread to write the file properly to disk

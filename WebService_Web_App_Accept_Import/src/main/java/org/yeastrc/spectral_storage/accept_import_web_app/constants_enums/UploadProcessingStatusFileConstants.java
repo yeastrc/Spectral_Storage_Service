@@ -13,6 +13,9 @@ public class UploadProcessingStatusFileConstants {
 
 	//  Written when need to compute the API Key
 	public static final String STATUS_COMPUTE_API_KEY = "compute_api_key"; 
+
+	//  Written when need to compute the API Key
+	public static final String STATUS_COMPUTE_API_KEY_IN_PROGRESS = "compute_api_key_in_progress"; 
 	
 	//  Written when ready to run the Importer on it
 	public static final String STATUS_PENDING = "pending"; 

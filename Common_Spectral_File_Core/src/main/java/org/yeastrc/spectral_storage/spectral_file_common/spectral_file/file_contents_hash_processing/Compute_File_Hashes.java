@@ -24,9 +24,15 @@ public class Compute_File_Hashes {
 		return instance;
 	}
 
+	private volatile boolean shutdownReceived = false;
+	
+	public void shutdown() {
+		shutdownReceived = true;
+	}
+	
 	/**
 	 * @param inputFile
-	 * @return
+	 * @return null if shutdown() has been called;
 	 * @throws Exception 
 	 */
 	public Compute_Hashes compute_File_Hashes( File inputFile ) throws Exception {
@@ -53,6 +59,10 @@ public class Compute_File_Hashes {
 			int numberBytesRead = 0; 
 
 			while ( ( numberBytesRead = fis.read( dataBytes ) ) != -1 ) {
+				
+				if ( shutdownReceived ) {
+					return null; // EARLY RETURN
+				}
 				compute_Hashes.updateHashesComputing( dataBytes, numberBytesRead );
 			}
 		}
