@@ -1,7 +1,9 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.background_thread;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.yeastrc.spectral_storage.accept_import_web_app.log_error_after_webapp_undeploy_started.Log_Info_Error_AfterWebAppUndeploy_Started;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_import_request_compute_api_key_store_in_file.Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir;
+import org.yeastrc.spectral_storage.accept_import_web_app.servlet_context.Webapp_Undeploy_Started_Completed;
 
 /**
  * Executes the code to compute the API Key for a scan file
@@ -226,10 +228,16 @@ public class ComputeAPIKeyForScanFileThread extends Thread {
 				
 				processAvailableUploadedScanFiles();
 
-			} catch (Throwable e) {
+			} catch (Throwable throwable) {
 
-				log.error("Exception from: ProcessAvailableUploadedScanFiles.getInstance().processAvailableUploadedScanFiles()", e );
+				String msg = "ComputeAPIKeyForScanFileThread:  Exception from: processAvailableUploadedScanFiles()";
+				
+				log.error( msg, throwable );
 
+				if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+					
+					Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(msg, throwable);
+				}
 			}
 			
 			////////////////////////////////////
@@ -295,7 +303,16 @@ public class ComputeAPIKeyForScanFileThread extends Thread {
 			}
 		}
 		
-		log.info("Exitting run()" );
+		log.warn("INFO: Exitting run()" );
+
+		if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+			
+			//  Log this way since Log4J is now stopped
+
+			String msg = "ProcessScanFileThread: Exitting run().";
+			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(msg);
+		}
+		
 	}
 
 

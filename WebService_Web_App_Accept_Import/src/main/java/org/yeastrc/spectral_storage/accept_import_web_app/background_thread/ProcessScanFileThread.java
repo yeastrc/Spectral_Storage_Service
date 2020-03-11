@@ -2,9 +2,11 @@ package org.yeastrc.spectral_storage.accept_import_web_app.background_thread;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.cleanup_temp_upload_dir.CleanupUploadFileTempBaseDirectory;
+import org.yeastrc.spectral_storage.accept_import_web_app.log_error_after_webapp_undeploy_started.Log_Info_Error_AfterWebAppUndeploy_Started;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextAvailableUploadedScanFile;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.move_old_processed_directories.MoveOldProcessedUploadScanFileDirectories;
 import org.yeastrc.spectral_storage.accept_import_web_app.reset_killed_import_to_pending_on_webapp_startup.ResetKilledImportToPendingOnWebappStartup;
+import org.yeastrc.spectral_storage.accept_import_web_app.servlet_context.Webapp_Undeploy_Started_Completed;
 
 /**
  * Executes the code to run the Scan File Processor on an submitted Scan File
@@ -109,6 +111,14 @@ class ProcessScanFileThread extends Thread {
 	 * shutdown was received from the operating system.  This is called on a different thread.
 	 */
 	synchronized void shutdown() {
+
+		if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+			
+			//  Log this way since Log4J is now stopped
+
+			String msg = "ProcessScanFileThread: shutdown() called.";
+			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(msg);
+		}
 		
 		log.info("shutdown() called");
 		synchronized (this) {
@@ -211,6 +221,18 @@ class ProcessScanFileThread extends Thread {
 		
 		while ( isKeepRunning() ) {
 			
+			if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Completed() ) {
+				
+				//  ERROR, this Thread should be dead before Undeploy has completed.
+
+				String msg = "ProcessScanFileThread: In run().  In while ( isKeepRunning() ) when is true: if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Completed() ).  Breaking from loop now so run() will exit.";
+				Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(msg);
+				
+				//   EXIT This loop and exit run() method immediately
+				
+				break;  //  EARLY BREAK
+			}
+			
 			if ( exited_Main_keepRunning_Loop ) {
 				
 				//  exited_Main_keepRunning_Loop is set to true if keepRunning is false at the bottom of this loop
@@ -225,15 +247,33 @@ class ProcessScanFileThread extends Thread {
 				
 				processAvailableUploadedScanFiles();
 
-			} catch (Throwable e) {
+			} catch (Throwable throwable) {
+				
+				String msg = "ProcessScanFileThread:  Exception from: processAvailableUploadedScanFiles()";
 
-				log.error("Exception from: processAvailableUploadedScanFiles()", e );
+				log.error( msg, throwable );
+
+
+				if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+					
+					Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(msg, throwable);
+				}
 			}
 
 			try {
 				CleanupUploadFileTempBaseDirectory.getSingletonInstance().cleanupUploadFileTempBaseDirectory();
-			} catch ( Throwable t ) {
-				log.warn( "Error calling CleanupUploadFileTempBaseDirectory.getSingletonInstance().cleanupUploadFileTempBaseDirectory();", t );
+				
+			} catch ( Throwable throwable ) {
+				
+				String msg ="ProcessScanFileThread: Error calling CleanupUploadFileTempBaseDirectory.getSingletonInstance().cleanupUploadFileTempBaseDirectory();"; 
+				
+				log.warn( msg, throwable );
+				
+
+				if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+					
+					Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(msg, throwable);
+				}
 			}
 			
 			////////////////////////////////////
@@ -307,7 +347,17 @@ class ProcessScanFileThread extends Thread {
 				//  exited_Main_keepRunning_Loop is set to true if keepRunning is false at the bottom of this loop
 		}
 		
-		log.warn("INFO: Exitting run()" );
+		log.warn( "INFO: Exitting run()" );
+		
+
+		if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+			
+			//  Log this way since Log4J is now stopped
+
+			String msg = "ComputeAPIKeyForScanFileThread: Exitting run().";
+			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(msg);
+		}
+		
 	}
 
 

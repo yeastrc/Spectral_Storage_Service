@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ComputeAPIKeyForScanFileThread;
 import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFile_Thread_Container;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.A_Load_Config;
+import org.yeastrc.spectral_storage.accept_import_web_app.log_error_after_webapp_undeploy_started.Log_Info_Error_AfterWebAppUndeploy_Started;
 
 /**
  * This class is loaded and the method "contextInitialized" is called when the web application is first loaded by the container
@@ -41,66 +42,95 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 		String contextPath = context.getContextPath();
 		CurrentContext.setCurrentWebAppContext( contextPath );
 		
-		try {
-			ProcessScanFile_Thread_Container.getSingletonInstance().initial_CreateStart_Thread();
-		} catch (Exception e) {
-			log.error( "Failed: ProcessScanFile_Thread_Container.getSingletonInstance().initial_CreateStart_Thread();", e );
-			throw new RuntimeException( e );
-		} 
-
-		try {
-			ComputeAPIKeyForScanFileThread.getInstance().start();
-		} catch (Exception e) {
-			log.error( "Failed: ComputeAPIKeyForScanFileThread.getInstance().start();", e );
-			throw new RuntimeException( e );
-		} 
+		startBackgroundThreads(); 
 		
 
 		
 		log.warn( "INFO:  !!!!!!!!!!!!!!!   Start up of web app  'Spectral Storage' complete  !!!!!!!!!!!!!!!!!!!! " );
 		log.warn( "INFO: contextPath: " + contextPath );
 	}
+
 	
 	/* (non-Javadoc)
 	 * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
 	 */
 	public void contextDestroyed(ServletContextEvent event) {
 		
+		//  !!! Log4J2 stops logging before ServletContext::contextDestroyed(...) is called  !!!
+		
+		Webapp_Undeploy_Started_Completed.setWebapp_Undeploy_Started(true);
+		
 //		ServletContext context = event.getServletContext();
 		
-		log.warn("INFO:  !!!!!!!!  Web app Undeploying STARTING  !!!!!!!!");
+		//  Nothing output since Log4J2 has stopped logging
+//		log.warn("INFO:  !!!!!!!!  Web app Undeploying STARTING  !!!!!!!!");
+
+		Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started("  !!!!!!!!  Web app Undeploying STARTING  !!!!!!!!" );
+
 		
-		System.out.println( 
-				"Spectral Storage Accept Import Webapp: CurrentContext: " + CurrentContext.getCurrentWebAppContext() 
-				+ ".  INFO:  !!!!!!!!  Web app Undeploying STARTING  !!!!!!!!" );
+		stopBackgroundThreads();
+		
+		
+		//  Nothing output since Log4J2 has stopped logging
+//		log.warn("INFO:  !!!!!!!!  Web app Undeploying FINISHED  !!!!!!!!");
 
+		Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started("  !!!!!!!!  Web app Undeploying FINISHED  !!!!!!!!" );
+
+		Webapp_Undeploy_Started_Completed.setWebapp_Undeploy_Completed(true);
+	}
+
+
+	
+	//  Start / Stop Background Threads
+
+	/**
+	 * Start Background Threads
+	 */
+	private void startBackgroundThreads() {
 		try {
-			ComputeAPIKeyForScanFileThread.getInstance().shutdown();
+			ProcessScanFile_Thread_Container.getSingletonInstance().initial_CreateStart_Thread();
 		} catch (Exception e) {
-			log.error( "Failed: ComputeAPIKeyForScanFileThread.getInstance().shutdown();", e );
-
-			System.err.println( 
-					"Spectral Storage Accept Import Webapp: CurrentContext: " + CurrentContext.getCurrentWebAppContext() 
-					+ ". Failed: ComputeAPIKeyForScanFileThread.getInstance().shutdown();" );
-			e.printStackTrace();
+			log.error( "Failed: ProcessScanFile_Thread_Container.getSingletonInstance().initial_CreateStart_Thread();", e );
+			throw new RuntimeException( e );
 		} 
-		
 		try {
-			ProcessScanFile_Thread_Container.getSingletonInstance().shutdown();
+			ComputeAPIKeyForScanFileThread.getInstance().start();
 		} catch (Exception e) {
-			log.error( "ProcessScanFile_Thread_Container.getSingletonInstance().shutdown();", e );
-
-			System.err.println( 
-					"Spectral Storage Accept Import Webapp: CurrentContext: " + CurrentContext.getCurrentWebAppContext() 
-					+ ". ProcessScanFile_Thread_Container.getSingletonInstance().shutdown();" );
-			e.printStackTrace();
+			log.error( "Failed: ComputeAPIKeyForScanFileThread.getInstance().start();", e );
+			throw new RuntimeException( e );
 		}
-		
-		log.warn("INFO:  !!!!!!!!  Web app Undeploying FINISHED  !!!!!!!!");
+	}
+	
 
-		System.out.println( 
-				"Spectral Storage Accept Import Webapp: CurrentContext: " + CurrentContext.getCurrentWebAppContext() 
-				+ ".  INFO:  !!!!!!!!  Web app Undeploying FINISHED  !!!!!!!!" );
+	/**
+	 * Stop Background Threads
+	 */
+	private void stopBackgroundThreads() {
+		try {
 
+			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(
+					" Calling ComputeAPIKeyForScanFileThread.getInstance().shutdown().  Check for log msg 'ComputeAPIKeyForScanFileThread: Exitting run().'" );
+
+			ComputeAPIKeyForScanFileThread.getInstance().shutdown();
+			
+		} catch (Exception e) {
+
+			Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(
+					" Failed: ComputeAPIKeyForScanFileThread.getInstance().shutdown()", e );
+		} 
+		try {
+			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(
+					" Calling ProcessScanFile_Thread_Container.getSingletonInstance().shutdown().  Check for log msg 'ProcessScanFileThread: Exitting run().'" );
+
+			ProcessScanFile_Thread_Container.getSingletonInstance().shutdown();
+			
+		} catch (Exception e) {
+			
+			Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(
+					" Failed: ProcessScanFile_Thread_Container.getSingletonInstance().shutdown()", e );
+			
+			//  Nothing output since Log4J2 has stopped logging
+			log.error( "ProcessScanFile_Thread_Container.getSingletonInstance().shutdown();", e );
+		}
 	}
 }
