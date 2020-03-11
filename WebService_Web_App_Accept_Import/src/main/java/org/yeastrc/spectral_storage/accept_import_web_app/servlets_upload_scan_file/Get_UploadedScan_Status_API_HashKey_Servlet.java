@@ -215,6 +215,7 @@ public class Get_UploadedScan_Status_API_HashKey_Servlet extends HttpServlet {
 
 
 			if ( UploadProcessingStatusFileConstants.STATUS_COMPUTE_API_KEY.equals( status )
+					|| UploadProcessingStatusFileConstants.STATUS_COMPUTE_API_KEY_IN_PROGRESS.equals( status )
 					|| UploadProcessingStatusFileConstants.STATUS_PENDING.equals( status ) 
 					|| UploadProcessingStatusFileConstants.STATUS_PROCESSING_STARTED.equals( status ) 
 					|| UploadProcessingStatusFileConstants.STATUS_PROCESSING_KILLED.equals( status ) ) {
