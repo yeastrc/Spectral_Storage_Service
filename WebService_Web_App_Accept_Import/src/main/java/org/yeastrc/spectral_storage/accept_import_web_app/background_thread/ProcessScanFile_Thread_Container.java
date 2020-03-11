@@ -30,7 +30,7 @@ public class ProcessScanFile_Thread_Container {
 
 	private volatile int threadCreateCount = 0;
 
-	private volatile boolean shutdownRequested = true;
+	private volatile boolean shutdownRequested = false;
 
 	/**
 	 * From Context
@@ -68,7 +68,9 @@ public class ProcessScanFile_Thread_Container {
 
 		if ( shutdownRequested ) {
 			
-			log.warn( "awakenToProcessAScanFile() called and shutdownRequested is true.  Skipping processing in this method." );
+			log.warn( "!!!!!!!!!!!!" );
+			log.warn( "!!!!!!  awakenToProcessAScanFile() called and shutdownRequested is true!!!!  Skipping processing in this method. !!!!" );
+			log.warn( "!!!!!!!!!!!!" );
 			
 			return; //  EARLY RETURN
 		}
