@@ -55,7 +55,7 @@ public class CreateProcessScanFileDir {
 		
 		//  First part is YYYYMMDD_Hour_minute_second  Hour: 0-23 
 		
-		String currentDate_yyyymmdd = new SimpleDateFormat("yyyy_MM_dd__H_m_s").format( new Date() );
+		String currentDate_yyyymmdd_hhmmss = new SimpleDateFormat("yyyy_MM_dd__HH_mm_ss").format( new Date() );
 		
 		long processScanFileKey = System.currentTimeMillis();
 		File createdSubDir = null;
@@ -70,7 +70,7 @@ public class CreateProcessScanFileDir {
 			int uploadKeyIncrement = ( (int) ( Math.random() * 10 ) ) + 5;
 			processScanFileKey += uploadKeyIncrement;
 			createdSubDir =
-					createSubDirForProcessScanFileDir( currentDate_yyyymmdd, processScanFileKey, scanFilesToProcessBaseDir );
+					createSubDirForProcessScanFileDir( currentDate_yyyymmdd_hhmmss, processScanFileKey, scanFilesToProcessBaseDir );
 		}
 		
 		//  Create a file in the directory to track the create date/time of the directory
@@ -92,9 +92,9 @@ public class CreateProcessScanFileDir {
 	 * @throws SpectralFileFileUploadFileSystemException 
 	 * @throws IOException 
 	 */
-	private File createSubDirForProcessScanFileDir( String currentDate_yyyymmdd, long processScanFileKey, File scanFilesToProcessBaseDir ) throws SpectralFileFileUploadFileSystemException, IOException {
+	private File createSubDirForProcessScanFileDir( String currentDate_yyyymmdd_hhmmss, long processScanFileKey, File scanFilesToProcessBaseDir ) throws SpectralFileFileUploadFileSystemException, IOException {
 		
-		File subdir = getSubDirForUploadFileTempDir( currentDate_yyyymmdd, processScanFileKey, scanFilesToProcessBaseDir );
+		File subdir = getSubDirForUploadFileTempDir( currentDate_yyyymmdd_hhmmss, processScanFileKey, scanFilesToProcessBaseDir );
 		if ( subdir.exists() ) {
 			//  Subdir already exists so need new uploadKey to create unique subdir
 			return null;
@@ -114,7 +114,7 @@ public class CreateProcessScanFileDir {
 	 * @throws ProxlWebappFileUploadFileSystemException 
 	 * @throws IOException 
 	 */
-	private File getSubDirForUploadFileTempDir( String currentDate_yyyymmdd, long processScanFileKey, File scanFilesToProcessBaseDir ) {
+	private File getSubDirForUploadFileTempDir( String currentDate_yyyymmdd_hhmmss, long processScanFileKey, File scanFilesToProcessBaseDir ) {
 		
 		long currTime = System.currentTimeMillis();
 		
@@ -141,7 +141,7 @@ public class CreateProcessScanFileDir {
 		String uploadKeyAdditionFinalString = processScanFileKeyAdditionString.substring( processScanFileKeyStringLength - processScanFileKeyAdditionStringOutputLength );
 
 		String subdirName = ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_SUB_DIR_PREFIX 
-				+ currentDate_yyyymmdd
+				+ currentDate_yyyymmdd_hhmmss
 				+ "_"
 				+ processScanFileKeyString + uploadKeyAdditionFinalString;
 		File subdir = new File( scanFilesToProcessBaseDir, subdirName );
