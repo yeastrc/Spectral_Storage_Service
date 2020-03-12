@@ -1,12 +1,9 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.servlet_context;
 
-import java.util.Properties;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ComputeAPIKeyForScanFileThread;
-import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ComputeAPIKeyForScanFile_Thread_Container;
-import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFile_Thread_Container;
+import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.A_BackgroundThreads_Containers_Manager;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.A_Load_Config;
 import org.yeastrc.spectral_storage.accept_import_web_app.log_error_after_webapp_undeploy_started.Log_Info_Error_AfterWebAppUndeploy_Started;
 
@@ -22,14 +19,18 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 	/* (non-Javadoc)
 	 * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
 	 */
+	@Override
 	public void contextInitialized(ServletContextEvent event) {
+		
+		log.warn( "INFO:  !!!!!!!!!!!!!!!" );
 		log.warn( "INFO:  !!!!!!!!!!!!!!!   Start up of web app  'Spectral Storage' beginning  !!!!!!!!!!!!!!!!!!!! " );
-		boolean isDevEnv = false;
-		Properties prop = System.getProperties();
-		String devEnv = prop.getProperty("devEnv");
-		if ( "Y".equals(devEnv ) ) {
-			isDevEnv = true;
-		}
+		
+//		boolean isDevEnv = false;
+//		java.util.Properties prop = System.getProperties();
+//		String devEnv = prop.getProperty("devEnv");
+//		if ( "Y".equals(devEnv ) ) {
+//			isDevEnv = true;
+//		}
 		
 		try {
 			A_Load_Config.getInstance().load_Config();
@@ -49,12 +50,15 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 		
 		log.warn( "INFO:  !!!!!!!!!!!!!!!   Start up of web app  'Spectral Storage' complete  !!!!!!!!!!!!!!!!!!!! " );
 		log.warn( "INFO: contextPath: " + contextPath );
+		log.warn( "INFO:  !!!!!!!!!!!!!!!" );
+
 	}
 
 	
 	/* (non-Javadoc)
 	 * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
 	 */
+	@Override
 	public void contextDestroyed(ServletContextEvent event) {
 		
 		//  !!! Log4J2 stops logging before ServletContext::contextDestroyed(...) is called  !!!
@@ -66,6 +70,7 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 		//  Nothing output since Log4J2 has stopped logging
 //		log.warn("INFO:  !!!!!!!!  Web app Undeploying STARTING  !!!!!!!!");
 
+		Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started("  !!!!!!!!" );
 		Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started("  !!!!!!!!  Web app Undeploying STARTING  !!!!!!!!" );
 
 		
@@ -75,8 +80,11 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 		//  Nothing output since Log4J2 has stopped logging
 //		log.warn("INFO:  !!!!!!!!  Web app Undeploying FINISHED  !!!!!!!!");
 
-		Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started("  !!!!!!!!  Web app Undeploying FINISHED  !!!!!!!!" );
-
+		Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(
+				"  !!!!!!!!  Web app Undeploying: Initial run of contextDestroyed(...) is complete.  Webapp will not undeploy until all background threads exit run()." );
+		
+		Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started("  !!!!!!!!" );
+		
 		Webapp_Undeploy_Started_Completed.setWebapp_Undeploy_Completed(true);
 	}
 
@@ -88,18 +96,13 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 	 * Start Background Threads
 	 */
 	private void startBackgroundThreads() {
+		
 		try {
-			ProcessScanFile_Thread_Container.getSingletonInstance().initial_CreateStart_Thread();
+			A_BackgroundThreads_Containers_Manager.getSingletonInstance().initial_CreateStart_Thread();
 		} catch (Exception e) {
-			log.error( "Failed: ProcessScanFile_Thread_Container.getSingletonInstance().initial_CreateStart_Thread();", e );
+			log.error( "Failed: A_BackgroundThreads_Containers_Manager.getSingletonInstance().initial_CreateStart_Thread();", e );
 			throw new RuntimeException( e );
 		} 
-		try {
-			ComputeAPIKeyForScanFile_Thread_Container.getSingletonInstance().initial_CreateStart_Thread();
-		} catch (Exception e) {
-			log.error( "Failed: ComputeAPIKeyForScanFile_Thread_Container.getSingletonInstance().initial_CreateStart_Thread();", e );
-			throw new RuntimeException( e );
-		}
 	}
 	
 
@@ -107,31 +110,7 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 	 * Stop Background Threads
 	 */
 	private void stopBackgroundThreads() {
-		try {
-
-			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(
-					" Calling ComputeAPIKeyForScanFile_Thread_Container.getSingletonInstance().shutdown().  Check for log msg 'ComputeAPIKeyForScanFileThread: Exitting run().'" );
-
-			ComputeAPIKeyForScanFile_Thread_Container.getSingletonInstance().shutdown();
-			
-		} catch (Exception e) {
-
-			Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(
-					" Failed: ComputeAPIKeyForScanFile_Thread_Container.getSingletonInstance().shutdown()", e );
-		} 
-		try {
-			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(
-					" Calling ProcessScanFile_Thread_Container.getSingletonInstance().shutdown().  Check for log msg 'ProcessScanFileThread: Exitting run().'" );
-
-			ProcessScanFile_Thread_Container.getSingletonInstance().shutdown();
-			
-		} catch (Exception e) {
-			
-			Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(
-					" Failed: ProcessScanFile_Thread_Container.getSingletonInstance().shutdown()", e );
-			
-			//  Nothing output since Log4J2 has stopped logging
-			log.error( "ProcessScanFile_Thread_Container.getSingletonInstance().shutdown();", e );
-		}
+		
+		A_BackgroundThreads_Containers_Manager.getSingletonInstance().shutdownBackgroundThreads();
 	}
 }

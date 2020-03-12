@@ -9,20 +9,19 @@ import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFil
  * Container that holds current ProcessScanFileThread  Instance or null
  *
  */
-public class ProcessScanFile_Thread_Container {
+public class ProcessScanFile_Thread_Container extends A_BackgroundThreadContainers_Common_AbstractBaseClass {
 
 	
 
 	private static final Logger log = LoggerFactory.getLogger(ProcessScanFile_Thread_Container.class);
-	
-	private static final ProcessScanFile_Thread_Container containerInstance = new ProcessScanFile_Thread_Container();
-	
+		
 	/**
+	 * Package Private
 	 * @return
 	 */
-	public static ProcessScanFile_Thread_Container getSingletonInstance(){
+	static ProcessScanFile_Thread_Container getInstance(){
 		
-		return containerInstance;
+		return new ProcessScanFile_Thread_Container();
 	}
 	
 	
@@ -33,15 +32,33 @@ public class ProcessScanFile_Thread_Container {
 	private volatile boolean shutdownRequested = false;
 
 	/**
+	 * Package Private
 	 * From Context
 	 */
-	public synchronized void initial_CreateStart_Thread() {
+	@Override
+	synchronized void initial_CreateStart_Thread() {
 
 		if ( log.isInfoEnabled() ) {
 			log.info("initial_CreateStart_Thread() called:  " );
 		}
 
 		createThread();
+	}
+
+	/**
+	 * Package Private
+	 * shutdown was received from the operating system.  This is called on a different thread.
+	 */
+	synchronized void shutdown() {
+		
+		log.warn( "INFO: shutdown() called" );
+		
+		shutdownRequested = true;
+
+		if ( threadInstance != null ) {
+			
+			threadInstance.shutdown();
+		}
 	}
 	
 	/**
@@ -78,24 +95,6 @@ public class ProcessScanFile_Thread_Container {
 		if ( threadInstance != null ) {
 			
 			threadInstance.awaken();
-		}
-	}
-	
-
-
-
-	/**
-	 * shutdown was received from the operating system.  This is called on a different thread.
-	 */
-	public synchronized void shutdown() {
-		
-		log.warn( "INFO: shutdown() called" );
-		
-		shutdownRequested = true;
-
-		if ( threadInstance != null ) {
-			
-			threadInstance.shutdown();
 		}
 	}
 

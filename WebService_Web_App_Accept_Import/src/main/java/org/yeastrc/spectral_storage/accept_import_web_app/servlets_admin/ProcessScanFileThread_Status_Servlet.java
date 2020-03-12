@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFile_Thread_Container;
+import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.A_BackgroundThreads_Containers_Manager;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.AdminPageConstants;
 
 /**
@@ -94,19 +94,19 @@ public class ProcessScanFileThread_Status_Servlet extends HttpServlet {
 		
 		
 		try {
-			if ( ProcessScanFile_Thread_Container.getSingletonInstance().isProcessingFiles() ) {
+			if ( A_BackgroundThreads_Containers_Manager.getSingletonInstance().getProcessScanFile_Thread_Container().isProcessingFiles() ) {
 
 				try ( PrintWriter writer = response.getWriter() ) {
 					writer.append( "Is Processing files" );
 				}
 				
-			} else if ( ProcessScanFile_Thread_Container.getSingletonInstance().isThreadAlive() ) {
+			} else if ( A_BackgroundThreads_Containers_Manager.getSingletonInstance().getProcessScanFile_Thread_Container().isThreadAlive() ) {
 
 				try ( PrintWriter writer = response.getWriter() ) {
 					writer.append( "Processing files Thread is alive" );
 				}
 
-			} else if ( ! ProcessScanFile_Thread_Container.getSingletonInstance().isThreadAlive() ) {
+			} else if ( ! A_BackgroundThreads_Containers_Manager.getSingletonInstance().getProcessScanFile_Thread_Container().isThreadAlive() ) {
 
 				try ( PrintWriter writer = response.getWriter() ) {
 					writer.append( "Processing files Thread is stopped" );

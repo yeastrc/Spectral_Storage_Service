@@ -116,7 +116,7 @@ class ProcessScanFileThread extends Thread {
 			
 			//  Log this way since Log4J is now stopped
 
-			String msg = "ProcessScanFileThread: shutdown() called.";
+			String msg = "ProcessScanFileThread: shutdown() called.  Validate that 'Exitting run().' for this class is also written to log before undeploy is considered complete.";
 			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(msg);
 		}
 		

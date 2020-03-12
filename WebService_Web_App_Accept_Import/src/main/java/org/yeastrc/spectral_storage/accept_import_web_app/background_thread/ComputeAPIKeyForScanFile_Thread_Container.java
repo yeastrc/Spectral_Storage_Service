@@ -6,18 +6,17 @@ import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
  * Container that holds current ComputeAPIKeyForScanFileThread  Instance or null
  *
  */
-public class ComputeAPIKeyForScanFile_Thread_Container {
+public class ComputeAPIKeyForScanFile_Thread_Container extends A_BackgroundThreadContainers_Common_AbstractBaseClass {
 
 	private static final Logger log = LoggerFactory.getLogger(ComputeAPIKeyForScanFile_Thread_Container.class);
 
-	private static final ComputeAPIKeyForScanFile_Thread_Container containerInstance = new ComputeAPIKeyForScanFile_Thread_Container();
-	
 	/**
+	 * Package Private
 	 * @return
 	 */
-	public static ComputeAPIKeyForScanFile_Thread_Container getSingletonInstance(){
+	static ComputeAPIKeyForScanFile_Thread_Container getInstance(){
 		
-		return containerInstance;
+		return new ComputeAPIKeyForScanFile_Thread_Container();
 	}
 	
 	
@@ -30,7 +29,8 @@ public class ComputeAPIKeyForScanFile_Thread_Container {
 	/**
 	 * From Context
 	 */
-	public synchronized void initial_CreateStart_Thread() {
+	@Override
+	synchronized void initial_CreateStart_Thread() {
 
 		if ( log.isInfoEnabled() ) {
 			log.info("initial_CreateStart_Thread() called:  " );
@@ -38,7 +38,23 @@ public class ComputeAPIKeyForScanFile_Thread_Container {
 
 		createThread();
 	}
-	
+
+	/**
+	 * shutdown was received from the operating system.  This is called on a different thread.
+	 */
+	@Override
+	synchronized void shutdown() {
+		
+		log.warn( "INFO: shutdown() called" );
+		
+		shutdownRequested = true;
+
+		if ( threadInstance != null ) {
+			
+			threadInstance.shutdown();
+		}
+	}
+
 	/**
 	 * @return
 	 */
@@ -75,25 +91,6 @@ public class ComputeAPIKeyForScanFile_Thread_Container {
 			threadInstance.awaken();
 		}
 	}
-	
-
-
-
-	/**
-	 * shutdown was received from the operating system.  This is called on a different thread.
-	 */
-	public synchronized void shutdown() {
-		
-		log.warn( "INFO: shutdown() called" );
-		
-		shutdownRequested = true;
-
-		if ( threadInstance != null ) {
-			
-			threadInstance.shutdown();
-		}
-	}
-
 
 	/**
 	 * 

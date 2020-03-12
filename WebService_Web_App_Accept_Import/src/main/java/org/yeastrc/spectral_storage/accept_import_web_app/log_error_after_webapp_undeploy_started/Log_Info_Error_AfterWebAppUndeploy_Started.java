@@ -1,5 +1,7 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.log_error_after_webapp_undeploy_started;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlet_context.CurrentContext;
@@ -73,7 +75,9 @@ public class Log_Info_Error_AfterWebAppUndeploy_Started {
 	 */
 	private static String getLogMsgPrefix() {
 		
-		String prefix = "Spectral Storage Accept Import Webapp: CurrentContext: " + CurrentContext.getCurrentWebAppContext() 
+		String now = new Date().toString();
+		
+		String prefix = now + ":  Spectral Storage Accept Import Webapp: CurrentContext: " + CurrentContext.getCurrentWebAppContext() 
 		+ ". ";
 		
 		return prefix;

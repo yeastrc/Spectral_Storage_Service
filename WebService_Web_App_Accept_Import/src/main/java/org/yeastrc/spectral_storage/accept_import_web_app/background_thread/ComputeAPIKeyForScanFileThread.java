@@ -74,17 +74,27 @@ public class ComputeAPIKeyForScanFileThread extends Thread {
 	 * shutdown was received from the operating system.  This is called on a different thread.
 	 */
 	public void shutdown() {
+
+		if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+			
+			//  Log this way since Log4J is now stopped
+
+			String msg = "ComputeAPIKeyForScanFileThread: shutdown() called.  Validate that 'Exitting run().' for this class is also written to log before undeploy is considered complete.";
+			Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(msg);
+		}
 		
-		log.info("shutdown() called");
+		log.warn("INFO: shutdown() called");
+		
 		synchronized (this) {
 			this.keepRunning = false;
 		}
-
-		//  awaken this thread if it is in 'wait' state ( not currently processing a job )
-		this.awaken();
+		
 		if ( compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir != null ) {
 			compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir.shutdown();
 		}
+		
+		//  awaken this thread if it is in 'wait' state ( not currently processing a job )
+		this.awaken();
 	}
 
 	/**
@@ -107,6 +117,18 @@ public class ComputeAPIKeyForScanFileThread extends Thread {
 		
 		while ( keepRunning ) {
 
+			if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Completed() ) {
+				
+				//  ERROR, this Thread should be dead before Undeploy has completed.
+
+				String msg = "ComputeAPIKeyForScanFileThread: In run().  In while ( isKeepRunning() ) when is true: if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Completed() ).  Breaking from loop now so run() will exit.";
+				Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(msg);
+				
+				//   EXIT This loop and exit run() method immediately
+				
+				break;  //  EARLY BREAK
+			}
+			
 			/////////////////////////////////////////
 			
 			try {

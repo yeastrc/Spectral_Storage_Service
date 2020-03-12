@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.ProcessScanFile_Thread_Container;
+import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.A_BackgroundThreads_Containers_Manager;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.import_processing_status_file__read_write.UploadProcessingWriteOrUpdateStatusFile;
@@ -84,7 +84,7 @@ public class Compute_APIKey_Value_StoreInFile_SingleProcessingDir {
 			}
 					
 			//  Awaken the thread that will process the process scan file directory 
-			ProcessScanFile_Thread_Container.getSingletonInstance().awakenToProcessAScanFile();
+			A_BackgroundThreads_Containers_Manager.getSingletonInstance().getProcessScanFile_Thread_Container().awakenToProcessAScanFile();
 			
 			return;  // EARLY EXIT
 		}
