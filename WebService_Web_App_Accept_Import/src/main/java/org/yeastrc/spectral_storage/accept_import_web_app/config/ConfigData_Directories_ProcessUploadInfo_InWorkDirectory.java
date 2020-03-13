@@ -29,12 +29,6 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 		instance = instanceNew;
 	}
 
-
-	/**
-	 * The Base Directory that the scans are written to for perm storage
-	 */
-	private File scanStorageBaseDirectory;
-
 	/**
 	 * The 'temp' Base directory that scan files are uploaded into
 	 */
@@ -42,7 +36,21 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	
 
 	/**
-	 * The Base Directory that the Old scan Files are written When there is a new Version of the File Format
+	 * The Base Directory that the importer writes the data files to 
+	 * before either moving them to under scanStorageBaseDirectory or copying them to S3
+	 * 
+	 * If this is not configured, then a special directory is created under scanStorageBaseDirectory and that is used.
+	 */
+	private File importerTempOutputBaseDirectory;
+
+	/**
+	 * The Base Directory that the scans are written to for perm storage
+	 */
+	private File scanStorageBaseDirectory;
+
+	/**
+	 * The Base Directory that the Old scan Files are moved to When there is a new Version of the File Format
+	 * Only applicable when scanStorageBaseDirectory is populated.
 	 */
 	private File backupOldBaseDirectory;
 	
@@ -56,6 +64,7 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	 * The S3 region that the scan data is written to for perm storage
 	 */
 	private String s3Region;
+
 
 	
 	/**
@@ -104,6 +113,33 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 
 	private String emailMachineName;
 	
+	
+	//////////////////////////////////////////////////
+
+	/**
+	 * The Base Directory that the importer writes the data files to 
+	 * before either moving them to under scanStorageBaseDirectory or copying them to S3
+	 * 
+	 * If this is not configured, then a special directory is created under scanStorageBaseDirectory and that is used.
+	 * 
+	 * @return
+	 */
+	public File getImporterTempOutputBaseDirectory() {
+		return importerTempOutputBaseDirectory;
+	}
+
+	/**
+	 * The Base Directory that the importer writes the data files to 
+	 * before either moving them to under scanStorageBaseDirectory or copying them to S3
+	 * 
+	 * If this is not configured, then a special directory is created under scanStorageBaseDirectory and that is used.
+	 * 
+	 * @param importerTempOutputBaseDirectory
+	 */
+	public void setImporterTempOutputBaseDirectory(File importerTempOutputBaseDirectory) {
+		this.importerTempOutputBaseDirectory = importerTempOutputBaseDirectory;
+	}
+
 	/**
 	 * The Base Directory that the scans are written to for perm storage
 	 * @return
@@ -137,14 +173,14 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	}
 
 	/**
-	 * The Base Directory that the Old scan Files are written When there is a new Version of the File Format
+	 * The Base Directory that the Old scan Files are moved to When there is a new Version of the File Format
 	 * @return
 	 */
 	public File getBackupOldBaseDirectory() {
 		return backupOldBaseDirectory;
 	}
 	/**
-	 * The Base Directory that the Old scan Files are written When there is a new Version of the File Format
+	 * The Base Directory that the Old scan Files are moved to When there is a new Version of the File Format
 	 * @param backupOldBaseDirectory
 	 */
 	public void setBackupOldBaseDirectory(File backupOldBaseDirectory) {
@@ -286,6 +322,5 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	public void setEmailToEmailAddresses_FailedOnly(List<String> emailToEmailAddresses_FailedOnly) {
 		this.emailToEmailAddresses_FailedOnly = emailToEmailAddresses_FailedOnly;
 	}
-
 		
 }

@@ -1,7 +1,6 @@
 package org.yeastrc.spectral_storage.scan_file_processor.program;
 
 import java.io.File;
-import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 import org.yeastrc.spectral_storage.scan_file_processor.main.ProcessUploadedScanFileRequest;
@@ -55,6 +54,7 @@ public class Scan_File_Processor_MainProgram {
 		CmdLineParser cmdLineParser = new CmdLineParser();
 //		CmdLineParser.Option configFileFromCommandLineFileNameCommandLineOpt = cmdLineParser.addStringOption( 'c', "config" );
 		CmdLineParser.Option outputBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "output_base_dir" );
+		CmdLineParser.Option tempOutputBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "temp_output_base_dir" );
 		CmdLineParser.Option backupOldBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "backup_old_base_dir" );
 		CmdLineParser.Option s3OutputBucketCommandLineOpt = cmdLineParser.addStringOption( 'Z', "s3_output_bucket" );
 		CmdLineParser.Option s3OutputRegionCommandLineOpt = cmdLineParser.addStringOption( 'Z', "s3_output_region" );
@@ -63,6 +63,7 @@ public class Scan_File_Processor_MainProgram {
 		CmdLineParser.Option helpOpt = cmdLineParser.addBooleanOption('h', "help"); 
 
 		String outputBaseDirString = null; 
+		String tempOutputBaseDirString = null;
 		String backupOldBaseDirString = null;
 		String s3_OutputBucket = null;
 		String s3_OutputRegion = null;
@@ -103,6 +104,8 @@ public class Scan_File_Processor_MainProgram {
 			
 			outputBaseDirString = (String)cmdLineParser.getOptionValue( outputBaseDirStringCommandLineOpt );
 			
+			tempOutputBaseDirString = (String)cmdLineParser.getOptionValue( tempOutputBaseDirStringCommandLineOpt );
+			
 			backupOldBaseDirString = (String)cmdLineParser.getOptionValue( backupOldBaseDirStringCommandLineOpt );
 			
 			s3_OutputBucket = (String)cmdLineParser.getOptionValue( s3OutputBucketCommandLineOpt );
@@ -119,6 +122,14 @@ public class Scan_File_Processor_MainProgram {
 			}
 			
 			System.out.println( "Output Base Dir (--output_base_dir): " + outputBaseDirString );
+			
+			if ( StringUtils.isNotEmpty( tempOutputBaseDirString ) ) {
+				System.out.println( "Directory to write files to before move to Output Base Dir or S3 (--temp_output_base_dir): " + tempOutputBaseDirString );
+			} else {
+				System.out.println( "'--temp_output_base_dir' not specified so files will be written to a special directory under '--output_base_dir' before moving to main directory under '--output_base_dir' or moving to S3");
+			}
+			
+			
 			
 			if ( StringUtils.isNotEmpty( s3_OutputBucket ) ) {
 				System.out.println( "S3 output Bucket (--s3_output_bucket): " + s3_OutputBucket );
@@ -153,6 +164,25 @@ public class Scan_File_Processor_MainProgram {
 				
 				pgmParams.setOutputBaseDir( outputBaseDir );
 			}
+			
+			if ( StringUtils.isNotEmpty( tempOutputBaseDirString ) ) {
+				
+				File tempOutputBaseDir = new File( tempOutputBaseDirString );
+
+				System.out.println( "Temp Output Base Dir canonical: " + tempOutputBaseDir.getCanonicalPath() );
+
+				if ( ! tempOutputBaseDir.exists() ) {
+					System.err.println( "Temp Output Base Dir command line Not Exist: " + tempOutputBaseDirString );
+					System.exit( 1 );
+				}
+				if ( ! tempOutputBaseDir.canWrite() ) {
+					System.err.println( "Check of canWrite of Temp Output Base Dir on command line Failed: " + tempOutputBaseDirString );
+					System.exit( 1 );
+				}
+				
+				pgmParams.setTempOutputBaseDir( tempOutputBaseDir );
+			}
+
 
 			if ( StringUtils.isNotEmpty( backupOldBaseDirString ) ) {
 				

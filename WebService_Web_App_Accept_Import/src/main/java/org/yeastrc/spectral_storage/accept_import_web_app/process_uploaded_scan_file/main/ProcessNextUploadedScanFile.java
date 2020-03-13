@@ -103,23 +103,6 @@ public class ProcessNextUploadedScanFile {
 		String processScanUploadJarFile = 
 				configData_Directories_ProcessUploadInfo_InWorkDirectory.getProcessScanUploadJarFile();
 
-		String scanFileStorageBaseDirString = null;
-
-		File scanFileStorageBaseDir = 
-				configData_Directories_ProcessUploadInfo_InWorkDirectory.getScanStorageBaseDirectory();
-		if ( scanFileStorageBaseDir != null ) {
-			scanFileStorageBaseDirString = "--output_base_dir=" + scanFileStorageBaseDir.getCanonicalPath();
-		}
-
-		String backupOldBaseDirString = null;
-
-		File backupOldBaseDir = 
-				configData_Directories_ProcessUploadInfo_InWorkDirectory.getBackupOldBaseDirectory();
-		if ( backupOldBaseDir != null ) {
-			backupOldBaseDirString = "--backup_old_base_dir=" + backupOldBaseDir.getCanonicalPath();
-		}
-
-
 		List<String> commandAndItsArgumentsAsList = new ArrayList<>( 20 );
 		commandAndItsArgumentsAsList.add( javaExecutable );
 		
@@ -131,17 +114,15 @@ public class ProcessNextUploadedScanFile {
 		
 		commandAndItsArgumentsAsList.add( "-jar" );
 		commandAndItsArgumentsAsList.add( processScanUploadJarFile );
-		
-		if ( scanFileStorageBaseDirString != null ) {
-			// writing to local filesystem: output dir
-			commandAndItsArgumentsAsList.add( scanFileStorageBaseDirString );
+
+		{
+			File scanFileStorageBaseDir = configData_Directories_ProcessUploadInfo_InWorkDirectory.getScanStorageBaseDirectory();
+			if ( scanFileStorageBaseDir != null ) {
+				String scanFileStorageBaseDirString = "--output_base_dir=" + scanFileStorageBaseDir.getCanonicalPath();
+				// writing to local filesystem: output dir
+				commandAndItsArgumentsAsList.add( scanFileStorageBaseDirString );
+			}
 		}
-		
-		if ( backupOldBaseDirString != null ) {
-			// writing to local filesystem: backup old dir
-			commandAndItsArgumentsAsList.add( backupOldBaseDirString );
-		}
-		
 		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Bucket() ) ) {
 			commandAndItsArgumentsAsList.add( "--s3_output_bucket=" + configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Bucket() );
 		}
@@ -149,7 +130,26 @@ public class ProcessNextUploadedScanFile {
 			commandAndItsArgumentsAsList.add( "--s3_output_region=" + configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Region() );
 			commandAndItsArgumentsAsList.add( "--s3_input_region=" + configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Region() );
 		}
-		
+
+		{
+			File importerTempOutputBaseDirectoryFile = configData_Directories_ProcessUploadInfo_InWorkDirectory.getImporterTempOutputBaseDirectory();
+			if ( importerTempOutputBaseDirectoryFile != null ) {
+				String importerTempOutputBaseDirectoryString = "--temp_output_base_dir=" + importerTempOutputBaseDirectoryFile.getCanonicalPath();
+				// importer temp output dir to write files to
+				commandAndItsArgumentsAsList.add( importerTempOutputBaseDirectoryString );
+			}
+		}
+		{
+
+			File backupOldBaseDir = 
+					configData_Directories_ProcessUploadInfo_InWorkDirectory.getBackupOldBaseDirectory();
+			if ( backupOldBaseDir != null ) {
+				String backupOldBaseDirString = "--backup_old_base_dir=" + backupOldBaseDir.getCanonicalPath();
+				// writing to local filesystem: backup old dir
+				commandAndItsArgumentsAsList.add( backupOldBaseDirString );
+			}
+		}
+
 		if ( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().isDeleteUploadedScanFileOnSuccessfulImport() ) {
 			//  Configured to delete uploaded scan file on successful import so pass to import program
 			commandAndItsArgumentsAsList.add( CMD_LINE_PARAM_DELETE_ON_SUCCESS );

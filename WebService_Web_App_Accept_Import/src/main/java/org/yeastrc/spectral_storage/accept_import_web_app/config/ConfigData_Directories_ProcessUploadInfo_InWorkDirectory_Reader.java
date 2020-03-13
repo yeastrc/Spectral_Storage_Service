@@ -30,6 +30,14 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 
 	private static String PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY = "scan.storage.base.directory";
 	private static String PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY = "temp.upload.base.directory";
+
+	/**
+	 * The Base Directory that the importer writes the data files to 
+	 * before either moving them to under scanStorageBaseDirectory or copying them to S3
+	 * 
+	 * If this is not configured, then a special directory is created under scanStorageBaseDirectory and that is used.
+	 */
+	private static String PROPERTY_NAME__IMPORTER_TEMP_OUTPUT_BASE_DIRECTORY = "importer.temp.output.base.directory";
 	
 
 //	#  Files moved here from 'scan.storage.base.directory' here when a new file is created for a newer File Format version
@@ -193,18 +201,35 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			configData_Directories_ProcessUploadCommand_InWorkDirectory.setScanStorageBaseDirectory( scanStorageBaseDirectory );
 		}
 
-		File tempScanUploadBaseDirectory = new File( internalConfigDirectoryStrings.tempScanUploadBaseDirectory );
-		
-		if ( ! ( tempScanUploadBaseDirectory.exists() && tempScanUploadBaseDirectory.isDirectory() && tempScanUploadBaseDirectory.canRead() ) ) {
-			String msg = "!!!Property '" + PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY 
-					+ "' in config does not exist or is not a directory or is not readable.  Value:  " 
-					+ internalConfigDirectoryStrings.tempScanUploadBaseDirectory;
-			log.error( msg );
-			throw new SpectralFileWebappConfigException( msg );
+		{
+			File tempScanUploadBaseDirectory = new File( internalConfigDirectoryStrings.tempScanUploadBaseDirectory );
+			
+			if ( ! ( tempScanUploadBaseDirectory.exists() && tempScanUploadBaseDirectory.isDirectory() && tempScanUploadBaseDirectory.canRead() ) ) {
+				String msg = "!!!Property '" + PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY 
+						+ "' in config does not exist or is not a directory or is not readable.  Value:  " 
+						+ internalConfigDirectoryStrings.tempScanUploadBaseDirectory;
+				log.error( msg );
+				throw new SpectralFileWebappConfigException( msg );
+			}
+	
+			configData_Directories_ProcessUploadCommand_InWorkDirectory.setTempScanUploadBaseDirectory( tempScanUploadBaseDirectory );
 		}
+		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.importerTempOutputBaseDirectory ) ) {
 
-		configData_Directories_ProcessUploadCommand_InWorkDirectory.setTempScanUploadBaseDirectory( tempScanUploadBaseDirectory );
+			// Optional
 
+			File importerTempOutputBaseDirectory = new File( internalConfigDirectoryStrings.importerTempOutputBaseDirectory );
+			
+			if ( ! ( importerTempOutputBaseDirectory.exists() && importerTempOutputBaseDirectory.isDirectory() && importerTempOutputBaseDirectory.canRead() ) ) {
+				String msg = "!!!Property '" + PROPERTY_NAME__IMPORTER_TEMP_OUTPUT_BASE_DIRECTORY 
+						+ "' in config does not exist or is not a directory or is not readable.  Value:  " 
+						+ internalConfigDirectoryStrings.importerTempOutputBaseDirectory;
+				log.error( msg );
+				throw new SpectralFileWebappConfigException( msg );
+			}
+	
+			configData_Directories_ProcessUploadCommand_InWorkDirectory.setImporterTempOutputBaseDirectory( importerTempOutputBaseDirectory );
+		}
 
 		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.backupOldBaseDirectory ) ) {
 
@@ -228,6 +253,19 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 		if ( StringUtils.isEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) ) {
 
 			log.warn( "INFO: '" + PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY + "' has value: " 
+					+ internalConfigDirectoryStrings.scanStorageBaseDirectory );
+		}
+		
+		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.importerTempOutputBaseDirectory ) ) {
+
+			log.warn( "INFO: '" + PROPERTY_NAME__IMPORTER_TEMP_OUTPUT_BASE_DIRECTORY + "' has value: " 
+					+ internalConfigDirectoryStrings.importerTempOutputBaseDirectory );
+		} else {
+			
+			log.warn( "INFO: '" + PROPERTY_NAME__IMPORTER_TEMP_OUTPUT_BASE_DIRECTORY 
+					+ "' has NO value but is optional.  A directory will be created (and used) under value for property '" 
+					+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY
+					+ "' which is value: "
 					+ internalConfigDirectoryStrings.scanStorageBaseDirectory );
 		}
 		
@@ -394,10 +432,15 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 				internalConfigDirectoryStrings.tempScanUploadBaseDirectory = propertyValue;
 			}
-			
-			propertyValue = configProps.getProperty( PROPERTY_NAME__BACKUP_OLD_BASE_DIRECTORY );
+
+			propertyValue = configProps.getProperty( PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
-				internalConfigDirectoryStrings.backupOldBaseDirectory = propertyValue;
+				internalConfigDirectoryStrings.tempScanUploadBaseDirectory = propertyValue;
+			}
+			
+			propertyValue = configProps.getProperty( PROPERTY_NAME__IMPORTER_TEMP_OUTPUT_BASE_DIRECTORY );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				internalConfigDirectoryStrings.importerTempOutputBaseDirectory = propertyValue;
 			}
 			
 
@@ -526,14 +569,23 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 		
 
 		/**
+		 * The 'temp' Base directory that scan files are uploaded into
+		 */
+		private String tempScanUploadBaseDirectory;
+		
+		/**
+		 * The Base Directory that the importer writes the data files to 
+		 * before either moving them to under scanStorageBaseDirectory or copying them to S3
+		 * 
+		 * If this is not configured, then a special directory is created under scanStorageBaseDirectory and that is used.
+		 */
+		private String importerTempOutputBaseDirectory;
+		
+		/**
 		 * The Base Directory that the scans are written to for perm storage
 		 */
 		private String scanStorageBaseDirectory;
 
-		/**
-		 * The 'temp' Base directory that scan files are uploaded into
-		 */
-		private String tempScanUploadBaseDirectory;
 
 		/**
 		 * The Base Directory that the Old scan Files are written When there is a new Version of the File Format

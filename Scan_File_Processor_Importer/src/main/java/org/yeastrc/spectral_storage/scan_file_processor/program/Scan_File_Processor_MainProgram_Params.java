@@ -9,6 +9,7 @@ import java.io.File;
 public class Scan_File_Processor_MainProgram_Params {
 
 	private File outputBaseDir;
+	private File tempOutputBaseDir;
 	private File backupOldBaseDir; 
 	
 	private String s3_OutputBucket;
@@ -38,5 +39,11 @@ public class Scan_File_Processor_MainProgram_Params {
 	}
 	public void setBackupOldBaseDir(File backupOldBaseDir) {
 		this.backupOldBaseDir = backupOldBaseDir;
+	}
+	public File getTempOutputBaseDir() {
+		return tempOutputBaseDir;
+	}
+	public void setTempOutputBaseDir(File tempOutputBaseDir) {
+		this.tempOutputBaseDir = tempOutputBaseDir;
 	}
 }

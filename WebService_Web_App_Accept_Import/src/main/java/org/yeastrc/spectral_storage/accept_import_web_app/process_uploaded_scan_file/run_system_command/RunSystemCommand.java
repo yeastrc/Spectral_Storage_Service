@@ -12,6 +12,8 @@ import java.util.List;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappConfigException;
+import org.yeastrc.spectral_storage.accept_import_web_app.log_error_after_webapp_undeploy_started.Log_Info_Error_AfterWebAppUndeploy_Started;
+import org.yeastrc.spectral_storage.accept_import_web_app.servlet_context.Webapp_Undeploy_Started_Completed;
 
 
 
@@ -50,7 +52,9 @@ public class RunSystemCommand {
 	
 
 	/**
-	 * awaken thread to get next import or to complete
+	 * 
+	 * 
+	 * No wait() called so awaken not really do anything
 	 */
 	public void awaken() {
 
@@ -88,6 +92,12 @@ public class RunSystemCommand {
 			
 			String msg = "Object not usable once shutdownRequested is true";
 			log.error( msg );
+			if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+
+				//  Log this way since Log4J is now stopped
+				Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(msg);
+			}
+			
 			throw new IllegalStateException(msg);
 		}
 		
@@ -327,7 +337,16 @@ public class RunSystemCommand {
 
 			if ( process != null ) {
 				
-				log.info( "killing child process scan file process" );
+				{
+					String msg = "killing child process scan file process";
+					log.info( msg );
+					
+					if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+
+						//  Log this way since Log4J is now stopped
+						Log_Info_Error_AfterWebAppUndeploy_Started.log_INFO_AfterWebAppUndeploy_Started(msg);
+					}
+				}
 
 				process.destroy();
 			}
@@ -339,11 +358,15 @@ public class RunSystemCommand {
 		} catch ( Throwable t ) {
 			
 			String msg = "Exception thrown killing child process scan file process";
-			log.error( msg );
-			
+			log.error( msg, t );
+			if ( Webapp_Undeploy_Started_Completed.isWebapp_Undeploy_Started() ) {
+
+				//  Log this way since Log4J is now stopped
+				Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(msg, t);
+			}
 		}
 		
-		this.awaken();
+		this.awaken();  
 	}
 	
 }

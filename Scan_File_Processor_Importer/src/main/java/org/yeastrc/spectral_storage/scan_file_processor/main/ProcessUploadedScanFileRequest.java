@@ -223,18 +223,33 @@ public class ProcessUploadedScanFileRequest {
 			System.out.println( "Scan Data File does NOT already exist on Local Filesystem or is NOT latest Version so STARTING processing the scan file.  Now: " + new Date() );
 		}
 
-		//  Create Temp dir if not exist
-		
-		File tempOutputDir = new File( pgmParams.getOutputBaseDir(), ImporterTempSubDirNameConstants.IMPORTER_TEMP_SUBDIR_NAME );
-		
-		if ( ! tempOutputDir.exists() ) {
-			if ( ! tempOutputDir.mkdir() ) {
-				String msg = "Failed to make temp dir: " + tempOutputDir.getAbsolutePath();
-				log.error( msg );
-				throw new SpectralStorageProcessingException(msg);
-			}
+		File tempOutputDir = null;
+				
+		if ( pgmParams.getTempOutputBaseDir() != null ) {
+			
+			//  Temp Output Dir specified in config for Accept Webapp so use it;
+			
+			tempOutputDir = pgmParams.getTempOutputBaseDir();
+			
 		} else {
-			// Empty temp dir
+
+			//  Temp Output Dir NOT specified in config for Accept Webapp SO Create/Use Subdir under  OutputBaseDir
+			
+			//  Create Temp dir if not exist
+			
+			tempOutputDir = new File( pgmParams.getOutputBaseDir(), ImporterTempSubDirNameConstants.IMPORTER_TEMP_SUBDIR_NAME );
+			
+			if ( ! tempOutputDir.exists() ) {
+				if ( ! tempOutputDir.mkdir() ) {
+					String msg = "Failed to make temp dir: " + tempOutputDir.getAbsolutePath();
+					log.error( msg );
+					throw new SpectralStorageProcessingException(msg);
+				}
+			}
+		}
+		
+		// Empty temp output dir
+		{
 			File[] tempOutputDirItems = tempOutputDir.listFiles();
 			for ( File tempOutputDirItem : tempOutputDirItems ) {
 				if ( ! tempOutputDirItem.delete() ) {
