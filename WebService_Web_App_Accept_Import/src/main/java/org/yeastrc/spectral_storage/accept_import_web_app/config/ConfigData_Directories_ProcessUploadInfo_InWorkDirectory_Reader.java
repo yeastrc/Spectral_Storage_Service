@@ -432,17 +432,16 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 				internalConfigDirectoryStrings.tempScanUploadBaseDirectory = propertyValue;
 			}
-
-			propertyValue = configProps.getProperty( PROPERTY_NAME__TEMP_UPLOAD_BASE_DIRECTORY );
-			if ( StringUtils.isNotEmpty( propertyValue ) ) {
-				internalConfigDirectoryStrings.tempScanUploadBaseDirectory = propertyValue;
-			}
 			
 			propertyValue = configProps.getProperty( PROPERTY_NAME__IMPORTER_TEMP_OUTPUT_BASE_DIRECTORY );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 				internalConfigDirectoryStrings.importerTempOutputBaseDirectory = propertyValue;
 			}
 			
+			propertyValue = configProps.getProperty( PROPERTY_NAME__BACKUP_OLD_BASE_DIRECTORY );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				internalConfigDirectoryStrings.backupOldBaseDirectory = propertyValue;
+			}
 
 			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_BUCKET );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
