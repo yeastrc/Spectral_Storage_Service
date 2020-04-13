@@ -86,9 +86,12 @@ public class A_BackgroundThreads_Containers_Manager {
 	 */
 	private void startBackgroundThreads() {
 		
-		for ( A_BackgroundThreadContainers_Common_AbstractBaseClass backgroundThreadContainer : backgroundThreadContainers ) {
+		if ( backgroundThreadContainers != null ) {
 			
-			backgroundThreadContainer.initial_CreateStart_Thread();
+			for ( A_BackgroundThreadContainers_Common_AbstractBaseClass backgroundThreadContainer : backgroundThreadContainers ) {
+				
+				backgroundThreadContainer.initial_CreateStart_Thread();
+			}
 		}
 	}
 	/**
@@ -96,20 +99,23 @@ public class A_BackgroundThreads_Containers_Manager {
 	 */
 	private void shutdownBackgroundThreads_Internal() {
 		
-		for ( A_BackgroundThreadContainers_Common_AbstractBaseClass backgroundThreadContainer : backgroundThreadContainers ) {
+		if ( backgroundThreadContainers != null ) {
 			
-			try {
-				backgroundThreadContainer.shutdown();
-
-			} catch (Throwable e) {
+			for ( A_BackgroundThreadContainers_Common_AbstractBaseClass backgroundThreadContainer : backgroundThreadContainers ) {
 				
-				String clasName = backgroundThreadContainer.getClass().getCanonicalName();
-				
-				Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(
-						" Failed: " + clasName + ".shutdown() (class name in variable)", e );
-				
-				//  Nothing output since Log4J2 has stopped logging
-				log.error( " Failed: " + clasName + ".shutdown() (class name in variable)", e );
+				try {
+					backgroundThreadContainer.shutdown();
+	
+				} catch (Throwable e) {
+					
+					String clasName = backgroundThreadContainer.getClass().getCanonicalName();
+					
+					Log_Info_Error_AfterWebAppUndeploy_Started.log_ERROR_AfterWebAppUndeploy_Started(
+							" Failed: " + clasName + ".shutdown() (class name in variable)", e );
+					
+					//  Nothing output since Log4J2 has stopped logging
+					log.error( " Failed: " + clasName + ".shutdown() (class name in variable)", e );
+				}
 			}
 		}
 	}
