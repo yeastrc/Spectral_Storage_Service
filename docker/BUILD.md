@@ -9,12 +9,6 @@ cp docker/config-files/import/spectral_server_accept_import_config.properties We
 ant -f ant_build_all_create_download_zip_file.xml
 ```
 
-Copy the config files
---------------------------
-```
-directions for copying config files
-```
-
 Build the docker image
 ----------------------------
 ```
