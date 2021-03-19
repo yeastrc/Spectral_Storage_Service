@@ -7,12 +7,6 @@ cd .. # ensure you're in root directory for repo (Spectral_Storage_Service)
 ant -f ant_build_all_create_download_zip_file.xml
 ```
 
-Unzip the build zip
-----------------------------
-```
-unzip download_zip_file/spectral_storage_service_deploy.zip
-```
-
 Copy the config files
 --------------------------
 ```
@@ -22,6 +16,9 @@ directions for copying config files
 Build the docker image
 ----------------------------
 ```
+cp download_zip_file/WebService_Web_App_Accept_Import/build/libs/spectral_storage_accept_import.war docker/
+cp download_zip_file/WebService_Web_App_Get_Data/build/libs/spectral_storage_get_data.war docker/
+cp download_zip_file/Scan_File_Processor_Importer/build/libs/spectralStorage_ProcessScanFile.jar docker/
 cd docker
 sudo docker image build -t mriffle/spectr ./
 ```
