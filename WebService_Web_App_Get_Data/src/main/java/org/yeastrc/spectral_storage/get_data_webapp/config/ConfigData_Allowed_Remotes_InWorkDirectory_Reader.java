@@ -21,6 +21,9 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory_Reader {
 
 	private static String CONFIG_DEFAULTS_FILENAME = "spectral_storage_get_data_config_allowed_remotes_defaults.properties";
 	private static String CONFIG_OVERRIDES_FILENAME = "spectral_storage_get_data_config_allowed_remotes.properties";
+
+	private static String PROPERTY_NAME__ACCESS_ALLOWED_ALL_REMOTE_IPS_QUERY = "access.allowed.all.remote.ips.query";
+	private static String PROPERTY_VALUE__TRUE__ACCESS_ALLOWED_ALL_REMOTE_IPS_QUERY = "true";
 	
 	private static String PROPERTY_NAME__ALLOWED_REMOTE_IPS_OVERALL = "allowed.remote.ips.overall";
 	private static String PROPERTY_NAME__ALLOWED_REMOTE_IPS_ADMIN = "allowed.remote.ips.admin";
@@ -66,6 +69,12 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory_Reader {
 //			throw new SpectralFileWebappConfigException( msg );
 //		}
 		
+		if ( configData_Allowed_Remotes_InWorkDirectory.isAccessAllowed_allRemoteIps_query() ) {
+			
+			log.warn( "INFO: Property '" + PROPERTY_NAME__ACCESS_ALLOWED_ALL_REMOTE_IPS_QUERY 
+					+ "' has value '" + PROPERTY_VALUE__TRUE__ACCESS_ALLOWED_ALL_REMOTE_IPS_QUERY 
+					+ "' so setting flag to true to allow connections from any IP address" );
+		}
 		
 		log.warn( "INFO: '" + PROPERTY_NAME__ALLOWED_REMOTE_IPS_OVERALL + "' has value: " 
 				+ StringUtils.join( configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs_Overall() ) );
@@ -150,7 +159,16 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory_Reader {
 			Properties configProps = new Properties();
 			configProps.load(propertiesFileAsStream);
 			String propertyValue = null;
-						
+
+
+			{
+				propertyValue = configProps.getProperty( PROPERTY_NAME__ACCESS_ALLOWED_ALL_REMOTE_IPS_QUERY );
+				if ( PROPERTY_VALUE__TRUE__ACCESS_ALLOWED_ALL_REMOTE_IPS_QUERY.equals( propertyValue ) ) {
+					
+					configData_Allowed_Remotes_InWorkDirectory.setAccessAllowed_allRemoteIps_query(true);
+				}
+			}
+					
 			propertyValue = configProps.getProperty( PROPERTY_NAME__ALLOWED_REMOTE_IPS_OVERALL );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 				

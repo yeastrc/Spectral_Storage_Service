@@ -80,35 +80,43 @@ public class AccessControl_ServletFilter implements Filter {
 //		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-		String remoteAddr = request.getRemoteAddr();
-		
-		Set<String> allowedRemoteIPs = null;
-		
-		if ( accessControlType == AccessControlType.OVERALL ) {
-			allowedRemoteIPs = ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().getAllowedRemoteIPs_Overall();
-		} else if ( accessControlType == AccessControlType.ADMIN ) {
-			allowedRemoteIPs = ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().getAllowedRemoteIPs_Admin();
-		} else if ( accessControlType == AccessControlType.UPDATE ) {
-			allowedRemoteIPs = ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().getAllowedRemoteIPs_Update();
-		} else if ( accessControlType == AccessControlType.IMPORTER ) {
-			allowedRemoteIPs = ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().getAllowedRemoteIPs_Update();
+		if ( ( accessControlType == AccessControlType.UPDATE || accessControlType == AccessControlType.IMPORTER ) 
+				&& ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().isAccessAllowed_allRemoteIps_update_importer() ) {
+			
+			//  ALL Remote IPs allowed for Update and Importer
+			
 		} else {
-			String msg = "Unknown value for accessControlType: " + accessControlType;
-			log.error( msg );
-			throw new ServletException( msg );
-		}
-		
-		if ( allowedRemoteIPs != null && ( ! allowedRemoteIPs.isEmpty() ) ) {
 
-			if ( ! allowedRemoteIPs.contains( remoteAddr ) ) {
-
-				//  IP not in allowed list
-
-				httpResponse.setStatus( 401 ); //  return 401 error
-				httpResponse.setContentType( "text" );
-				httpResponse.getWriter().print( "not_authorized" );
-
-				return;
+			String remoteAddr = request.getRemoteAddr();
+			
+			Set<String> allowedRemoteIPs = null;
+			
+			if ( accessControlType == AccessControlType.OVERALL ) {
+				allowedRemoteIPs = ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().getAllowedRemoteIPs_Overall();
+			} else if ( accessControlType == AccessControlType.ADMIN ) {
+				allowedRemoteIPs = ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().getAllowedRemoteIPs_Admin();
+			} else if ( accessControlType == AccessControlType.UPDATE ) {
+				allowedRemoteIPs = ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().getAllowedRemoteIPs_Update();
+			} else if ( accessControlType == AccessControlType.IMPORTER ) {
+				allowedRemoteIPs = ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().getAllowedRemoteIPs_Update();
+			} else {
+				String msg = "Unknown value for accessControlType: " + accessControlType;
+				log.error( msg );
+				throw new ServletException( msg );
+			}
+			
+			if ( allowedRemoteIPs != null && ( ! allowedRemoteIPs.isEmpty() ) ) {
+	
+				if ( ! allowedRemoteIPs.contains( remoteAddr ) ) {
+	
+					//  IP not in allowed list
+	
+					httpResponse.setStatus( 401 ); //  return 401 error
+					httpResponse.setContentType( "text" );
+					httpResponse.getWriter().print( "not_authorized" );
+	
+					return;
+				}
 			}
 		}
 		

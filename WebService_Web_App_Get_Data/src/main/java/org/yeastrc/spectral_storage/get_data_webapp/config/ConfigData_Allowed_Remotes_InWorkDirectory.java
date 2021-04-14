@@ -36,8 +36,12 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 		ConfigData_Allowed_Remotes_InWorkDirectory.instance = instance;
 	}
 
-	
-	//  !!!! Important:  Update clear_ALL_AllowedRemoteIP_Collection_ALL() if add any other AllowedRemoteIP collections
+
+	/**
+	 * When True, then connection for Query is allowed from any IP address
+	 */
+	private boolean accessAllowed_allRemoteIps_query;
+
 	
 	/**
 	 * Overall.  Applied to all URLs
@@ -113,6 +117,14 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 
 	public void setAllowedRemoteIPs_Query(Set<String> allowedRemoteIPs_Query) {
 		this.allowedRemoteIPs_Query = allowedRemoteIPs_Query;
+	}
+
+	public boolean isAccessAllowed_allRemoteIps_query() {
+		return accessAllowed_allRemoteIps_query;
+	}
+
+	public void setAccessAllowed_allRemoteIps_query(boolean accessAllowed_allRemoteIps_query) {
+		this.accessAllowed_allRemoteIps_query = accessAllowed_allRemoteIps_query;
 	}
 
 

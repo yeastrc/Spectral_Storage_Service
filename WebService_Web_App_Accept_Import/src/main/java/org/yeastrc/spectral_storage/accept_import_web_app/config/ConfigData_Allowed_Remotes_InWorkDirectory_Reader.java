@@ -22,6 +22,9 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory_Reader {
 	private static String CONFIG_DEFAULTS_FILENAME = "spectral_server_accept_import_config_allowed_remotes_defaults.properties";
 	private static String CONFIG_OVERRIDES_FILENAME = "spectral_server_accept_import_config_allowed_remotes.properties";
 	
+	private static String PROPERTY_NAME__ACCESS_ALLOWED_ALL_REMOTE_IPS_UPDATE_IMPORTER = "access.allowed.all.remote.ips.update.importer";
+	private static String PROPERTY_VALUE__TRUE__ACCESS_ALLOWED_ALL_REMOTE_IPS_UPDATE_IMPORTER = "true";
+	
 	private static String PROPERTY_NAME__ALLOWED_REMOTE_IPS_OVERALL = "allowed.remote.ips.overall";
 	private static String PROPERTY_NAME__ALLOWED_REMOTE_IPS_ADMIN = "allowed.remote.ips.admin";
 	private static String PROPERTY_NAME__ALLOWED_REMOTE_IPS_UPDATE = "allowed.remote.ips.update";
@@ -67,6 +70,13 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory_Reader {
 //			throw new SpectralFileWebappConfigException( msg );
 //		}
 		
+
+		if ( configData_Allowed_Remotes_InWorkDirectory.isAccessAllowed_allRemoteIps_update_importer() ) {
+
+			log.warn( "INFO: Property '" + PROPERTY_NAME__ACCESS_ALLOWED_ALL_REMOTE_IPS_UPDATE_IMPORTER 
+					+ "' has value '" + PROPERTY_VALUE__TRUE__ACCESS_ALLOWED_ALL_REMOTE_IPS_UPDATE_IMPORTER 
+					+ "' so setting flag to true to allow connections from any IP address" );
+		}
 		
 		log.warn( "INFO: '" + PROPERTY_NAME__ALLOWED_REMOTE_IPS_OVERALL + "' has value: " 
 				+ StringUtils.join( configData_Allowed_Remotes_InWorkDirectory.getAllowedRemoteIPs_Overall(), " , "  ) );
@@ -153,6 +163,15 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory_Reader {
 			Properties configProps = new Properties();
 			configProps.load(propertiesFileAsStream);
 			String propertyValue = null;
+			
+
+			{
+				propertyValue = configProps.getProperty( PROPERTY_NAME__ACCESS_ALLOWED_ALL_REMOTE_IPS_UPDATE_IMPORTER );
+				if ( PROPERTY_VALUE__TRUE__ACCESS_ALLOWED_ALL_REMOTE_IPS_UPDATE_IMPORTER.equals( propertyValue ) ) {
+					
+					configData_Allowed_Remotes_InWorkDirectory.setAccessAllowed_allRemoteIps_update_importer(true);
+				}
+			}
 						
 			propertyValue = configProps.getProperty( PROPERTY_NAME__ALLOWED_REMOTE_IPS_OVERALL );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {

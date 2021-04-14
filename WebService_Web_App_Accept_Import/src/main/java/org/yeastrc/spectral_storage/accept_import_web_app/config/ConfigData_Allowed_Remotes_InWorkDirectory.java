@@ -35,6 +35,10 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 		ConfigData_Allowed_Remotes_InWorkDirectory.instance = instance;
 	}
 
+	/**
+	 * When True, then connection for Update and Importer is allowed from any IP address
+	 */
+	private boolean accessAllowed_allRemoteIps_update_importer;
 
 	/**
 	 * Overall.  Applied to all URLs
@@ -63,9 +67,9 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 	public void addAllowedRemoteIP_Overall( String allowedRemoteIP) {
 		this.allowedRemoteIPs_Overall.add( allowedRemoteIP );
 	}
-	public void clearAllowedRemoteIP_Overall_Collection() {
-		this.allowedRemoteIPs_Overall.clear();
-	}
+//	public void clearAllowedRemoteIP_Overall_Collection() {
+//		this.allowedRemoteIPs_Overall.clear();
+//	}
 
 	/**
 	 * Adds to allowedRemoteIPs_Overall as well
@@ -75,9 +79,9 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 		this.allowedRemoteIPs_Admin.add( allowedRemoteIP );
 		this.allowedRemoteIPs_Overall.add( allowedRemoteIP );
 	}
-	public void clearAllowedRemoteIP_Admin_Collection() {
-		this.allowedRemoteIPs_Admin.clear();
-	}
+//	public void clearAllowedRemoteIP_Admin_Collection() {
+//		this.allowedRemoteIPs_Admin.clear();
+//	}
 
 	/**
 	 * Adds to allowedRemoteIPs_Overall as well
@@ -87,9 +91,9 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 		this.allowedRemoteIPs_Update.add( allowedRemoteIP );
 		this.allowedRemoteIPs_Overall.add( allowedRemoteIP );
 	}
-	public void clearAllowedRemoteIP_Update_Collection() {
-		this.allowedRemoteIPs_Update.clear();
-	}
+//	public void clearAllowedRemoteIP_Update_Collection() {
+//		this.allowedRemoteIPs_Update.clear();
+//	}
 
 	/**
 	 * Adds to allowedRemoteIPs_Overall as well
@@ -99,9 +103,9 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 		this.allowedRemoteIPs_Importer.add( allowedRemoteIP );
 		this.allowedRemoteIPs_Overall.add( allowedRemoteIP );
 	}
-	public void clearAllowedRemoteIP_Importer_Collection() {
-		this.allowedRemoteIPs_Importer.clear();
-	}
+//	public void clearAllowedRemoteIP_Importer_Collection() {
+//		this.allowedRemoteIPs_Importer.clear();
+//	}
 
 
 	public Set<String> getAllowedRemoteIPs_Overall() {
@@ -135,5 +139,13 @@ public class ConfigData_Allowed_Remotes_InWorkDirectory {
 
 	public void setAllowedRemoteIPs_Importer(Set<String> allowedRemoteIPs_Importer) {
 		this.allowedRemoteIPs_Importer = allowedRemoteIPs_Importer;
+	}
+
+	public boolean isAccessAllowed_allRemoteIps_update_importer() {
+		return accessAllowed_allRemoteIps_update_importer;
+	}
+
+	public void setAccessAllowed_allRemoteIps_update_importer(boolean accessAllowed_allRemoteIps_update_importer) {
+		this.accessAllowed_allRemoteIps_update_importer = accessAllowed_allRemoteIps_update_importer;
 	}
 }
