@@ -76,7 +76,7 @@ public class AccessControl_ServletFilter implements Filter {
 //		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-		if ( ( accessControlType == AccessControlType.QUERY ) 
+		if ( ( accessControlType == AccessControlType.QUERY || accessControlType == AccessControlType.OVERALL ) 
 				&& ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().isAccessAllowed_allRemoteIps_query() ) {
 			
 			//  ALL Remote IPs allowed for Query

@@ -80,7 +80,9 @@ public class AccessControl_ServletFilter implements Filter {
 //		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-		if ( ( accessControlType == AccessControlType.UPDATE || accessControlType == AccessControlType.IMPORTER ) 
+		if ( ( accessControlType == AccessControlType.UPDATE 
+				|| accessControlType == AccessControlType.IMPORTER
+				||  accessControlType == AccessControlType.OVERALL ) 
 				&& ConfigData_Allowed_Remotes_InWorkDirectory.getSingletonInstance().isAccessAllowed_allRemoteIps_update_importer() ) {
 			
 			//  ALL Remote IPs allowed for Update and Importer
