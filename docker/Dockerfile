@@ -1,4 +1,4 @@
-FROM tomcat:jdk11-corretto
+FROM tomcat:9-jdk11-corretto
 MAINTAINER Michael Riffle <mriffle@uw.edu>
 
 
