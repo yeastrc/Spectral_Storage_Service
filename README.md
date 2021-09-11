@@ -8,7 +8,7 @@ https://spectr.readthedocs.io/en/latest/
 Build the docker image
 ----------------------------
 ```
-gitp pull https://github.com/yeastrc/Spectral_Storage_Service.git
+git pull https://github.com/yeastrc/Spectral_Storage_Service.git
 sudo docker image build -t mriffle/spectr ./
 ```
 
