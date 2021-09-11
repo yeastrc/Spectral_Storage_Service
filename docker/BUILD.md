@@ -8,7 +8,7 @@ cd .. # ensure you're in root directory for repo (Spectral_Storage_Service)
 cp docker/config-files/get-data/spectral_storage_get_data_config.properties WebService_Web_App_Get_Data/src/main/resources/
 cp docker/config-files/import/spectral_server_accept_import_config.properties WebService_Web_App_Accept_Import/src/main/resources/
 
-ant -f ant_build_all_create_download_zip_file.xml
+sudo docker run --rm -it --user $(id -u):$(id -g) -v `pwd`:`pwd` -w `pwd` --env HOME=. --entrypoint ant mriffle/build-spectr -f ant_build_all_create_download_zip_file.xml
 ```
 
 Build the docker image
