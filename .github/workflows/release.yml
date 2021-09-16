@@ -48,7 +48,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Run build in Docker container
-        uses: docker://mriffle/build-limelight:latest
+        uses: docker://mriffle/build-spectr:latest
         with:
           entrypoint: ant
           args: -f ant_build_all_create_download_zip_file.xml
