@@ -12,7 +12,7 @@ env:
 jobs:
   dockerhub:
 
-    runs-on: mriffle/build-spectr:latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
