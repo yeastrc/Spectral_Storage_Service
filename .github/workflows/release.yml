@@ -35,7 +35,7 @@ jobs:
       id: docker_build_webapp
       uses: docker/build-push-action@v2
       with:
-        context: docker/webapp
+        context: .
         push: true
         tags: ${{ steps.meta_webapp.outputs.tags }}
 
