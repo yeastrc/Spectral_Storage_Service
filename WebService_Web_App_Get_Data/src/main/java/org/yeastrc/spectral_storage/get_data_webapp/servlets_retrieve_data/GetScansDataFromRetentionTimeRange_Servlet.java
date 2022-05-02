@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_ScanDataLocation_InWorkDirectory;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.MaxNumberScansReturnConstants;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileBadRequestToServletException;
@@ -234,10 +235,22 @@ public class GetScansDataFromRetentionTimeRange_Servlet extends HttpServlet {
 						scanNumbers = spectralFile_Reader.getScanNumbersForRetentionTimeRange( retentionTimeStart, retentionTimeEnd );
 					}
 
-					if ( scanNumbers.size() > MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES ) {
+					//  maxNumberScansReturn
+
+					Integer maxNumberScansReturn = ConfigData_ScanDataLocation_InWorkDirectory.getSingletonInstance().getMaxNumberScansReturn();
+					
+					if ( maxNumberScansReturn == null ) {
+						//  Nothing in config so use default
+						
+						maxNumberScansReturn = MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES__DEFAULT;
+					}
+					
+					/////
+					
+					if ( scanNumbers.size() > maxNumberScansReturn ) {
 
 						webserviceResponse.setTooManyScansToReturn( true );
-						webserviceResponse.setMaxScansToReturn( MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES );
+						webserviceResponse.setMaxScansToReturn( maxNumberScansReturn );
 
 						Single_ScanRetentionTime_ScanNumber_SubResponse_Factory single_ScanRetentionTime_ScanNumber_SubResponse_Factory
 						= Single_ScanRetentionTime_ScanNumber_SubResponse_Factory.getInstance();

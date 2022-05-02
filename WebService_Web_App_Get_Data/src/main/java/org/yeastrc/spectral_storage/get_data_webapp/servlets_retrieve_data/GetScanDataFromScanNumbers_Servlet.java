@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.yeastrc.spectral_storage.get_data_webapp.config.ConfigData_ScanDataLocation_InWorkDirectory;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.MaxNumberScansReturnConstants;
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileBadRequestToServletException;
@@ -157,7 +158,19 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 				log.warn( msg );
 				throw new SpectralFileBadRequestToServletException( msg );
 			}
+			
+			//  maxNumberScansReturn
 
+			Integer maxNumberScansReturn = ConfigData_ScanDataLocation_InWorkDirectory.getSingletonInstance().getMaxNumberScansReturn();
+			
+			if ( maxNumberScansReturn == null ) {
+				//  Nothing in config so use default
+				
+				maxNumberScansReturn = MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES__DEFAULT;
+			}
+			
+			/////
+			
 			Get_ScanDataFromScanNumbers_Response webserviceResponse = new Get_ScanDataFromScanNumbers_Response();
 
 			if ( excludeReturnScanPeakData != null 
@@ -165,10 +178,11 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 				
 			} else {
 				//  Only apply max number of scans for when returning scan peaks
-				if ( scanNumbers.size() > MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES ) {
+				
+				if ( scanNumbers.size() > maxNumberScansReturn ) {
 
 					webserviceResponse.setTooManyScansToReturn( true );
-					webserviceResponse.setMaxScansToReturn( MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES );
+					webserviceResponse.setMaxScansToReturn( maxNumberScansReturn );
 
 					WriteResponseObjectToOutputStream.getSingletonInstance()
 					.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
@@ -213,7 +227,7 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 							}
 						}
 
-						int allowedMaxScanNumbers = MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES;
+						int allowedMaxScanNumbers = maxNumberScansReturn;
 
 						if ( includeParentScans == 
 								Get_ScanDataFromScanNumbers_IncludeParentScans.IMMEDIATE_PARENT ) {

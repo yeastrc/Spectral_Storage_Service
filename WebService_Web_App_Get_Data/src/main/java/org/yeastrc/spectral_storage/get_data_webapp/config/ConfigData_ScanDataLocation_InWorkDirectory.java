@@ -48,7 +48,30 @@ public class ConfigData_ScanDataLocation_InWorkDirectory {
 	 */
 	private String s3Region;
 	
+	///////////////
+	
+	/**
+	 * 
+	 */
+	private Integer maxNumberScansReturn;
+	
+	
+	
+	
 	//  Setters are package private
+
+	/**
+	 * Max for requests that return scan peaks
+	 * 
+	 * @return null if not set
+	 */
+	public Integer getMaxNumberScansReturn() {
+		return maxNumberScansReturn;
+	}
+
+	void setMaxNumberScansReturn(Integer maxNumberScansReturn) {
+		this.maxNumberScansReturn = maxNumberScansReturn;
+	}
 
 	public File getScanStorageBaseDirectory() {
 		return scanStorageBaseDirectory;

@@ -13,6 +13,27 @@
 
 <!--   Servlets - Retrieving data from scan files using API Key and other parameters  -->
 
+
+
+    <!-- getScanDataFromScanNumbers - Return Max Number of Scan Numbers allowed in some requests 
+    
+    		Same Max Scan Count to Return used in Servlets:  GetScanDataFromScanNumbers_Servlet, GetScansDataFromRetentionTimeRange_Servlet
+    -->
+  <servlet>
+    <servlet-name>Return Max Number of Scan Numbers allowed Servlet - XML Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.Get_MaxScanCountToReturn_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>XML</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Return Max Number of Scan Numbers allowed Servlet - XML Response</servlet-name>
+    <url-pattern>/query/getMaxScanCountToReturn_XML</url-pattern>
+  </servlet-mapping>     
+  
     <!-- getScanDataFromScanNumbers - Multiple scan numbers as input -->
   <servlet>
     <servlet-name>Get Scan Data From Scan Numbers Servlet - XML Response</servlet-name>

@@ -26,6 +26,7 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 	private static String PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY = "scan.storage.base.directory";
 	private static String PROPERTY_NAME__S3_BUCKET = "s3.bucket";
 	private static String PROPERTY_NAME__S3_REGION = "s3.region";
+	private static String PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS = "max.number.scans.to.return.for.requests.that.include.scan.peaks";
 
 	private static enum IsDefaultPropertiesFile { YES, NO }
 	private static enum AllowNoPropertiesFile { YES, NO }
@@ -114,6 +115,13 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 			log.warn( "INFO: '" + PROPERTY_NAME__S3_REGION + "' has value: " 
 					+ configData_ScanDataLocation_InWorkDirectory.getS3Region() );
 		}
+
+		if ( configData_ScanDataLocation_InWorkDirectory.getMaxNumberScansReturn() != null ) {
+			log.warn( "INFO: '" + PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS + "' has value: " 
+					+ configData_ScanDataLocation_InWorkDirectory.getMaxNumberScansReturn() );
+		}
+		
+		
 		
 		ConfigData_ScanDataLocation_InWorkDirectory.setSingletonInstance( configData_ScanDataLocation_InWorkDirectory );
 	}
@@ -198,18 +206,37 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 			
 			propertyValue = configProps.getProperty( PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
-				internalConfigDirectoryStrings.scanStorageBaseDirectory = propertyValue;
+				internalConfigDirectoryStrings.scanStorageBaseDirectory = propertyValue.trim();
 			}
 			
 			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_BUCKET );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
-				configData_ScanDataLocation_InWorkDirectory.setS3Bucket( propertyValue );
+				configData_ScanDataLocation_InWorkDirectory.setS3Bucket( propertyValue.trim() );
 			}
 
 			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_REGION );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
-				configData_ScanDataLocation_InWorkDirectory.setS3Region( propertyValue );
+				configData_ScanDataLocation_InWorkDirectory.setS3Region( propertyValue.trim() );
 			}
+			
+			propertyValue = configProps.getProperty( PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+				
+				try {
+					String propertyValue_Trimmed = propertyValue.trim();
+					int maxNumberScansReturn = Integer.parseInt(propertyValue_Trimmed);
+					
+					configData_ScanDataLocation_InWorkDirectory.setMaxNumberScansReturn(maxNumberScansReturn);
+				
+				} catch ( Exception e ) {
+
+					String msg = "Property '" + PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS
+							+ "' is populated and is not parsable to an integer.  Property value: " + propertyValue;
+					log.error( msg );
+					throw new SpectralFileWebappConfigException( msg );
+				}
+			}
+
 
 		} catch ( RuntimeException e ) {
 			log.error( "Error processing Properties file '" + propertiesFilename + "', exception: " + e.toString(), e );
