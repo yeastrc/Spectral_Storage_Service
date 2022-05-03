@@ -7,18 +7,38 @@
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
 
-<!--   JSON responses can be activated if change code and add Jackson Jars -->
-  
-<!--   _________________________________________   -->
+
+<!--   ====================================   -->
 
 <!--   Servlets - Retrieving data from scan files using API Key and other parameters  -->
 
 
+  	<!--   __________ -->
 
     <!-- getScanDataFromScanNumbers - Return Max Number of Scan Numbers allowed in some requests 
     
     		Same Max Scan Count to Return used in Servlets:  GetScanDataFromScanNumbers_Servlet, GetScansDataFromRetentionTimeRange_Servlet
     -->
+   
+   <!-- JSON -->
+   
+  <servlet>
+    <servlet-name>Return Max Number of Scan Numbers allowed Servlet - JSON Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.Get_MaxScanCountToReturn_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>JSON</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Return Max Number of Scan Numbers allowed Servlet - JSON Response</servlet-name>
+    <url-pattern>/query/getMaxScanCountToReturn_JSON</url-pattern>
+  </servlet-mapping>     
+  
+   <!-- XML -->
+   
   <servlet>
     <servlet-name>Return Max Number of Scan Numbers allowed Servlet - XML Response</servlet-name>
     <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.Get_MaxScanCountToReturn_Servlet</servlet-class>
@@ -34,7 +54,29 @@
     <url-pattern>/query/getMaxScanCountToReturn_XML</url-pattern>
   </servlet-mapping>     
   
+  	<!--   __________ -->
+
     <!-- getScanDataFromScanNumbers - Multiple scan numbers as input -->
+
+   <!-- JSON -->
+   
+  <servlet>
+    <servlet-name>Get Scan Data From Scan Numbers Servlet - JSON Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScanDataFromScanNumbers_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>JSON</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Scan Data From Scan Numbers Servlet - JSON Response</servlet-name>
+    <url-pattern>/query/getScanDataFromScanNumbers_JSON</url-pattern>
+  </servlet-mapping>     
+   
+   <!-- XML -->
+   
   <servlet>
     <servlet-name>Get Scan Data From Scan Numbers Servlet - XML Response</servlet-name>
     <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScanDataFromScanNumbers_Servlet</servlet-class>
@@ -50,7 +92,29 @@
     <url-pattern>/query/getScanDataFromScanNumbers_XML</url-pattern>
   </servlet-mapping>     
   
+  	<!--   __________ -->
+   
     <!-- getScanData_AllScans_ExcludePeaks_Servlet -  -->
+    
+   <!-- JSON -->
+   
+  <servlet>
+    <servlet-name>Get Scan Data All Scans Exclude Peaks Servlet - JSON Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScanData_AllScans_ExcludePeaks_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>JSON</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Scan Data All Scans Exclude Peaks Servlet - JSON Response</servlet-name>
+    <url-pattern>/query/getScanData_AllScans_ExcludePeaks_Servlet_JSON</url-pattern>
+  </servlet-mapping>     
+  
+   <!-- XML -->
+   
   <servlet>
     <servlet-name>Get Scan Data All Scans Exclude Peaks Servlet - XML Response</servlet-name>
     <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScanData_AllScans_ExcludePeaks_Servlet</servlet-class>
@@ -67,6 +131,26 @@
   </servlet-mapping>     
   
     <!-- getScanRetentionTimes - Filtered based on request, or all if no filters -->
+   
+   <!-- JSON -->
+   
+  <servlet>
+    <servlet-name>Get Scan Numbers Servlet - JSON Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScanNumbers_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>JSON</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Scan Numbers Servlet - JSON Response</servlet-name>
+    <url-pattern>/query/getScanNumbers_JSON</url-pattern>
+  </servlet-mapping>     
+  
+   <!-- XML -->
+   
   <servlet>
     <servlet-name>Get Scan Numbers Servlet - XML Response</servlet-name>
     <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScanNumbers_Servlet</servlet-class>
@@ -82,8 +166,30 @@
     <url-pattern>/query/getScanNumbers_XML</url-pattern>
   </servlet-mapping>     
         
+  	<!--   __________ -->
+   
     <!-- getScanRetentionTimes - Filtered based on request, or all if no filters -->
-  <servlet>
+  
+   <!-- JSON -->
+   
+   <servlet>
+    <servlet-name>Get Scan Retention Times Servlet - JSON Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScanRetentionTimes_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>JSON</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Scan Retention Times Servlet - JSON Response</servlet-name>
+    <url-pattern>/query/getScanRetentionTimes_JSON</url-pattern>
+  </servlet-mapping>     
+  
+   <!-- XML -->
+   
+   <servlet>
     <servlet-name>Get Scan Retention Times Servlet - XML Response</servlet-name>
     <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScanRetentionTimes_Servlet</servlet-class>
     	<!-- required parameter resultDataFormat -->
@@ -97,8 +203,30 @@
     <servlet-name>Get Scan Retention Times Servlet - XML Response</servlet-name>
     <url-pattern>/query/getScanRetentionTimes_XML</url-pattern>
   </servlet-mapping>     
-        
+            
+  	<!--   __________ -->
+   
     <!-- getScanNumbersFromRetentionTimeRange -->
+   
+   <!-- JSON -->
+   
+  <servlet>
+    <servlet-name>Get Scan Numbers From Retention Time Range Servlet - JSON Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScanNumbersFromRetentionTimeRange_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>JSON</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Scan Numbers From Retention Time Range Servlet - JSON Response</servlet-name>
+    <url-pattern>/query/getScanNumbersFromRetentionTimeRange_JSON</url-pattern>
+  </servlet-mapping>     
+           
+   <!-- XML -->
+   
   <servlet>
     <servlet-name>Get Scan Numbers From Retention Time Range Servlet - XML Response</servlet-name>
     <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScanNumbersFromRetentionTimeRange_Servlet</servlet-class>
@@ -113,8 +241,30 @@
     <servlet-name>Get Scan Numbers From Retention Time Range Servlet - XML Response</servlet-name>
     <url-pattern>/query/getScanNumbersFromRetentionTimeRange_XML</url-pattern>
   </servlet-mapping>     
+  
+  	<!--   __________ -->
    
     <!-- getScansDataFromRetentionTimeRange -->
+    
+   <!-- JSON -->
+   
+  <servlet>
+    <servlet-name>Get Scans Data From Retention Time Range Servlet - JSON Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScansDataFromRetentionTimeRange_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>JSON</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Scans Data From Retention Time Range Servlet - JSON Response</servlet-name>
+    <url-pattern>/query/getScansDataFromRetentionTimeRange_JSON</url-pattern>
+  </servlet-mapping>     
+  
+   <!-- XML -->
+   
   <servlet>
     <servlet-name>Get Scans Data From Retention Time Range Servlet - XML Response</servlet-name>
     <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScansDataFromRetentionTimeRange_Servlet</servlet-class>
@@ -131,8 +281,30 @@
   </servlet-mapping>     
   
   
-
+        
+  	<!--   __________ -->
+   
     <!-- getSummaryDataPerScanLevel -->
+   
+   <!-- JSON -->
+   
+  <servlet>
+    <servlet-name>Get Scan Summary Data Per Scan Level Servlet - JSON Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetSummaryDataPerScanLevel_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>JSON</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Scan Summary Data Per Scan Level Servlet - JSON Response</servlet-name>
+    <url-pattern>/query/getSummaryDataPerScanLevel_JSON</url-pattern>
+  </servlet-mapping>     
+  
+   <!-- XML -->
+   
   <servlet>
     <servlet-name>Get Scan Summary Data Per Scan Level Servlet - XML Response</servlet-name>
     <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetSummaryDataPerScanLevel_Servlet</servlet-class>
@@ -148,20 +320,56 @@
     <url-pattern>/query/getSummaryDataPerScanLevel_XML</url-pattern>
   </servlet-mapping>     
   
+          
+  	<!--   ========================== -->
+   
 	
 	<!-- Servlets that return other than XML  -->
 	
+   
+   <!-- XML Request Format -->
    
     <!-- GetScanPeakIntensityBinnedOn_RT_MZ_Servlet - Returns JSON Gzipped since that is what is stored in the file -->
   <servlet>
     <servlet-name>Get Scan Peak Intensity Binned on RT MZ Servlet - JSON Gzipped Response</servlet-name>
     <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScanPeakIntensityBinnedOn_RT_MZ_Servlet</servlet-class>
-    	<!-- required parameter resultDataFormat -->
+    	   	
+    	   	<!-- required parameter resultDataFormat -->
+    	   	
+    	   	<!-- WARNING: ONLY Used for Request Format.  ALWAYS returns JSON since returns contents of a file -->
+		    <init-param>
+		      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+		      <param-value>XML</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+		    </init-param>
+		       
     <load-on-startup>2</load-on-startup>
   </servlet>
   <servlet-mapping>
     <servlet-name>Get Scan Peak Intensity Binned on RT MZ Servlet - JSON Gzipped Response</servlet-name>
     <url-pattern>/query/getScanPeakIntensityBinnedOn_RT_MZ_JSON_GZIPPED</url-pattern>
+  </servlet-mapping>    
+  
+  
+   <!-- JSON Request Format -->
+   
+    <!-- GetScanPeakIntensityBinnedOn_RT_MZ_Servlet - Returns JSON Gzipped since that is what is stored in the file -->
+  <servlet>
+    <servlet-name>Get Scan Peak Intensity Binned on RT MZ Servlet - JSON Gzipped Response_RequestFormat_JSON</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data.GetScanPeakIntensityBinnedOn_RT_MZ_Servlet</servlet-class>
+    	   	
+    	   	<!-- required parameter resultDataFormat -->
+    	   	
+    	   	<!-- WARNING: ONLY Used for Request Format.  ALWAYS returns JSON since returns contents of a file -->
+		    <init-param>
+		      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+		      <param-value>JSON</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+		    </init-param>
+		       
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Scan Peak Intensity Binned on RT MZ Servlet - JSON Gzipped Response_RequestFormat_JSON</servlet-name>
+    <url-pattern>/query/getScanPeakIntensityBinnedOn_RT_MZ_JSON_GZIPPED_RequestFormat_JSON</url-pattern>
   </servlet-mapping>    
   
   

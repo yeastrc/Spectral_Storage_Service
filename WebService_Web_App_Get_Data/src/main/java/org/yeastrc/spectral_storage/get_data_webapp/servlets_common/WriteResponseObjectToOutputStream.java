@@ -14,6 +14,10 @@ import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetRespon
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileSerializeRequestException;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileWebappConfigException;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Write the Response Object to the output stream
  * 
@@ -87,13 +91,24 @@ public class WriteResponseObjectToOutputStream {
 				}
 			} else if ( servetResponseFormat == ServetResponseFormatEnum.JSON ) {
 
-				String msg = "JSON not currently supported.  Add in Jackson jars for support";
-				log.error( msg );
-				throw new IllegalArgumentException( msg );
-				
-//				// send the JSON response 
-//				ObjectMapper mapper = new ObjectMapper();  //  Jackson JSON library object
-//				mapper.writeValue( outputStreamBufferOfServerResponse, webserviceResponseAsObject ); // where first param can be File, OutputStream or Writer
+				//  Jackson JSON Mapper object for JSON deserialization and serialization
+				ObjectMapper jacksonJSON_Mapper = new ObjectMapper();
+				//   serialize 
+				try {
+					jacksonJSON_Mapper.writeValue( outputStreamBufferOfServerResponse, webserviceResponseAsObject );
+				} catch ( JsonParseException e ) {
+					String msg = "Failed to serialize 'resultsObject', JsonParseException. class of param: " + webserviceResponseAsObject.getClass() ;
+					log.error( msg, e );
+					throw e;
+				} catch ( JsonMappingException e ) {
+					String msg = "Failed to serialize 'resultsObject', JsonMappingException. class of param: " + webserviceResponseAsObject.getClass() ;
+					log.error( msg, e );
+					throw e;
+				} catch ( IOException e ) {
+					String msg = "Failed to serialize 'resultsObject', IOException. class of param: " + webserviceResponseAsObject.getClass() ;
+					log.error( msg, e );
+					throw e;
+				}
 				
 			} else {
 				String msg = "Unknown value for servetResponseFormat: " + servetResponseFormat;
@@ -102,6 +117,12 @@ public class WriteResponseObjectToOutputStream {
 			}
 			
 			int outputStreamBufferOfServerResponseSize = outputStreamBufferOfServerResponse.size();
+			
+			{
+				byte[] outputBytes = outputStreamBufferOfServerResponse.toByteArray();
+				String outputString = new String( outputBytes );
+				int z = 0;
+			}
 			
 //			{
 //				String msgcallingClass = "";

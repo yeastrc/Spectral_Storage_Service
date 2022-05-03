@@ -74,44 +74,86 @@ public class GetScanData_AllScans_ExcludePeaks_Servlet extends HttpServlet {
 
 		Get_ScanData_AllScans_ExcludePeaks_Request get_ScanData_AllScans_ExcludePeaks_Request = null;
 
-		try {
-			Object requestObj = null;
-
+		if ( servetResponseFormat == ServetResponseFormatEnum.XML  ) {
 			try {
-				requestObj = GetRequestObjectFromInputStream.getSingletonInstance().getRequestObjectFromStream( request );
-			} catch ( SpectralFileDeserializeRequestException e ) {
-				throw e;
-			} catch (Exception e) {
-				String msg = "Failed to deserialize request";
-				log.error( msg, e );
-				throw new SpectralFileBadRequestToServletException( e );
-			}
+				Object requestObj = null;
 
+				try {
+					requestObj = GetRequestObjectFromInputStream.getSingletonInstance().getRequestObjectFromStream_RequestFormat_XML( request );
+				} catch ( SpectralFileDeserializeRequestException e ) {
+					throw e;
+				} catch (Exception e) {
+					String msg = "Failed to deserialize request";
+					log.error( msg, e );
+					throw new SpectralFileBadRequestToServletException( e );
+				}
+
+				try {
+					get_ScanData_AllScans_ExcludePeaks_Request = (Get_ScanData_AllScans_ExcludePeaks_Request) requestObj;
+				} catch (Exception e) {
+					String msg = "Failed to cast requestObj to Get_ScanData_AllScans_ExcludePeaks_Request";
+					log.error( msg, e );
+					throw new SpectralFileBadRequestToServletException( e );
+				}
+			} catch (SpectralFileBadRequestToServletException e) {
+
+				response.setStatus( HttpServletResponse.SC_BAD_REQUEST /* 400  */ );
+
+				if ( StringUtils.isNotEmpty( e.getMessage() ) ) {
+					WriteResponseStringToOutputStream.getInstance()
+					.writeResponseStringToOutputStream( e.getMessage(), response);
+				}
+
+				return;
+
+			} catch (Throwable e) {
+				String msg = "Failed to process request";
+				log.error( msg, e );
+				response.setStatus( HttpServletResponse.SC_INTERNAL_SERVER_ERROR /* 500  */ );
+
+				return;
+			}
+		} else if ( servetResponseFormat == ServetResponseFormatEnum.JSON  ) {
 			try {
-				get_ScanData_AllScans_ExcludePeaks_Request = (Get_ScanData_AllScans_ExcludePeaks_Request) requestObj;
-			} catch (Exception e) {
-				String msg = "Failed to cast requestObj to Get_ScanData_AllScans_ExcludePeaks_Request";
+				try {
+					get_ScanData_AllScans_ExcludePeaks_Request = 
+							GetRequestObjectFromInputStream.getSingletonInstance().
+							getRequestObjectFromStream_RequestFormat_JSON( Get_ScanData_AllScans_ExcludePeaks_Request.class, request );
+					
+				} catch ( SpectralFileDeserializeRequestException e ) {
+					throw e;
+				} catch (Exception e) {
+					String msg = "Failed to deserialize request";
+					log.error( msg, e );
+					throw new SpectralFileBadRequestToServletException( e );
+				}
+			} catch (SpectralFileBadRequestToServletException e) {
+
+				response.setStatus( HttpServletResponse.SC_BAD_REQUEST /* 400  */ );
+
+				if ( StringUtils.isNotEmpty( e.getMessage() ) ) {
+					WriteResponseStringToOutputStream.getInstance()
+					.writeResponseStringToOutputStream( e.getMessage(), response);
+				}
+
+				return;
+
+			} catch (Throwable e) {
+				String msg = "Failed to process request";
 				log.error( msg, e );
-				throw new SpectralFileBadRequestToServletException( e );
+				response.setStatus( HttpServletResponse.SC_INTERNAL_SERVER_ERROR /* 500  */ );
+
+				return;
 			}
-		} catch (SpectralFileBadRequestToServletException e) {
-
-			response.setStatus( HttpServletResponse.SC_BAD_REQUEST /* 400  */ );
-
-			if ( StringUtils.isNotEmpty( e.getMessage() ) ) {
-				WriteResponseStringToOutputStream.getInstance()
-				.writeResponseStringToOutputStream( e.getMessage(), response);
-			}
-
-			return;
-
-		} catch (Throwable e) {
-			String msg = "Failed to process request";
-			log.error( msg, e );
+		} else {
+			String msg = "Failed to process request. unknown value for servetResponseFormat: " + servetResponseFormat;
+			log.error( msg );
 			response.setStatus( HttpServletResponse.SC_INTERNAL_SERVER_ERROR /* 500  */ );
 
 			return;
 		}
+		
+		
 
 		processRequest( get_ScanData_AllScans_ExcludePeaks_Request, request, response );
 	}

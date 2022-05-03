@@ -13,9 +13,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileDeserializeRequestException;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.GetRequestObjectFromInputStream;
+import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteResponseStringToOutputStream;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanPeakIntensityBinnedOn_RT_MZ_Request;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
@@ -50,7 +52,10 @@ public class GetScanPeakIntensityBinnedOn_RT_MZ_Servlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-//	private ServetResponseFormatEnum servetResponseFormat;
+	/**
+	 *   !!!!  ONLY Used for the REQUEST format.  the response is ALWAYS JSON since it comes from a file.
+	 */
+	private ServetResponseFormatEnum servetResponseFormat;  //  !!!!  ONLY Used for the REQUEST format.  the response is ALWAYS JSON since it comes from a file.
 	
 	/* (non-Javadoc)
 	 * @see javax.servlet.GenericServlet#init(javax.servlet.ServletConfig)
@@ -61,11 +66,11 @@ public class GetScanPeakIntensityBinnedOn_RT_MZ_Servlet extends HttpServlet {
 		
 		super.init(config); //  Must call this first
 
-//		servetResponseFormat = 
-//				Get_ServletResultDataFormat_FromServletInitParam.getInstance()
-//				.get_ServletResultDataFormat_FromServletInitParam( config );
-//
-//		log.warn( "INFO: servetResponseFormat: " + servetResponseFormat );
+		servetResponseFormat = 
+				Get_ServletResultDataFormat_FromServletInitParam.getInstance()
+				.get_ServletResultDataFormat_FromServletInitParam( config );
+		
+		log.warn( "INFO: servetResponseFormat: " + servetResponseFormat );
 		
 	}
 	
@@ -79,44 +84,85 @@ public class GetScanPeakIntensityBinnedOn_RT_MZ_Servlet extends HttpServlet {
 
 		Get_ScanPeakIntensityBinnedOn_RT_MZ_Request get_ScanPeakIntensityBinnedOn_RT_MZ_Request = null;
 
-		try {
-			Object requestObj = null;
-
+		if ( servetResponseFormat == ServetResponseFormatEnum.XML  ) {
 			try {
-				requestObj = GetRequestObjectFromInputStream.getSingletonInstance().getRequestObjectFromStream( request );
-			} catch ( SpectralFileDeserializeRequestException e ) {
-				throw e;
-			} catch (Exception e) {
-				String msg = "Failed to deserialize request";
-				log.error( msg, e );
-				throw new SpectralFileBadRequestToServletException( e );
-			}
+				Object requestObj = null;
 
+				try {
+					requestObj = GetRequestObjectFromInputStream.getSingletonInstance().getRequestObjectFromStream_RequestFormat_XML( request );
+				} catch ( SpectralFileDeserializeRequestException e ) {
+					throw e;
+				} catch (Exception e) {
+					String msg = "Failed to deserialize request";
+					log.error( msg, e );
+					throw new SpectralFileBadRequestToServletException( e );
+				}
+
+				try {
+					get_ScanPeakIntensityBinnedOn_RT_MZ_Request = (Get_ScanPeakIntensityBinnedOn_RT_MZ_Request) requestObj;
+				} catch (Exception e) {
+					String msg = "Failed to cast requestObj to Get_ScanPeakIntensityBinnedOn_RT_MZ_Request";
+					log.error( msg, e );
+					throw new SpectralFileBadRequestToServletException( e );
+				}
+			} catch (SpectralFileBadRequestToServletException e) {
+
+				response.setStatus( HttpServletResponse.SC_BAD_REQUEST /* 400  */ );
+
+				if ( StringUtils.isNotEmpty( e.getMessage() ) ) {
+					WriteResponseStringToOutputStream.getInstance()
+					.writeResponseStringToOutputStream( e.getMessage(), response);
+				}
+
+				return;
+
+			} catch (Throwable e) {
+				String msg = "Failed to process request";
+				log.error( msg, e );
+				response.setStatus( HttpServletResponse.SC_INTERNAL_SERVER_ERROR /* 500  */ );
+
+				return;
+			}
+		} else if ( servetResponseFormat == ServetResponseFormatEnum.JSON  ) {
 			try {
-				get_ScanPeakIntensityBinnedOn_RT_MZ_Request = (Get_ScanPeakIntensityBinnedOn_RT_MZ_Request) requestObj;
-			} catch (Exception e) {
-				String msg = "Failed to cast requestObj to Get_ScanPeakIntensityBinnedOn_RT_MZ_Request";
+				try {
+					get_ScanPeakIntensityBinnedOn_RT_MZ_Request = 
+							GetRequestObjectFromInputStream.getSingletonInstance().
+							getRequestObjectFromStream_RequestFormat_JSON( Get_ScanPeakIntensityBinnedOn_RT_MZ_Request.class, request );
+					
+				} catch ( SpectralFileDeserializeRequestException e ) {
+					throw e;
+				} catch (Exception e) {
+					String msg = "Failed to deserialize request";
+					log.error( msg, e );
+					throw new SpectralFileBadRequestToServletException( e );
+				}
+			} catch (SpectralFileBadRequestToServletException e) {
+
+				response.setStatus( HttpServletResponse.SC_BAD_REQUEST /* 400  */ );
+
+				if ( StringUtils.isNotEmpty( e.getMessage() ) ) {
+					WriteResponseStringToOutputStream.getInstance()
+					.writeResponseStringToOutputStream( e.getMessage(), response);
+				}
+
+				return;
+
+			} catch (Throwable e) {
+				String msg = "Failed to process request";
 				log.error( msg, e );
-				throw new SpectralFileBadRequestToServletException( e );
+				response.setStatus( HttpServletResponse.SC_INTERNAL_SERVER_ERROR /* 500  */ );
+
+				return;
 			}
-		} catch (SpectralFileBadRequestToServletException e) {
-
-			response.setStatus( HttpServletResponse.SC_BAD_REQUEST /* 400  */ );
-
-			if ( StringUtils.isNotEmpty( e.getMessage() ) ) {
-				WriteResponseStringToOutputStream.getInstance()
-				.writeResponseStringToOutputStream( e.getMessage(), response);
-			}
-			
-			return;
-
-		} catch (Throwable e) {
-			String msg = "Failed to process request";
-			log.error( msg, e );
+		} else {
+			String msg = "Failed to process request. unknown value for servetResponseFormat: " + servetResponseFormat;
+			log.error( msg );
 			response.setStatus( HttpServletResponse.SC_INTERNAL_SERVER_ERROR /* 500  */ );
-			
+
 			return;
 		}
+		
 		
 		processRequest( get_ScanPeakIntensityBinnedOn_RT_MZ_Request, request, response );
 	}
