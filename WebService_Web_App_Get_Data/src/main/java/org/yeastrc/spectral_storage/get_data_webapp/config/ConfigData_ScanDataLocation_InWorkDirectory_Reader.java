@@ -26,6 +26,11 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 	private static String PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY = "scan.storage.base.directory";
 	private static String PROPERTY_NAME__S3_BUCKET = "s3.bucket";
 	private static String PROPERTY_NAME__S3_REGION = "s3.region";
+	
+	//  This value comes from Environment variable, jvm -D parameter, or property file, in that order.
+
+	private static final String ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_MAX_SCAN_BATCH_SIZE = "SPECTRAL_STORAGE_MAX_SCAN_BATCH_SIZE";
+
 	private static String PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS = "max.number.scans.to.return.for.requests.that.include.scan.peaks";
 
 	private static enum IsDefaultPropertiesFile { YES, NO }
@@ -116,10 +121,18 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 					+ configData_ScanDataLocation_InWorkDirectory.getS3Region() );
 		}
 
-		if ( configData_ScanDataLocation_InWorkDirectory.getMaxNumberScansReturn() != null ) {
-			log.warn( "INFO: '" + PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS + "' has value: " 
-					+ configData_ScanDataLocation_InWorkDirectory.getMaxNumberScansReturn() );
-		}
+//		if ( configData_ScanDataLocation_InWorkDirectory.getMaxNumberScansReturn() != null ) {
+//			log.warn( "INFO: '" + PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS + "' has value: " 
+//					+ configData_ScanDataLocation_InWorkDirectory.getMaxNumberScansReturn() );
+//			
+//
+//			//  This value comes from Environment variable, jvm -D parameter, or property file, in that order.
+//
+//			private static final String ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_MAX_SCAN_BATCH_SIZE = "SPECTRAL_STORAGE_MAX_SCAN_BATCH_SIZE";
+//
+//			private static String PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS = "max.number.scans.to.return.for.requests.that.include.scan.peaks";
+//
+//		}
 		
 		
 		
@@ -202,38 +215,97 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 			
 			Properties configProps = new Properties();
 			configProps.load( propertiesFileAsStream );
-			String propertyValue = null;
-			
-			propertyValue = configProps.getProperty( PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY );
-			if ( StringUtils.isNotEmpty( propertyValue ) ) {
-				internalConfigDirectoryStrings.scanStorageBaseDirectory = propertyValue.trim();
-			}
-			
-			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_BUCKET );
-			if ( StringUtils.isNotEmpty( propertyValue ) ) {
-				configData_ScanDataLocation_InWorkDirectory.setS3Bucket( propertyValue.trim() );
-			}
 
-			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_REGION );
-			if ( StringUtils.isNotEmpty( propertyValue ) ) {
-				configData_ScanDataLocation_InWorkDirectory.setS3Region( propertyValue.trim() );
+			{
+				String propertyValue = configProps.getProperty( PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY );
+				if ( StringUtils.isNotEmpty( propertyValue ) ) {
+					internalConfigDirectoryStrings.scanStorageBaseDirectory = propertyValue.trim();
+				}
+			}
+			{
+				String propertyValue = configProps.getProperty( PROPERTY_NAME__S3_BUCKET );
+				if ( StringUtils.isNotEmpty( propertyValue ) ) {
+					configData_ScanDataLocation_InWorkDirectory.setS3Bucket( propertyValue.trim() );
+				}
+			}
+			{
+				String propertyValue = configProps.getProperty( PROPERTY_NAME__S3_REGION );
+				if ( StringUtils.isNotEmpty( propertyValue ) ) {
+					configData_ScanDataLocation_InWorkDirectory.setS3Region( propertyValue.trim() );
+				}
 			}
 			
-			propertyValue = configProps.getProperty( PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS );
-			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+			{
+				String valueFoundInLabel = "";
 				
-				try {
-					String propertyValue_Trimmed = propertyValue.trim();
-					int maxNumberScansReturn = Integer.parseInt(propertyValue_Trimmed);
+
+				String maxNumberScansReturn_String = System.getenv( ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_MAX_SCAN_BATCH_SIZE );
+
+				if ( maxNumberScansReturn_String != null ) {
+				
+					maxNumberScansReturn_String = maxNumberScansReturn_String.trim();
+				}
+
+
+				if ( StringUtils.isNotEmpty( maxNumberScansReturn_String ) ) {
+
+					log.warn( "INFO: maxNumberScansReturn to use: Value found in Environment Variable: '" + ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_MAX_SCAN_BATCH_SIZE + "' with value: " + maxNumberScansReturn_String );
+
+					valueFoundInLabel = "maxNumberScansReturn to use: Value found in Environment Variable: '" + ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_MAX_SCAN_BATCH_SIZE + "'";
 					
-					configData_ScanDataLocation_InWorkDirectory.setMaxNumberScansReturn(maxNumberScansReturn);
-				
-				} catch ( Exception e ) {
+				} else {
 
-					String msg = "Property '" + PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS
-							+ "' is populated and is not parsable to an integer.  Property value: " + propertyValue;
-					log.error( msg );
-					throw new SpectralFileWebappConfigException( msg );
+					//  Not in config file or Environment Variable so get from JVM -D Property
+
+					Properties prop = System.getProperties();
+					maxNumberScansReturn_String = prop.getProperty(ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_MAX_SCAN_BATCH_SIZE);
+
+					if ( maxNumberScansReturn_String != null ) {
+
+						maxNumberScansReturn_String = maxNumberScansReturn_String.trim();
+					}
+
+					if ( StringUtils.isNotEmpty( maxNumberScansReturn_String ) ) {
+
+						log.warn( "INFO: maxNumberScansReturn to use: Value found in JVM param: '-D" + ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_MAX_SCAN_BATCH_SIZE + "' with value: " + maxNumberScansReturn_String );
+
+						valueFoundInLabel = "maxNumberScansReturn to use: Value found in JVM param: '-D" + ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_MAX_SCAN_BATCH_SIZE + "'";
+					} else {
+
+						//  Last place to check is Properties File
+
+						maxNumberScansReturn_String = configProps.getProperty( PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS );
+
+						if ( maxNumberScansReturn_String != null ) {
+
+							maxNumberScansReturn_String = maxNumberScansReturn_String.trim();
+						}
+
+						if ( StringUtils.isNotEmpty( maxNumberScansReturn_String ) ) {
+
+							log.warn( "INFO: maxNumberScansReturn to use: Value found in Properties file with key: '" + PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS + "' with value: " + maxNumberScansReturn_String );
+
+							valueFoundInLabel = "maxNumberScansReturn to use: Value found in Properties file with key:" + PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS + "'";
+						}
+						
+					}
+				}
+				
+				if ( StringUtils.isNotEmpty( maxNumberScansReturn_String ) ) {
+
+					try {
+						String propertyValue_Trimmed = maxNumberScansReturn_String.trim();
+						int maxNumberScansReturn = Integer.parseInt(propertyValue_Trimmed);
+
+						configData_ScanDataLocation_InWorkDirectory.setMaxNumberScansReturn(maxNumberScansReturn);
+
+					} catch ( Exception e ) {
+
+						String msg = valueFoundInLabel
+								+ "' is populated and is not parsable to an integer.  value: " + maxNumberScansReturn_String;
+						log.error( msg );
+						throw new SpectralFileWebappConfigException( msg );
+					}
 				}
 			}
 
