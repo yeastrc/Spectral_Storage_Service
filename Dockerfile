@@ -24,3 +24,5 @@ COPY --from=builder /app/docker/config-files/get-data/spectral_storage_get_data_
 COPY --from=builder /app/docker/config-files/get-data/spectral_storage_get_data_scan_data_location.properties /data/config
 COPY --from=builder /app/docker/config-files/import/spectral_server_accept_import_config_allowed_remotes.properties /data/config
 COPY --from=builder /app/docker/config-files/import/spectral_server_accept_import_config_dirs_process_cmd.properties /data/config
+
+COPY --from=builder /app/docker/config-files/setenv.sh /usr/local/tomcat/bin
