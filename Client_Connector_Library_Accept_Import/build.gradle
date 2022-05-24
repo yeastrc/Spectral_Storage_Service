@@ -44,7 +44,6 @@ sourceCompatibility = 1.8      //    defaults to currently installed JVM
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 //  Set default task for this build.gradle file

@@ -30,7 +30,6 @@ plugins {
 apply plugin: "org.ajoberstar.grgit"
 
 repositories {
-	jcenter()
     mavenCentral()
 }
 
