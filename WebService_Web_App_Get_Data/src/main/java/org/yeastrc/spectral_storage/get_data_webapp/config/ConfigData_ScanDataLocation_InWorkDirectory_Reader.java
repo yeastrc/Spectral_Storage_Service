@@ -24,6 +24,9 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 	private static String CONFIG_OVERRIDES_FILENAME = "spectral_storage_get_data_scan_data_location.properties";
 
 	private static String PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY = "scan.storage.base.directory";
+
+//  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+
 	private static String PROPERTY_NAME__S3_BUCKET = "s3.bucket";
 	private static String PROPERTY_NAME__S3_REGION = "s3.region";
 	
@@ -71,17 +74,19 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 				+ CONFIG_OVERRIDES_FILENAME
 				+ "'." );
 		
-		
-		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) 
-				&& StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() ) ) {
-			String msg = "Cannot set both properties '"
-				+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
-				+ "' and '"
-				+ PROPERTY_NAME__S3_BUCKET
-				+ "' to a value in config.";
-			log.error( msg );
-			throw new SpectralFileWebappConfigException( msg );
-		}
+
+	//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+
+//		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) 
+//				&& StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() ) ) {
+//			String msg = "Cannot set both properties '"
+//				+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
+//				+ "' and '"
+//				+ PROPERTY_NAME__S3_BUCKET
+//				+ "' to a value in config.";
+//			log.error( msg );
+//			throw new SpectralFileWebappConfigException( msg );
+//		}
 		
 		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) ) {
 
@@ -101,25 +106,39 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 					+ internalConfigDirectoryStrings.scanStorageBaseDirectory );
 		
 		} else {
-			
-			if ( StringUtils.isEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() ) ) {
-				String msg = "Must set One of properties '"
-					+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
-					+ "' and '"
-					+ PROPERTY_NAME__S3_BUCKET
-					+ "' to a value in config.";
-				log.error( msg );
-				throw new SpectralFileWebappConfigException( msg );
-			}
 
-			log.warn( "INFO: '" + PROPERTY_NAME__S3_BUCKET + "' has value: " 
-					+ configData_ScanDataLocation_InWorkDirectory.getS3Bucket() );
+			//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+
+//				if ( StringUtils.isEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Bucket() ) ) {
+//					String msg = "Must set One of properties '"
+//						+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
+//						+ "' and '"
+//						+ PROPERTY_NAME__S3_BUCKET
+//						+ "' to a value in config.";
+//					log.error( msg );
+//					throw new SpectralFileWebappConfigException( msg );
+//				}
+	//
+//				log.warn( "INFO: '" + PROPERTY_NAME__S3_BUCKET + "' has value: " 
+//						+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Bucket() );
+				
+				//  NO S3 so if PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY not set throw Error
+				
+				String msg = "Must set property '"
+						+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
+						+ "' to a value in config.";
+					log.error( msg );
+					throw new SpectralFileWebappConfigException( msg );
 		}
+
+		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+
+//		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region() ) ) {
+//			log.warn( "INFO: '" + PROPERTY_NAME__S3_REGION + "' has value: " 
+//					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region() );
+//		}
 		
-		if ( StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Region() ) ) {
-			log.warn( "INFO: '" + PROPERTY_NAME__S3_REGION + "' has value: " 
-					+ configData_ScanDataLocation_InWorkDirectory.getS3Region() );
-		}
+
 
 //		if ( configData_ScanDataLocation_InWorkDirectory.getMaxNumberScansReturn() != null ) {
 //			log.warn( "INFO: '" + PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS + "' has value: " 
@@ -222,17 +241,47 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 					internalConfigDirectoryStrings.scanStorageBaseDirectory = propertyValue.trim();
 				}
 			}
+
 			{
 				String propertyValue = configProps.getProperty( PROPERTY_NAME__S3_BUCKET );
 				if ( StringUtils.isNotEmpty( propertyValue ) ) {
-					configData_ScanDataLocation_InWorkDirectory.setS3Bucket( propertyValue.trim() );
+
+					//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+
+					// configData_Directories_ProcessUploadCommand_InWorkDirectory.setS3Bucket( propertyValue );
+
+					//  NO S3 so if PROPERTY_NAME__S3_BUCKET is set throw Error
+
+					String msg = "No S3 support so property '"
+							+ PROPERTY_NAME__S3_BUCKET
+							+ "' cannot have a value.";
+					log.error( msg );
+					throw new SpectralFileWebappConfigException( msg );
 				}
+
+//				if ( StringUtils.isNotEmpty( propertyValue ) ) {
+//					configData_ScanDataLocation_InWorkDirectory.setS3Bucket( propertyValue.trim() );
+//				}
 			}
+
 			{
 				String propertyValue = configProps.getProperty( PROPERTY_NAME__S3_REGION );
 				if ( StringUtils.isNotEmpty( propertyValue ) ) {
-					configData_ScanDataLocation_InWorkDirectory.setS3Region( propertyValue.trim() );
+
+					//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+					
+					//  NO S3 so if PROPERTY_NAME__S3_BUCKET is set throw Error
+
+					String msg = "No S3 support so property '"
+							+ PROPERTY_NAME__S3_REGION
+							+ "' cannot have a value.";
+					log.error( msg );
+					throw new SpectralFileWebappConfigException( msg );
 				}
+
+//				if ( StringUtils.isNotEmpty( propertyValue ) ) {
+//					configData_ScanDataLocation_InWorkDirectory.setS3Region( propertyValue.trim() );
+//				}
 			}
 			
 			{

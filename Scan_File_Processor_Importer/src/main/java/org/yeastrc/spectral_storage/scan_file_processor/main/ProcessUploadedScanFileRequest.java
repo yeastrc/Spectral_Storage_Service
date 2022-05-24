@@ -21,17 +21,17 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.stream.StreamSource;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
-import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
-import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
-import com.amazonaws.services.s3.model.PartETag;
-import com.amazonaws.services.s3.model.UploadPartRequest;
-import com.amazonaws.services.s3.model.UploadPartResult;
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
+//  import com.amazonaws.services.s3.AmazonS3;
+//  import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
+//  import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
+//  import com.amazonaws.services.s3.model.DeleteObjectRequest;
+//  import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
+//  import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
+//  import com.amazonaws.services.s3.model.PartETag;
+//  import com.amazonaws.services.s3.model.UploadPartRequest;
+//  import com.amazonaws.services.s3.model.UploadPartResult;
+//  import com.amazonaws.AmazonClientException;
+//  import com.amazonaws.AmazonServiceException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
@@ -100,9 +100,11 @@ public class ProcessUploadedScanFileRequest {
 	 * @throws Exception
 	 */
 	public void processUploadedScanFileRequest( Scan_File_Processor_MainProgram_Params pgmParams ) throws Exception {
+
+		// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 		
 		//  If have file with info on scan file in S3, copy that scan file to local dir in standard scan filename
-		GetScanFileFrom_S3_IfHave_S3_Info_File.getInstance().getScanFileFrom_S3_IfHave_S3_Info_File();
+//		GetScanFileFrom_S3_IfHave_S3_Info_File.getInstance().getScanFileFrom_S3_IfHave_S3_Info_File();
 		
 		File inputScanFile = GetInputScanFile_CurrentLocalDirectory.getInstance().getInputScanFile_CurrentLocalDirectory();
 		
@@ -150,7 +152,10 @@ public class ProcessUploadedScanFileRequest {
 			System.out.println( "INFO: pgmParams.isDeleteScanFileOnSuccess() is true so removing input scan file  Now: " + new Date() );
 			
 			cleanupInputScanFile( inputScanFile );
-			deleteUploadedScanFileIn_S3_Object();
+
+			// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+			
+//			deleteUploadedScanFileIn_S3_Object();
 		}
 	}
 	
@@ -177,34 +182,38 @@ public class ProcessUploadedScanFileRequest {
 		
 		ScanFileAPIKey_ToFileReadWrite.getInstance().writeScanFileHashToInProcessFileInCurrentDir( apiKey );
 		
-		
-		CommonReader_File_And_S3_Builder commonReader_File_And_S3_Builder = CommonReader_File_And_S3_Builder.newBuilder();
-		
-		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
 
-			commonReader_File_And_S3_Builder.setS3_Bucket( pgmParams.getS3_OutputBucket() );
-//			commonReader_File_And_S3_Builder.setS3_Region( pgmParams.get );
-		
-		} else {
+		CommonReader_File_And_S3_Builder commonReader_File_And_S3_Builder = CommonReader_File_And_S3_Builder.newBuilder();
+
+		// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+				
+//		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
+//
+//			commonReader_File_And_S3_Builder.setS3_Bucket( pgmParams.getS3_OutputBucket() );
+//				//			commonReader_File_And_S3_Builder.setS3_Region( pgmParams.get );
+//		
+//		} else {
 			commonReader_File_And_S3_Builder.setSubDirForStorageFiles( pgmParams.getOutputBaseDir() );
-		}
+//		}
 		
 		CommonReader_File_And_S3 commonReader_File_And_S3 = commonReader_File_And_S3_Builder.build();
+
+		// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 		
-		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
-			
-			if ( CheckIfSpectralFileAlreadyExists_And_IsLatestVersion__S3_Object.getInstance()
-					.doesSpectralFileAlreadyExist( 
-							pgmParams.getS3_OutputBucket(), 
-							commonReader_File_And_S3, 
-							apiKey ) ) {
-
-				System.out.println( "Data object in S3 already exists and is latest version so no processing needed");
-
-				return apiKey;
-			}
-
-		} else {
+//		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
+//			
+//			if ( CheckIfSpectralFileAlreadyExists_And_IsLatestVersion__S3_Object.getInstance()
+//					.doesSpectralFileAlreadyExist( 
+//							pgmParams.getS3_OutputBucket(), 
+//							commonReader_File_And_S3, 
+//							apiKey ) ) {
+//
+//				System.out.println( "Data object in S3 already exists and is latest version so no processing needed");
+//
+//				return apiKey;
+//			}
+//
+//		} else {
 			if ( CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem.getInstance()
 					.doesSpectralFileAlreadyExist( 
 							pgmParams.getOutputBaseDir(), 
@@ -215,13 +224,15 @@ public class ProcessUploadedScanFileRequest {
 
 				return apiKey;
 			}
-		}
+//		}
 
-		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
-			System.out.println( "Scan Data File does NOT already exist in S3 or is NOT latest Version so STARTING processing the scan file.  Now: " + new Date() );
-		} else {
+			// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+			
+//		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
+//			System.out.println( "Scan Data File does NOT already exist in S3 or is NOT latest Version so STARTING processing the scan file.  Now: " + new Date() );
+//		} else {
 			System.out.println( "Scan Data File does NOT already exist on Local Filesystem or is NOT latest Version so STARTING processing the scan file.  Now: " + new Date() );
-		}
+//		}
 
 		File tempOutputDir = null;
 				
@@ -283,395 +294,399 @@ public class ProcessUploadedScanFileRequest {
 		}
 		
 
-		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
-			
-			//   Copy files in temp dir to S3 and remove from temp dir
-			copyFilesTo_S3_and_remove_from_temp_dir( pgmParams, tempOutputDir );
-
-		} else {
+		// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+		
+//		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
+//			
+//			//   Copy files in temp dir to S3 and remove from temp dir
+//			copyFilesTo_S3_and_remove_from_temp_dir( pgmParams, tempOutputDir );
+//
+//		} else {
 			//  Move files in temp dir to final output dir
 			moveFilesToFinalSubdirLocalFilesytem( pgmParams, apiKey, tempOutputDir );
-		}
+//		}
 		
 		System.out.println( "DONE Successfully processing the scan file.  Now: " + new Date() );
 		
 		return apiKey;
 	}
 
-	/**
-	 * @param pgmParams
-	 * @param tempOutputDir
-	 * @throws Exception
-	 * @throws SpectralStorageProcessingException
-	 */
-	private void copyFilesTo_S3_and_remove_from_temp_dir(
-			Scan_File_Processor_MainProgram_Params pgmParams, 
-			File tempOutputDir) throws Exception, SpectralStorageProcessingException {
-
-		{
-			final AmazonS3 amazonS3 = S3_AWS_InterfaceObjectHolder.getSingletonInstance().getS3_Client_Output();
-
-			String dataFileObjectKey = null;
-			
-//				This says  s3.putObject only handle up to 5GB
-//				https://docs.aws.amazon.com/AmazonS3/latest/dev/UploadingObjects.html
-			
-			//  First copy all but complete file:
-			File[] tempOutputDirItems = tempOutputDir.listFiles();
-			for ( File tempOutputDirItem : tempOutputDirItems ) {
-				String filename = tempOutputDirItem.getName();
-				if ( ! filename.endsWith( SpectralStorage_Filename_Constants.DATA_INDEX_FILES_COMPLETE_FILENAME_SUFFIX ) ) {
-					String objectKey = SpectralStorage_DataFiles_S3_Prefix_Constants.S3_PREFIX_DATA_FILES + filename;
-
-					if ( filename.endsWith( SpectralStorage_Filename_Constants.DATA_FILENAME_SUFFIX ) ) {
-
-						// Use MultiPart Upload since scan file could be > 5GB 
-
-						dataFileObjectKey = objectKey;
-
-						copyScanDataFileTo_S3( tempOutputDirItem, objectKey, pgmParams.getS3_OutputBucket(), amazonS3 );
-
-					} else {
-						// Not scan file so use standard amazonS3.putObject(...)
-
-						int retryCount = 0;
-
-						while ( true ) {
-							try {
-								amazonS3.putObject( pgmParams.getS3_OutputBucket(), objectKey, tempOutputDirItem );
-
-								break;  // exit on success
-
-							} catch ( AmazonServiceException amazonServiceException ) {
-								retryCount++;
-								if ( retryCount > RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_MAX ) {
-									String msg = "Failed to copy temp dir item to S3."
-											+ " Status Code: " + amazonServiceException.getStatusCode()
-											+ ", temp dir item: " 
-											+ tempOutputDirItem.getAbsolutePath();
-									log.error( msg, amazonServiceException );
-									throw new SpectralStorageProcessingException( msg, amazonServiceException );
-								}
-							} catch ( AmazonClientException amazonClientException ) {
-								retryCount++;
-								if ( retryCount > RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_MAX ) {
-									String msg = "Failed to copy temp dir item to S3. temp dir item: " 
-											+ tempOutputDirItem.getAbsolutePath();
-									log.error( msg, amazonClientException );
-									throw new SpectralStorageProcessingException( msg, amazonClientException );
-								}
-							} catch ( Exception e ) {
-								retryCount++;
-								if ( retryCount > RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_MAX ) {
-									String msg = "Failed to copy temp dir item to S3. temp dir item: " 
-											+ tempOutputDirItem.getAbsolutePath();
-									log.error( msg, e );
-									throw new SpectralStorageProcessingException( msg, e );
-								}
-							}
-							
-							Thread.sleep( RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_DELAY );
-						}
-					}
-				}
-			}
-			
-			//  Second copy complete file:
-			for ( File tempOutputDirItem : tempOutputDirItems ) {
-				String filename = tempOutputDirItem.getName();
-				if ( filename.endsWith( SpectralStorage_Filename_Constants.DATA_INDEX_FILES_COMPLETE_FILENAME_SUFFIX ) ) {
-					String objectKey = SpectralStorage_DataFiles_S3_Prefix_Constants.S3_PREFIX_DATA_FILES + filename;
-
-					int retryCount = 0;
-
-					while ( true ) {
-						try {
-							amazonS3.putObject( pgmParams.getS3_OutputBucket(), objectKey, tempOutputDirItem );
-
-							break;  // exit on success
-
-						} catch ( AmazonServiceException amazonServiceException ) {
-							retryCount++;
-							if ( retryCount > RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_MAX ) {
-								String msg = "Failed to copy temp dir item to S3."
-										+ " Status Code: " + amazonServiceException.getStatusCode()
-										+ ", temp dir item: " 
-										+ tempOutputDirItem.getAbsolutePath();
-								log.error( msg, amazonServiceException );
-								throw new SpectralStorageProcessingException( msg, amazonServiceException );
-							}
-						} catch (AmazonClientException amazonClientException) {
-							retryCount++;
-							if ( retryCount > RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_MAX ) {
-								String msg = "Failed to copy temp dir item to S3. temp dir item: " 
-										+ tempOutputDirItem.getAbsolutePath();
-								log.error( msg, amazonClientException );
-								throw new SpectralStorageProcessingException( msg, amazonClientException );
-							}
-						}
-					}
-				}
-			}
-						
-			System.out.println( "data files copied to S3 Bucket: " 
-					+ pgmParams.getS3_OutputBucket()
-					+ ", dataFileObjectKey: " + dataFileObjectKey );
-			
-			writeAssocStorageDirInCurrentDir( pgmParams.getS3_OutputBucket() );
-		}
-		
-		// Empty temp dir
-		File[] tempOutputDirItems = tempOutputDir.listFiles();
-		for ( File tempOutputDirItem : tempOutputDirItems ) {
-			if ( ! tempOutputDirItem.delete() ) {
-				String msg = "Failed to delete temp dir item: " + tempOutputDirItem.getAbsolutePath();
-				log.error( msg );
-				throw new SpectralStorageProcessingException(msg);
-			}
-		}
-	}
+	// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 	
-	/**
-	 * Copy Scan Data file to S3 using Multipart upload
-	 * @param scanDataFile
-	 * @param objectKey
-	 * @param bucketName
-	 * @param amazonS3
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
-	 */
-	private void copyScanDataFileTo_S3( File scanDataFile, String objectKey, String bucketName, AmazonS3 amazonS3 ) throws Exception {
-
-		byte[] uploadPartByteBuffer = new byte[ 40 * 1000 * 1000 ]; // each part 40 MB
-
-		int partNumber = 0; // Must start at 1, incremented at top of loop, max of 10,000
-		int bytesRead = 0;
-		
-		try ( BufferedInputStream scanDataFileOnDiskIS = new BufferedInputStream( new FileInputStream( scanDataFile ) ) ) {
-
-	        // Create a list of UploadPartResponse objects. You get one of these
-	        // for each part upload.
-	        List<PartETag> partETags = new ArrayList<>( 10001 ); // Init to max possible size
-
-	        InitiateMultipartUploadResult initResponse = null;
-	        
-	        {
-	        	int retryCount = 0;
-	        	
-	        	while ( true ) {
-	        		try {
-	        			// Step 1: Initialize.
-	        			InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest( bucketName, objectKey);
-	        			initResponse = 
-	        					amazonS3.initiateMultipartUpload(initRequest);
-	        			
-	        			break;  //  exit loop on success
-	        			
-	        		} catch ( AmazonServiceException e ) {
-	        			retryCount++;
-	        			if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_INIT_MAX ) {
-	        				String msg = "Failed to initialize upload of Scan Data File to S3.  "
-	        						+ "bucketName: " + bucketName
-	        						+ ", objectKey: " + objectKey
-	        						+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
-	        				log.error( msg, e );
-	        				throw e;
-	        			}
-
-	        		} catch ( AmazonClientException e ) {
-	        			retryCount++;
-	        			if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_INIT_MAX ) {
-	        				String msg = "Failed to initialize upload of Scan Data File to S3.  "
-	        						+ "bucketName: " + bucketName
-	        						+ ", objectKey: " + objectKey
-	        						+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
-	        				log.error( msg, e );
-	        				throw e;
-	        			}
-	        		} catch ( Exception e ) {
-	        			retryCount++;
-	        			if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_INIT_MAX ) {
-	        				String msg = "Failed to initialize upload of Scan Data File to S3.  "
-	        						+ "bucketName: " + bucketName
-	        						+ ", objectKey: " + objectKey
-	        						+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
-	        				log.error( msg, e );
-	        				throw e;
-	        			}
-	        		}
-	        		
-	        		Thread.sleep( RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_INIT_DELAY );
-	        	}
-	        }
-	        	
-
-        	String uploadId = initResponse.getUploadId();
-        
-	        try {
-	        	//  Step 2:  Upload parts.
-
-	        	while ( ( bytesRead = populateBufferFromScanDataFile( scanDataFileOnDiskIS, uploadPartByteBuffer ) ) > 0 ) {
-	        		partNumber++;
-	        		boolean lastPart = false;
-	        		if ( bytesRead < uploadPartByteBuffer.length ) { // uploadPartByteBuffer not full so is at end of file
-	        			lastPart = true;
-	        		}
-
-	        		int retryCount = 0;
-	        		
-	        		while ( true ) {
-	        			try {
-	        				ByteArrayInputStream scanFilePartIS = new ByteArrayInputStream( uploadPartByteBuffer, 0 /* offset */, bytesRead /* length */ );
-	        				UploadPartRequest uploadRequest = 
-	        						new UploadPartRequest().withUploadId( uploadId )
-	        						.withBucketName( bucketName )
-	        						.withKey( objectKey )
-	        						.withInputStream( scanFilePartIS )
-	        						.withPartNumber( partNumber )
-	        						.withPartSize( bytesRead )
-	        						.withLastPart( lastPart );
-
-	        				//   Consider computing MD5 on scanFilePartIS and add to uploadRequest
-	        				//       S3 uses that for an integrity check
-
-	        				UploadPartResult result =  amazonS3.uploadPart( uploadRequest );
-	        				PartETag partETag = result.getPartETag();
-	        				partETags.add( partETag );
-	        				
-	        				break;  //  exit loop on success
-
-		        		} catch ( AmazonServiceException e ) {
-		        			retryCount++;
-		        			if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_UPLOAD_PART_MAX ) {
-		        				String msg = "Failed to upload part of Scan Data File to S3.  "
-		        						+ "bucketName: " + bucketName
-		        						+ ", objectKey: " + objectKey
-		        						+ ", partNumber: " + partNumber
-		        						+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
-		        				log.error( msg, e );
-		        				throw e;
-		        			}
-
-		        		} catch ( AmazonClientException e ) {
-		        			retryCount++;
-		        			if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_UPLOAD_PART_MAX ) {
-		        				String msg = "Failed to upload part of Scan Data File to S3.  "
-		        						+ "bucketName: " + bucketName
-		        						+ ", objectKey: " + objectKey
-		        						+ ", partNumber: " + partNumber
-		        						+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
-		        				log.error( msg, e );
-		        				throw e;
-		        			}
-		        		} catch ( Exception e ) {
-		        			retryCount++;
-		        			if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_UPLOAD_PART_MAX ) {
-		        				String msg = "Failed to upload part of Scan Data File to S3.  "
-		        						+ "bucketName: " + bucketName
-		        						+ ", objectKey: " + objectKey
-		        						+ ", partNumber: " + partNumber
-		        						+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
-		        				log.error( msg, e );
-		        				throw e;
-		        			}
-		        		}
-		        		
-		        		Thread.sleep( RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_UPLOAD_PART_DELAY );	        
-	        		}
-	        		
-	        		if ( bytesRead < uploadPartByteBuffer.length ) { // uploadPartByteBuffer not full so is at end of file
-	        			break;
-	        		}
-	        	}
-
-	        	{
-
-	        		int retryCount = 0;
-	        		
-	        		while ( true ) {
-	        			try {
-	        				// Step 3: Complete.
-	        				CompleteMultipartUploadRequest compRequest = new 
-	        						CompleteMultipartUploadRequest(
-	        								bucketName, 
-	        								objectKey, 
-	        								uploadId,
-	        								partETags);
-
-	        				amazonS3.completeMultipartUpload( compRequest );
-
-	        				break;  //  exit loop on success
-
-	        			} catch ( AmazonServiceException e ) {
-	        				retryCount++;
-	        				if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_COMPLETE_MAX ) {
-	        					String msg = "Failed to upload part of Scan Data File to S3.  "
-	        							+ "bucketName: " + bucketName
-	        							+ ", objectKey: " + objectKey
-	        							+ ", partNumber: " + partNumber
-	        							+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
-	        					log.error( msg, e );
-	        					throw e;
-	        				}
-
-	        			} catch ( AmazonClientException e ) {
-	        				retryCount++;
-	        				if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_COMPLETE_MAX ) {
-	        					String msg = "Failed to upload part of Scan Data File to S3.  "
-	        							+ "bucketName: " + bucketName
-	        							+ ", objectKey: " + objectKey
-	        							+ ", partNumber: " + partNumber
-	        							+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
-	        					log.error( msg, e );
-	        					throw e;
-	        				}
-	        			} catch ( Exception e ) {
-	        				retryCount++;
-	        				if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_COMPLETE_MAX ) {
-	        					String msg = "Failed to upload part of Scan Data File to S3.  "
-	        							+ "bucketName: " + bucketName
-	        							+ ", objectKey: " + objectKey
-	        							+ ", partNumber: " + partNumber
-	        							+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
-	        					log.error( msg, e );
-	        					throw e;
-	        				}
-	        			}
-
-	        			Thread.sleep( RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_COMPLETE_DELAY );	        
-	        		}
-	        	}
-	        } catch (Exception e) {
-	        	
-	        	amazonS3.abortMultipartUpload( new AbortMultipartUploadRequest( bucketName, objectKey, uploadId ) );
-	        	throw e;
-	        }
-		}
-	}
-	
-	/**
-	 * @param scanDataFileIS
-	 * @param uploadPartByteBuffer
-	 * @return number of bytes read into uploadPartByteBuffer.  If < uploadPartByteBuffer.length, at last buffer for file
-	 * @throws IOException 
-	 */
-	private int populateBufferFromScanDataFile( InputStream scanDataFileIS, byte[] uploadPartByteBuffer ) throws IOException {
-		
-		int byteBufferLength = uploadPartByteBuffer.length;
-		
-		int bytesRead = 0;
-		int byteBufferIndex = 0;
-		
-		while ( ( bytesRead = 
-				scanDataFileIS.read( uploadPartByteBuffer, byteBufferIndex, byteBufferLength - byteBufferIndex) ) != -1 ) {
-			byteBufferIndex += bytesRead;
-			if ( byteBufferIndex >= byteBufferLength ) {
-				break;
-			}
-		}
-		
-		return byteBufferIndex;
-	}
+//	/**
+//	 * @param pgmParams
+//	 * @param tempOutputDir
+//	 * @throws Exception
+//	 * @throws SpectralStorageProcessingException
+//	 */
+//	private void copyFilesTo_S3_and_remove_from_temp_dir(
+//			Scan_File_Processor_MainProgram_Params pgmParams, 
+//			File tempOutputDir) throws Exception, SpectralStorageProcessingException {
+//
+//		{
+//			final AmazonS3 amazonS3 = S3_AWS_InterfaceObjectHolder.getSingletonInstance().getS3_Client_Output();
+//
+//			String dataFileObjectKey = null;
+//			
+////				This says  s3.putObject only handle up to 5GB
+////				https://docs.aws.amazon.com/AmazonS3/latest/dev/UploadingObjects.html
+//			
+//			//  First copy all but complete file:
+//			File[] tempOutputDirItems = tempOutputDir.listFiles();
+//			for ( File tempOutputDirItem : tempOutputDirItems ) {
+//				String filename = tempOutputDirItem.getName();
+//				if ( ! filename.endsWith( SpectralStorage_Filename_Constants.DATA_INDEX_FILES_COMPLETE_FILENAME_SUFFIX ) ) {
+//					String objectKey = SpectralStorage_DataFiles_S3_Prefix_Constants.S3_PREFIX_DATA_FILES + filename;
+//
+//					if ( filename.endsWith( SpectralStorage_Filename_Constants.DATA_FILENAME_SUFFIX ) ) {
+//
+//						// Use MultiPart Upload since scan file could be > 5GB 
+//
+//						dataFileObjectKey = objectKey;
+//
+//						copyScanDataFileTo_S3( tempOutputDirItem, objectKey, pgmParams.getS3_OutputBucket(), amazonS3 );
+//
+//					} else {
+//						// Not scan file so use standard amazonS3.putObject(...)
+//
+//						int retryCount = 0;
+//
+//						while ( true ) {
+//							try {
+//								amazonS3.putObject( pgmParams.getS3_OutputBucket(), objectKey, tempOutputDirItem );
+//
+//								break;  // exit on success
+//
+//							} catch ( AmazonServiceException amazonServiceException ) {
+//								retryCount++;
+//								if ( retryCount > RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_MAX ) {
+//									String msg = "Failed to copy temp dir item to S3."
+//											+ " Status Code: " + amazonServiceException.getStatusCode()
+//											+ ", temp dir item: " 
+//											+ tempOutputDirItem.getAbsolutePath();
+//									log.error( msg, amazonServiceException );
+//									throw new SpectralStorageProcessingException( msg, amazonServiceException );
+//								}
+//							} catch ( AmazonClientException amazonClientException ) {
+//								retryCount++;
+//								if ( retryCount > RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_MAX ) {
+//									String msg = "Failed to copy temp dir item to S3. temp dir item: " 
+//											+ tempOutputDirItem.getAbsolutePath();
+//									log.error( msg, amazonClientException );
+//									throw new SpectralStorageProcessingException( msg, amazonClientException );
+//								}
+//							} catch ( Exception e ) {
+//								retryCount++;
+//								if ( retryCount > RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_MAX ) {
+//									String msg = "Failed to copy temp dir item to S3. temp dir item: " 
+//											+ tempOutputDirItem.getAbsolutePath();
+//									log.error( msg, e );
+//									throw new SpectralStorageProcessingException( msg, e );
+//								}
+//							}
+//							
+//							Thread.sleep( RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_DELAY );
+//						}
+//					}
+//				}
+//			}
+//			
+//			//  Second copy complete file:
+//			for ( File tempOutputDirItem : tempOutputDirItems ) {
+//				String filename = tempOutputDirItem.getName();
+//				if ( filename.endsWith( SpectralStorage_Filename_Constants.DATA_INDEX_FILES_COMPLETE_FILENAME_SUFFIX ) ) {
+//					String objectKey = SpectralStorage_DataFiles_S3_Prefix_Constants.S3_PREFIX_DATA_FILES + filename;
+//
+//					int retryCount = 0;
+//
+//					while ( true ) {
+//						try {
+//							amazonS3.putObject( pgmParams.getS3_OutputBucket(), objectKey, tempOutputDirItem );
+//
+//							break;  // exit on success
+//
+//						} catch ( AmazonServiceException amazonServiceException ) {
+//							retryCount++;
+//							if ( retryCount > RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_MAX ) {
+//								String msg = "Failed to copy temp dir item to S3."
+//										+ " Status Code: " + amazonServiceException.getStatusCode()
+//										+ ", temp dir item: " 
+//										+ tempOutputDirItem.getAbsolutePath();
+//								log.error( msg, amazonServiceException );
+//								throw new SpectralStorageProcessingException( msg, amazonServiceException );
+//							}
+//						} catch (AmazonClientException amazonClientException) {
+//							retryCount++;
+//							if ( retryCount > RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_MAX ) {
+//								String msg = "Failed to copy temp dir item to S3. temp dir item: " 
+//										+ tempOutputDirItem.getAbsolutePath();
+//								log.error( msg, amazonClientException );
+//								throw new SpectralStorageProcessingException( msg, amazonClientException );
+//							}
+//						}
+//					}
+//				}
+//			}
+//						
+//			System.out.println( "data files copied to S3 Bucket: " 
+//					+ pgmParams.getS3_OutputBucket()
+//					+ ", dataFileObjectKey: " + dataFileObjectKey );
+//			
+//			writeAssocStorageDirInCurrentDir( pgmParams.getS3_OutputBucket() );
+//		}
+//		
+//		// Empty temp dir
+//		File[] tempOutputDirItems = tempOutputDir.listFiles();
+//		for ( File tempOutputDirItem : tempOutputDirItems ) {
+//			if ( ! tempOutputDirItem.delete() ) {
+//				String msg = "Failed to delete temp dir item: " + tempOutputDirItem.getAbsolutePath();
+//				log.error( msg );
+//				throw new SpectralStorageProcessingException(msg);
+//			}
+//		}
+//	}
+//	
+//	/**
+//	 * Copy Scan Data file to S3 using Multipart upload
+//	 * @param scanDataFile
+//	 * @param objectKey
+//	 * @param bucketName
+//	 * @param amazonS3
+//	 * @throws IOException 
+//	 * @throws FileNotFoundException 
+//	 */
+//	private void copyScanDataFileTo_S3( File scanDataFile, String objectKey, String bucketName, AmazonS3 amazonS3 ) throws Exception {
+//
+//		byte[] uploadPartByteBuffer = new byte[ 40 * 1000 * 1000 ]; // each part 40 MB
+//
+//		int partNumber = 0; // Must start at 1, incremented at top of loop, max of 10,000
+//		int bytesRead = 0;
+//		
+//		try ( BufferedInputStream scanDataFileOnDiskIS = new BufferedInputStream( new FileInputStream( scanDataFile ) ) ) {
+//
+//	        // Create a list of UploadPartResponse objects. You get one of these
+//	        // for each part upload.
+//	        List<PartETag> partETags = new ArrayList<>( 10001 ); // Init to max possible size
+//
+//	        InitiateMultipartUploadResult initResponse = null;
+//	        
+//	        {
+//	        	int retryCount = 0;
+//	        	
+//	        	while ( true ) {
+//	        		try {
+//	        			// Step 1: Initialize.
+//	        			InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest( bucketName, objectKey);
+//	        			initResponse = 
+//	        					amazonS3.initiateMultipartUpload(initRequest);
+//	        			
+//	        			break;  //  exit loop on success
+//	        			
+//	        		} catch ( AmazonServiceException e ) {
+//	        			retryCount++;
+//	        			if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_INIT_MAX ) {
+//	        				String msg = "Failed to initialize upload of Scan Data File to S3.  "
+//	        						+ "bucketName: " + bucketName
+//	        						+ ", objectKey: " + objectKey
+//	        						+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
+//	        				log.error( msg, e );
+//	        				throw e;
+//	        			}
+//
+//	        		} catch ( AmazonClientException e ) {
+//	        			retryCount++;
+//	        			if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_INIT_MAX ) {
+//	        				String msg = "Failed to initialize upload of Scan Data File to S3.  "
+//	        						+ "bucketName: " + bucketName
+//	        						+ ", objectKey: " + objectKey
+//	        						+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
+//	        				log.error( msg, e );
+//	        				throw e;
+//	        			}
+//	        		} catch ( Exception e ) {
+//	        			retryCount++;
+//	        			if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_INIT_MAX ) {
+//	        				String msg = "Failed to initialize upload of Scan Data File to S3.  "
+//	        						+ "bucketName: " + bucketName
+//	        						+ ", objectKey: " + objectKey
+//	        						+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
+//	        				log.error( msg, e );
+//	        				throw e;
+//	        			}
+//	        		}
+//	        		
+//	        		Thread.sleep( RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_INIT_DELAY );
+//	        	}
+//	        }
+//	        	
+//
+//        	String uploadId = initResponse.getUploadId();
+//        
+//	        try {
+//	        	//  Step 2:  Upload parts.
+//
+//	        	while ( ( bytesRead = populateBufferFromScanDataFile( scanDataFileOnDiskIS, uploadPartByteBuffer ) ) > 0 ) {
+//	        		partNumber++;
+//	        		boolean lastPart = false;
+//	        		if ( bytesRead < uploadPartByteBuffer.length ) { // uploadPartByteBuffer not full so is at end of file
+//	        			lastPart = true;
+//	        		}
+//
+//	        		int retryCount = 0;
+//	        		
+//	        		while ( true ) {
+//	        			try {
+//	        				ByteArrayInputStream scanFilePartIS = new ByteArrayInputStream( uploadPartByteBuffer, 0 /* offset */, bytesRead /* length */ );
+//	        				UploadPartRequest uploadRequest = 
+//	        						new UploadPartRequest().withUploadId( uploadId )
+//	        						.withBucketName( bucketName )
+//	        						.withKey( objectKey )
+//	        						.withInputStream( scanFilePartIS )
+//	        						.withPartNumber( partNumber )
+//	        						.withPartSize( bytesRead )
+//	        						.withLastPart( lastPart );
+//
+//	        				//   Consider computing MD5 on scanFilePartIS and add to uploadRequest
+//	        				//       S3 uses that for an integrity check
+//
+//	        				UploadPartResult result =  amazonS3.uploadPart( uploadRequest );
+//	        				PartETag partETag = result.getPartETag();
+//	        				partETags.add( partETag );
+//	        				
+//	        				break;  //  exit loop on success
+//
+//		        		} catch ( AmazonServiceException e ) {
+//		        			retryCount++;
+//		        			if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_UPLOAD_PART_MAX ) {
+//		        				String msg = "Failed to upload part of Scan Data File to S3.  "
+//		        						+ "bucketName: " + bucketName
+//		        						+ ", objectKey: " + objectKey
+//		        						+ ", partNumber: " + partNumber
+//		        						+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
+//		        				log.error( msg, e );
+//		        				throw e;
+//		        			}
+//
+//		        		} catch ( AmazonClientException e ) {
+//		        			retryCount++;
+//		        			if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_UPLOAD_PART_MAX ) {
+//		        				String msg = "Failed to upload part of Scan Data File to S3.  "
+//		        						+ "bucketName: " + bucketName
+//		        						+ ", objectKey: " + objectKey
+//		        						+ ", partNumber: " + partNumber
+//		        						+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
+//		        				log.error( msg, e );
+//		        				throw e;
+//		        			}
+//		        		} catch ( Exception e ) {
+//		        			retryCount++;
+//		        			if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_UPLOAD_PART_MAX ) {
+//		        				String msg = "Failed to upload part of Scan Data File to S3.  "
+//		        						+ "bucketName: " + bucketName
+//		        						+ ", objectKey: " + objectKey
+//		        						+ ", partNumber: " + partNumber
+//		        						+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
+//		        				log.error( msg, e );
+//		        				throw e;
+//		        			}
+//		        		}
+//		        		
+//		        		Thread.sleep( RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_UPLOAD_PART_DELAY );	        
+//	        		}
+//	        		
+//	        		if ( bytesRead < uploadPartByteBuffer.length ) { // uploadPartByteBuffer not full so is at end of file
+//	        			break;
+//	        		}
+//	        	}
+//
+//	        	{
+//
+//	        		int retryCount = 0;
+//	        		
+//	        		while ( true ) {
+//	        			try {
+//	        				// Step 3: Complete.
+//	        				CompleteMultipartUploadRequest compRequest = new 
+//	        						CompleteMultipartUploadRequest(
+//	        								bucketName, 
+//	        								objectKey, 
+//	        								uploadId,
+//	        								partETags);
+//
+//	        				amazonS3.completeMultipartUpload( compRequest );
+//
+//	        				break;  //  exit loop on success
+//
+//	        			} catch ( AmazonServiceException e ) {
+//	        				retryCount++;
+//	        				if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_COMPLETE_MAX ) {
+//	        					String msg = "Failed to upload part of Scan Data File to S3.  "
+//	        							+ "bucketName: " + bucketName
+//	        							+ ", objectKey: " + objectKey
+//	        							+ ", partNumber: " + partNumber
+//	        							+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
+//	        					log.error( msg, e );
+//	        					throw e;
+//	        				}
+//
+//	        			} catch ( AmazonClientException e ) {
+//	        				retryCount++;
+//	        				if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_COMPLETE_MAX ) {
+//	        					String msg = "Failed to upload part of Scan Data File to S3.  "
+//	        							+ "bucketName: " + bucketName
+//	        							+ ", objectKey: " + objectKey
+//	        							+ ", partNumber: " + partNumber
+//	        							+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
+//	        					log.error( msg, e );
+//	        					throw e;
+//	        				}
+//	        			} catch ( Exception e ) {
+//	        				retryCount++;
+//	        				if ( retryCount > RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_COMPLETE_MAX ) {
+//	        					String msg = "Failed to upload part of Scan Data File to S3.  "
+//	        							+ "bucketName: " + bucketName
+//	        							+ ", objectKey: " + objectKey
+//	        							+ ", partNumber: " + partNumber
+//	        							+ ", Scan Data File: " + scanDataFile.getAbsolutePath();
+//	        					log.error( msg, e );
+//	        					throw e;
+//	        				}
+//	        			}
+//
+//	        			Thread.sleep( RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_COMPLETE_DELAY );	        
+//	        		}
+//	        	}
+//	        } catch (Exception e) {
+//	        	
+//	        	amazonS3.abortMultipartUpload( new AbortMultipartUploadRequest( bucketName, objectKey, uploadId ) );
+//	        	throw e;
+//	        }
+//		}
+//	}
+//	
+//	/**
+//	 * @param scanDataFileIS
+//	 * @param uploadPartByteBuffer
+//	 * @return number of bytes read into uploadPartByteBuffer.  If < uploadPartByteBuffer.length, at last buffer for file
+//	 * @throws IOException 
+//	 */
+//	private int populateBufferFromScanDataFile( InputStream scanDataFileIS, byte[] uploadPartByteBuffer ) throws IOException {
+//		
+//		int byteBufferLength = uploadPartByteBuffer.length;
+//		
+//		int bytesRead = 0;
+//		int byteBufferIndex = 0;
+//		
+//		while ( ( bytesRead = 
+//				scanDataFileIS.read( uploadPartByteBuffer, byteBufferIndex, byteBufferLength - byteBufferIndex) ) != -1 ) {
+//			byteBufferIndex += bytesRead;
+//			if ( byteBufferIndex >= byteBufferLength ) {
+//				break;
+//			}
+//		}
+//		
+//		return byteBufferIndex;
+//	}
 	
 	/**
 	 * @param pgmParams
@@ -831,118 +846,120 @@ public class ProcessUploadedScanFileRequest {
 		}
 		
 	}
+
+	// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 	
-	/**
-	 * @throws Exception
-	 */
-	private void deleteUploadedScanFileIn_S3_Object() throws Exception {
-
-		File scanFile_S3_LocationFile = new File( UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
-		
-		if ( ! scanFile_S3_LocationFile.exists() ) {
-			//  No file with info on scan file location in S3, so must be local file
-			return;  //  EARLY EXIT
-		}
-		
-		UploadScanfileS3Location uploadScanfileS3Location = null;
-		
-		JAXBContext jaxbContext = JAXBContext.newInstance( UploadScanfileS3Location.class ); 
-		
-		try ( InputStream is = new FileInputStream( scanFile_S3_LocationFile ) ) {
-
-			XMLInputFactory xmlInputFactory = Create_XMLInputFactory_XXE_Safe.create_XMLInputFactory_XXE_Safe();
-			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader( new StreamSource( is ) );
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			Object uploadScanfileS3LocationAsObject = unmarshaller.unmarshal( xmlStreamReader );
-
-			if ( uploadScanfileS3LocationAsObject instanceof UploadScanfileS3Location ) {
-				uploadScanfileS3Location = ( UploadScanfileS3Location ) uploadScanfileS3LocationAsObject;
-			} else {
-				String msg = "Failed to deserialize data in " + scanFile_S3_LocationFile.getAbsolutePath();
-				log.error( msg );
-				throw new SpectralStorageProcessingException(msg);
-			}
-		}
-
-		if ( uploadScanfileS3Location.isS3_infoFrom_RemoteSystem() ) {
-			//  Scan File S3 object came from external system so that system is responsible for deleting it
-			return;  //  EARLY EXIT
-		}
-		
-		String s3_bucketName = uploadScanfileS3Location.getS3_bucketName();
-		String s3_objectName = uploadScanfileS3Location.getS3_objectName();
-		
-		final AmazonS3 amazonS3client = S3_AWS_InterfaceObjectHolder.getSingletonInstance().getS3_Client_Input();
-		
-		int retryDeleteScanFileCount = 0;
-		
-		while ( true ) {
-			try {
-				amazonS3client.deleteObject( new DeleteObjectRequest(
-						uploadScanfileS3Location.getS3_bucketName(), uploadScanfileS3Location.getS3_objectName() ));
-
-				break;  // Exit loop on success
-
-			} catch (AmazonServiceException e) {
-				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
-						+ " s3_objectName: " + s3_objectName;
-				log.error( msg );
-
-				retryDeleteScanFileCount++;
-				if ( retryDeleteScanFileCount > RETRY_DELETE_SCAN_FILE_MAX ) {
-					throw new SpectralStorageProcessingException(msg, e);
-				}
-			} catch (Exception e) {
-				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
-						+ " s3_objectName: " + s3_objectName;
-				log.error( msg );
-
-				retryDeleteScanFileCount++;
-				if ( retryDeleteScanFileCount > RETRY_DELETE_SCAN_FILE_MAX ) {
-					throw new SpectralStorageProcessingException(msg, e);
-				}
-			}
-			
-			Thread.sleep( RETRY_DELETE_SCAN_FILE_DELAY );
-		}
-
-		// the same object name as scan file but with ".submitted" on the end
-		String objectKey_SubmittedObject = uploadScanfileS3Location.getS3_objectName()
-				+ ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_FILENAME_SUBMITTED_FILE_SUFFIX;
-		
-
-		int retryDeleteScanFileSubmittedCount = 0;
-
-		while ( true ) {
-			try {
-				amazonS3client.deleteObject( new DeleteObjectRequest(
-						uploadScanfileS3Location.getS3_bucketName(), objectKey_SubmittedObject ) );
-
-				break;  // Exit loop on success
-
-			} catch (AmazonServiceException e) {
-				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
-						+ " s3_objectName: " + s3_objectName;
-				log.error( msg );
-
-				retryDeleteScanFileSubmittedCount++;
-				if ( retryDeleteScanFileSubmittedCount > RETRY_DELETE_SCAN_FILE_MAX ) {
-					throw new SpectralStorageProcessingException(msg, e);
-				}
-			} catch (Exception e) {
-				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
-						+ " s3_objectName: " + s3_objectName;
-				log.error( msg );
-
-				retryDeleteScanFileSubmittedCount++;
-				if ( retryDeleteScanFileSubmittedCount > RETRY_DELETE_SCAN_FILE_MAX ) {
-					throw new SpectralStorageProcessingException(msg, e);
-				}
-			}
-
-			Thread.sleep( RETRY_DELETE_SCAN_FILE_DELAY );
-		}
-	}
+//	/**
+//	 * @throws Exception
+//	 */
+//	private void deleteUploadedScanFileIn_S3_Object() throws Exception {
+//
+//		File scanFile_S3_LocationFile = new File( UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
+//		
+//		if ( ! scanFile_S3_LocationFile.exists() ) {
+//			//  No file with info on scan file location in S3, so must be local file
+//			return;  //  EARLY EXIT
+//		}
+//		
+//		UploadScanfileS3Location uploadScanfileS3Location = null;
+//		
+//		JAXBContext jaxbContext = JAXBContext.newInstance( UploadScanfileS3Location.class ); 
+//		
+//		try ( InputStream is = new FileInputStream( scanFile_S3_LocationFile ) ) {
+//
+//			XMLInputFactory xmlInputFactory = Create_XMLInputFactory_XXE_Safe.create_XMLInputFactory_XXE_Safe();
+//			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader( new StreamSource( is ) );
+//			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+//			Object uploadScanfileS3LocationAsObject = unmarshaller.unmarshal( xmlStreamReader );
+//
+//			if ( uploadScanfileS3LocationAsObject instanceof UploadScanfileS3Location ) {
+//				uploadScanfileS3Location = ( UploadScanfileS3Location ) uploadScanfileS3LocationAsObject;
+//			} else {
+//				String msg = "Failed to deserialize data in " + scanFile_S3_LocationFile.getAbsolutePath();
+//				log.error( msg );
+//				throw new SpectralStorageProcessingException(msg);
+//			}
+//		}
+//
+//		if ( uploadScanfileS3Location.isS3_infoFrom_RemoteSystem() ) {
+//			//  Scan File S3 object came from external system so that system is responsible for deleting it
+//			return;  //  EARLY EXIT
+//		}
+//		
+//		String s3_bucketName = uploadScanfileS3Location.getS3_bucketName();
+//		String s3_objectName = uploadScanfileS3Location.getS3_objectName();
+//		
+//		final AmazonS3 amazonS3client = S3_AWS_InterfaceObjectHolder.getSingletonInstance().getS3_Client_Input();
+//		
+//		int retryDeleteScanFileCount = 0;
+//		
+//		while ( true ) {
+//			try {
+//				amazonS3client.deleteObject( new DeleteObjectRequest(
+//						uploadScanfileS3Location.getS3_bucketName(), uploadScanfileS3Location.getS3_objectName() ));
+//
+//				break;  // Exit loop on success
+//
+//			} catch (AmazonServiceException e) {
+//				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
+//						+ " s3_objectName: " + s3_objectName;
+//				log.error( msg );
+//
+//				retryDeleteScanFileCount++;
+//				if ( retryDeleteScanFileCount > RETRY_DELETE_SCAN_FILE_MAX ) {
+//					throw new SpectralStorageProcessingException(msg, e);
+//				}
+//			} catch (Exception e) {
+//				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
+//						+ " s3_objectName: " + s3_objectName;
+//				log.error( msg );
+//
+//				retryDeleteScanFileCount++;
+//				if ( retryDeleteScanFileCount > RETRY_DELETE_SCAN_FILE_MAX ) {
+//					throw new SpectralStorageProcessingException(msg, e);
+//				}
+//			}
+//			
+//			Thread.sleep( RETRY_DELETE_SCAN_FILE_DELAY );
+//		}
+//
+//		// the same object name as scan file but with ".submitted" on the end
+//		String objectKey_SubmittedObject = uploadScanfileS3Location.getS3_objectName()
+//				+ ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_FILENAME_SUBMITTED_FILE_SUFFIX;
+//		
+//
+//		int retryDeleteScanFileSubmittedCount = 0;
+//
+//		while ( true ) {
+//			try {
+//				amazonS3client.deleteObject( new DeleteObjectRequest(
+//						uploadScanfileS3Location.getS3_bucketName(), objectKey_SubmittedObject ) );
+//
+//				break;  // Exit loop on success
+//
+//			} catch (AmazonServiceException e) {
+//				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
+//						+ " s3_objectName: " + s3_objectName;
+//				log.error( msg );
+//
+//				retryDeleteScanFileSubmittedCount++;
+//				if ( retryDeleteScanFileSubmittedCount > RETRY_DELETE_SCAN_FILE_MAX ) {
+//					throw new SpectralStorageProcessingException(msg, e);
+//				}
+//			} catch (Exception e) {
+//				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
+//						+ " s3_objectName: " + s3_objectName;
+//				log.error( msg );
+//
+//				retryDeleteScanFileSubmittedCount++;
+//				if ( retryDeleteScanFileSubmittedCount > RETRY_DELETE_SCAN_FILE_MAX ) {
+//					throw new SpectralStorageProcessingException(msg, e);
+//				}
+//			}
+//
+//			Thread.sleep( RETRY_DELETE_SCAN_FILE_DELAY );
+//		}
+//	}
 	
 	/**
 	 * @param hashString

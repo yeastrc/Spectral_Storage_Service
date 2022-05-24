@@ -64,7 +64,9 @@ public class ProcessImportRequest_APIKey_Value_InFile {
 		
 		//  If API Key already exists in Storage Dir, only set values in dirToProcessScanFile and exit
 
-		if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket() ) ) {
+		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+
+//		if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket() ) ) {
 			
 			//  Skip this option for now.  Additional configuration/init of class S3_AWS_InterfaceObjectHolder is required to use this.
 			//									For configuration/init, need to handle the "Reload" option in the webapp web page
@@ -90,7 +92,7 @@ public class ProcessImportRequest_APIKey_Value_InFile {
 //				return;  //  EARLY RETURN
 //			}
 
-		} else {
+//		} else {
 			File scanStorageBaseDirectory = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getScanStorageBaseDirectory();
 			
 			if ( CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem.getInstance()
@@ -131,7 +133,7 @@ public class ProcessImportRequest_APIKey_Value_InFile {
 
 				return;  //  EARLY RETURN
 			}
-		}
+//		}
 		
 		//  API Key NOT already exists in Storage Dir, process scan file 
 		

@@ -123,13 +123,16 @@ public class ProcessNextUploadedScanFile {
 				commandAndItsArgumentsAsList.add( scanFileStorageBaseDirString );
 			}
 		}
-		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Bucket() ) ) {
-			commandAndItsArgumentsAsList.add( "--s3_output_bucket=" + configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Bucket() );
-		}
-		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Region() ) ) {
-			commandAndItsArgumentsAsList.add( "--s3_output_region=" + configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Region() );
-			commandAndItsArgumentsAsList.add( "--s3_input_region=" + configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Region() );
-		}
+
+		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+
+//		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Bucket() ) ) {
+//			commandAndItsArgumentsAsList.add( "--s3_output_bucket=" + configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Bucket() );
+//		}
+//		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Region() ) ) {
+//			commandAndItsArgumentsAsList.add( "--s3_output_region=" + configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Region() );
+//			commandAndItsArgumentsAsList.add( "--s3_input_region=" + configData_Directories_ProcessUploadInfo_InWorkDirectory.getS3Region() );
+//		}
 
 		{
 			File importerTempOutputBaseDirectoryFile = configData_Directories_ProcessUploadInfo_InWorkDirectory.getImporterTempOutputBaseDirectory();
@@ -197,7 +200,7 @@ public class ProcessNextUploadedScanFile {
 						importScanFileProcsesingDirectory,
 						UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
 
-				ProcessUploadedScanFile_SendStatusEmail.getInstance().sendProcessKilledEmail( importScanFileProcsesingDirectory );
+//				ProcessUploadedScanFile_SendStatusEmail.getInstance().sendProcessKilledEmail( importScanFileProcsesingDirectory );
 				
 				processingSuccessFail_Result = ProcessingSuccessFailKilled.KILLED;
 				
@@ -215,7 +218,7 @@ public class ProcessNextUploadedScanFile {
 							importScanFileProcsesingDirectory,
 							UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
 
-					ProcessUploadedScanFile_SendStatusEmail.getInstance().sendProcessFailedEmail( importScanFileProcsesingDirectory );
+//					ProcessUploadedScanFile_SendStatusEmail.getInstance().sendProcessFailedEmail( importScanFileProcsesingDirectory );
 
 					processingSuccessFail_Result = ProcessingSuccessFailKilled.FAIL;
 					
@@ -241,7 +244,7 @@ public class ProcessNextUploadedScanFile {
 					importScanFileProcsesingDirectory,
 					UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
 
-			ProcessUploadedScanFile_SendStatusEmail.getInstance().sendProcessFailedEmail( importScanFileProcsesingDirectory );
+//			ProcessUploadedScanFile_SendStatusEmail.getInstance().sendProcessFailedEmail( importScanFileProcsesingDirectory );
 			
 			throw new SpectralFileWebappInternalException( e );
 			

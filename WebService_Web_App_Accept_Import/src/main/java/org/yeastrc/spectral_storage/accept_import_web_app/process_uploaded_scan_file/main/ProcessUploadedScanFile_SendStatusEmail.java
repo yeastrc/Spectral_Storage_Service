@@ -119,8 +119,7 @@ public class ProcessUploadedScanFile_SendStatusEmail {
 		if ( config.getEmailFromEmailAddress() != null 
 				&& ( config.getEmailToEmailAddresses() != null
 					|| config.getEmailToEmailAddresses_FailedOnly() != null )
-				&& ( config.getEmailSmtpServerHost() != null 
-						|| config.getEmailWebserviceURL() != null ) ) {
+				&& ( config.getEmailSmtpServerHost() != null  ) ) {
 			return true;
 		}
 		return false;

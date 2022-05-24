@@ -54,8 +54,8 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exception
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
+//  import com.amazonaws.services.s3.AmazonS3;
+//  import com.amazonaws.services.s3.model.ObjectMetadata;
 
 /**
  * Submit the Upload Scan Process  
@@ -260,15 +260,17 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 			}
 			
 			String scanProcessStatusKey = null;
-			
-			if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket() ) ) {
-				//  Scan File on S3
 
-				//  throws exceptions if errors
-				scanProcessStatusKey =
-						moveUpload_S3_ScanFileTempKey_Dir_To_scanProcessStatusKey_Dir( uploadScanFileTempKey_Dir );
+		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
-			} else {
+//			if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket() ) ) {
+//				//  Scan File on S3
+//
+//				//  throws exceptions if errors
+//				scanProcessStatusKey =
+//						moveUpload_S3_ScanFileTempKey_Dir_To_scanProcessStatusKey_Dir( uploadScanFileTempKey_Dir );
+//
+//			} else {
 				// Scan File on local disk
 				
 				//  Find the scan file 
@@ -300,7 +302,7 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 						+ uploadScanFile_Submit_Request.getUploadScanFileTempKey()
 						+ ", and returned scanProcessStatusKey: "
 						+ scanProcessStatusKey );
-			}
+//			}
 			
 			webserviceResponse.setScanProcessStatusKey( scanProcessStatusKey );
 
@@ -345,145 +347,149 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 	}
 	
 
-	/**
-	 * @param scanFilenameToMove
-	 * @param uploadFileTempDir
-	 * @return scanProcessStatusKey
-	 * @throws Exception
-	 */
-	private String moveUpload_S3_ScanFileTempKey_Dir_To_scanProcessStatusKey_Dir( File uploadFileTempDir ) throws Exception {
+	//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
-		File dirToProcessScanFile =
-				CreateProcessScanFileDir.getInstance().createDirToProcessScanFile();
-		
-		String scanProcessStatusKey = dirToProcessScanFile.getName();
-
-		//  Change to have a single S3 object path for uploaded scan files 
-		//  since cannot change the S3 object key for a S3 object
-		
-		//  Not practical to copy a multi-gigabyte scan file just to change the object key
-		
-		//  IMPORTANT.  If decide that changing the object key is a must,
-		//              must use "Copy an Object Using the AWS SDK for Java Multipart Upload API"
-		//              https://docs.aws.amazon.com/AmazonS3/latest/dev/CopyingObjctsUsingLLJavaMPUapi.html
-		
-		
-		createScanFileS3Location_File( scanProcessStatusKey, uploadFileTempDir, dirToProcessScanFile );
-		
-		commonProcessingOfUploadedScanFile( uploadFileTempDir, dirToProcessScanFile, scanProcessStatusKey );
-		
-		return scanProcessStatusKey;
-	}
-	
-	/**
-	 * @param scanProcessStatusKey
-	 * @param uploadFileTempDir
-	 * @param dirToProcessScanFile
-	 */
-	private void createScanFileS3Location_File( 
-			String scanProcessStatusKey, 
-			File uploadFileTempDir, 
-			File dirToProcessScanFile ) throws Exception {
-
-		JAXBContext jaxbContext = JAXBContext.newInstance( UploadScanfileS3Location.class );
-
-		UploadScanfileS3Location uploadScanfileS3Location_InUploadTemp = 
-				getTempUpload_UploadScanfileS3Location( uploadFileTempDir, jaxbContext );
-
-		write_scanfileS3Location_InDirToProcessScanFile( uploadScanfileS3Location_InUploadTemp, dirToProcessScanFile, jaxbContext );
-		
-		if ( ! uploadScanfileS3Location_InUploadTemp.isS3_infoFrom_RemoteSystem() ) {
-			createScanFileS3_Submitted_S3_Object( uploadScanfileS3Location_InUploadTemp );
-		}
-	}
-
-	/**
-	 * @param scanProcessStatusKey
-	 * @param uploadFileTempDir
-	 * @param dirToProcessScanFile
-	 */
-	private void createScanFileS3_Submitted_S3_Object( UploadScanfileS3Location uploadScanfileS3Location_InUploadTemp ) throws Exception {
-
-		final AmazonS3 amazonS3 = CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3().getS3_Client();
-
-//		PutObjectResult	putObject(String bucketName, String key, InputStream input, ObjectMetadata metadata)
-//		Uploads the specified input stream and object metadata to Amazon S3 under the specified bucket and key name.
-		
-		String objectKey = uploadScanfileS3Location_InUploadTemp.getS3_objectName()
-				+ ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_FILENAME_SUBMITTED_FILE_SUFFIX;
-		
-		byte[] dummyBytes = { 0 };
-		ByteArrayInputStream bais = new ByteArrayInputStream(dummyBytes);
-		
-		ObjectMetadata objectMetadata = new ObjectMetadata();
-		objectMetadata.setContentLength( dummyBytes.length );
-		
-		amazonS3.putObject(
-				uploadScanfileS3Location_InUploadTemp.getS3_bucketName(), 
-				objectKey, 
-				bais,
-				objectMetadata );
-	}
-	
-	/**
-	 * @param scanfileS3Location_InDirToProcessScanFile
-	 * @param dirToProcessScanFile
-	 * @param jaxbContext
-	 * @throws Exception
-	 */
-	private void write_scanfileS3Location_InDirToProcessScanFile( UploadScanfileS3Location scanfileS3Location_InDirToProcessScanFile, File dirToProcessScanFile, JAXBContext jaxbContext ) throws Exception {
-
-		File scanfileS3InfoFile = new File( dirToProcessScanFile, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
-		
-		Marshaller marshaller = jaxbContext.createMarshaller();
-		
-		try ( OutputStream os = new FileOutputStream(scanfileS3InfoFile) ) {
-			marshaller.marshal( scanfileS3Location_InDirToProcessScanFile, os );
-		} catch (Exception e) {
-			String msg = "Failed to Marshal XML.  Should be type UploadScanfileS3Location.  File: " +
-					scanfileS3InfoFile.getAbsolutePath();
-			log.error( msg, e );
-			throw new SpectralFileWebappInternalException(msg, e);
-		}
-	}
-	
-	/**
-	 * @param uploadFileTempDir
-	 * @param jaxbContext
-	 * @return
-	 * @throws Exception
-	 */
-	private UploadScanfileS3Location getTempUpload_UploadScanfileS3Location( File uploadFileTempDir, JAXBContext jaxbContext ) throws Exception {
-
-		File scanfileS3InfoFile = new File( uploadFileTempDir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
-		
-		if ( ! scanfileS3InfoFile.exists() ) {
-			String msg = "Input file of type UploadScanfileS3Location is missing. File: " +
-					scanfileS3InfoFile.getAbsolutePath();
-			log.error( msg );
-			throw new SpectralFileWebappInternalException(msg);
-		}
-		
-		try ( InputStream is = new FileInputStream( scanfileS3InfoFile) ) {
-			XMLInputFactory xmlInputFactory = Create_XMLInputFactory_XXE_Safe.create_XMLInputFactory_XXE_Safe();
-			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader( new StreamSource( is ) );
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			Object uploadScanfileS3LocationObj = unmarshaller.unmarshal( xmlStreamReader );
-			if ( ! ( uploadScanfileS3LocationObj instanceof UploadScanfileS3Location ) ) {
-				String msg = "Unmarshaled object is not type UploadScanfileS3Location. Source file: " +
-						scanfileS3InfoFile.getAbsolutePath();
-				log.error( msg );
-				throw new SpectralFileWebappInternalException(msg);
-			}
-			UploadScanfileS3Location uploadScanfileS3Location = (UploadScanfileS3Location) uploadScanfileS3LocationObj;
-			return uploadScanfileS3Location;
-		} catch (Exception e) {
-			String msg = "Failed to Unmarshal XML.  Should be type UploadScanfileS3Location.  File: " +
-					scanfileS3InfoFile.getAbsolutePath();
-			log.error( msg, e );
-			throw new SpectralFileWebappInternalException(msg, e);
-		}
-	}
+//	/**
+//	 * @param scanFilenameToMove
+//	 * @param uploadFileTempDir
+//	 * @return scanProcessStatusKey
+//	 * @throws Exception
+//	 */
+//	private String moveUpload_S3_ScanFileTempKey_Dir_To_scanProcessStatusKey_Dir( File uploadFileTempDir ) throws Exception {
+//
+//		File dirToProcessScanFile =
+//				CreateProcessScanFileDir.getInstance().createDirToProcessScanFile();
+//		
+//		String scanProcessStatusKey = dirToProcessScanFile.getName();
+//
+//		//  Change to have a single S3 object path for uploaded scan files 
+//		//  since cannot change the S3 object key for a S3 object
+//		
+//		//  Not practical to copy a multi-gigabyte scan file just to change the object key
+//		
+//		//  IMPORTANT.  If decide that changing the object key is a must,
+//		//              must use "Copy an Object Using the AWS SDK for Java Multipart Upload API"
+//		//              https://docs.aws.amazon.com/AmazonS3/latest/dev/CopyingObjctsUsingLLJavaMPUapi.html
+//		
+//		
+//		createScanFileS3Location_File( scanProcessStatusKey, uploadFileTempDir, dirToProcessScanFile );
+//		
+//		commonProcessingOfUploadedScanFile( uploadFileTempDir, dirToProcessScanFile, scanProcessStatusKey );
+//		
+//		return scanProcessStatusKey;
+//	}
+//
+//	/**
+//	 * @param scanProcessStatusKey
+//	 * @param uploadFileTempDir
+//	 * @param dirToProcessScanFile
+//	 */
+//	private void createScanFileS3Location_File( 
+//			String scanProcessStatusKey, 
+//			File uploadFileTempDir, 
+//			File dirToProcessScanFile ) throws Exception {
+//
+//		JAXBContext jaxbContext = JAXBContext.newInstance( UploadScanfileS3Location.class );
+//
+//		UploadScanfileS3Location uploadScanfileS3Location_InUploadTemp = 
+//				getTempUpload_UploadScanfileS3Location( uploadFileTempDir, jaxbContext );
+//
+//		write_scanfileS3Location_InDirToProcessScanFile( uploadScanfileS3Location_InUploadTemp, dirToProcessScanFile, jaxbContext );
+//
+//	//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+//
+//		if ( ! uploadScanfileS3Location_InUploadTemp.isS3_infoFrom_RemoteSystem() ) {
+//			createScanFileS3_Submitted_S3_Object( uploadScanfileS3Location_InUploadTemp );
+//		}
+//	}
+//
+//	/**
+//	 * @param scanProcessStatusKey
+//	 * @param uploadFileTempDir
+//	 * @param dirToProcessScanFile
+//	 */
+//	private void createScanFileS3_Submitted_S3_Object( UploadScanfileS3Location uploadScanfileS3Location_InUploadTemp ) throws Exception {
+//
+//		final AmazonS3 amazonS3 = CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3().getS3_Client();
+//
+////		PutObjectResult	putObject(String bucketName, String key, InputStream input, ObjectMetadata metadata)
+////		Uploads the specified input stream and object metadata to Amazon S3 under the specified bucket and key name.
+//		
+//		String objectKey = uploadScanfileS3Location_InUploadTemp.getS3_objectName()
+//				+ ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_FILENAME_SUBMITTED_FILE_SUFFIX;
+//		
+//		byte[] dummyBytes = { 0 };
+//		ByteArrayInputStream bais = new ByteArrayInputStream(dummyBytes);
+//		
+//		ObjectMetadata objectMetadata = new ObjectMetadata();
+//		objectMetadata.setContentLength( dummyBytes.length );
+//		
+//		amazonS3.putObject(
+//				uploadScanfileS3Location_InUploadTemp.getS3_bucketName(), 
+//				objectKey, 
+//				bais,
+//				objectMetadata );
+//	}
+//	
+//	/**
+//	 * @param scanfileS3Location_InDirToProcessScanFile
+//	 * @param dirToProcessScanFile
+//	 * @param jaxbContext
+//	 * @throws Exception
+//	 */
+//	private void write_scanfileS3Location_InDirToProcessScanFile( UploadScanfileS3Location scanfileS3Location_InDirToProcessScanFile, File dirToProcessScanFile, JAXBContext jaxbContext ) throws Exception {
+//
+//		File scanfileS3InfoFile = new File( dirToProcessScanFile, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
+//		
+//		Marshaller marshaller = jaxbContext.createMarshaller();
+//		
+//		try ( OutputStream os = new FileOutputStream(scanfileS3InfoFile) ) {
+//			marshaller.marshal( scanfileS3Location_InDirToProcessScanFile, os );
+//		} catch (Exception e) {
+//			String msg = "Failed to Marshal XML.  Should be type UploadScanfileS3Location.  File: " +
+//					scanfileS3InfoFile.getAbsolutePath();
+//			log.error( msg, e );
+//			throw new SpectralFileWebappInternalException(msg, e);
+//		}
+//	}
+//	
+//	/**
+//	 * @param uploadFileTempDir
+//	 * @param jaxbContext
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	private UploadScanfileS3Location getTempUpload_UploadScanfileS3Location( File uploadFileTempDir, JAXBContext jaxbContext ) throws Exception {
+//
+//		File scanfileS3InfoFile = new File( uploadFileTempDir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
+//		
+//		if ( ! scanfileS3InfoFile.exists() ) {
+//			String msg = "Input file of type UploadScanfileS3Location is missing. File: " +
+//					scanfileS3InfoFile.getAbsolutePath();
+//			log.error( msg );
+//			throw new SpectralFileWebappInternalException(msg);
+//		}
+//		
+//		try ( InputStream is = new FileInputStream( scanfileS3InfoFile) ) {
+//			XMLInputFactory xmlInputFactory = Create_XMLInputFactory_XXE_Safe.create_XMLInputFactory_XXE_Safe();
+//			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader( new StreamSource( is ) );
+//			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+//			Object uploadScanfileS3LocationObj = unmarshaller.unmarshal( xmlStreamReader );
+//			if ( ! ( uploadScanfileS3LocationObj instanceof UploadScanfileS3Location ) ) {
+//				String msg = "Unmarshaled object is not type UploadScanfileS3Location. Source file: " +
+//						scanfileS3InfoFile.getAbsolutePath();
+//				log.error( msg );
+//				throw new SpectralFileWebappInternalException(msg);
+//			}
+//			UploadScanfileS3Location uploadScanfileS3Location = (UploadScanfileS3Location) uploadScanfileS3LocationObj;
+//			return uploadScanfileS3Location;
+//		} catch (Exception e) {
+//			String msg = "Failed to Unmarshal XML.  Should be type UploadScanfileS3Location.  File: " +
+//					scanfileS3InfoFile.getAbsolutePath();
+//			log.error( msg, e );
+//			throw new SpectralFileWebappInternalException(msg, e);
+//		}
+//	}
 
 
 

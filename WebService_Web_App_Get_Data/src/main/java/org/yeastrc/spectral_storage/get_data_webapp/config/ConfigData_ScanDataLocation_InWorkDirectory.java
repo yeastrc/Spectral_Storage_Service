@@ -38,15 +38,17 @@ public class ConfigData_ScanDataLocation_InWorkDirectory {
 	 */
 	private File scanStorageBaseDirectory;
 
-	/**
-	 * The S3 bucket that the scan data is written to for perm storage
-	 */
-	private String s3Bucket;
+//  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
-	/**
-	 * The S3 region that the scan data is written to for perm storage
-	 */
-	private String s3Region;
+//	/**
+//	 * The S3 bucket that the scan data is written to for perm storage
+//	 */
+//	private String s3Bucket;
+//
+//	/**
+//	 * The S3 region that the scan data is written to for perm storage
+//	 */
+//	private String s3Region;
 	
 	///////////////
 	
@@ -81,19 +83,19 @@ public class ConfigData_ScanDataLocation_InWorkDirectory {
 		this.scanStorageBaseDirectory = scanStorageBaseDirectory;
 	}
 
-	public String getS3Bucket() {
-		return s3Bucket;
-	}
-
-	void setS3Bucket(String s3Bucket) {
-		this.s3Bucket = s3Bucket;
-	}
-
-	public String getS3Region() {
-		return s3Region;
-	}
-
-	void setS3Region(String s3Region) {
-		this.s3Region = s3Region;
-	} 
+//	public String getS3Bucket() {
+//		return s3Bucket;
+//	}
+//
+//	void setS3Bucket(String s3Bucket) {
+//		this.s3Bucket = s3Bucket;
+//	}
+//
+//	public String getS3Region() {
+//		return s3Region;
+//	}
+//
+//	void setS3Region(String s3Region) {
+//		this.s3Region = s3Region;
+//	} 
 }

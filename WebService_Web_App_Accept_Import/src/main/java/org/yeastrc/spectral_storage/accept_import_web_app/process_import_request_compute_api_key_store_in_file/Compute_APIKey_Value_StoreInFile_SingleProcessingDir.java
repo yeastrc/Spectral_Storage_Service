@@ -63,31 +63,33 @@ public class Compute_APIKey_Value_StoreInFile_SingleProcessingDir {
 		
 		//  TODO  Update this for Scan File on S3
 
-		if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket() ) ) {
+		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
-			//  Skip this option for now.  Additional configuration/init of class S3_AWS_InterfaceObjectHolder is required to use this.
-			//									For configuration/init, need to handle the "Reload" option in the webapp web page
-			
-			//  S3 so directly trigger running Process Scan File process
-			
-			try {
-				//  Create status file for pending
-				UploadProcessingWriteOrUpdateStatusFile.getInstance()
-				.uploadProcessingWriteOrUpdateStatusFile( 
-						UploadProcessingStatusFileConstants.STATUS_PENDING, 
-						scanFileProcessingDir,
-						UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
-			} catch ( Exception e ) {
-				String msg = "Failed to create status file, scanFileProcessingDir: " + scanFileProcessingDir.getAbsolutePath();
-				log.error( msg, e );
-				throw new SpectralStorageProcessingException( msg, e );
-			}
-					
-			//  Awaken the thread that will process the process scan file directory 
-			A_BackgroundThreads_Containers_Manager.getSingletonInstance().getProcessScanFile_Thread_Container().awakenToProcessAScanFile();
-			
-			return;  // EARLY EXIT
-		}
+//		if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket() ) ) {
+//
+//			//  Skip this option for now.  Additional configuration/init of class S3_AWS_InterfaceObjectHolder is required to use this.
+//			//									For configuration/init, need to handle the "Reload" option in the webapp web page
+//			
+//			//  S3 so directly trigger running Process Scan File process
+//			
+//			try {
+//				//  Create status file for pending
+//				UploadProcessingWriteOrUpdateStatusFile.getInstance()
+//				.uploadProcessingWriteOrUpdateStatusFile( 
+//						UploadProcessingStatusFileConstants.STATUS_PENDING, 
+//						scanFileProcessingDir,
+//						UploadProcessingStatusFileConstants.STATUS_PROCESSING_CALLER_LABEL__ACCEPT_IMPORT_WEBAPP );
+//			} catch ( Exception e ) {
+//				String msg = "Failed to create status file, scanFileProcessingDir: " + scanFileProcessingDir.getAbsolutePath();
+//				log.error( msg, e );
+//				throw new SpectralStorageProcessingException( msg, e );
+//			}
+//					
+//			//  Awaken the thread that will process the process scan file directory 
+//			A_BackgroundThreads_Containers_Manager.getSingletonInstance().getProcessScanFile_Thread_Container().awakenToProcessAScanFile();
+//			
+//			return;  // EARLY EXIT
+//		}
 		
 		compute_APIKey_Value_ScanFileLocalDisk( scanFileProcessingDir );
 
