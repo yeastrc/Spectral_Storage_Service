@@ -54,10 +54,10 @@
   <servlet>
     <servlet-name>Send S3 location of scan file to process Servlet - XML Response</servlet-name>
     <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.UploadScanFile_AddScanFileInS3Bucket_Servlet</servlet-class>
-    	< ! -- required parameter resultDataFormat - - >
+    	< ! - - required parameter resultDataFormat - - >
     <init-param>
-      <param-name>resultDataFormat</param-name> < ! -- Must be value in Java Class ServletResultDataFormatConstants -- >
-      <param-value>XML</param-value> < ! -- Must be value in Java Class ServletResultDataFormatConstants -- >
+      <param-name>resultDataFormat</param-name> < ! - - Must be value in Java Class ServletResultDataFormatConstants - - >
+      <param-value>XML</param-value> < ! - - Must be value in Java Class ServletResultDataFormatConstants - - >
     </init-param>    
     <load-on-startup>2</load-on-startup>
   </servlet>
