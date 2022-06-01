@@ -22,6 +22,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_CloseWriter_Data_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_Header_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.StorageFile_Version_005_Constants;
@@ -68,6 +69,7 @@ public class SpectralFile_Index_File_Writer_V_005 {
 			File subDirForStorageFiles,
 			SpectralFile_Index_FDFW_FileContents_Root_V_005 spectralFile_Index_FDFW_FileContents_Root_V_005,
 			SpectralFile_Header_Common header_MainDataFile_Common,
+			SpectralFile_CloseWriter_Data_Common spectralFile_CloseWriter_Data_Common,
 			AccumulateSummaryDataPerScanLevel accumulateSummaryDataPerScanLevel ) throws Exception {
 		
 		AccumulateSummaryDataPerScanLevelResult accumulateSummaryDataPerScanLevelResult = accumulateSummaryDataPerScanLevel.getAccumResult();
@@ -103,7 +105,7 @@ public class SpectralFile_Index_File_Writer_V_005 {
 		spectralFile_Index_TDFR_FileContents_Root_V_005.setSummaryDataPerScanLevelList( summaryDataPerScanLevelList );
 		spectralFile_Index_TDFR_FileContents_Root_V_005.setIndexScanEntries( indexScanEntries );
 
-		writeIndexFile( hash_String, subDirForStorageFiles, spectralFile_Index_TDFR_FileContents_Root_V_005, header_MainDataFile_Common );
+		writeIndexFile( hash_String, subDirForStorageFiles, spectralFile_Index_TDFR_FileContents_Root_V_005, header_MainDataFile_Common, spectralFile_CloseWriter_Data_Common );
 	}
 	
 	/**
@@ -116,7 +118,8 @@ public class SpectralFile_Index_File_Writer_V_005 {
 			String hash_String,
 			File subDirForStorageFiles,
 			SpectralFile_Index_TDFR_FileContents_Root_V_005 spectralFile_Index_TDFR_FileContents_Root_V_005,
-			SpectralFile_Header_Common header_MainDataFile_Common ) throws Exception {
+			SpectralFile_Header_Common header_MainDataFile_Common,
+			SpectralFile_CloseWriter_Data_Common spectralFile_CloseWriter_Data_Common ) throws Exception {
 		
 		
 		
@@ -274,13 +277,13 @@ public class SpectralFile_Index_File_Writer_V_005 {
 			
 				byte flagValueByte = ByteValuesFor_Boolean_TrueFalse_Constants.BYTE_VALUE_FOR_BOOLEAN_FALSE;
 				
-				if ( header_MainDataFile_Common.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks() == null ) {
-					String msg = "header.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks() == null";
+				if ( spectralFile_CloseWriter_Data_Common.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks() == null ) {
+					String msg = "spectralFile_CloseWriter_Data_Common.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks() == null";
 					log.error(msg);
 					throw new SpectralStorageProcessingException(msg);
 				}
 				
-				if ( header_MainDataFile_Common.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks().booleanValue() ) {
+				if ( spectralFile_CloseWriter_Data_Common.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks().booleanValue() ) {
 					
 					flagValueByte = ByteValuesFor_Boolean_TrueFalse_Constants.BYTE_VALUE_FOR_BOOLEAN_TRUE;
 				}
@@ -292,13 +295,13 @@ public class SpectralFile_Index_File_Writer_V_005 {
 			
 				byte flagValueByte = ByteValuesFor_Boolean_TrueFalse_Constants.BYTE_VALUE_FOR_BOOLEAN_FALSE;
 				
-				if ( header_MainDataFile_Common.getIonInjectionTime_NotPopulated() == null ) {
-					String msg = "header.getIonInjectionTime_NotPopulated() == null";
+				if ( spectralFile_CloseWriter_Data_Common.getIonInjectionTime_NotPopulated() == null ) {
+					String msg = "spectralFile_CloseWriter_Data_Common.getIonInjectionTime_NotPopulated() == null";
 					log.error(msg);
 					throw new SpectralStorageProcessingException(msg);
 				}
 				
-				if ( header_MainDataFile_Common.getIonInjectionTime_NotPopulated().booleanValue() ) {
+				if ( spectralFile_CloseWriter_Data_Common.getIonInjectionTime_NotPopulated().booleanValue() ) {
 					
 					flagValueByte = ByteValuesFor_Boolean_TrueFalse_Constants.BYTE_VALUE_FOR_BOOLEAN_TRUE;
 				}

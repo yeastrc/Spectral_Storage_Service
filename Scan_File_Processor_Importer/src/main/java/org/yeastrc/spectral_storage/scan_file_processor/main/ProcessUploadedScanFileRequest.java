@@ -1,25 +1,13 @@
 package org.yeastrc.spectral_storage.scan_file_processor.main;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.stream.StreamSource;
 
 //  import com.amazonaws.services.s3.AmazonS3;
 //  import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
@@ -33,33 +21,23 @@ import javax.xml.transform.stream.StreamSource;
 //  import com.amazonaws.AmazonClientException;
 //  import com.amazonaws.AmazonServiceException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.constants_enums.ImporterTempSubDirNameConstants;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetInputScanFile_CurrentLocalDirectory;
-import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetScanFileFrom_S3_IfHave_S3_Info_File;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Process_ScanFile_Create_SpectralFile;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
-import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile;
-import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile.ValidateInputScanFile_Result;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
-import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.SpectralStorage_DataFiles_S3_Prefix_Constants;
-import org.yeastrc.spectral_storage.shared_server_importer.create__xml_input_factory__xxe_safe.Create_XMLInputFactory_XXE_Safe;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists_and_is_latest_version.CheckIfSpectralFileAlreadyExists_And_IsLatestVersion__S3_Object;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists_and_is_latest_version.CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_File_Hashes;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.s3_aws_interface.S3_AWS_InterfaceObjectHolder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ComputeFromScanFileContentHashes;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ToFileReadWrite;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Builder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.GetOrCreateSpectralStorageSubPath;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
 
 /**
  * 
@@ -69,20 +47,20 @@ public class ProcessUploadedScanFileRequest {
 
 	private static final Logger log = LoggerFactory.getLogger(ProcessUploadedScanFileRequest.class);
 
-	private static final int RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_MAX = 10;
-	private static final int RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_DELAY = 500;  // milliseconds
-
-	private static final int RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_INIT_MAX = 10;
-	private static final int RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_INIT_DELAY = 500;  // milliseconds
-
-	private static final int RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_UPLOAD_PART_MAX = 10;
-	private static final int RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_UPLOAD_PART_DELAY = 500;  // milliseconds
-
-	private static final int RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_COMPLETE_MAX = 10;
-	private static final int RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_COMPLETE_DELAY = 500;  // milliseconds
-
-	private static final int RETRY_DELETE_SCAN_FILE_MAX = 10;
-	private static final int RETRY_DELETE_SCAN_FILE_DELAY = 500;  // milliseconds
+//	private static final int RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_MAX = 10;
+//	private static final int RETRY_UPLOAD_SCAN_DATA_OTHER_FILES_DELAY = 500;  // milliseconds
+//
+//	private static final int RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_INIT_MAX = 10;
+//	private static final int RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_INIT_DELAY = 500;  // milliseconds
+//
+//	private static final int RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_UPLOAD_PART_MAX = 10;
+//	private static final int RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_UPLOAD_PART_DELAY = 500;  // milliseconds
+//
+//	private static final int RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_COMPLETE_MAX = 10;
+//	private static final int RETRY_UPLOAD_SCAN_DATA_MAIN_FILE_COMPLETE_DELAY = 500;  // milliseconds
+//
+//	private static final int RETRY_DELETE_SCAN_FILE_MAX = 10;
+//	private static final int RETRY_DELETE_SCAN_FILE_DELAY = 500;  // milliseconds
 
 	
 	/**
@@ -110,27 +88,7 @@ public class ProcessUploadedScanFileRequest {
 		
 		System.out.println( "Input scan File Absolute Path: " + inputScanFile.getAbsolutePath() );
 		System.out.println( "Input scan File Canonical Path: " + inputScanFile.getCanonicalPath() );
-		
-		System.out.println( "Starting validate scan file.  Now: " + new Date() );
-		
-		//  validateInputScanFile_Result: Values useful in main processing
-		ValidateInputScanFile_Result validateInputScanFile_Result = null;
-		
-		try {
-			//  Throws exception SpectralStorageDataException if any error
-			validateInputScanFile_Result = ValidateInputScanFile.getInstance().validateScanFile( inputScanFile );
-
-		} catch ( SpectralStorageDataException e ) {
-			
-			//  Data error so write message to data error file
-			
-			log.error( "Caught SpectralStorageDataException: " + e.getMessage(), e );
-			processSpectralStorageDataException( e );
-			throw e;
-		}
-		
-		System.out.println( "Finished validate scan file.  Now: " + new Date() );
-		
+				
 		System.out.println( "Starting Compute hashes for scan file.  Now: " + new Date() );
 		
 		Compute_Hashes compute_Hashes =
@@ -143,8 +101,7 @@ public class ProcessUploadedScanFileRequest {
 		processInputFileWithComputedHash(
 				pgmParams,
 				inputScanFile, 
-				compute_Hashes,
-				validateInputScanFile_Result );
+				compute_Hashes );
 
 		//  Don't get here if here is a failure since an exception will be thrown.  
 		if ( pgmParams.isDeleteScanFileOnSuccess() ) {
@@ -170,8 +127,7 @@ public class ProcessUploadedScanFileRequest {
 	public  String processInputFileWithComputedHash(
 			Scan_File_Processor_MainProgram_Params pgmParams,
 			File inputScanFile,
-			Compute_Hashes compute_Hashes,
-			ValidateInputScanFile_Result validateInputScanFile_Result ) throws Exception, IOException {
+			Compute_Hashes compute_Hashes ) throws Exception, IOException {
 		
 		//  String of the API Key for this scan file, based on the hash of the file contents
 		String apiKey = 
@@ -278,7 +234,7 @@ public class ProcessUploadedScanFileRequest {
 
 		try {
 			Process_ScanFile_Create_SpectralFile.getInstance()
-			.processScanFile( inputScanFile, tempOutputDir, apiKey, compute_Hashes, validateInputScanFile_Result );
+			.processScanFile( inputScanFile, tempOutputDir, apiKey, compute_Hashes );
 
 		} catch ( SpectralStorageDataException e ) {
 			

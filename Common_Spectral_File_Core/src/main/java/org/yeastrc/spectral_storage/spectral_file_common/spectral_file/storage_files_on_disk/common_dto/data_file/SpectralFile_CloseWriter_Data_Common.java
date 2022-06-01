@@ -1,46 +1,30 @@
 package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file;
 
 /**
- * Data at beginning of Spectral file
+ * Data passed when "Close Spectral file", used by Data File Writer to update the header section and provide other information
+ * 
+ * This is NOT used by any Data File Reader
  *
  */
-public class SpectralFile_Header_Common {
+public class SpectralFile_CloseWriter_Data_Common {
 	
-	private int headerTotalBytesInDataFile;
-
-	//  Ignored when writing.  Writer will write it's version number
-	private short version;
-
+	private boolean exceptionEncounteredProcessingScanFile;
+	
 	/**
-	 * !!!!  NOT USED while Writing the file,  Only read from the file
-	 * 
 	 * Original Scan File did NOT have Total Ion Current Per Scan so it is computed in Spectral Storage Service Importer from Scan Peaks.
 	 * Not populated for Data File Version < 5. 
 	 */
 	private Boolean totalIonCurrent_ForEachScan_ComputedFromScanPeaks;
-	
 	/**
-	 * !!!!  NOT USED while Writing the file,  Only read from the file
-	 * 
 	 * Original Scan File did NOT have Ion Injection Time Per Scan.
 	 * Not populated for Data File Version < 5.
 	 */
 	private Boolean ionInjectionTime_NotPopulated;
 	
 	
-	private long scanFileLength_InBytes;
-	
-	private byte[] mainHash;
-
-	private byte[] altHashSHA512;
-	private byte[] altHashSHA1;
-	
-	
 	//////////////////////////////
 
 	/**
-	 * !!!!  NOT USED while Writing the file,  Only read from the file
-	 * 
 	 * Original Scan File did NOT have Total Ion Current Per Scan so it is computed in Spectral Storage Service Importer from Scan Peaks.
 	 * Not populated for Data File Version < 5.
 	 * @return - null if not stored in data file (Old Version of data file) 
@@ -49,8 +33,6 @@ public class SpectralFile_Header_Common {
 		return totalIonCurrent_ForEachScan_ComputedFromScanPeaks;
 	}
 	/**
-	 * !!!!  NOT USED while Writing the file,  Only read from the file
-	 * 
 	 * Original Scan File did NOT have Total Ion Current Per Scan so it is computed in Spectral Storage Service Importer from Scan Peaks.
 	 * Not populated for Data File Version < 5.
 	 * @param totalIonCurrent_ForEachScan_ComputedFromScanPeaks
@@ -60,8 +42,6 @@ public class SpectralFile_Header_Common {
 	}
 
 	/**
-	 * !!!!  NOT USED while Writing the file,  Only read from the file
-	 * 
 	 * Original Scan File did NOT have Ion Injection Time Per Scan.
 	 * Not populated for Data File Version < 5.
 	 * @return - null if not stored in data file (Old Version of data file)
@@ -70,8 +50,6 @@ public class SpectralFile_Header_Common {
 		return ionInjectionTime_NotPopulated;
 	}
 	/**
-	 * !!!!  NOT USED while Writing the file,  Only read from the file
-	 * 
 	 * Original Scan File did NOT have Ion Injection Time Per Scan.
 	 * Not populated for Data File Version < 5.
 	 * @param ionInjectionTime_NotPopulated
@@ -79,67 +57,11 @@ public class SpectralFile_Header_Common {
 	public void setIonInjectionTime_NotPopulated(Boolean ionInjectionTime_NotPopulated) {
 		this.ionInjectionTime_NotPopulated = ionInjectionTime_NotPopulated;
 	}
-
-	/**
-	 * Ignored when writing.  Total number of bytes in header
-	 * @return
-	 */
-	public int getHeaderTotalBytesInDataFile() {
-		return headerTotalBytesInDataFile;
+	public boolean isExceptionEncounteredProcessingScanFile() {
+		return exceptionEncounteredProcessingScanFile;
 	}
-
-	public void setHeaderTotalBytesInDataFile(int headerTotalBytes) {
-		this.headerTotalBytesInDataFile = headerTotalBytes;
+	public void setExceptionEncounteredProcessingScanFile(boolean exceptionEncounteredProcessingScanFile) {
+		this.exceptionEncounteredProcessingScanFile = exceptionEncounteredProcessingScanFile;
 	}
-	
-	/**
-	 * Ignored when writing.  Writer will write it's version number
-	 * @return
-	 */
-	public short getVersion() {
-		return version;
-	}
-
-	/**
-	 * Ignored when writing.  Writer will write it's version number
-	 * @param version
-	 */
-	public void setVersion(short version) {
-		this.version = version;
-	}
-
-
-	public long getScanFileLength_InBytes() {
-		return scanFileLength_InBytes;
-	}
-
-	public void setScanFileLength_InBytes(long scanFileLength_InBytes) {
-		this.scanFileLength_InBytes = scanFileLength_InBytes;
-	}
-
-	public byte[] getMainHash() {
-		return mainHash;
-	}
-
-	public void setMainHash(byte[] mainHash) {
-		this.mainHash = mainHash;
-	}
-
-	public byte[] getAltHashSHA512() {
-		return altHashSHA512;
-	}
-
-	public void setAltHashSHA512(byte[] altHashSHA512) {
-		this.altHashSHA512 = altHashSHA512;
-	}
-
-	public byte[] getAltHashSHA1() {
-		return altHashSHA1;
-	}
-
-	public void setAltHashSHA1(byte[] altHashSHA1) {
-		this.altHashSHA1 = altHashSHA1;
-	}
-
 
 }

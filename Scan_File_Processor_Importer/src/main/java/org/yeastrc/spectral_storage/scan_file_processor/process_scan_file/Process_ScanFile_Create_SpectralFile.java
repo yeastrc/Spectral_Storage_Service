@@ -16,11 +16,13 @@ import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.MzML
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.MzML_MzXmlScan;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.ScanPeak;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.reader.MzMl_MzXml_FileReader;
+import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile;
 import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile.ValidateInputScanFile_Result;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes.Compute_Hashes_Result;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_CloseWriter_Data_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_Header_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
@@ -56,8 +58,7 @@ public class Process_ScanFile_Create_SpectralFile {
 			File scanFile, 
 			File subDirForOutputFiles,
 			String hash_String, 
-			Compute_Hashes compute_Hashes,
-			ValidateInputScanFile_Result validateInputScanFile_Result ) throws Exception {
+			Compute_Hashes compute_Hashes ) throws Exception {
 
 		Compute_Hashes_Result compute_Hashes_Result = compute_Hashes.compute_Hashes();
 		
@@ -70,12 +71,15 @@ public class Process_ScanFile_Create_SpectralFile {
 		System.out.println( "Starting Processing input file: "  + scanFile.getAbsolutePath() 
 			+ ", Now: " + new Date() );
 		
-		String scanFilename = scanFile.getName(); //  Name of scan file stored on disk
-		String scanFilePath = scanFile.getCanonicalFile().getParentFile().getCanonicalPath();
 		long scanFileLength_InBytes = scanFile.length();
 		
 		MzMl_MzXml_FileReader scanFileReader = null;
 		SpectralFile_Writer__IF spectralFile_Writer = null;
+		
+		ValidateInputScanFile validateInputScanFile = ValidateInputScanFile.getInstance();
+
+		//  Used by the 'close' of spectralFile_Writer
+		SpectralFile_CloseWriter_Data_Common spectralFile_CloseWriter_Data_Common = new SpectralFile_CloseWriter_Data_Common();
 		
 		try {
 			scanFileReader = getMzMLFileReader( scanFile );
@@ -88,18 +92,6 @@ public class Process_ScanFile_Create_SpectralFile {
 			spectralFile_Header_Common.setMainHash( compute_Hashes_Result.getSha_384_Hash() );
 			spectralFile_Header_Common.setAltHashSHA512( compute_Hashes_Result.getSha_512_Hash() );
 			spectralFile_Header_Common.setAltHashSHA1( compute_Hashes_Result.getSha_1_Hash() );
-			
-			if ( validateInputScanFile_Result.isNoScans_InScanFile_Have_TotalIonCurrent_Populated() ) {
-				spectralFile_Header_Common.setTotalIonCurrent_ForEachScan_ComputedFromScanPeaks( true );  //  Boolean so must set to true or false
-			} else {
-				spectralFile_Header_Common.setTotalIonCurrent_ForEachScan_ComputedFromScanPeaks( false );  //  Boolean so must set to true or false
-			}
-			if ( validateInputScanFile_Result.isNoScans_InScanFile_Have_IonInjectionTime_Populated() ) {
-				spectralFile_Header_Common.setIonInjectionTime_NotPopulated( true );  //  Boolean so must set to true or false
-			} else {
-				spectralFile_Header_Common.setIonInjectionTime_NotPopulated( false );  //  Boolean so must set to true or false
-			}
-			
 			
 			spectralFile_Writer = SpectralFile_Writer_CurrentFormat_Factory.getInstance().getSpectralFile_Writer_LatestVersion();
 			
@@ -119,7 +111,7 @@ public class Process_ScanFile_Create_SpectralFile {
 			
 			spectralFile_Writer.open( hash_String, subDirForOutputFiles, spectralFile_Header_Common );
 			
-			processAllScans( scanFileReader, spectralFile_Writer, scanFile );
+			processAllScans( scanFileReader, spectralFile_Writer, validateInputScanFile, scanFile );
 
 			System.out.println( "************************************" );
 			System.out.println( "***  Statistics" );
@@ -128,7 +120,24 @@ public class Process_ScanFile_Create_SpectralFile {
 			System.out.println( "Output Scan Peak data bytes, not commpressed: " + spectralFile_Writer.getScanPeaksTotalBytes() );
 			System.out.println( "Output Scan Peak data bytes, commpressed: " + spectralFile_Writer.getScanPeaksCompressedTotalBytes() );
 
-		} catch ( Exception e ) {
+			
+		} catch ( SpectralStorageDataException e ) {
+			
+			spectralFile_CloseWriter_Data_Common.setExceptionEncounteredProcessingScanFile(true);
+			
+			log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+			log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+			String msg = "Error Exception processing mzML or mzXml Scan file: " + scanFile.getAbsolutePath()
+					+ ",  Throwing Data error since probably error in file format.";
+			log.error( msg, e );
+			log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+			
+			throw e;
+			
+		} catch ( Throwable e ) {
+			
+			spectralFile_CloseWriter_Data_Common.setExceptionEncounteredProcessingScanFile(true);
+			
 			log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
 			log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
 			String msg = "Error Exception processing mzML or mzXml Scan file: " + scanFile.getAbsolutePath()
@@ -138,13 +147,32 @@ public class Process_ScanFile_Create_SpectralFile {
 			String msgForException = "Error processing Scan file. " 
 					+ ".  Please check the file to ensure it contains the correct contents for "
 					+ "a scan file based on the suffix of the file ('mzML' or 'mzXML')";
+			
 			throw new SpectralStorageDataException( msgForException );
+			
 		} finally {
 			if ( scanFileReader != null ) {
 				scanFileReader.close();
 			}
 			if ( spectralFile_Writer != null ) {
-				spectralFile_Writer.close();
+
+				if ( ! spectralFile_CloseWriter_Data_Common.isExceptionEncounteredProcessingScanFile() ) {
+					
+					ValidateInputScanFile_Result validateInputScanFile_Result = validateInputScanFile.get_ValidateInputScanFile_Result();
+					
+					if ( validateInputScanFile_Result.isNoScans_InScanFile_Have_TotalIonCurrent_Populated() ) {
+						spectralFile_CloseWriter_Data_Common.setTotalIonCurrent_ForEachScan_ComputedFromScanPeaks( true );  //  Boolean so must set to true or false
+					} else {
+						spectralFile_CloseWriter_Data_Common.setTotalIonCurrent_ForEachScan_ComputedFromScanPeaks( false );  //  Boolean so must set to true or false
+					}
+					if ( validateInputScanFile_Result.isNoScans_InScanFile_Have_IonInjectionTime_Populated() ) {
+						spectralFile_CloseWriter_Data_Common.setIonInjectionTime_NotPopulated( true );  //  Boolean so must set to true or false
+					} else {
+						spectralFile_CloseWriter_Data_Common.setIonInjectionTime_NotPopulated( false );  //  Boolean so must set to true or false
+					}
+				}
+				
+				spectralFile_Writer.close(spectralFile_CloseWriter_Data_Common);
 			}
 		}
 		
@@ -175,14 +203,15 @@ public class Process_ScanFile_Create_SpectralFile {
 	private void processAllScans( 
 			MzMl_MzXml_FileReader scanFileReader, 
 			SpectralFile_Writer__IF spectralFile_Writer,
+			ValidateInputScanFile validateInputScanFile,
 			File scanFile ) throws Exception {
 		
-		int insertedScansCounter = 0;
+//		int insertedScansCounter = 0;
 		NumberFormat numberFormatInsertedScansCounter = NumberFormat.getInstance();
 		
-		int insertedScansBlockCounter = 0; // track number since last reported on number inserted.
+//		int insertedScansBlockCounter = 0; // track number since last reported on number inserted.
 		int scansReadBlockCounter = 0; // track number since last reported on number read.
-		int scansForSysoutLineCounter = 0;
+//		int scansForSysoutLineCounter = 0;
 		
 		long scanCounter = 0;
 
@@ -265,9 +294,18 @@ public class Process_ScanFile_Create_SpectralFile {
     				spectralFile_SingleScan.setTotalIonCurrent( totalIonCurrent );
     			}
     			
+    			validateInputScanFile.validate_SingleScan( spectralFile_SingleScan ); //  Throws an exception if error
+    			
     			spectralFile_Writer.writeScan( spectralFile_SingleScan );
 
 			}
+			
+		} catch (SpectralStorageDataException e) {
+			
+			String msg = "Error SpectralStorageDataException processing mzML or MzXml Scan file: " + scanFile.getAbsolutePath();
+			log.error( msg, e );
+			throw e;
+			
 //		} catch (IOException e) {
 //			String msg = "Error IOException processing mzML or MzXml Scan file: " + scanFileWithPath.getAbsolutePath();
 //			log.error( msg, e );

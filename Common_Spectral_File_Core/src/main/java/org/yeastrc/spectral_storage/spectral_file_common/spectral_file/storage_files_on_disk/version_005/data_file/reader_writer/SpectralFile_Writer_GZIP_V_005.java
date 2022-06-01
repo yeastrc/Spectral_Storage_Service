@@ -7,7 +7,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -29,6 +28,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_cont
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.Accumulate_RT_MZ_Binned_ScanLevel_1;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.ScanLevel_1_RT_MZ_Binned_WriteFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.ScanLevel_1_RT_MZ_Binned_WriteFile_JSON_GZIP_NoIntensities;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_CloseWriter_Data_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_Header_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
@@ -62,7 +62,7 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	private static final int FILE_WRITE_BUFFER_SIZE = 4096 * 8;
 
 	
-	private enum HeaderFirstBytesInitialWriteUpdateAfterClose { FIRST_WRITE, UPDATE_AFTER_CLOSE }
+	private enum HeaderInitialWriteUpdateAfterClose { FIRST_WRITE, UPDATE_AFTER_CLOSE }
 	
 	
 	/**
@@ -133,93 +133,97 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.writer.SpectralFile_Writer__IF#close()
 	 */
 	@Override
-	public void close() throws Exception {
+	public void close(SpectralFile_CloseWriter_Data_Common spectralFile_CloseWriter_Data_Common) throws Exception {
 		
 		if ( outputStream_MainDataFileWhileWriting != null ) {
+			
 			outputStream_MainDataFileWhileWriting.close();
 			
-			updateDataFileAfterFullCloseMainWriter();
 			
 			
-			//  Rename data file to final filename:
-			
-			if ( ! outputFile_MainDataFileWhileWriting.renameTo( outputFile_MainDataFileFinal ) ) {
-				log.error( "Error renaming data file to final filename. Renaming from: "
-						+ outputFile_MainDataFileWhileWriting.getAbsolutePath() 
-						+ ", renaming to: "
-						+ outputFile_MainDataFileFinal.getAbsolutePath() );
-			}
-			
-			//  Output File with spectralDataFilename suffix with version of Data File Format
-			
-			{
-				String spectralDataFilename_With_FormatSuffixString = 
-						CreateSpectralStorageFilenames.getInstance().createSpectraStorage_Data_Filename_FileFormatVersion_Suffix( hash_String, FILE_VERSION );
+			if ( ! spectralFile_CloseWriter_Data_Common.isExceptionEncounteredProcessingScanFile() ) {
+
 				
-				File spectralDataFilename_With_FormatSuffixFile = new File( subDirForStorageFiles, spectralDataFilename_With_FormatSuffixString );
-				
-				try ( BufferedWriter writer = new BufferedWriter( new FileWriter(spectralDataFilename_With_FormatSuffixFile)) ) {
-					
-					writer.write( String.valueOf( FILE_VERSION ) );
+				updateDataFileAfterFullCloseMainWriter(spectralFile_CloseWriter_Data_Common);
+
+
+				//  Rename data file to final filename:
+
+				if ( ! outputFile_MainDataFileWhileWriting.renameTo( outputFile_MainDataFileFinal ) ) {
+					log.error( "Error renaming data file to final filename. Renaming from: "
+							+ outputFile_MainDataFileWhileWriting.getAbsolutePath() 
+							+ ", renaming to: "
+							+ outputFile_MainDataFileFinal.getAbsolutePath() );
 				}
-			}
-			
-			
-			//  Output the .index file and .scnlvlgt1p file
 
-			{
-				SpectralFile_Header_Common spectralFile_Header_Common = this.spectralFile_Header_Common;
+				//  Output File with spectralDataFilename suffix with version of Data File Format
 
-				
-				SpectralFile_Index_FDFW_FileContents_Root_V_005 spectralFile_Index_FDFW_FileContents_Root = new SpectralFile_Index_FDFW_FileContents_Root_V_005();
+				{
+					String spectralDataFilename_With_FormatSuffixString = 
+							CreateSpectralStorageFilenames.getInstance().createSpectraStorage_Data_Filename_FileFormatVersion_Suffix( hash_String, FILE_VERSION );
 
-				spectralFile_Index_FDFW_FileContents_Root.setTotalBytesForAllSingleScans( totalBytesForAllSingleScans );
-				
-				spectralFile_Index_FDFW_FileContents_Root.setIndexScanEntries( indexScanEntries );
-				
-				SpectralFile_Index_File_Writer_V_005.getInstance().writeIndexFile( 
+					File spectralDataFilename_With_FormatSuffixFile = new File( subDirForStorageFiles, spectralDataFilename_With_FormatSuffixString );
+
+					try ( BufferedWriter writer = new BufferedWriter( new FileWriter(spectralDataFilename_With_FormatSuffixFile)) ) {
+
+						writer.write( String.valueOf( FILE_VERSION ) );
+					}
+				}
+
+
+				//  Output the .index file and .scnlvlgt1p file
+
+				{
+					SpectralFile_Index_FDFW_FileContents_Root_V_005 spectralFile_Index_FDFW_FileContents_Root = new SpectralFile_Index_FDFW_FileContents_Root_V_005();
+
+					spectralFile_Index_FDFW_FileContents_Root.setTotalBytesForAllSingleScans( totalBytesForAllSingleScans );
+
+					spectralFile_Index_FDFW_FileContents_Root.setIndexScanEntries( indexScanEntries );
+
+					SpectralFile_Index_File_Writer_V_005.getInstance().writeIndexFile( 
+							hash_String, 
+							subDirForStorageFiles, 
+							spectralFile_Index_FDFW_FileContents_Root,
+							spectralFile_Header_Common,
+							spectralFile_CloseWriter_Data_Common,
+							accumulateSummaryDataPerScanLevel );
+
+					SpectralFile_ScansLvlGt1Partial_File_Writer_V_005.getInstance().write_ScansLvlGt1Partial_File( hash_String, subDirForStorageFiles, spectralFile_Index_FDFW_FileContents_Root );
+
+					SpectralFile_Scans_OtherDataExtract_File_Writer_V_005.getInstance().write_Scans_OtherDataExtract_File( hash_String, subDirForStorageFiles, spectralFile_Index_FDFW_FileContents_Root );
+				}
+
+				//  Write data in accumulate_RT_MZ_Binned_ScanLevel_1 to file as GZIP JSON
+				ScanLevel_1_RT_MZ_Binned_WriteFile.getInstance()
+				.writeScanLevel_1_RT_MZ_Binned_File( 
+						accumulate_RT_MZ_Binned_ScanLevel_1,
 						hash_String, 
-						subDirForStorageFiles, 
-						spectralFile_Index_FDFW_FileContents_Root,
-						spectralFile_Header_Common,
-						accumulateSummaryDataPerScanLevel );
-				
-				SpectralFile_ScansLvlGt1Partial_File_Writer_V_005.getInstance().write_ScansLvlGt1Partial_File( hash_String, subDirForStorageFiles, spectralFile_Index_FDFW_FileContents_Root );
-				
-				SpectralFile_Scans_OtherDataExtract_File_Writer_V_005.getInstance().write_Scans_OtherDataExtract_File( hash_String, subDirForStorageFiles, spectralFile_Index_FDFW_FileContents_Root );
-			}
-			
-			//  Write data in accumulate_RT_MZ_Binned_ScanLevel_1 to file as GZIP JSON
-			ScanLevel_1_RT_MZ_Binned_WriteFile.getInstance()
-			.writeScanLevel_1_RT_MZ_Binned_File( 
-					accumulate_RT_MZ_Binned_ScanLevel_1,
-					hash_String, 
-					subDirForStorageFiles );
-			
-			//  Write data in accumulate_RT_MZ_Binned_ScanLevel_1 to file as JSON GZIP - No Summed Intensities
-			ScanLevel_1_RT_MZ_Binned_WriteFile_JSON_GZIP_NoIntensities.getInstance()
-			.writeScanLevel_1_RT_MZ_Binned_File_JSON_GZIP_NoIntensities(
-					accumulate_RT_MZ_Binned_ScanLevel_1, hash_String, subDirForStorageFiles);
-			
-			//  Create Files Complete file as last step
-			{
-				createFilesCompleteFile();
-			}
+						subDirForStorageFiles );
 
-			//  Remove Files Started file that was created in first step
-			{
-				String dataIndexSpectralFilesStartedFilename =
-						CreateSpectralStorageFilenames.getInstance().createSpectraStorage_Data_Index_Files_Started_Filename( hash_String );
+				//  Write data in accumulate_RT_MZ_Binned_ScanLevel_1 to file as JSON GZIP - No Summed Intensities
+				ScanLevel_1_RT_MZ_Binned_WriteFile_JSON_GZIP_NoIntensities.getInstance()
+				.writeScanLevel_1_RT_MZ_Binned_File_JSON_GZIP_NoIntensities(
+						accumulate_RT_MZ_Binned_ScanLevel_1, hash_String, subDirForStorageFiles);
 
-				File dataIndexSpectralFilesStartedFile = new File( subDirForStorageFiles, dataIndexSpectralFilesStartedFilename );
+				//  Create Files Complete file as last step
+				{
+					createFilesCompleteFile();
+				}
 
-				if ( ! dataIndexSpectralFilesStartedFile.delete() ) {
-					String msg = "Failed to delete " + dataIndexSpectralFilesStartedFile.getAbsolutePath();
-					log.error( msg );
-					throw new SpectralStorageProcessingException(msg);
+				//  Remove Files Started file that was created in first step
+				{
+					String dataIndexSpectralFilesStartedFilename =
+							CreateSpectralStorageFilenames.getInstance().createSpectraStorage_Data_Index_Files_Started_Filename( hash_String );
+
+					File dataIndexSpectralFilesStartedFile = new File( subDirForStorageFiles, dataIndexSpectralFilesStartedFilename );
+
+					if ( ! dataIndexSpectralFilesStartedFile.delete() ) {
+						String msg = "Failed to delete " + dataIndexSpectralFilesStartedFile.getAbsolutePath();
+						log.error( msg );
+						throw new SpectralStorageProcessingException(msg);
+					}
 				}
 			}
-			
 		}
 		
 		outputStream_MainDataFileWhileWriting = null;
@@ -234,6 +238,17 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	 */
 	@Override
 	public void open( String hash_String, File subDirForStorageFiles, SpectralFile_Header_Common spectralFile_Header_Common ) throws Exception {
+		
+		if ( spectralFile_Header_Common.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks() != null ) {
+			String msg = "In Writer, cannot be not null: spectralFile_Header_Common.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks()";
+			log.error(msg);
+			throw new SpectralStorageProcessingException(msg);
+		}
+		if ( spectralFile_Header_Common.getIonInjectionTime_NotPopulated() != null ) {
+			String msg = "In Writer, cannot be not null: spectralFile_Header_Common.getIonInjectionTime_NotPopulated()";
+			log.error(msg);
+			throw new SpectralStorageProcessingException(msg);
+		}
 
 		this.hash_String = hash_String;
 		this.subDirForStorageFiles = subDirForStorageFiles;
@@ -270,7 +285,7 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 		
 		outputStream_MainDataFileWhileWriting = new BufferedOutputStream( new FileOutputStream( outputFile_MainDataFileWhileWriting ), FILE_WRITE_BUFFER_SIZE );
 		
-		writeHeader( spectralFile_Header_Common );
+		writeHeader();
 		
 		openCalled = true;
 
@@ -280,17 +295,16 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	/* (non-Javadoc)
 	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.writer.SpectralFile_Writer__IF#writeHeader(org.yeastrc.spectral_storage.spectral_file_common.spectral_file.dto.SpectralFile_Header)
 	 */
-	private void writeHeader( SpectralFile_Header_Common header ) throws Exception {
+	private void writeHeader() throws Exception {
 
-		byte[] headerFirstBytes = getHeaderFirstBytes( HeaderFirstBytesInitialWriteUpdateAfterClose.FIRST_WRITE );
+		byte[] headerBytes = getHeaderBytes( null /* spectralFile_CloseWriter_Data_Common */, HeaderInitialWriteUpdateAfterClose.FIRST_WRITE );
 		
-		outputStream_MainDataFileWhileWriting.write( headerFirstBytes );
+		outputStream_MainDataFileWhileWriting.write( headerBytes );
 		
 		outputStream_MainDataFileWhileWriting.flush();
 		
-		int numBytesWrittenOtherThanVersion = writeHeaderMainPart( header );
 
-		long numBytesWritten = headerFirstBytes.length + numBytesWrittenOtherThanVersion;
+		long numBytesWritten = headerBytes.length;
 		
 		nextScanIndex_InBytes = numBytesWritten;
 		
@@ -300,37 +314,40 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	/**
 	 * @throws Exception
 	 */
-	private void updateDataFileAfterFullCloseMainWriter() throws Exception {
+	private void updateDataFileAfterFullCloseMainWriter(SpectralFile_CloseWriter_Data_Common spectralFile_CloseWriter_Data_Common) throws Exception {
 
 		//  Write to start of file after closing file
-		byte[] headerFirstBytes = getHeaderFirstBytes( HeaderFirstBytesInitialWriteUpdateAfterClose.UPDATE_AFTER_CLOSE );
+		
+		//  Get Header Bytes that will overlay existing header with updates
+		
+		byte[] headerBytes = getHeaderBytes( spectralFile_CloseWriter_Data_Common, HeaderInitialWriteUpdateAfterClose.UPDATE_AFTER_CLOSE );
 
 		try ( RandomAccessFile spectalFile = new RandomAccessFile( outputFile_MainDataFileWhileWriting, FILE_MODE_READ_WRITE ) ) {
 		
 //			spectalFile.getFilePointer();
 //			spectalFile.length();
 			
-			spectalFile.seek( 0 );
+			spectalFile.seek( 0 );  // Set to start of file
 			
-			spectalFile.write( headerFirstBytes );
+			spectalFile.write( headerBytes );
 		}
 				
 	}
 
 	
 	/**
-	 * @param headerFirstBytesInitialWriteUpdateAfterClose
+	 * @param headerInitialWriteUpdateAfterClose
 	 * @return
-	 * @throws IOException
+	 * @throws Exception 
 	 */
-	private byte[] getHeaderFirstBytes( HeaderFirstBytesInitialWriteUpdateAfterClose headerFirstBytesInitialWriteUpdateAfterClose ) throws IOException {
+	private byte[] getHeaderBytes( SpectralFile_CloseWriter_Data_Common spectralFile_CloseWriter_Data_Common, HeaderInitialWriteUpdateAfterClose headerInitialWriteUpdateAfterClose ) throws Exception {
 
 		short fileVersion = FILE_VERSION;
 		byte fileFullyWrittenValue = DataOrIndexFileFullyWrittenConstants.FILE_FULLY_WRITTEN_NO;
 		long dataFileSize = 0;
 		
-		if ( headerFirstBytesInitialWriteUpdateAfterClose
-				== HeaderFirstBytesInitialWriteUpdateAfterClose.UPDATE_AFTER_CLOSE ) {
+		if ( headerInitialWriteUpdateAfterClose
+				== HeaderInitialWriteUpdateAfterClose.UPDATE_AFTER_CLOSE ) {
 			
 			fileFullyWrittenValue = DataOrIndexFileFullyWrittenConstants.FILE_FULLY_WRITTEN_YES;
 			dataFileSize = outputFile_MainDataFileWhileWriting.length();
@@ -353,8 +370,25 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 		//  Write Data File Size (Size of file this is written to) - ALWAYS THIRD
 		
 		dataOutputStream.writeLong( dataFileSize );
+
+		////////
+
+		//  Get headerMainPart here so can write the length of it before writing it 
 		
-		dataOutputStream.flush();
+		byte[] headerMainPart = getMainHeaderContents_ByteArray_Minus_MainHeaderLength(spectralFile_CloseWriter_Data_Common);
+
+		int headerMainPartSize = headerMainPart.length;
+
+		
+		//  Write Length of main header data to output file BEFORE writing header data (excludes VERSION and this length)
+		
+		dataOutputStream.writeShort( headerMainPartSize );
+
+
+		dataOutputStream.flush();  //  Flush dataOutputStream before write byte[] headerMainPart to tempOutputStream
+
+		tempOutputStream.write( headerMainPart );  //  write byte[] headerMainPart to tempOutputStream
+		
 
 		tempOutputStream.close();
 		
@@ -362,56 +396,49 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 		
 		return results;
 	}
-
 	
 	/**
-	 * @param header
+	 * @param header_Common
 	 * @return
-	 * @throws Exception
+	 * @throws Exception 
 	 */
-	private int writeHeaderMainPart( SpectralFile_Header_Common header ) throws Exception {
-
-		//  Contents of 'tempOutputStream' are written to file AFTER the length of 'tempOutputStream' 
-		//    at the bottom of this method
-		
-		tempOutputStream.reset();
-		
-		//  Surround tempOutputStream
-		DataOutputStream dataOutputStream = new DataOutputStream( tempOutputStream );
-
-		
+	private byte[] getMainHeaderContents_ByteArray_Minus_MainHeaderLength(SpectralFile_CloseWriter_Data_Common spectralFile_CloseWriter_Data_Common) throws Exception {
 
 		//////////////////////////////////
 		
 		//////   !!!!!!!!   Only Add new Items to End of Header
 		
+		ByteArrayOutputStream local_ByteArrayOutputStream = new ByteArrayOutputStream( 1000000 );
+
+		//  Surround tempOutputStream
+		DataOutputStream dataOutputStream = new DataOutputStream( local_ByteArrayOutputStream );
 
 		
 		//  Write scan file length
 		
-		dataOutputStream.writeLong( header.getScanFileLength_InBytes() );
+		dataOutputStream.writeLong( this.spectralFile_Header_Common.getScanFileLength_InBytes() );
 		
 
 		//  Write Main Hash
 
 		//      Write Main hash length and then the bytes
 		
-		dataOutputStream.writeShort( header.getMainHash().length );
-		dataOutputStream.write( header.getMainHash() );
+		dataOutputStream.writeShort( this.spectralFile_Header_Common.getMainHash().length );
+		dataOutputStream.write( this.spectralFile_Header_Common.getMainHash() );
 
 		//  Write Alt Hash SHA512
 
 		//      Write Alt Hash SHA512 length and then the bytes
 		
-		dataOutputStream.writeShort( header.getAltHashSHA512().length );
-		dataOutputStream.write( header.getAltHashSHA512() );
+		dataOutputStream.writeShort( this.spectralFile_Header_Common.getAltHashSHA512().length );
+		dataOutputStream.write( this.spectralFile_Header_Common.getAltHashSHA512() );
 
 		//  Write Alt Hash SHA1
 
 		//      Write Alt Hash SHA1 length and then the bytes
 		
-		dataOutputStream.writeShort( header.getAltHashSHA1().length );
-		dataOutputStream.write( header.getAltHashSHA1() );
+		dataOutputStream.writeShort( this.spectralFile_Header_Common.getAltHashSHA1().length );
+		dataOutputStream.write( this.spectralFile_Header_Common.getAltHashSHA1() );
 		
 		//////////////////////////////////
 		
@@ -423,15 +450,18 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 		
 			byte flagValueByte = ByteValuesFor_Boolean_TrueFalse_Constants.BYTE_VALUE_FOR_BOOLEAN_FALSE;
 			
-			if ( header.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks() == null ) {
-				String msg = "header.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks() == null";
-				log.error(msg);
-				throw new SpectralStorageProcessingException(msg);
-			}
-			
-			if ( header.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks().booleanValue() ) {
-				
-				flagValueByte = ByteValuesFor_Boolean_TrueFalse_Constants.BYTE_VALUE_FOR_BOOLEAN_TRUE;
+			if ( spectralFile_CloseWriter_Data_Common != null ) {
+
+				if ( spectralFile_CloseWriter_Data_Common.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks() == null ) {
+					String msg = "this.spectralFile_Header_Common.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks() == null";
+					log.error(msg);
+					throw new SpectralStorageProcessingException(msg);
+				}
+
+				if ( spectralFile_CloseWriter_Data_Common.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks().booleanValue() ) {
+
+					flagValueByte = ByteValuesFor_Boolean_TrueFalse_Constants.BYTE_VALUE_FOR_BOOLEAN_TRUE;
+				}
 			}
 		
 			dataOutputStream.writeByte(flagValueByte);
@@ -440,16 +470,19 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 		{ //   Write Flag: ionInjectionTime_NotPopulated
 		
 			byte flagValueByte = ByteValuesFor_Boolean_TrueFalse_Constants.BYTE_VALUE_FOR_BOOLEAN_FALSE;
-			
-			if ( header.getIonInjectionTime_NotPopulated() == null ) {
-				String msg = "header.getIonInjectionTime_NotPopulated() == null";
-				log.error(msg);
-				throw new SpectralStorageProcessingException(msg);
-			}
-			
-			if ( header.getIonInjectionTime_NotPopulated().booleanValue() ) {
-				
-				flagValueByte = ByteValuesFor_Boolean_TrueFalse_Constants.BYTE_VALUE_FOR_BOOLEAN_TRUE;
+
+			if ( spectralFile_CloseWriter_Data_Common != null ) {
+
+				if ( spectralFile_CloseWriter_Data_Common.getIonInjectionTime_NotPopulated() == null ) {
+					String msg = "spectralFile_CloseWriter_Data_Common.getIonInjectionTime_NotPopulated() == null";
+					log.error(msg);
+					throw new SpectralStorageProcessingException(msg);
+				}
+
+				if ( spectralFile_CloseWriter_Data_Common.getIonInjectionTime_NotPopulated().booleanValue() ) {
+
+					flagValueByte = ByteValuesFor_Boolean_TrueFalse_Constants.BYTE_VALUE_FOR_BOOLEAN_TRUE;
+				}
 			}
 		
 			dataOutputStream.writeByte(flagValueByte);
@@ -462,35 +495,25 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 		
 		//   Done writing to dataOutputStream
 		
-		//   Now Write dataOutputStream to file
+		//   Now get byte[] to return
 		
 		
 		dataOutputStream.flush();
 
-		int headerMainPartSize = tempOutputStream.size();
-
+		local_ByteArrayOutputStream.close();
 		
-		//  Write Length of main header data to output file BEFORE writing header data (excludes VERSION and this length)
+		byte[] results = local_ByteArrayOutputStream.toByteArray();
 		
-		//  New Output Byte Stream just for writing length of main header
-		ByteArrayOutputStream baos_headerMainPartSize = new ByteArrayOutputStream( 500 );
-		DataOutputStream dataOutputStream_headerMainPartSize = new DataOutputStream( baos_headerMainPartSize );
-
-		dataOutputStream_headerMainPartSize.writeShort( headerMainPartSize );
-		dataOutputStream_headerMainPartSize.close();
-		
-		baos_headerMainPartSize.writeTo( outputStream_MainDataFileWhileWriting );		
-		
-
-		tempOutputStream.writeTo( outputStream_MainDataFileWhileWriting );
-		
-		
-		outputStream_MainDataFileWhileWriting.flush();
-		
-		int numBytesWritten = baos_headerMainPartSize.size() + headerMainPartSize; 
-		
-		return numBytesWritten;
+		return results;
 	}
+
+	
+	//   END Create/Write HEADER CODE
+	
+	
+	//////////////////////////
+	//////////////////////////
+	//////////////////////////
 	
 	
 	/* (non-Javadoc)
