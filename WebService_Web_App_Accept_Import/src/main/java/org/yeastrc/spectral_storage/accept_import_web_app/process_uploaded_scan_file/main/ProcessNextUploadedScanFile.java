@@ -38,6 +38,27 @@ public class ProcessNextUploadedScanFile {
 		return new ProcessNextUploadedScanFile(); 
 	}
 	
+	/**
+	 * 
+	 *
+	 */
+	public static class ProcessNextUploadedScanFile_Params {
+		
+		private File importScanFileProcsesingDirectory;
+		private String converter_base_url;
+		private String input_scan_filename;
+		
+		public void setImportScanFileProcsesingDirectory(File importScanFileProcsesingDirectory) {
+			this.importScanFileProcsesingDirectory = importScanFileProcsesingDirectory;
+		}
+		public void setConverter_base_url(String converter_base_url) {
+			this.converter_base_url = converter_base_url;
+		}
+		public void setInput_scan_filename(String input_scan_filename) {
+			this.input_scan_filename = input_scan_filename;
+		}
+	}
+	
 
 	/**
 	 * awaken thread to process request, calls "notify()"
@@ -78,7 +99,11 @@ public class ProcessNextUploadedScanFile {
 	 * Return after processing next uploaded scan file or shutdown() has been called
 	 * @throws Exception 
 	 */
-	public ProcessingSuccessFailKilled processNextUploadedScanFile( File importScanFileProcsesingDirectory ) throws Exception {
+	public ProcessingSuccessFailKilled processNextUploadedScanFile( ProcessNextUploadedScanFile_Params methodParams ) throws Exception {
+			
+		File importScanFileProcsesingDirectory = methodParams.importScanFileProcsesingDirectory;
+		String converter_base_url = methodParams.converter_base_url;
+		String input_scan_filename = methodParams.input_scan_filename;
 		
 		if ( log.isInfoEnabled() ) {
 			log.info( "processNextUploadedScanFile(..): Processing Scan File in Directory: " + importScanFileProcsesingDirectory );
@@ -114,6 +139,15 @@ public class ProcessNextUploadedScanFile {
 		
 		commandAndItsArgumentsAsList.add( "-jar" );
 		commandAndItsArgumentsAsList.add( processScanUploadJarFile );
+		
+		{
+			String converter_base_url_CommandString = "--converter_base_url=" + converter_base_url;
+			commandAndItsArgumentsAsList.add( converter_base_url_CommandString );
+		}
+		{
+			String input_scan_filename_CommandString = "--input_scan_filename=" + input_scan_filename;
+			commandAndItsArgumentsAsList.add( input_scan_filename_CommandString );
+		}
 
 		{
 			File scanFileStorageBaseDir = configData_Directories_ProcessUploadInfo_InWorkDirectory.getScanStorageBaseDirectory();
@@ -143,7 +177,6 @@ public class ProcessNextUploadedScanFile {
 			}
 		}
 		{
-
 			File backupOldBaseDir = 
 					configData_Directories_ProcessUploadInfo_InWorkDirectory.getBackupOldBaseDirectory();
 			if ( backupOldBaseDir != null ) {

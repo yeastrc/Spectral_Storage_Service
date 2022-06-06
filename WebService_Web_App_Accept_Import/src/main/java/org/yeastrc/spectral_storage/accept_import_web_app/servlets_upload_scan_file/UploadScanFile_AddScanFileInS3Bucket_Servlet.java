@@ -1,41 +1,41 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
+//import java.io.File;
+//import java.io.FileOutputStream;
+//import java.io.IOException;
+//import java.io.OutputStream;
+//
+//import javax.servlet.ServletConfig;
+//import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.amazon_s3_client_builder.SpectralStorageWebappAmazonS3ClientBuilder;
-import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
-import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.FileUploadConstants;
-import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ServetResponseFormatEnum;
-import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileBadRequestToServletException;
-import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileDeserializeRequestException;
-import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadInternalException;
-import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
-import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.GetRequestObjectFromInputStream;
-import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
-import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseObjectToOutputStream;
-import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseStringToOutputStream;
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants;
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_AddScanFileInS3Bucket_Request;
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_AddScanFileInS3Bucket_Response;
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_UploadScanFile_Response;
-import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo;
-import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo.ValidationResponse;
-import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
+//import javax.servlet.http.HttpServletRequest;
+//import javax.servlet.http.HttpServletResponse;
+//import javax.xml.bind.JAXBContext;
+//import javax.xml.bind.Marshaller;
+//
+//import org.apache.commons.lang3.StringUtils;
+//import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+//import org.yeastrc.spectral_storage.accept_import_web_app.amazon_s3_client_builder.SpectralStorageWebappAmazonS3ClientBuilder;
+//import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
+//import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.FileUploadConstants;
+//import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ServetResponseFormatEnum;
+//import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileBadRequestToServletException;
+//import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileDeserializeRequestException;
+//import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadInternalException;
+//import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
+//import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.GetRequestObjectFromInputStream;
+//import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
+//import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseObjectToOutputStream;
+//import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseStringToOutputStream;
+//import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants;
+//import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_AddScanFileInS3Bucket_Request;
+//import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_AddScanFileInS3Bucket_Response;
+//import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_UploadScanFile_Response;
+//import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo;
+//import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo.ValidationResponse;
+//import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
+//import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
+//import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
 
 //  import com.amazonaws.services.s3.AmazonS3;
 //  import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -44,6 +44,8 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_sc
 
 // COMMENTED OUT:   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
+
+//   This code is probably out of date so it cannot just be uncommented
 
 /**
  * Submit the Upload Scan Process  
@@ -55,7 +57,7 @@ public class UploadScanFile_AddScanFileInS3Bucket_Servlet extends HttpServlet {
 
 //	private static final Logger log = LoggerFactory.getLogger( UploadScanFile_AddScanFileInS3Bucket_Servlet.class );
 //
-//	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 //	
 //	private ServetResponseFormatEnum servetResponseFormat;
 //	

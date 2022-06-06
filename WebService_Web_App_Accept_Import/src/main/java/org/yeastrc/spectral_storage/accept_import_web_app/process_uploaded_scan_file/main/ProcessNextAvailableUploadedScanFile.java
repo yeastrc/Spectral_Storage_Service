@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.import_processing_status_file__read_write.UploadProcessingReadStatusFile;
+import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk__converter_path.ImportScanFilename_LocalDisk__ConverterURLPath;
+import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk__converter_path.ImportScanFilename_LocalDisk__ConverterURLPath.ImportScanFilename_LocalDisk__ConverterURLPath__Result;
+import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextUploadedScanFile.ProcessNextUploadedScanFile_Params;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextUploadedScanFile.ProcessingSuccessFailKilled;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ToFileReadWrite;
@@ -116,6 +119,25 @@ public class ProcessNextAvailableUploadedScanFile {
 					log.info( "processNextAvailableUploadedScanFile(): START Processing Scan File in Directory [calling processNextUploadedScanFile(...): " + scanFileDir.getAbsolutePath() );
 				}
 				
+				ProcessNextUploadedScanFile_Params processNextUploadedScanFile_Params = new ProcessNextUploadedScanFile_Params();
+
+				processNextUploadedScanFile_Params.setImportScanFileProcsesingDirectory(scanFileDir);
+				
+				try {
+					ImportScanFilename_LocalDisk__ConverterURLPath__Result importScanFilename_LocalDisk__ConverterURLPath__Result =
+					ImportScanFilename_LocalDisk__ConverterURLPath.getInstance().getImportScanFilename_LocalDisk__ConverterURLPath(scanFileDir);
+					
+					processNextUploadedScanFile_Params.setConverter_base_url( importScanFilename_LocalDisk__ConverterURLPath__Result.getConfigData_ScanFilenameSuffix_To_ConverterMapping_SingleEntry().getConverter_base_url() );
+					processNextUploadedScanFile_Params.setInput_scan_filename( importScanFilename_LocalDisk__ConverterURLPath__Result.getScanFilename() );
+					
+				} catch ( Throwable e ) {
+					
+					//  Do Move here since rethrow this exception
+					MoveProcessingDirectoryToOneof_Processed_Directories.getInstance().moveProcessingDirectoryToOneof_Processed_Directories( scanFileDir, ProcessingSuccessFailKilled.FAIL );
+					
+					throw e;
+				}
+				
 				scanFileDirString = scanFileDir.getAbsolutePath();
 				
 				ProcessingSuccessFailKilled processingSuccessFailKilled_Result = null;
@@ -126,7 +148,7 @@ public class ProcessNextAvailableUploadedScanFile {
 
 					//				processUploadedFilesState = ProcessUploadedFilesState.PROCESSING;
 
-					processingSuccessFailKilled_Result = processNextUploadedScanFile.processNextUploadedScanFile( scanFileDir );
+					processingSuccessFailKilled_Result = processNextUploadedScanFile.processNextUploadedScanFile( processNextUploadedScanFile_Params );
 
 				} catch ( Throwable e ) {
 					

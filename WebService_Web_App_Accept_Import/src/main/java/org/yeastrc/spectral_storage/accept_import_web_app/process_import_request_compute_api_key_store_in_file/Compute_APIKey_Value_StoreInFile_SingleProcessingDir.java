@@ -2,13 +2,11 @@ package org.yeastrc.spectral_storage.accept_import_web_app.process_import_reques
 
 import java.io.File;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.A_BackgroundThreads_Containers_Manager;
-import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.import_processing_status_file__read_write.UploadProcessingWriteOrUpdateStatusFile;
-import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk.ImportScanFilename_LocalDisk;
+import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk__converter_path.ImportScanFilename_LocalDisk__ConverterURLPath;
+import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk__converter_path.ImportScanFilename_LocalDisk__ConverterURLPath.ImportScanFilename_LocalDisk__ConverterURLPath__Result;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_import_request_api_key_value_in_file.ProcessImportRequest_APIKey_Value_InFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_File_Hashes;
@@ -122,7 +120,17 @@ public class Compute_APIKey_Value_StoreInFile_SingleProcessingDir {
 		}
 				
 		//  Find the scan file 
-		String scanFilename = ImportScanFilename_LocalDisk.getInstance().getImportScanFilename_LocalDisk( scanFileProcessingDir );
+
+		ImportScanFilename_LocalDisk__ConverterURLPath__Result importScanFilename_LocalDisk__ConverterURLPath__Result  =
+				ImportScanFilename_LocalDisk__ConverterURLPath.getInstance().getImportScanFilename_LocalDisk__ConverterURLPath( scanFileProcessingDir );
+
+		if ( importScanFilename_LocalDisk__ConverterURLPath__Result == null ) {
+			String msg = "Failed to find scan file, scanFileProcessingDir: " + scanFileProcessingDir.getAbsolutePath();
+			log.error( msg );
+			throw new SpectralStorageProcessingException( msg );
+		}
+		
+		String scanFilename = importScanFilename_LocalDisk__ConverterURLPath__Result.getScanFilename();
 		
 		File scanFile = new File( scanFileProcessingDir, scanFilename );
 

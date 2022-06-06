@@ -6,8 +6,13 @@ package org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.
  */
 public class WebserviceSpectralStorageAcceptImportPathConstants {
 
+	//  Servlet - HealthCheck - Only validates that webapp is up and responding
+	
+	public static final String HEALTH_CHECK = "/health-check";
 	
 	//  Servlets - Processing Scan File Upload and Returning Status and API Key
+	
+	public static final String GET_SUPPORTED_SCAN_FILENAME_SUFFIXES_XML = "/get-data/get-supported-scan-filename-suffixes_XML";
 
 	public static final String UPLOAD_SCAN_FILE_INIT_SERVLET_XML = "/update/uploadScanFile_Init_XML";
 

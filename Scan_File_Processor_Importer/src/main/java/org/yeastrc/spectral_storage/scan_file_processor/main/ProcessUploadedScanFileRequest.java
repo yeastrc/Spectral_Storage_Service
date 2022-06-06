@@ -23,7 +23,6 @@ import java.util.Date;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.constants_enums.ImporterTempSubDirNameConstants;
-import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetInputScanFile_CurrentLocalDirectory;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Process_ScanFile_Create_SpectralFile;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
@@ -84,7 +83,7 @@ public class ProcessUploadedScanFileRequest {
 		//  If have file with info on scan file in S3, copy that scan file to local dir in standard scan filename
 //		GetScanFileFrom_S3_IfHave_S3_Info_File.getInstance().getScanFileFrom_S3_IfHave_S3_Info_File();
 		
-		File inputScanFile = GetInputScanFile_CurrentLocalDirectory.getInstance().getInputScanFile_CurrentLocalDirectory();
+		File inputScanFile = pgmParams.getInputScanFile();
 		
 		System.out.println( "Input scan File Absolute Path: " + inputScanFile.getAbsolutePath() );
 		System.out.println( "Input scan File Canonical Path: " + inputScanFile.getCanonicalPath() );
@@ -100,7 +99,6 @@ public class ProcessUploadedScanFileRequest {
 		
 		processInputFileWithComputedHash(
 				pgmParams,
-				inputScanFile, 
 				compute_Hashes );
 
 		//  Don't get here if here is a failure since an exception will be thrown.  
@@ -126,9 +124,8 @@ public class ProcessUploadedScanFileRequest {
 	 */
 	public  String processInputFileWithComputedHash(
 			Scan_File_Processor_MainProgram_Params pgmParams,
-			File inputScanFile,
 			Compute_Hashes compute_Hashes ) throws Exception, IOException {
-		
+
 		//  String of the API Key for this scan file, based on the hash of the file contents
 		String apiKey = 
 				ScanFileAPIKey_ComputeFromScanFileContentHashes.getInstance()
@@ -234,7 +231,7 @@ public class ProcessUploadedScanFileRequest {
 
 		try {
 			Process_ScanFile_Create_SpectralFile.getInstance()
-			.processScanFile( inputScanFile, tempOutputDir, apiKey, compute_Hashes );
+			.processScanFile( pgmParams, tempOutputDir, apiKey, compute_Hashes );
 
 		} catch ( SpectralStorageDataException e ) {
 			
@@ -245,7 +242,8 @@ public class ProcessUploadedScanFileRequest {
 			throw e;
 			
 		} catch ( Exception e) {
-			log.error( "Failed to process scan file: " + inputScanFile.getAbsolutePath(), e );
+
+			log.error( "Failed to process scan file: " + pgmParams.getInputScanFile().getAbsolutePath(), e );
 			throw e;
 		}
 		

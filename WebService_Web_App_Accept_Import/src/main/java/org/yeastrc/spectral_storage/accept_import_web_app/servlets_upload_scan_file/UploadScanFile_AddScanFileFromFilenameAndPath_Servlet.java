@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
+import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_ScanFilenameSuffix_To_ConverterMapping;
+import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_ScanFilenameSuffix_To_ConverterMapping.ConfigData_ScanFilenameSuffix_To_ConverterMapping_SingleEntry;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.FileUploadConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileBadRequestToServletException;
@@ -26,7 +28,6 @@ import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.GetReq
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseObjectToOutputStream;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseStringToOutputStream;
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_AddScanFileFromFilenameAndPath_Request;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_AddScanFileFromFilenameAndPath_Response;
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo;
@@ -371,15 +372,20 @@ public class UploadScanFile_AddScanFileFromFilenameAndPath_Servlet extends HttpS
 
 			//  Validate Scan Filename Suffix and set "Uploaded Scan Filename" : In quotes since it is fake set in this web app from passed in suffix
 			
-			String scanFilenameToProcess = null;
+			String scanFilenameToProcess_Suffix = null;
+			
+			{
+				for ( ConfigData_ScanFilenameSuffix_To_ConverterMapping_SingleEntry converterMappingEntry : ConfigData_ScanFilenameSuffix_To_ConverterMapping.getSingletonInstance().getEntries() ) {
+					
+					if ( scanFilename.endsWith( converterMappingEntry.getScan_filename_suffix() ) ) {
+						
+						scanFilenameToProcess_Suffix = converterMappingEntry.getScan_filename_suffix();
+						break;
+					}
+				}
+			}
 		
-			if ( scanFilename.endsWith( WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML ) ) {
-				scanFilenameToProcess = ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_FILENAME_PREFIX 
-						+ WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML;
-			} else if ( scanFilename.endsWith( WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML ) ) {
-					scanFilenameToProcess = ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_FILENAME_PREFIX 
-							+ WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML;
-			} else {
+			if ( scanFilenameToProcess_Suffix == null ) {
 				log.warn( "Filename suffix at end of filenameWithPath is NOT a valid suffix: " + submitted_filenameWithPathString );
 
 				UploadScanFile_AddScanFileFromFilenameAndPath_Response uploadResponse = new UploadScanFile_AddScanFileFromFilenameAndPath_Response();
@@ -391,6 +397,8 @@ public class UploadScanFile_AddScanFileFromFilenameAndPath_Servlet extends HttpS
 
 				return;  // EARLY EXIT
 			}
+
+			String scanFilenameToProcess = ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_FILENAME_PREFIX + scanFilenameToProcess_Suffix;
 			
 			
 			//  Create soft link in upload processing directory to submitted scan file

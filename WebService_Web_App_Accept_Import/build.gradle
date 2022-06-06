@@ -107,6 +107,10 @@ dependencies {
 	// https://mvnrepository.com/artifact/commons-io/commons-io
 	compile group: 'commons-io', name: 'commons-io', version: '2.6'
 	
+	//  YAML reader
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml
+	implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.13.3'
+	
 	
 		// JAXB dependencies (Required for Java 11+)
 	// https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api

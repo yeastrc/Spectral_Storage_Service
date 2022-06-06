@@ -8,6 +8,10 @@ import java.io.File;
  */
 public class Scan_File_Processor_MainProgram_Params {
 
+	private String converterBaseUrlString;
+	
+	private File inputScanFile;
+	
 	private File outputBaseDir;
 	private File tempOutputBaseDir;
 	private File backupOldBaseDir; 
@@ -47,5 +51,17 @@ public class Scan_File_Processor_MainProgram_Params {
 	}
 	public void setTempOutputBaseDir(File tempOutputBaseDir) {
 		this.tempOutputBaseDir = tempOutputBaseDir;
+	}
+	public File getInputScanFile() {
+		return inputScanFile;
+	}
+	public void setInputScanFile(File inputScanFile) {
+		this.inputScanFile = inputScanFile;
+	}
+	public String getConverterBaseUrlString() {
+		return converterBaseUrlString;
+	}
+	public void setConverterBaseUrlString(String converterBaseUrlString) {
+		this.converterBaseUrlString = converterBaseUrlString;
 	}
 }

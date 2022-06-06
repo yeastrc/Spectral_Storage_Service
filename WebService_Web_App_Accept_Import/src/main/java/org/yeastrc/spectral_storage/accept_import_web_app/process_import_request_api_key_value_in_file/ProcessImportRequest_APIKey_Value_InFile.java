@@ -8,8 +8,10 @@ import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.A_Ba
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.UploadProcessingStatusFileConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadInternalException;
+import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.import_processing_status_file__read_write.UploadProcessingWriteOrUpdateStatusFile;
-import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk.ImportScanFilename_LocalDisk;
+import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk__converter_path.ImportScanFilename_LocalDisk__ConverterURLPath;
+import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk__converter_path.ImportScanFilename_LocalDisk__ConverterURLPath.ImportScanFilename_LocalDisk__ConverterURLPath__Result;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.MoveProcessingDirectoryToOneof_Processed_Directories;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessUploadedScanFile_Final_OnSuccess;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextUploadedScanFile.ProcessingSuccessFailKilled;
@@ -157,11 +159,22 @@ public class ProcessImportRequest_APIKey_Value_InFile {
 	/**
 	 * @param dirToProcessScanFile
 	 * @throws SpectralFileFileUploadInternalException 
+	 * @throws SpectralFileWebappInternalException 
 	 */
-	private void cleanupInputScanFile( File dirToProcessScanFile ) throws SpectralFileFileUploadInternalException {
+	private void cleanupInputScanFile( File dirToProcessScanFile ) throws SpectralFileFileUploadInternalException, SpectralFileWebappInternalException {
 
 		//  Find the scan file 
-		String importScanFilename = ImportScanFilename_LocalDisk.getInstance().getImportScanFilename_LocalDisk( dirToProcessScanFile );
+
+		ImportScanFilename_LocalDisk__ConverterURLPath__Result importScanFilename_LocalDisk__ConverterURLPath__Result  =
+				ImportScanFilename_LocalDisk__ConverterURLPath.getInstance().getImportScanFilename_LocalDisk__ConverterURLPath( dirToProcessScanFile );
+
+		if ( importScanFilename_LocalDisk__ConverterURLPath__Result == null ) {
+			String msg = "Failed to find scan file, dirToProcessScanFile: " + dirToProcessScanFile.getAbsolutePath();
+			log.error( msg );
+			throw new SpectralStorageProcessingException( msg );
+		}
+		
+		String importScanFilename = importScanFilename_LocalDisk__ConverterURLPath__Result.getScanFilename();
 		
 		if ( importScanFilename == null ) {
 			//  Scan file not found

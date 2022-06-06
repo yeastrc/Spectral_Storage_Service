@@ -6,6 +6,10 @@ package org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.consta
  */
 public class WebserviceSpectralStorageGetDataPathConstants {
 
+	//  Servlet - HealthCheck - Only validates that webapp is up and responding
+	
+	public static final String HEALTH_CHECK = "/health-check";
+	
 	//  Servlets - Retrieving data from scan files using API Key and other parameters
 	
 	public static final String GET_SCAN_DATA_ALL_SCANS_EXCLUDE_PEAKS_SERVLET_XML = "/query/getScanData_AllScans_ExcludePeaks_Servlet_XML";

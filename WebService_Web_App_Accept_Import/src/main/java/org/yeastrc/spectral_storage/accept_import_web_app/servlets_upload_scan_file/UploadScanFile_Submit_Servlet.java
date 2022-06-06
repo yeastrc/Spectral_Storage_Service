@@ -1,13 +1,8 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file;
 
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletConfig;
@@ -15,13 +10,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.stream.StreamSource;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang3.StringUtils;
@@ -34,9 +22,9 @@ import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.Upload
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileDeserializeRequestException;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadInternalException;
-import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.import_processing_status_file__read_write.UploadProcessingWriteOrUpdateStatusFile;
-import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk.ImportScanFilename_LocalDisk;
+import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk__converter_path.ImportScanFilename_LocalDisk__ConverterURLPath;
+import org.yeastrc.spectral_storage.accept_import_web_app.import_scan_filename_local_disk__converter_path.ImportScanFilename_LocalDisk__ConverterURLPath.ImportScanFilename_LocalDisk__ConverterURLPath__Result;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_import_request_api_key_value_in_file.ProcessImportRequest_APIKey_Value_InFile;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.GetRequestObjectFromInputStream;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
@@ -48,11 +36,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.Creat
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo;
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo.ValidationResponse;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
-import org.yeastrc.spectral_storage.shared_server_importer.create__xml_input_factory__xxe_safe.Create_XMLInputFactory_XXE_Safe;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
 
 //  import com.amazonaws.services.s3.AmazonS3;
 //  import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -274,9 +258,10 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 				// Scan File on local disk
 				
 				//  Find the scan file 
-				String scanFilenameToMove = ImportScanFilename_LocalDisk.getInstance().getImportScanFilename_LocalDisk( uploadScanFileTempKey_Dir );
+				ImportScanFilename_LocalDisk__ConverterURLPath__Result importScanFilename_LocalDisk__ConverterURLPath__Result  =
+						ImportScanFilename_LocalDisk__ConverterURLPath.getInstance().getImportScanFilename_LocalDisk__ConverterURLPath( uploadScanFileTempKey_Dir );
 
-				if ( scanFilenameToMove == null ) {
+				if ( importScanFilename_LocalDisk__ConverterURLPath__Result == null ) {
 					
 					String msg = "No Scan file uploaded. uploadScanFileTempKey: "
 							+ uploadScanFileTempKey
@@ -291,6 +276,8 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 
 					return;  // EARLY EXIT
 				}
+				
+				String scanFilenameToMove = importScanFilename_LocalDisk__ConverterURLPath__Result.getScanFilename();
 
 				//  throws exceptions if errors
 				scanProcessStatusKey =

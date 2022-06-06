@@ -4,8 +4,6 @@ import java.io.File;
 
 import org.apache.commons.lang3.StringUtils;
 import org.yeastrc.spectral_storage.scan_file_processor.main.ProcessUploadedScanFileRequest;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.s3_aws_interface.S3_AWS_InterfaceObjectHolder;
-
 import jargs.gnu.CmdLineParser;
 import jargs.gnu.CmdLineParser.IllegalOptionValueException;
 import jargs.gnu.CmdLineParser.UnknownOptionException;
@@ -54,7 +52,9 @@ public class Scan_File_Processor_MainProgram {
 		//  If writing to S3, the '--output_base_dir' is the temp dir to write to before copy to S3
 		
 		CmdLineParser cmdLineParser = new CmdLineParser();
-//		CmdLineParser.Option configFileFromCommandLineFileNameCommandLineOpt = cmdLineParser.addStringOption( 'c', "config" );
+		
+		CmdLineParser.Option converterBaseUrlStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "converter_base_url" );
+		CmdLineParser.Option inputScanFilenameStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "input_scan_filename" );
 		CmdLineParser.Option outputBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "output_base_dir" );
 		CmdLineParser.Option tempOutputBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "temp_output_base_dir" );
 		CmdLineParser.Option backupOldBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "backup_old_base_dir" );
@@ -68,6 +68,8 @@ public class Scan_File_Processor_MainProgram {
 		CmdLineParser.Option deleteScanFileOnSuccessfulProcessingCommandLineOpt = cmdLineParser.addBooleanOption('Z', "delete-scan-file-on-successful-processing"); 
 		CmdLineParser.Option helpOpt = cmdLineParser.addBooleanOption('h', "help"); 
 
+		String converterBaseUrlString = null;
+		String inputScanFilenameString = null;
 		String outputBaseDirString = null; 
 		String tempOutputBaseDirString = null;
 		String backupOldBaseDirString = null;
@@ -110,6 +112,10 @@ public class Scan_File_Processor_MainProgram {
 				System.err.println( FOR_HELP_STRING );
 				System.exit( PROGRAM_EXIT_CODE_INVALID_INPUT );  //  EARLY EXIT
 			}
+			
+			converterBaseUrlString = (String)cmdLineParser.getOptionValue( converterBaseUrlStringCommandLineOpt );
+			
+			inputScanFilenameString = (String)cmdLineParser.getOptionValue( inputScanFilenameStringCommandLineOpt );
 			
 			outputBaseDirString = (String)cmdLineParser.getOptionValue( outputBaseDirStringCommandLineOpt );
 			
@@ -155,6 +161,35 @@ public class Scan_File_Processor_MainProgram {
 			}
 			
 			Scan_File_Processor_MainProgram_Params pgmParams = new Scan_File_Processor_MainProgram_Params();
+			
+			{  //  Base URL for converter to parse scan file type
+				if ( StringUtils.isEmpty( converterBaseUrlString ) ) {
+					System.err.println( "Command Line Parameter --converter_base_url  Must be Populated" );
+					System.exit( 1 );
+				}
+				
+				pgmParams.setConverterBaseUrlString( converterBaseUrlString );
+			}
+			
+			{ //  Input Scan File
+				if ( StringUtils.isEmpty( inputScanFilenameString ) ) {
+					System.err.println( "Command Line Parameter --input_scan_filename  Must be Populated" );
+					System.exit( 1 );
+				}
+				
+				File inputScanFile = new File( inputScanFilenameString );
+
+				if ( ! inputScanFile.exists() ) {
+					System.err.println( "Command Line Parameter --input_scan_filename:  File not exist for filename: " + inputScanFilenameString );
+					System.exit( 1 );
+				}
+				if ( ! inputScanFile.canRead() ) {
+					System.err.println( "Command Line Parameter --input_scan_filename:  File not readable for filename: " + inputScanFilenameString );
+					System.exit( 1 );
+				}
+
+				pgmParams.setInputScanFile( inputScanFile );
+			}
 			
 			if ( StringUtils.isNotEmpty( outputBaseDirString ) ) {
 				

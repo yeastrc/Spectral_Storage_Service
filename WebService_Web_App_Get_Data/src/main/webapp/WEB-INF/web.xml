@@ -8,6 +8,21 @@
   </welcome-file-list>
 
 
+
+<!--   _________________________________________   -->
+
+<!--   Servlets - Health Check   -->
+
+  <servlet>
+    <servlet-name>Health Check</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.get_data_webapp.servlets_healthcheck.HealthCheckServlet</servlet-class>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Health Check</servlet-name>
+    <url-pattern>/health-check</url-pattern>
+  </servlet-mapping>    
+
 <!--   ====================================   -->
 
 <!--   Servlets - Retrieving data from scan files using API Key and other parameters  -->

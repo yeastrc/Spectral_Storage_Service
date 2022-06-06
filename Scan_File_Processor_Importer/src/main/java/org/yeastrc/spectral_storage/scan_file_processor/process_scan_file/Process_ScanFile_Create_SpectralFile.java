@@ -16,6 +16,7 @@ import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.MzML
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.MzML_MzXmlScan;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.ScanPeak;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.reader.MzMl_MzXml_FileReader;
+import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
 import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile;
 import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile.ValidateInputScanFile_Result;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
@@ -55,11 +56,15 @@ public class Process_ScanFile_Create_SpectralFile {
 	 * @throws Exception
 	 */
 	public void processScanFile( 
-			File scanFile, 
+			Scan_File_Processor_MainProgram_Params pgmParams, 
 			File subDirForOutputFiles,
 			String hash_String, 
 			Compute_Hashes compute_Hashes ) throws Exception {
 
+		String converterBaseUrlString = pgmParams.getConverterBaseUrlString();
+		
+		File scanFile = pgmParams.getInputScanFile();
+				
 		Compute_Hashes_Result compute_Hashes_Result = compute_Hashes.compute_Hashes();
 		
 		if ( ! scanFile.exists() ) {

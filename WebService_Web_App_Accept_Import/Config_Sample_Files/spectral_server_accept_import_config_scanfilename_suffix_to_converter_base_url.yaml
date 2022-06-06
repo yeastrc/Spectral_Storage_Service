@@ -1,0 +1,11 @@
+
+scanfilename_suffix_to_converter_base_url_mapping:
+- scan_filename_suffixes:
+  - mzml
+  - mzML
+  converter_base_url: http://127.0.0.1:5745
+- scan_filename_suffixes:
+  - mzxml
+  - mzXML
+  converter_base_url: http://127.0.0.1:5738
+

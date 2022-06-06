@@ -7,9 +7,11 @@ package org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.
 public class WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants {
 
 	//  SUFFIXes also in ScanFileToProcessConstants
+
+	//  NO Longer restricted to these filename suffixes
 	
-	public static final String UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML = ".mzML"; 
-	public static final String UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML = ".mzXML";
+//	public static final String UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML = ".mzML"; 
+//	public static final String UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML = ".mzXML";
 	
 
 }

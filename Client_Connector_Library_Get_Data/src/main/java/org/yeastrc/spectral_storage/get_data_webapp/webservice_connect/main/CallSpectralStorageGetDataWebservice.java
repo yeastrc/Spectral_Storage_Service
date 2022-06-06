@@ -100,7 +100,245 @@ public class CallSpectralStorageGetDataWebservice {
 	}
 	
 	/////////////////////////////
+
+	/////////////////////////////
+
+	/**
+	 * @param webserviceRequest
+	 * @return
+	 * @throws Exception 
+	 */
+	public void call_HealthCheck_Webservice() throws Exception {
+		if ( ! instanceInitialized ) {
+			throw new IllegalStateException( "Not initialized" );
+		}
+
+		String webserviceURL = spectralStorageServerBaseURL
+				+ WebserviceSpectralStorageGetDataPathConstants.HEALTH_CHECK;
+
+		//   Create object for connecting to server
+		URL urlObject;
+		try {
+			urlObject = new URL( webserviceURL );
+		} catch (MalformedURLException e) {
+			YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "Exception creating URL object to connect to server.  URL: " + webserviceURL, e );
+			wcee.setServerURLError(true);
+			wcee.setWebserviceURL( webserviceURL );
+			throw wcee;
+		}
+		//   Open connection to server
+		URLConnection urlConnection;
+		try {
+			urlConnection = urlObject.openConnection();
+		} catch (IOException e) {
+			YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "Exception calling openConnection() on URL object to connect to server.  URL: " + webserviceURL, e );
+			wcee.setServerURLError(true);
+			wcee.setWebserviceURL( webserviceURL );
+			throw wcee;
+		}
+		// Downcast URLConnection to HttpURLConnection to allow setting of HTTP parameters 
+		if ( ! ( urlConnection instanceof HttpURLConnection ) ) {
+			YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "Processing Error: Cannot cast URLConnection to HttpURLConnection" );
+			wcee.setServerURLError(true);
+			wcee.setWebserviceURL( webserviceURL );
+			throw wcee;
+		}
+		HttpURLConnection httpURLConnection = null;
+		try {
+			httpURLConnection = (HttpURLConnection) urlConnection;
+		} catch (Exception e) {
+			YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "Processing Error: Cannot cast URLConnection to HttpURLConnection" );
+			wcee.setServerURLError(true);
+			wcee.setWebserviceURL( webserviceURL );
+			throw wcee;
+		}
+		//  Set HttpURLConnection properties
+
+		//   HTTP GET so skip httpURLConnection.setFixedLengthStreamingMode
+		
+		//   Set Number of bytes to send, can be int or long
+		//     ( Calling setFixedLengthStreamingMode(...) allows > 2GB to be sent 
+		//       and HttpURLConnection does NOT buffer the sent bytes using ByteArrayOutputStream )
+
+		//		httpURLConnection.setFixedLengthStreamingMode( numberOfBytesToSend );
+		
+		httpURLConnection.setRequestProperty( "Accept", CONTENT_TYPE_SEND_RECEIVE );
+		httpURLConnection.setRequestProperty( "Content-Type", CONTENT_TYPE_SEND_RECEIVE );
+		httpURLConnection.setDoOutput(true);
+		// Send post request to server
+		try {  //  Overall try/catch block to put "httpURLConnection.disconnect();" in the finally block
+
+			try {
+				httpURLConnection.connect();
+			} catch ( IOException e ) {
+				YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "Exception connecting to server at URL: " + webserviceURL, e );
+				wcee.setServerURLError(true);
+				wcee.setWebserviceURL( webserviceURL );
+				throw wcee;
+			}
+
+			//   HTTP GET so skip
+			
+//			//  Send bytes to server
+//			OutputStream outputStream = null;
+//			FileInputStream fileInputStream = null; // for when send file
+//			try {
+//				outputStream = httpURLConnection.getOutputStream();
+//				if ( byteArrayOutputStream_ToSend != null ) {
+//					//  Send bytes to server
+//					byteArrayOutputStream_ToSend.writeTo( outputStream );
+//				} else {
+//					//  Send file contents to server
+//					fileInputStream = new FileInputStream( fileToSendAsStream );
+//					int byteArraySize = 5000;
+//					byte[] data = new byte[ byteArraySize ];
+//					while (true) {
+//						int bytesRead = fileInputStream.read( data );
+//						if ( bytesRead == -1 ) {  // end of input
+//							break;
+//						}
+//						if ( bytesRead > 0 ) {
+//							outputStream.write( data, 0, bytesRead );
+//						}
+//					}
+//				}
+//			} catch ( IOException e ) {
+//				byte[] errorStreamContents = null;
+//				try {
+//					errorStreamContents= getErrorStreamContents( httpURLConnection );
+//				} catch ( Exception ex ) {
+//				}
+//				YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "IOException sending XML to server at URL: " + webserviceURL, e );
+//				wcee.setServerURLError(true);
+//				wcee.setWebserviceURL( webserviceURL );
+//				wcee.setErrorStreamContents( errorStreamContents );
+//				throw wcee;
+//			} finally {
+//				if ( outputStream != null ) {
+//					boolean closeOutputStreamFail = false;
+//					try {
+//						outputStream.close();
+//					} catch ( IOException e ) {
+//						closeOutputStreamFail = true;
+//						byte[] errorStreamContents = null;
+//						try {
+//							errorStreamContents= getErrorStreamContents( httpURLConnection );
+//						} catch ( Exception ex ) {
+//						}
+//						YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "IOException closing output Stream to server at URL: " + webserviceURL, e );
+//						wcee.setServerURLError(true);
+//						wcee.setWebserviceURL( webserviceURL );
+//						wcee.setErrorStreamContents( errorStreamContents );
+//						throw wcee;
+//					} finally {
+//						if ( fileInputStream != null ) {
+//							try {
+//								fileInputStream.close();
+//							} catch ( Exception e ) {
+//								if ( ! closeOutputStreamFail ) {
+//									// Only throw exception if close of output stream successful
+//									byte[] errorStreamContents = null;
+//									try {
+//										errorStreamContents= getErrorStreamContents( httpURLConnection );
+//									} catch ( Exception ex ) {
+//									}
+//									YRCSpectralStorageGetDataWebserviceCallErrorException wcee = new YRCSpectralStorageGetDataWebserviceCallErrorException( "Exception closing output Stream to server at URL: " + webserviceURL, e );
+//									wcee.setServerURLError(true);
+//									wcee.setWebserviceURL( webserviceURL );
+//									wcee.setErrorStreamContents( errorStreamContents );
+//									throw wcee;
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+			
+			try {
+				int httpResponseCode = httpURLConnection.getResponseCode();
+				if ( httpResponseCode != SUCCESS_HTTP_RETURN_CODE ) {
+					byte[] errorStreamContents = null;
+					try {
+						errorStreamContents= getErrorStreamContents( httpURLConnection );
+					} catch ( Exception ex ) {
+					}
+					YRCSpectralStorageGetDataWebserviceCallErrorException wcee = 
+							new YRCSpectralStorageGetDataWebserviceCallErrorException( "Unsuccessful HTTP response code of " + httpResponseCode
+									+ " connecting to server at URL: " + webserviceURL );
+					wcee.setBadHTTPStatusCode(true);
+					wcee.setHttpStatusCode( httpResponseCode );
+					wcee.setWebserviceURL( webserviceURL );
+					wcee.setErrorStreamContents( errorStreamContents );
+					throw wcee;
+				}
+			} catch ( IOException e ) {
+				byte[] errorStreamContents = null;
+				try {
+					errorStreamContents= getErrorStreamContents( httpURLConnection );
+				} catch ( Exception ex ) {
+				}
+				YRCSpectralStorageGetDataWebserviceCallErrorException wcee = 
+						new YRCSpectralStorageGetDataWebserviceCallErrorException( "IOException getting HTTP response code from server at URL: " + webserviceURL, e );
+				wcee.setServerSendReceiveDataError(true);
+				wcee.setWebserviceURL( webserviceURL );
+				wcee.setErrorStreamContents( errorStreamContents );
+				throw wcee;
+			}
+			//  Get response from server
+			ByteArrayOutputStream outputStreamBufferOfServerResponse = new ByteArrayOutputStream( 1000000 );
+			InputStream inputStream = null;
+			try {
+				inputStream = httpURLConnection.getInputStream();
+				int nRead;
+				byte[] data = new byte[ 16384 ];
+				while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+					outputStreamBufferOfServerResponse.write(data, 0, nRead);
+				}
+			} catch ( IOException e ) {
+				byte[] errorStreamContents = null;
+				try {
+					errorStreamContents= getErrorStreamContents( httpURLConnection );
+				} catch ( Exception ex ) {
+				}
+				YRCSpectralStorageGetDataWebserviceCallErrorException wcee = 
+						new YRCSpectralStorageGetDataWebserviceCallErrorException( "IOException receiving response from server at URL: " + webserviceURL, e );
+				wcee.setServerSendReceiveDataError(true);
+				wcee.setWebserviceURL( webserviceURL );
+				wcee.setErrorStreamContents( errorStreamContents );
+				throw wcee;
+			} finally {
+				if ( inputStream != null ) {
+					try {
+						inputStream.close();
+					} catch ( IOException e ) {
+						byte[] errorStreamContents = null;
+						try {
+							errorStreamContents= getErrorStreamContents( httpURLConnection );
+						} catch ( Exception ex ) {
+						}
+						YRCSpectralStorageGetDataWebserviceCallErrorException wcee = 
+								new YRCSpectralStorageGetDataWebserviceCallErrorException( "IOException closing input Stream from server at URL: " + webserviceURL, e );
+						wcee.setServerSendReceiveDataError(true);
+						wcee.setWebserviceURL( webserviceURL );
+						wcee.setErrorStreamContents( errorStreamContents );
+						throw wcee;
+					}
+				}
+			}
+			
+			// Response ignored
+			
+//			serverResponseByteArray = outputStreamBufferOfServerResponse.toByteArray();
+
+			
+		} finally {
+//			httpURLConnection.disconnect();
+		}
+	}
 	
+	///////////////
+	///////////////
+
 	
 	/**
 	 * @param webserviceRequest

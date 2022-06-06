@@ -10,8 +10,10 @@ public class ScanFileToProcessConstants {
 
 	//  SUFFIXes also in WebserviceSpectralStorageScanFileAllowedSuffixesConstants
 	
-	public static final String UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML = ".mzML"; 
-	public static final String UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML = ".mzXML";
+	//  NO Longer restricted to these filename suffixes
+	
+//	public static final String UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML = ".mzML"; 
+//	public static final String UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML = ".mzXML";
 	
 
 
@@ -43,11 +45,6 @@ public class ScanFileToProcessConstants {
 	 */
 	public static final String SCAN_FILE_TO_PROCESS_FILENAME_SUBMITTED_FILE_SUFFIX = ".submitted";
 
-	/**
-	 * Uploaded remote scan filename
-	 */
-	public static final String SCAN_FILE_TO_PROCESS_UPLOADED_FILENAME_FILE_FILENAME = "a_uploaded_scan_filename.txt";
-	
 	/**
 	 * File created when the subdir is created for create date/time tracking 
 	 */

@@ -9,10 +9,43 @@
 
 <!--   JSON responses can be activated if change code and add Jackson Jars -->
 
+
+<!--   _________________________________________   -->
+
+<!--   Servlets - Health Check   -->
+
+  <servlet>
+    <servlet-name>Health Check</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_healthcheck.HealthCheckServlet</servlet-class>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Health Check</servlet-name>
+    <url-pattern>/health-check</url-pattern>
+  </servlet-mapping>    
+
+
 <!--   _________________________________________   -->
 
 <!--   Servlets - Processing Scan File Upload and Returning Status and API Key  -->
 
+  <!-- Get Supported Scan Filename Suffixes - called with POST - return XML -->
+  
+  <servlet>
+    <servlet-name>Get Supported Scan Filename Suffixes Servlet - XML Response</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.Get_Supported_ScanFilename_Suffixes_Servlet</servlet-class>
+    	<!-- required parameter resultDataFormat -->
+    <init-param>
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>XML</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+    </init-param>    
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Supported Scan Filename Suffixes Servlet - XML Response</servlet-name>
+    <url-pattern>/get-data/get-supported-scan-filename-suffixes_XML</url-pattern>
+  </servlet-mapping>    
+  
   <!-- Initialize the Upload Scan File Process - return XML -->
   
   <servlet>
@@ -133,46 +166,6 @@
     <servlet-name>UploadScanFile - Delete For ScanProcessStatusKey Servlet - XML Response</servlet-name>
     <url-pattern>/update/uploadedScanFile_Delete_For_ScanProcessStatusKey_XML</url-pattern>
   </servlet-mapping>  
-  
-  <!-- Upload Scan File as Stream - COMMENTED OUT, not currently supported, out of date -->
-  
-  <!-- Upload Scan File as Stream - return XML -->
-  <!--
-  <servlet>
-    <servlet-name>Upload Scan File Servlet - XML Response</servlet-name>
-    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.UploadScanFileServlet</servlet-class>
-    <init-param>
-      <param-name>resultDataFormat</param-name>
-      <param-value>XML</param-value>
-    </init-param>    
-    <load-on-startup>2</load-on-startup>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>Upload Scan File Servlet - XML Response</servlet-name>
-    <url-pattern>/update/uploadScanFile_XML</url-pattern>
-  </servlet-mapping>    
-  -->
-
-  <!-- Upload Scan File as Form - COMMENTED OUT, not currently supported, out of date -->
-  
-	<!-- Upload Scan File as Form, return XML -->
-	<!--
-  <servlet>
-    <servlet-name>Upload Scan File as Form Servlet - XML Response</servlet-name>
-    <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.UploadScanFile_As_Form_Servlet</servlet-class>
-    <init-param>
-      <param-name>resultDataFormat</param-name>
-      <param-value>XML</param-value>
-    </init-param>    
-    <load-on-startup>2</load-on-startup>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>Upload Scan File as Form Servlet - XML Response</servlet-name>
-    <url-pattern>/update/uploadScanFile_as_Form_XML</url-pattern>
-  </servlet-mapping>    
-  -->
-  
-  
   
 <!--   Query Servlets - All paths start with "/admin/" for Admin Access Control Filter -->
 

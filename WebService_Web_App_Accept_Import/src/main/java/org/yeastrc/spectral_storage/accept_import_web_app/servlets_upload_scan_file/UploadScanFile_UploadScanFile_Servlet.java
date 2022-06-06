@@ -1,44 +1,33 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
+import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_ScanFilenameSuffix_To_ConverterMapping;
+import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_ScanFilenameSuffix_To_ConverterMapping.ConfigData_ScanFilenameSuffix_To_ConverterMapping_SingleEntry;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.FileUploadConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileFileUploadInternalException;
-import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappInternalException;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.accept_import_web_app.servlets_common.WriteResponseObjectToOutputStream;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageAcceptImportQueryParamsConstants;
-import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.constants_enums.WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_UploadScanFile_Response;
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo;
 import org.yeastrc.spectral_storage.accept_import_web_app.upload_scan_file.ValidateTempDirToUploadScanFileTo.ValidationResponse;
-import org.yeastrc.spectral_storage.accept_import_web_app.utils.Create_S3_Object_Paths;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ComputeFromScanFileContentHashes;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ToFileReadWrite;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
 
 //  import com.amazonaws.services.s3.AmazonS3;
 //  import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
@@ -74,14 +63,14 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 
 //	public static final int S3_MULIPART_UPLOAD_PART_SIZE = 5 * 1024 * 1024; // each part 5 MB - Min Size
 
-	private static final int UPLOAD_SCAN_FILE_INIT_UPLOAD_TO_S3_RETRY_COUNT_MAX = 3;
-	private static final int UPLOAD_SCAN_FILE_INIT_UPLOAD_TO_S3_RETRY_DELAY = 200; // in milliseconds
-
-	private static final int UPLOAD_SCAN_FILE_PART_TO_S3_RETRY_COUNT_MAX = 4;
-	private static final int UPLOAD_SCAN_FILE_PART_TO_S3_RETRY_DELAY = 300; // in milliseconds
-
-	private static final int UPLOAD_SCAN_FILE_COMPLETE_UPLOAD_TO_S3_RETRY_COUNT_MAX = 6;
-	private static final int UPLOAD_SCAN_FILE_COMPLETE_UPLOAD_TO_S3_RETRY_DELAY = 500; // in milliseconds
+//	private static final int UPLOAD_SCAN_FILE_INIT_UPLOAD_TO_S3_RETRY_COUNT_MAX = 3;
+//	private static final int UPLOAD_SCAN_FILE_INIT_UPLOAD_TO_S3_RETRY_DELAY = 200; // in milliseconds
+//
+//	private static final int UPLOAD_SCAN_FILE_PART_TO_S3_RETRY_COUNT_MAX = 4;
+//	private static final int UPLOAD_SCAN_FILE_PART_TO_S3_RETRY_DELAY = 300; // in milliseconds
+//
+//	private static final int UPLOAD_SCAN_FILE_COMPLETE_UPLOAD_TO_S3_RETRY_COUNT_MAX = 6;
+//	private static final int UPLOAD_SCAN_FILE_COMPLETE_UPLOAD_TO_S3_RETRY_DELAY = 500; // in milliseconds
 
 	private ServetResponseFormatEnum servetResponseFormat;
 	
@@ -164,8 +153,38 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 			
 			String scanFilenameSuffix = request.getParameter( WebserviceSpectralStorageAcceptImportQueryParamsConstants.UPLOAD_SCAN_FILE_SERVLET_QUERY_PARAM_SCAN_FILENAME_SUFFIX );
 
-		    if ( ! ( WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML.equals( scanFilenameSuffix ) 
-		    		||  WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML.equals( scanFilenameSuffix ) ) ) {
+		    if ( scanFilenameSuffix == null || scanFilenameSuffix.length() == 0 ) {
+
+				log.warn( "parameter '"
+						+ WebserviceSpectralStorageAcceptImportQueryParamsConstants.UPLOAD_SCAN_FILE_SERVLET_QUERY_PARAM_SCAN_FILENAME_SUFFIX
+						+ "' is missing or empty string" );
+				
+				response.setStatus( HttpServletResponse.SC_BAD_REQUEST /* 400  */ );
+				
+				UploadScanFile_UploadScanFile_Response uploadResponse = new UploadScanFile_UploadScanFile_Response();
+				uploadResponse.setStatusSuccess(false);
+				uploadResponse.setUploadedFileSuffixNotValid( true );
+
+				WriteResponseObjectToOutputStream.getSingletonInstance()
+				.writeResponseObjectToOutputStream( uploadResponse, servetResponseFormat, response );
+				
+				throw new FailResponseSentException();
+		    }
+		    
+			boolean scanFilenameSuffix__IsValid = false;
+			
+			{
+				for ( ConfigData_ScanFilenameSuffix_To_ConverterMapping_SingleEntry converterMappingEntry : ConfigData_ScanFilenameSuffix_To_ConverterMapping.getSingletonInstance().getEntries() ) {
+					
+					if ( converterMappingEntry.getScan_filename_suffix().equals( scanFilenameSuffix ) ) {
+						
+						scanFilenameSuffix__IsValid = true;
+						break;
+					}
+				}
+			}
+			
+		    if ( ! scanFilenameSuffix__IsValid ) {
 
 				log.warn( "Filename suffix provided in parameter '"
 						+ WebserviceSpectralStorageAcceptImportQueryParamsConstants.UPLOAD_SCAN_FILE_SERVLET_QUERY_PARAM_SCAN_FILENAME_SUFFIX
