@@ -50,6 +50,14 @@ public class CallSpectralStorageAcceptImportWebservice {
 	private static final String XML_ENCODING_CHARACTER_SET = StandardCharsets.UTF_8.toString();
 	private static final int SUCCESS_HTTP_RETURN_CODE = 200;
 	private static final String CONTENT_TYPE_SEND_RECEIVE = "application/xml";
+
+	private static final int CONNECTION__TIMEOUT_LIMIT__HEALTH_CHECK__MILLISECONDS = 200;
+	private static final int READ_FROM_CONNECTION__TIMEOUT_LIMIT__HEALTH_CHECK___MILLISECONDS = 200;
+
+	private static final int CONNECTION__TIMEOUT_LIMIT__GET_SUPPORTED_SCAN_FILENAME_SUFFIXES__MILLISECONDS = 200;
+	private static final int READ_FROM_CONNECTION__TIMEOUT_LIMIT__GET_SUPPORTED_SCAN_FILENAME_SUFFIXES__MILLISECONDS = 200;
+	
+	//////
 	
 	private String spectralStorageServerBaseURL;
 	private JAXBContext jaxbContext;
@@ -113,8 +121,8 @@ public class CallSpectralStorageAcceptImportWebservice {
 
 		String webserviceURL = spectralStorageServerBaseURL
 				+ WebserviceSpectralStorageAcceptImportPathConstants.HEALTH_CHECK;
-		
-		getRequestFromServer_Return_ByteArray(webserviceURL);
+
+		getRequestFromServer_Return_ByteArray(webserviceURL, CONNECTION__TIMEOUT_LIMIT__HEALTH_CHECK__MILLISECONDS, READ_FROM_CONNECTION__TIMEOUT_LIMIT__HEALTH_CHECK___MILLISECONDS );
 	}
 
 	/**
@@ -127,36 +135,14 @@ public class CallSpectralStorageAcceptImportWebservice {
 			throw new IllegalStateException( "Not initialized" );
 		}
 
-//		String webserviceURL = spectralStorageServerBaseURL
-//				+ WebserviceSpectralStorageAcceptImportPathConstants.GET_SUPPORTED_SCAN_FILENAME_SUFFIXES_XML;
-//		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
-//		if ( ! ( webserviceResponseAsObject instanceof Get_Supported_ScanFilename_Suffixes_Response ) ) {
-//			String msg = "Response unmarshaled to class other than Get_Supported_ScanFilename_Suffixes_Response.  "
-//					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
-//			YRCSpectralStorageAcceptImportWebserviceCallErrorException exception = new YRCSpectralStorageAcceptImportWebserviceCallErrorException( msg );
-//			exception.setFailToDecodeDataReceivedFromServer(true);
-//			throw exception;
-//		}
-//		Get_Supported_ScanFilename_Suffixes_Response webserviceResponse = null;
-//		try {
-//			webserviceResponse = (Get_Supported_ScanFilename_Suffixes_Response) webserviceResponseAsObject;
-//		} catch ( Exception e ) {
-//			String msg = "Error. Fail to cast response as Get_Supported_ScanFilename_Suffixes_Response: "
-//					+ e.toString();
-//			YRCSpectralStorageAcceptImportWebserviceCallErrorException exception = new YRCSpectralStorageAcceptImportWebserviceCallErrorException( msg );
-//			exception.setFailToDecodeDataReceivedFromServer(true);
-//			throw exception;
-//		}
-//		return webserviceResponse;
-		
-		///////
-		
-		//  NEW
-
 		String webserviceURL = spectralStorageServerBaseURL
 				+ WebserviceSpectralStorageAcceptImportPathConstants.GET_SUPPORTED_SCAN_FILENAME_SUFFIXES_XML;
 		
-		byte[] serverResponseByteArray = getRequestFromServer_Return_ByteArray(webserviceURL);
+		byte[] serverResponseByteArray = 
+				getRequestFromServer_Return_ByteArray(
+						webserviceURL,
+						CONNECTION__TIMEOUT_LIMIT__GET_SUPPORTED_SCAN_FILENAME_SUFFIXES__MILLISECONDS,
+						READ_FROM_CONNECTION__TIMEOUT_LIMIT__GET_SUPPORTED_SCAN_FILENAME_SUFFIXES__MILLISECONDS );
 
 		// Unmarshal received XML into Java objects
 
@@ -191,8 +177,14 @@ public class CallSpectralStorageAcceptImportWebservice {
 	 * @return
 	 * @throws Exception 
 	 */
-	private byte[] getRequestFromServer_Return_ByteArray( String webserviceURL ) throws Exception {
+	private byte[] getRequestFromServer_Return_ByteArray(
+			
+			String webserviceURL,
 
+			Integer httpURLConnection__ConnectTimeout__Milliseconds, // In Milliseconds
+			Integer httpURLConnection__ReadTimeout__Milliseconds // In Milliseconds
+			) throws Exception {
+		
 		byte[] serverResponseByteArray = null;
 		
 		//   Create object for connecting to server
@@ -205,6 +197,7 @@ public class CallSpectralStorageAcceptImportWebservice {
 			wcee.setWebserviceURL( webserviceURL );
 			throw wcee;
 		}
+		
 		//   Open connection to server
 		URLConnection urlConnection;
 		try {
@@ -231,6 +224,15 @@ public class CallSpectralStorageAcceptImportWebservice {
 			wcee.setWebserviceURL( webserviceURL );
 			throw wcee;
 		}
+
+		if ( httpURLConnection__ConnectTimeout__Milliseconds != null ) {
+			httpURLConnection.setConnectTimeout( httpURLConnection__ConnectTimeout__Milliseconds ); // In Milliseconds
+		}
+		
+		if ( httpURLConnection__ReadTimeout__Milliseconds != null ) {
+			httpURLConnection.setReadTimeout( httpURLConnection__ReadTimeout__Milliseconds ); // In Milliseconds
+		}
+		
 		//  Set HttpURLConnection properties
 
 		//   HTTP GET so skip httpURLConnection.setFixedLengthStreamingMode
