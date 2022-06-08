@@ -24,12 +24,9 @@
     <url-pattern>/health-check</url-pattern>
   </servlet-mapping>    
 
+<!--   Servlets - Get Data - NOT related to any specific Scan File to Import   -->
 
-<!--   _________________________________________   -->
-
-<!--   Servlets - Processing Scan File Upload and Returning Status and API Key  -->
-
-  <!-- Get Supported Scan Filename Suffixes - called with POST - return XML -->
+  <!-- Get Supported Scan Filename Suffixes - called with GET - return XML -->
   
   <servlet>
     <servlet-name>Get Supported Scan Filename Suffixes Servlet - XML Response</servlet-name>
@@ -46,6 +43,10 @@
     <url-pattern>/get-data/get-supported-scan-filename-suffixes_XML</url-pattern>
   </servlet-mapping>    
   
+<!--   _________________________________________   -->
+
+<!--   Servlets - Processing Scan File Upload and Returning Status and API Key  -->
+
   <!-- Initialize the Upload Scan File Process - return XML -->
   
   <servlet>

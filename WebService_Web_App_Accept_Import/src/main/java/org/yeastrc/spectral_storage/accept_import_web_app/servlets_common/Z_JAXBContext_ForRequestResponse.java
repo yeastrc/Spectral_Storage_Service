@@ -39,7 +39,6 @@ public class Z_JAXBContext_ForRequestResponse {
 				JAXBContext.newInstance( 
 						UploadScanFile_Init_Request.class,
 						UploadScanFile_Init_Response.class,
-						Get_Supported_ScanFilename_Suffixes_Request.class,
 						Get_Supported_ScanFilename_Suffixes_Response.class,
 						UploadScanFile_AddScanFileInS3Bucket_Request.class,
 						UploadScanFile_AddScanFileInS3Bucket_Response.class,
