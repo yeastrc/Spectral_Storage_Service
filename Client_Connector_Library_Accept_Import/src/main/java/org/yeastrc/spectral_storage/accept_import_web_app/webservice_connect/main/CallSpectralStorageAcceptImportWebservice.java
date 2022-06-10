@@ -245,7 +245,6 @@ public class CallSpectralStorageAcceptImportWebservice {
 		
 		httpURLConnection.setRequestProperty( "Accept", CONTENT_TYPE_SEND_RECEIVE );
 		httpURLConnection.setRequestProperty( "Content-Type", CONTENT_TYPE_SEND_RECEIVE );
-		httpURLConnection.setDoOutput(true);
 
 		// Send GET request to server
 		
