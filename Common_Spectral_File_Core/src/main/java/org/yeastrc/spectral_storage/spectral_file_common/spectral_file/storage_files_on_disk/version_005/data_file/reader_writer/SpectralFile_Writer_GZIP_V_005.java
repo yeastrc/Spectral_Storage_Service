@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.zip.GZIPOutputStream;
-
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_summary_data.AccumulateSummaryDataPerScanLevel;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.ByteValuesFor_Boolean_TrueFalse_Constants;
@@ -30,7 +28,6 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_m
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.ScanLevel_1_RT_MZ_Binned_WriteFile_JSON_GZIP_NoIntensities;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_CloseWriter_Data_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_Header_Common;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Writer__IF;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.CreateSpectralStorageFilenames;
@@ -38,6 +35,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.index_file.from_data_file_writer_objects.SpectralFile_Index_FDFW_SingleScan_V_005;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.index_file.reader_writer.SpectralFile_Index_File_Writer_V_005;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.StorageFile_Version_005_Constants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.data_file.reader_writer.SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005.SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005__MethodResult;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.scans_lvl_gt_1_partial.reader_writer.SpectralFile_ScansLvlGt1Partial_File_Writer_V_005;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.scans_other_data_extract_root__file.reader_writer.SpectralFile_Scans_OtherDataExtract_File_Writer_V_005;
 
@@ -95,7 +93,6 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	private BufferedOutputStream outputStream_MainDataFileWhileWriting;
 	
 	private ByteArrayOutputStream tempOutputStream = new ByteArrayOutputStream( TEMP_OUTPUT_STREAM_INITIAL_SIZE );
-	private ByteArrayOutputStream tempScansCompressedOutputStream = new ByteArrayOutputStream( TEMP_OUTPUT_STREAM_INITIAL_SIZE );
 
 	private long totalBytesForAllSingleScans = 0;
 	
@@ -638,9 +635,16 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 		
 		dataOutputStream.writeInt( numberScanPeaks );
 		
-		ByteArrayOutputStream scanPeaksAsBAOS = encodePeaksAsCompressedBytes( spectralFile_SingleScan.getScanPeaksAsObjectArray() );
+		//  Scan Peaks
+		
+		SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005 spectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005 = new SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005();
 
-		int scanPeaksAsBAOS_Size = scanPeaksAsBAOS.size();
+		SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005__MethodResult encodePeaksAsCompressedBytes_Result =
+				spectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005.encodePeaksAsCompressedBytes( spectralFile_SingleScan.getScanPeaksAsObjectArray() );
+		
+		byte[] encodedScanPeaks_ByteArray = encodePeaksAsCompressedBytes_Result.getEncodedScanPeaks_ByteArray();
+
+		int scanPeaksAsBAOS_Size = encodedScanPeaks_ByteArray.length;
 		
 		// Length of compressed scan data
 		dataOutputStream.writeInt( scanPeaksAsBAOS_Size );
@@ -650,7 +654,7 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 
 		tempOutputStream.writeTo( outputStream_MainDataFileWhileWriting );
 		
-		scanPeaksAsBAOS.writeTo( outputStream_MainDataFileWhileWriting );
+		outputStream_MainDataFileWhileWriting.write( encodedScanPeaks_ByteArray );
 			
 		
 		outputStream_MainDataFileWhileWriting.flush();
@@ -678,69 +682,6 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 //		 * Length of scan Peaks which is written immediately after the data in this class.
 //		 */
 //		private int scanPeaksDataLength;
-
-	}
-	
-	/**
-	 * @param scanPeaksAsObjectArray
-	 * @return
-	 * @throws Exception
-	 */
-	public ByteArrayOutputStream encodePeaksAsCompressedBytes( List<SpectralFile_SingleScanPeak_Common> scanPeaksAsObjectArray ) throws Exception {
-		
-		tempScansCompressedOutputStream.reset();
-		
-		GZIPOutputStream gZIPOutputStream = 
-				new GZIPOutputStream( tempScansCompressedOutputStream, true /* syncFlush */ );
-		// syncFlush - if true invocation of the inherited flush() method of this instance flushes the compressor with flush mode Deflater.SYNC_FLUSH before flushing the output stream, otherwise only flushes the output strea
-
-		ByteArrayOutputStream singlePeakOutputStream = new ByteArrayOutputStream( 8 ); 
-
-		DataOutputStream dataOutputStream = new DataOutputStream( singlePeakOutputStream );
-			
-		for ( SpectralFile_SingleScanPeak_Common peak : scanPeaksAsObjectArray ) {
-			
-			singlePeakOutputStream.reset();
-			
-			dataOutputStream.writeDouble( peak.getM_over_Z() );
-			dataOutputStream.writeFloat( peak.getIntensity() );
-			dataOutputStream.flush();
-			
-			scanPeaksTotalBytes += singlePeakOutputStream.size();
-			
-			scanPeaksTotalCount++;
-			
-			singlePeakOutputStream.writeTo( gZIPOutputStream );
-
-//			singlePeakOutputStream.writeTo( tempScansCompressedOutputStream );
-			
-//			int tempScansCompressedOutputStreamSize = tempScansCompressedOutputStream.size();
-//			
-//			int z = 0;
-		}
-		
-
-//		private long scanPeaksTotalBytes = 0;
-//		private long scanPeaksCompressedTotalBytes = 0;
-		
-		
-		
-//		gZIPOutputStream.finish();  //  Forces gZIPOutputStream to compress cached data and flush
-//		
-		//  This works to forces gZIPOutputStream to compress cached data and flush
-		//    ONLY IF  syncFlush on constructor is set to true.
-//		gZIPOutputStream.flush(); 
-		
-		
-		//  Needed to force gZIPOutputStream to compress cached data and flush, 
-		//    if gZIPOutputStream.finish();  is not called.
-		gZIPOutputStream.close();  //  This will have no effect on ByteArrayOutputStream tempScansCompressedOutputStream
-		
-		tempScansCompressedOutputStream.flush();
-		
-//		compareCompressedScanPeaksToScanPeaks( scanPeaksAsObjectArray, scanPeaksAsByteArray );
-		
-		return tempScansCompressedOutputStream;
 
 	}
 	

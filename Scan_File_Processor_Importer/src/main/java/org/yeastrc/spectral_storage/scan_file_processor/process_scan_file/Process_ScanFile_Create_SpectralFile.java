@@ -344,6 +344,8 @@ public class Process_ScanFile_Create_SpectralFile {
 						}
 
 						validateInputScanFile.validate_SingleScan( spectralFile_SingleScan ); //  Throws an exception if error
+						
+						//  Call to spectralFile_Writer (For latest File Format) to Write Scan
 
 						spectralFile_Writer.writeScan( spectralFile_SingleScan );
 					}
