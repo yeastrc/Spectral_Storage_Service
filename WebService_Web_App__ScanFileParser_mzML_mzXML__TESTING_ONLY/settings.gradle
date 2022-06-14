@@ -1,0 +1,47 @@
+/*
+ *
+ * The settings file is used to specify which projects to include in your build.
+ * 
+ * Detailed information about configuring a multi-project build in Gradle can be found
+ * in the user guide at https://docs.gradle.org/4.10.2/userguide/multi_project_builds.html
+ */
+
+rootProject.name = 'spectral_storage__ScanFileParser_mzML_mzXML__TESTING_ONLY'
+
+
+
+include "Input_ScanFile_mzML_mzXML_FileParse_Code"
+project(":Input_ScanFile_mzML_mzXML_FileParse_Code").projectDir = 
+	new File( settingsDir, "../Input_ScanFile_mzML_mzXML_FileParse_Code")
+
+
+include "Scan_File_Processor_Importer"
+project(":Scan_File_Processor_Importer").projectDir =
+	new File( settingsDir, "../Scan_File_Processor_Importer")
+
+
+
+
+include "Common_Importer_Get_Data_Client_Connector"
+project(":Common_Importer_Get_Data_Client_Connector").projectDir = 
+	new File( settingsDir, "../Common_Importer_Get_Data_Client_Connector")
+
+	
+include "Common_Spectral_File_Core"
+project(":Common_Spectral_File_Core").projectDir = 
+	new File( settingsDir, "../Common_Spectral_File_Core")
+
+include "Common_Webapps_Importer"
+project(":Common_Webapps_Importer").projectDir = 
+	new File( settingsDir, "../Common_Webapps_Importer")
+	
+include "Input_ScanFile_mzML_mzXML_FileParse_Code"
+project(":Input_ScanFile_mzML_mzXML_FileParse_Code").projectDir = 
+	new File( settingsDir, "../Input_ScanFile_mzML_mzXML_FileParse_Code")
+	
+//  Include for Common_Spectral_File_Core
+
+include "Common_Get_Data_Webapp_Client_Connector_Library"
+project(":Common_Get_Data_Webapp_Client_Connector_Library").projectDir = 
+	new File( settingsDir, "../Common_Get_Data_Webapp_Client_Connector_Library")
+ 

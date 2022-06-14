@@ -1,0 +1,8 @@
+
+# Make a copy named:  ant_build_CopyToTomcat.settings.properties
+
+#   and update the properties below
+
+#  Input to Ant script: ant_build_CopyToTomcat.xml
+
+tomcat.webapps.root=/data/webtools/apache-tomcat-9.0.52/webapps

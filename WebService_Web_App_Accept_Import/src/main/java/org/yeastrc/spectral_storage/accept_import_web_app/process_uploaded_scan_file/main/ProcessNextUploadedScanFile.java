@@ -45,6 +45,7 @@ public class ProcessNextUploadedScanFile {
 	public static class ProcessNextUploadedScanFile_Params {
 		
 		private File importScanFileProcsesingDirectory;
+		private int scan_read_max_batch_size;
 		private String converter_base_url;
 		private String input_scan_filename;
 		
@@ -56,6 +57,9 @@ public class ProcessNextUploadedScanFile {
 		}
 		public void setInput_scan_filename(String input_scan_filename) {
 			this.input_scan_filename = input_scan_filename;
+		}
+		public void setScan_read_max_batch_size(int scan_read_max_batch_size) {
+			this.scan_read_max_batch_size = scan_read_max_batch_size;
 		}
 	}
 	
@@ -102,6 +106,7 @@ public class ProcessNextUploadedScanFile {
 	public ProcessingSuccessFailKilled processNextUploadedScanFile( ProcessNextUploadedScanFile_Params methodParams ) throws Exception {
 			
 		File importScanFileProcsesingDirectory = methodParams.importScanFileProcsesingDirectory;
+		int scan_read_max_batch_size = methodParams.scan_read_max_batch_size;
 		String converter_base_url = methodParams.converter_base_url;
 		String input_scan_filename = methodParams.input_scan_filename;
 		
@@ -139,7 +144,11 @@ public class ProcessNextUploadedScanFile {
 		
 		commandAndItsArgumentsAsList.add( "-jar" );
 		commandAndItsArgumentsAsList.add( processScanUploadJarFile );
-		
+
+		{
+			String scan_read_max_batch_size_CommandString = "--scan_read_max_batch_size=" + scan_read_max_batch_size;
+			commandAndItsArgumentsAsList.add( scan_read_max_batch_size_CommandString );
+		}
 		{
 			String converter_base_url_CommandString = "--converter_base_url=" + converter_base_url;
 			commandAndItsArgumentsAsList.add( converter_base_url_CommandString );

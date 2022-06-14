@@ -12,13 +12,14 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.MzML_MzXmlHeader;
-import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.MzML_MzXmlScan;
-import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.dto.ScanPeak;
-import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.reader.MzMl_MzXml_FileReader;
+import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.Call_ScanFileParser_HTTP_CommunicationManagement__Get_NextScans_Response;
+import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.Call_ScanFileParser_HTTP_CommunicationManagement__InitializeParsing_Response;
+import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.ScanFileParser_ScanBatch_SingleScan;
+import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.ScanFileParser_ScanBatch_SingleScan_SinglePeak;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
 import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile;
 import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile.ValidateInputScanFile_Result;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.ByteValuesFor_Boolean_TrueFalse_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes;
@@ -61,7 +62,7 @@ public class Process_ScanFile_Create_SpectralFile {
 			String hash_String, 
 			Compute_Hashes compute_Hashes ) throws Exception {
 
-		String converterBaseUrlString = pgmParams.getConverterBaseUrlString();
+//		String converterBaseUrlString = pgmParams.getConverterBaseUrlString();
 		
 		File scanFile = pgmParams.getInputScanFile();
 				
@@ -78,7 +79,7 @@ public class Process_ScanFile_Create_SpectralFile {
 		
 		long scanFileLength_InBytes = scanFile.length();
 		
-		MzMl_MzXml_FileReader scanFileReader = null;
+//		MzMl_MzXml_FileReader scanFileReader = null;
 		SpectralFile_Writer__IF spectralFile_Writer = null;
 		
 		ValidateInputScanFile validateInputScanFile = ValidateInputScanFile.getInstance();
@@ -86,10 +87,19 @@ public class Process_ScanFile_Create_SpectralFile {
 		//  Used by the 'close' of spectralFile_Writer
 		SpectralFile_CloseWriter_Data_Common spectralFile_CloseWriter_Data_Common = new SpectralFile_CloseWriter_Data_Common();
 		
+		String converter_identifier_for_scan_file = null;
+		
 		try {
-			scanFileReader = getMzMLFileReader( scanFile );
+			{
+				Call_ScanFileParser_HTTP_CommunicationManagement__InitializeParsing_Response initResponse =
+						Call_ScanFileParser_HTTP_CommunicationManagement.getSingletonInstance().initialize_ParsingOf_ScanFile(pgmParams);
+
+				converter_identifier_for_scan_file = initResponse.getConverter_identifier_for_scan_file();
+			}
 			
-			MzML_MzXmlHeader mzXmlHeader = scanFileReader.getRunHeader();
+//			scanFileReader = getMzMLFileReader( scanFile );
+			
+//			MzML_MzXmlHeader mzXmlHeader = scanFileReader.getRunHeader();
 			
 			SpectralFile_Header_Common spectralFile_Header_Common = new SpectralFile_Header_Common();
 			
@@ -116,7 +126,9 @@ public class Process_ScanFile_Create_SpectralFile {
 			
 			spectralFile_Writer.open( hash_String, subDirForOutputFiles, spectralFile_Header_Common );
 			
-			processAllScans( scanFileReader, spectralFile_Writer, validateInputScanFile, scanFile );
+//			processAllScans( scanFileReader, spectralFile_Writer, validateInputScanFile, scanFile );
+			
+			processAllScans( converter_identifier_for_scan_file, pgmParams, spectralFile_Writer, validateInputScanFile, scanFile );
 
 			System.out.println( "************************************" );
 			System.out.println( "***  Statistics" );
@@ -156,8 +168,11 @@ public class Process_ScanFile_Create_SpectralFile {
 			throw new SpectralStorageDataException( msgForException );
 			
 		} finally {
-			if ( scanFileReader != null ) {
-				scanFileReader.close();
+			if ( converter_identifier_for_scan_file != null ) {
+				
+				Call_ScanFileParser_HTTP_CommunicationManagement.getSingletonInstance().close_ParsingOf_ScanFile(pgmParams, converter_identifier_for_scan_file);
+				
+//				scanFileReader.close();
 			}
 			if ( spectralFile_Writer != null ) {
 
@@ -190,14 +205,14 @@ public class Process_ScanFile_Create_SpectralFile {
 	 * @return
 	 * @throws Exception
 	 */
-	private MzMl_MzXml_FileReader getMzMLFileReader( File scanFileWithPath /* , String sha1Sum */ ) throws Exception {
-		if ( ! scanFileWithPath.exists() ) {
-			throw new Exception( "Input mzMl or MzXml file not found: '" + scanFileWithPath.getAbsolutePath() + "'");
-		}
-		MzMl_MzXml_FileReader scanFileReader = new MzMl_MzXml_FileReader();
-		scanFileReader.open( scanFileWithPath.getAbsolutePath() /* , sha1Sum */ );
-		return scanFileReader;
-	}
+//	private MzMl_MzXml_FileReader getMzMLFileReader( File scanFileWithPath /* , String sha1Sum */ ) throws Exception {
+//		if ( ! scanFileWithPath.exists() ) {
+//			throw new Exception( "Input mzMl or MzXml file not found: '" + scanFileWithPath.getAbsolutePath() + "'");
+//		}
+//		MzMl_MzXml_FileReader scanFileReader = new MzMl_MzXml_FileReader();
+//		scanFileReader.open( scanFileWithPath.getAbsolutePath() /* , sha1Sum */ );
+//		return scanFileReader;
+//	}
 	
 	/**
 	 * @param scanFileReader
@@ -205,8 +220,13 @@ public class Process_ScanFile_Create_SpectralFile {
 	 * @param scanFile
 	 * @throws Exception
 	 */
-	private void processAllScans( 
-			MzMl_MzXml_FileReader scanFileReader, 
+	private void processAllScans(
+			
+//			MzMl_MzXml_FileReader scanFileReader,
+			
+			String converter_identifier_for_scan_file,
+			Scan_File_Processor_MainProgram_Params pgmParams,
+			
 			SpectralFile_Writer__IF spectralFile_Writer,
 			ValidateInputScanFile validateInputScanFile,
 			File scanFile ) throws Exception {
@@ -220,89 +240,119 @@ public class Process_ScanFile_Create_SpectralFile {
 		
 		long scanCounter = 0;
 
-		Map<Byte, MutableLong> scanCountsPerScanLevel = new HashMap<>();
+		Map<Integer, MutableLong> scanCountsPerScanLevel = new HashMap<>();
 		
 		
 		try {
-			MzML_MzXmlScan scanIn = null;
-			while ( ( scanIn = scanFileReader.getNextScan() ) != null ) {
-				scanCounter++;
-				scansReadBlockCounter++;
-    			if ( scansReadBlockCounter > 10000 ) {
-    				System.out.println( "Number of scans (ms1, ms2, ?) processed so far: " 
-    						+ numberFormatInsertedScansCounter.format( scanCounter )
-    						+ ", Now: " + new Date() );
-    				scansReadBlockCounter = 0;
-    			}
-    			{
-    				byte msLevel = scanIn.getMsLevel();
-    				MutableLong scanCountForScanLevel = scanCountsPerScanLevel.get( msLevel );
-    				if ( scanCountForScanLevel == null ) {
-    					scanCountForScanLevel = new MutableLong( 1 );
-    					scanCountsPerScanLevel.put( msLevel, scanCountForScanLevel );
-    				} else {
-    					scanCountForScanLevel.increment();
-    				}
-    			}
+//			MzML_MzXmlScan scanIn = null;
+//			while ( ( scanIn = scanFileReader.getNextScan() ) != null ) {
+			
+			while (true) {
+			
+				Call_ScanFileParser_HTTP_CommunicationManagement__Get_NextScans_Response get_NextScans_Response =
+						Call_ScanFileParser_HTTP_CommunicationManagement.getSingletonInstance().get_NextScans_ParsingOf_ScanFile(pgmParams, converter_identifier_for_scan_file);
+				
+				List<ScanFileParser_ScanBatch_SingleScan> scanBatchList =  get_NextScans_Response.getScanFileParser_ScanBatch_Root().getScans();
+				if ( scanBatchList == null || scanBatchList.isEmpty() ) {
+					if ( get_NextScans_Response.getScanFileParser_ScanBatch_Root().isEndOfScans() ) {
+						
+						break;  // EARLY BREAK LOOP
+					}
+				}
+				
+				if ( scanBatchList != null && ( ! scanBatchList.isEmpty() ) ) {
+				
+					for ( ScanFileParser_ScanBatch_SingleScan scanIn : scanBatchList ) {
+
+						scanCounter++;
+						scansReadBlockCounter++;
+						if ( scansReadBlockCounter > 10000 ) {
+							System.out.println( "Number of scans (ms1, ms2, ?) processed so far: " 
+									+ numberFormatInsertedScansCounter.format( scanCounter )
+									+ ", Now: " + new Date() );
+							scansReadBlockCounter = 0;
+						}
+						{
+							int msLevel = scanIn.getScanLevel();
+							MutableLong scanCountForScanLevel = scanCountsPerScanLevel.get( msLevel );
+							if ( scanCountForScanLevel == null ) {
+								scanCountForScanLevel = new MutableLong( 1 );
+								scanCountsPerScanLevel.put( msLevel, scanCountForScanLevel );
+							} else {
+								scanCountForScanLevel.increment();
+							}
+						}
 
 
-//    			private byte level;
-//    			private int scanNumber;
-//    			private float retentionTime;
-//    			private Float ionInjectionTime; // in milliseconds
-//    			private float totalIonCurrent;
-//    			private byte isCentroid;
-//    			
-//    			//  Only applicable where level > 1
-//    			
-//    			private int parentScanNumber;
-//    			private byte precursorCharge;
-//    			private float precursor_M_Over_Z;
-    			
-    			SpectralFile_SingleScan_Common spectralFile_SingleScan = new SpectralFile_SingleScan_Common();
-    			
-    			spectralFile_SingleScan.setLevel( scanIn.getMsLevel() );
-    			spectralFile_SingleScan.setScanNumber( scanIn.getScanNumber() );
-    			spectralFile_SingleScan.setRetentionTime( scanIn.getRetentionTime() );
-    			spectralFile_SingleScan.setIsCentroid( scanIn.getIsCentroided() );
-    			spectralFile_SingleScan.setParentScanNumber( scanIn.getPrecursorScanNum() );
-    			spectralFile_SingleScan.setPrecursorCharge( scanIn.getPrecursorCharge() );
-    			spectralFile_SingleScan.setPrecursor_M_Over_Z( scanIn.getPrecursorMz()  );
-    			spectralFile_SingleScan.setIonInjectionTime( scanIn.getIonInjectionTime() );
+//						private byte level;
+//						private int scanNumber;
+//						private float retentionTime;
+//						private Float ionInjectionTime; // in milliseconds
+//						private float totalIonCurrent;
+//						private byte isCentroid;
+//
+//						//  Only applicable where level > 1
+//
+//						private int parentScanNumber;
+//						private byte precursorCharge;
+//						private float precursor_M_Over_Z;
 
-				//  Process Scan Peaks and if needed compute totalIonCurrent from individual scan peaks
-		
-    			List<ScanPeak> scanPeakList = scanIn.getScanPeakList();
-    			List<SpectralFile_SingleScanPeak_Common> scanPeaksList = new ArrayList<>( scanPeakList.size() );
-    			spectralFile_SingleScan.setScanPeaksAsObjectArray( scanPeaksList );
-    			
-		        double scanIntensitiesSummedForScan = 0;
-		        
-    			for ( ScanPeak scanPeak : scanPeakList ) {
-    				
-    				SpectralFile_SingleScanPeak_Common spectralFile_SingleScanPeak = new SpectralFile_SingleScanPeak_Common();
-    				spectralFile_SingleScanPeak.setM_over_Z( scanPeak.getMz() );
-    				spectralFile_SingleScanPeak.setIntensity( scanPeak.getIntensity() );
-    				
-    				scanPeaksList.add( spectralFile_SingleScanPeak );
-    				
-    				scanIntensitiesSummedForScan += scanPeak.getIntensity();
-    			}
+						SpectralFile_SingleScan_Common spectralFile_SingleScan = new SpectralFile_SingleScan_Common();
 
-    			if ( scanIn.getTotalIonCurrent() != null ) {
-    				spectralFile_SingleScan.setTotalIonCurrent( scanIn.getTotalIonCurrent() );
-    			} else {
+						spectralFile_SingleScan.setLevel( (byte) scanIn.getScanLevel() );
+						spectralFile_SingleScan.setScanNumber( scanIn.getScanNumber() );
+						spectralFile_SingleScan.setRetentionTime( scanIn.getRetentionTime() );
+						if ( scanIn.isCentroid ) {
+							spectralFile_SingleScan.setIsCentroid( ByteValuesFor_Boolean_TrueFalse_Constants.BYTE_VALUE_FOR_BOOLEAN_TRUE );
+						} else {
+							spectralFile_SingleScan.setIsCentroid( ByteValuesFor_Boolean_TrueFalse_Constants.BYTE_VALUE_FOR_BOOLEAN_FALSE );
+						}
+						spectralFile_SingleScan.setParentScanNumber( scanIn.getParentScanNumber() );
+						if ( scanIn.getPrecursorCharge() != null ) {
+							spectralFile_SingleScan.setPrecursorCharge( (byte) scanIn.getPrecursorCharge().intValue() );
+						}
+						spectralFile_SingleScan.setPrecursor_M_Over_Z( scanIn.getPrecursor_M_Over_Z() );
+						spectralFile_SingleScan.setIonInjectionTime( scanIn.getIonInjectionTime() );
 
-    				//  TotalIonCurrent not in header so used Summed value from Scan Peaks
+						//  Process Scan Peaks and if needed compute totalIonCurrent from individual scan peaks
 
-    				float totalIonCurrent = (float) scanIntensitiesSummedForScan;
-    				spectralFile_SingleScan.setTotalIonCurrent( totalIonCurrent );
-    			}
-    			
-    			validateInputScanFile.validate_SingleScan( spectralFile_SingleScan ); //  Throws an exception if error
-    			
-    			spectralFile_Writer.writeScan( spectralFile_SingleScan );
+						List<ScanFileParser_ScanBatch_SingleScan_SinglePeak> scanPeakList = scanIn.getScanPeaks();
+						List<SpectralFile_SingleScanPeak_Common> scanPeaksList = new ArrayList<>( scanPeakList.size() );
+						spectralFile_SingleScan.setScanPeaksAsObjectArray( scanPeaksList );
 
+						double scanIntensitiesSummedForScan = 0;
+
+						for ( ScanFileParser_ScanBatch_SingleScan_SinglePeak scanPeak : scanPeakList ) {
+
+							SpectralFile_SingleScanPeak_Common spectralFile_SingleScanPeak = new SpectralFile_SingleScanPeak_Common();
+							spectralFile_SingleScanPeak.setM_over_Z( scanPeak.getM_over_Z() );
+							spectralFile_SingleScanPeak.setIntensity( scanPeak.getIntensity() );
+
+							scanPeaksList.add( spectralFile_SingleScanPeak );
+
+							scanIntensitiesSummedForScan += scanPeak.getIntensity();
+						}
+
+						if ( scanIn.getTotalIonCurrent() != null ) {
+							spectralFile_SingleScan.setTotalIonCurrent( scanIn.getTotalIonCurrent() );
+						} else {
+
+							//  TotalIonCurrent not in header so used Summed value from Scan Peaks
+
+							float totalIonCurrent = (float) scanIntensitiesSummedForScan;
+							spectralFile_SingleScan.setTotalIonCurrent( totalIonCurrent );
+						}
+
+						validateInputScanFile.validate_SingleScan( spectralFile_SingleScan ); //  Throws an exception if error
+
+						spectralFile_Writer.writeScan( spectralFile_SingleScan );
+					}
+				}
+				
+				if ( get_NextScans_Response.getScanFileParser_ScanBatch_Root().isEndOfScans() ) {
+					
+					break;  // EARLY BREAK LOOP
+				}
 			}
 			
 		} catch (SpectralStorageDataException e) {
@@ -331,9 +381,9 @@ public class Process_ScanFile_Create_SpectralFile {
 				+ numberFormatInsertedScansCounter.format( scanCounter ) );
 
 		{
-			List<Byte> scanLevels = new ArrayList<>( scanCountsPerScanLevel.keySet() );
+			List<Integer> scanLevels = new ArrayList<>( scanCountsPerScanLevel.keySet() );
 			Collections.sort( scanLevels );
-			for ( Byte scanLevel : scanLevels ) {
+			for ( Integer scanLevel : scanLevels ) {
 				MutableLong scanCountForScanLevel = scanCountsPerScanLevel.get( scanLevel );
 				if ( scanCountForScanLevel == null ) {
 					String msg = "scanCountForScanLevel == null for get for scanLevel from Map.keySet().  scanLevel: " + scanLevel;
@@ -351,9 +401,9 @@ public class Process_ScanFile_Create_SpectralFile {
 			log.info( "Number of scans (ms1, ms2, ?) read: " 
 					+ numberFormatInsertedScansCounter.format( scanCounter ) );
 			{
-				List<Byte> scanLevels = new ArrayList<>( scanCountsPerScanLevel.keySet() );
+				List<Integer> scanLevels = new ArrayList<>( scanCountsPerScanLevel.keySet() );
 				Collections.sort( scanLevels );
-				for ( Byte scanLevel : scanLevels ) {
+				for ( Integer scanLevel : scanLevels ) {
 					MutableLong scanCountForScanLevel = scanCountsPerScanLevel.get( scanLevel );
 					if ( scanCountForScanLevel == null ) {
 						String msg = "scanCountForScanLevel == null for get for scanLevel from Map.keySet().  scanLevel: " + scanLevel;

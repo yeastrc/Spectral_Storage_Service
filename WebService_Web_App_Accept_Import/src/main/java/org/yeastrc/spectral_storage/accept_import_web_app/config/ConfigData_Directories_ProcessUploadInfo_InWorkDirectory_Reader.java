@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.MaxNumberScansReturnConstants;
 import org.yeastrc.spectral_storage.accept_import_web_app.exceptions.SpectralFileWebappConfigException;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.constants.ProcessUploadedScanFilesConstants;
 
@@ -59,6 +60,10 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 	
 	private static String PROPERTY_NAME__DELETE_UPLOADED_SCAN_FILE_ON_SUCCESSFUL_IMPORT = 
 			"delete.uploaded.scan.file.on.successful.import";
+
+	
+	private static String PROPERTY_NAME__SCAN_READ_MAX_BATCH_SIZE = "scan.read.max.batch.size";
+	
 	
 	//  Email on error config
 
@@ -347,6 +352,10 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 					+ "' so will NOT delete uploaded scan file on successful import" ); 
 		}
 		
+		log.warn( "INFO: '" + PROPERTY_NAME__SCAN_READ_MAX_BATCH_SIZE
+				+ "' value or from default: " 
+				+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getScanReadMaxBatchSize() ); 
+		
 		ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.setInstance( configData_Directories_ProcessUploadCommand_InWorkDirectory );
 	}
 
@@ -566,6 +575,24 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			propertyValue = configProps.getProperty( PROPERTY_NAME__DELETE_UPLOADED_SCAN_FILE_ON_SUCCESSFUL_IMPORT );
 			if ( BOOLEAN_STRING_TRUE.equals( propertyValue ) ) {
 				configData_Directories_ProcessUploadCommand_InWorkDirectory.setDeleteUploadedScanFileOnSuccessfulImport( true );
+			}
+			
+			{
+				String propertyValue_Local = configProps.getProperty( PROPERTY_NAME__SCAN_READ_MAX_BATCH_SIZE );
+				if ( StringUtils.isNotEmpty( propertyValue_Local ) ) {
+					
+					try {
+						int number = Integer.parseInt( propertyValue_Local );
+						configData_Directories_ProcessUploadCommand_InWorkDirectory.setScanReadMaxBatchSize(number);
+						
+					} catch ( Exception e ) {
+						String msg = "Vaue for property '" + PROPERTY_NAME__SCAN_READ_MAX_BATCH_SIZE
+								+ "' failed to parse as integer so ignored.  Default value was used.  Value in config file: " + propertyValue_Local;
+						log.error( msg );
+						
+						configData_Directories_ProcessUploadCommand_InWorkDirectory.setScanReadMaxBatchSize(MaxNumberScansReturnConstants.MAX_NUMBER_SCANS_RETURN_FOR_IMMEDIATE_WEBSERVICES);
+					}
+				}
 			}
 
 		} catch ( RuntimeException e ) {

@@ -12,6 +12,8 @@ public class Scan_File_Processor_MainProgram_Params {
 	
 	private File inputScanFile;
 	
+	private int scanReadMaxBatchSize;
+	
 	private File outputBaseDir;
 	private File tempOutputBaseDir;
 	private File backupOldBaseDir; 
@@ -63,5 +65,11 @@ public class Scan_File_Processor_MainProgram_Params {
 	}
 	public void setConverterBaseUrlString(String converterBaseUrlString) {
 		this.converterBaseUrlString = converterBaseUrlString;
+	}
+	public int getScanReadMaxBatchSize() {
+		return scanReadMaxBatchSize;
+	}
+	public void setScanReadMaxBatchSize(int scanReadMaxBatchSize) {
+		this.scanReadMaxBatchSize = scanReadMaxBatchSize;
 	}
 }

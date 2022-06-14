@@ -95,6 +95,8 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	 */
 	private boolean deleteUploadedScanFileOnSuccessfulImport;
 	
+	private int scanReadMaxBatchSize;
+	
 	//////////////////////////////////
 	//  Email on error config
 
@@ -312,6 +314,14 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 
 	public void setEmailToEmailAddresses_FailedOnly(List<String> emailToEmailAddresses_FailedOnly) {
 		this.emailToEmailAddresses_FailedOnly = emailToEmailAddresses_FailedOnly;
+	}
+
+	public int getScanReadMaxBatchSize() {
+		return scanReadMaxBatchSize;
+	}
+
+	public void setScanReadMaxBatchSize(int scanReadMaxBatchSize) {
+		this.scanReadMaxBatchSize = scanReadMaxBatchSize;
 	}
 		
 }

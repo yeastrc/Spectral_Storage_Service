@@ -1,0 +1,7 @@
+/.gradle/
+/build/
+/bin/
+/.settings/
+.classpath
+.project
+ant_build_CopyToTomcat.settings.properties

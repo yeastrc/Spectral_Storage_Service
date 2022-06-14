@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+  <display-name>Webservice - Accept Import - Web App</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+
+<!--   JSON responses can be activated if change code and add Jackson Jars -->
+
+
+<!--   _________________________________________   -->
+
+<!--   Servlets - Health Check   -->
+
+  <servlet>
+    <servlet-name>Health And Version Check</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.scan_file_parser_web_app_testing_only.servlets_healthcheck.HealthAndVersionCheck_Servlet</servlet-class>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Health And Version Check</servlet-name>
+    <url-pattern>/health-and-version-check</url-pattern>
+  </servlet-mapping>    
+
+<!--   Servlets - Get Data - NOT related to any specific Scan File to Import   -->
+
+  <!-- Get Supported Scan Filename Suffixes - called with GET - return XML -->
+   <!-- 
+  <servlet>
+    <servlet-name>Get Supported Scan Filename Suffixes Servlet</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.scan_file_parser_web_app_testing_only.servlets_upload_scan_file.Get_Supported_ScanFilename_Suffixes_Servlet</servlet-class>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Get Supported Scan Filename Suffixes Servlet</servlet-name>
+    <url-pattern>/get-data/get-supported-scan-filename-suffixes</url-pattern>
+  </servlet-mapping>    
+   -->
+<!--   _________________________________________   -->
+
+<!--   Servlets - Processing Scan File Parse  -->
+
+  <!-- Initialize the Parse Scan File Process -->
+  
+  <servlet>
+    <servlet-name>Initialize the Parse Scan File Process Servlet</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.scan_file_parser_web_app_testing_only.servlets_parse_scan_file.ParseScanFile_Init_Servlet</servlet-class>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Initialize the Parse Scan File Process Servlet</servlet-name>
+    <url-pattern>/scan-file-start</url-pattern>
+  </servlet-mapping>    
+  
+  <!-- Stop Close the Parse Scan File Process -->
+  
+  <servlet>
+    <servlet-name>Stop Close the Parse Scan File Process Servlet</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.scan_file_parser_web_app_testing_only.servlets_parse_scan_file.ParseScanFile_Close_Servlet</servlet-class>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Stop Close the Parse Scan File Process Servlet</servlet-name>
+    <url-pattern>/scan-file-stop-close</url-pattern>
+  </servlet-mapping>    
+  
+  
+  
+  <!-- Parse Scan File Process - Get Next Scans -->
+  
+  <servlet>
+    <servlet-name>Parse Scan File Process - Get Next Scans - Servlet</servlet-name>
+    <servlet-class>org.yeastrc.spectral_storage.scan_file_parser_web_app_testing_only.servlets_parse_scan_file.ParseScanFile_GetNextScans_Servlet</servlet-class>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Parse Scan File Process - Get Next Scans - Servlet</servlet-name>
+    <url-pattern>/scan-file-get-next-scans</url-pattern>
+  </servlet-mapping>    
+  
+  <!-- Filters - run on each request -->
+
+    <!-- filter to set character encoding on each request -->
+    
+  <filter>
+    <filter-name>Set Character Encoding</filter-name>
+    <filter-class>org.apache.filters.SetCharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+      <param-name>ignore</param-name>
+      <param-value>false</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>Set Character Encoding</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+    <!-- filter for Access Control -->
+    
+    <filter>
+        <filter-name>Access Control</filter-name>
+        <filter-class>org.yeastrc.spectral_storage.scan_file_parser_web_app_testing_only.servlet_filter__access_control.AccessControl_ServletFilter</filter-class>
+    	<init-param>
+	      <param-name>access.control.type</param-name>
+	      <param-value>overall</param-value> <!-- See class AccessControl_ServletFilter for valid values -->
+    	</init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>Access Control</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+
+	<!-- filter for Admin Access Control - All paths start with "/admin/" for Admin Access Control Filter -->
+
+    <filter>
+        <filter-name>Admin Access Control</filter-name>
+        <filter-class>org.yeastrc.spectral_storage.scan_file_parser_web_app_testing_only.servlet_filter__access_control.AccessControl_ServletFilter</filter-class>
+    	<init-param>
+	      <param-name>access.control.type</param-name>
+	      <param-value>admin</param-value> <!-- See class AccessControl_ServletFilter for valid values -->
+    	</init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>Admin Access Control</filter-name>
+        <url-pattern>/admin/*</url-pattern>
+    </filter-mapping>    
+
+	<!-- filter for Update Access Control - All paths start with "/update/" for Update Access Control Filter -->
+
+    <filter>
+        <filter-name>Update Access Control</filter-name>
+        <filter-class>org.yeastrc.spectral_storage.scan_file_parser_web_app_testing_only.servlet_filter__access_control.AccessControl_ServletFilter</filter-class>
+    	<init-param>
+	      <param-name>access.control.type</param-name>
+	      <param-value>update</param-value> <!-- See class AccessControl_ServletFilter for valid values -->
+    	</init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>Update Access Control</filter-name>
+        <url-pattern>/update/*</url-pattern>
+    </filter-mapping>    
+    
+	<!-- Servlet Context Listeners.  Called on Web app startup and shutdown -->
+	<listener>
+		<listener-class>
+		org.yeastrc.spectral_storage.scan_file_parser_web_app_testing_only.servlet_context.ServletContextAppListener
+		</listener-class>
+	</listener>
+	  
+  <error-page>
+    <error-code>500</error-code>
+    <location>/WEB-INF/jsp-pages/generalError.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>503</error-code>
+    <location>/WEB-INF/jsp-pages/generalError.jsp</location>
+  </error-page>
+</web-app>

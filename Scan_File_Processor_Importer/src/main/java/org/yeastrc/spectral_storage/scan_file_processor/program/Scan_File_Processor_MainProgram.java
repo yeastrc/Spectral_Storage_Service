@@ -55,6 +55,8 @@ public class Scan_File_Processor_MainProgram {
 		
 		CmdLineParser.Option converterBaseUrlStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "converter_base_url" );
 		CmdLineParser.Option inputScanFilenameStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "input_scan_filename" );
+		CmdLineParser.Option scanReadMaxBatchSizeStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "scan_read_max_batch_size" );
+		
 		CmdLineParser.Option outputBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "output_base_dir" );
 		CmdLineParser.Option tempOutputBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "temp_output_base_dir" );
 		CmdLineParser.Option backupOldBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "backup_old_base_dir" );
@@ -116,7 +118,7 @@ public class Scan_File_Processor_MainProgram {
 			converterBaseUrlString = (String)cmdLineParser.getOptionValue( converterBaseUrlStringCommandLineOpt );
 			
 			inputScanFilenameString = (String)cmdLineParser.getOptionValue( inputScanFilenameStringCommandLineOpt );
-			
+
 			outputBaseDirString = (String)cmdLineParser.getOptionValue( outputBaseDirStringCommandLineOpt );
 			
 			tempOutputBaseDirString = (String)cmdLineParser.getOptionValue( tempOutputBaseDirStringCommandLineOpt );
@@ -161,7 +163,28 @@ public class Scan_File_Processor_MainProgram {
 			}
 			
 			Scan_File_Processor_MainProgram_Params pgmParams = new Scan_File_Processor_MainProgram_Params();
+
+			int scanReadMaxBatchSize = 0;
 			
+			{
+				String scanReadMaxBatchSize_String = (String)cmdLineParser.getOptionValue( scanReadMaxBatchSizeStringCommandLineOpt );
+				
+				if ( StringUtils.isEmpty( scanReadMaxBatchSize_String ) ) {
+					System.err.println( "No value or empty String for param --scan_read_max_batch_size=" );
+					System.exit( PROGRAM_EXIT_CODE_INVALID_INPUT );  //  EARLY EXIT
+				}
+				
+				try {
+					scanReadMaxBatchSize = Integer.parseInt(scanReadMaxBatchSize_String);
+					
+					pgmParams.setScanReadMaxBatchSize(scanReadMaxBatchSize);
+					
+				} catch ( Exception e ) {
+					System.err.println( "Value for param --scan_read_max_batch_size= not parsable as Integer. value: " + scanReadMaxBatchSize_String );
+					System.exit( PROGRAM_EXIT_CODE_INVALID_INPUT );  //  EARLY EXIT
+				}
+			}
+
 			{  //  Base URL for converter to parse scan file type
 				if ( StringUtils.isEmpty( converterBaseUrlString ) ) {
 					System.err.println( "Command Line Parameter --converter_base_url  Must be Populated" );
