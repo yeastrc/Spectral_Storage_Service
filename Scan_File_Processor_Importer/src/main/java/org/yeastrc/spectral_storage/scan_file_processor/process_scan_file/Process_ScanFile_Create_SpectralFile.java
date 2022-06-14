@@ -79,7 +79,8 @@ public class Process_ScanFile_Create_SpectralFile {
 		
 		long scanFileLength_InBytes = scanFile.length();
 		
-//		MzMl_MzXml_FileReader scanFileReader = null;
+		//  spectralFile_Writer is the Writer for the Latest Version of the Spectral File Format
+		
 		SpectralFile_Writer__IF spectralFile_Writer = null;
 		
 		ValidateInputScanFile validateInputScanFile = ValidateInputScanFile.getInstance();
@@ -97,16 +98,15 @@ public class Process_ScanFile_Create_SpectralFile {
 				converter_identifier_for_scan_file = initResponse.getConverter_identifier_for_scan_file();
 			}
 			
-//			scanFileReader = getMzMLFileReader( scanFile );
-			
-//			MzML_MzXmlHeader mzXmlHeader = scanFileReader.getRunHeader();
-			
 			SpectralFile_Header_Common spectralFile_Header_Common = new SpectralFile_Header_Common();
 			
 			spectralFile_Header_Common.setScanFileLength_InBytes( scanFileLength_InBytes );
 			spectralFile_Header_Common.setMainHash( compute_Hashes_Result.getSha_384_Hash() );
 			spectralFile_Header_Common.setAltHashSHA512( compute_Hashes_Result.getSha_512_Hash() );
 			spectralFile_Header_Common.setAltHashSHA1( compute_Hashes_Result.getSha_1_Hash() );
+			
+			
+			//  spectralFile_Writer is the Writer for the Latest Version of the Spectral File Format
 			
 			spectralFile_Writer = SpectralFile_Writer_CurrentFormat_Factory.getInstance().getSpectralFile_Writer_LatestVersion();
 			
@@ -124,9 +124,10 @@ public class Process_ScanFile_Create_SpectralFile {
 				System.err.println( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
 			}
 			
+			//   Open Output File: spectralFile_Writer is the Writer for the Latest Version of the Spectral File Format
+			
 			spectralFile_Writer.open( hash_String, subDirForOutputFiles, spectralFile_Header_Common );
 			
-//			processAllScans( scanFileReader, spectralFile_Writer, validateInputScanFile, scanFile );
 			
 			processAllScans( converter_identifier_for_scan_file, pgmParams, spectralFile_Writer, validateInputScanFile, scanFile );
 
@@ -170,9 +171,10 @@ public class Process_ScanFile_Create_SpectralFile {
 		} finally {
 			if ( converter_identifier_for_scan_file != null ) {
 				
+				//  Close Input Scan File
+				
 				Call_ScanFileParser_HTTP_CommunicationManagement.getSingletonInstance().close_ParsingOf_ScanFile(pgmParams, converter_identifier_for_scan_file);
 				
-//				scanFileReader.close();
 			}
 			if ( spectralFile_Writer != null ) {
 
@@ -191,6 +193,10 @@ public class Process_ScanFile_Create_SpectralFile {
 						spectralFile_CloseWriter_Data_Common.setIonInjectionTime_NotPopulated( false );  //  Boolean so must set to true or false
 					}
 				}
+
+				//  Close Output Data File and write other files (index, etc)
+				
+				//  spectralFile_Writer is the Writer for the Latest Version of the Spectral File Format
 				
 				spectralFile_Writer.close(spectralFile_CloseWriter_Data_Common);
 			}

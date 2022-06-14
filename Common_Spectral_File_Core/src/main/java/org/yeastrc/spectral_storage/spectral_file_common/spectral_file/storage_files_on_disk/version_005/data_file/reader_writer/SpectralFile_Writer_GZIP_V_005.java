@@ -126,11 +126,23 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 		return StorageFile_Version_005_Constants.FILE_VERSION;
 	}
 	
-	/* (non-Javadoc)
+	/* 
+	 * Close Main Data File
+	 * 
+	 * Write Index file and other files
+	 * 
+	 * 
+	 * (non-Javadoc)
 	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.writer.SpectralFile_Writer__IF#close()
 	 */
 	@Override
 	public void close(SpectralFile_CloseWriter_Data_Common spectralFile_CloseWriter_Data_Common) throws Exception {
+
+		if ( closeCalled ) {
+			String msg = "In Writer, close(...) cannot be called more than once";
+			log.error(msg);
+			throw new SpectralStorageProcessingException(msg);
+		}
 		
 		if ( outputStream_MainDataFileWhileWriting != null ) {
 			
@@ -235,6 +247,12 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	 */
 	@Override
 	public void open( String hash_String, File subDirForStorageFiles, SpectralFile_Header_Common spectralFile_Header_Common ) throws Exception {
+		
+		if ( openCalled ) {
+			String msg = "In Writer, open(...) cannot be called more than once";
+			log.error(msg);
+			throw new SpectralStorageProcessingException(msg);
+		}
 		
 		if ( spectralFile_Header_Common.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks() != null ) {
 			String msg = "In Writer, cannot be not null: spectralFile_Header_Common.getTotalIonCurrent_ForEachScan_ComputedFromScanPeaks()";
