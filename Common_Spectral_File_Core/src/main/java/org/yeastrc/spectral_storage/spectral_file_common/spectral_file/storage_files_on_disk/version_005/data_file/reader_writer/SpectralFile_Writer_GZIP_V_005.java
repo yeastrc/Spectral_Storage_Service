@@ -2,9 +2,7 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_
 
 import java.io.File;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.accum_scan_summary_data.AccumulateSummaryDataPerScanLevel;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.Accumulate_RT_MZ_Binned_ScanLevel_1;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_CloseWriter_Data_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_Header_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
@@ -78,17 +76,6 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	private boolean openCalled;
 	
 	private SpectralFile_Writer_SubPart__ProcessQueue__V_005 processQueue;
-	
-	/**
-	 * Accumulate statistics
-	 */
-	private AccumulateSummaryDataPerScanLevel accumulateSummaryDataPerScanLevel;
-	
-	/**
-	 * Accumulate scan level 1 data binned for RT and MZ
-	 */
-	private Accumulate_RT_MZ_Binned_ScanLevel_1 accumulate_RT_MZ_Binned_ScanLevel_1;
-	
 
 	/* (non-Javadoc)
 	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Writer__IF#getVersion()
