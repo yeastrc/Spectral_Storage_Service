@@ -84,12 +84,12 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	/**
 	 * Accumulate statistics
 	 */
-	AccumulateSummaryDataPerScanLevel accumulateSummaryDataPerScanLevel;
+	private AccumulateSummaryDataPerScanLevel accumulateSummaryDataPerScanLevel;
 	
 	/**
 	 * Accumulate scan level 1 data binned for RT and MZ
 	 */
-	Accumulate_RT_MZ_Binned_ScanLevel_1 accumulate_RT_MZ_Binned_ScanLevel_1;
+	private Accumulate_RT_MZ_Binned_ScanLevel_1 accumulate_RT_MZ_Binned_ScanLevel_1;
 	
 
 	/* (non-Javadoc)
