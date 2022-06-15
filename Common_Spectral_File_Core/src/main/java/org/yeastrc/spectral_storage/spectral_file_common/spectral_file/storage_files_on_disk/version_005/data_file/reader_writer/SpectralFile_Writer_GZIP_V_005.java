@@ -76,8 +76,6 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	private boolean initializeCalled;
 	private boolean closeCalled;
 	private boolean openCalled;
-	private boolean writeHeaderCalled;
-	private boolean writeScanCalled;
 	
 	private SpectralFile_Writer_SubPart__ProcessQueue__V_005 processQueue;
 	
