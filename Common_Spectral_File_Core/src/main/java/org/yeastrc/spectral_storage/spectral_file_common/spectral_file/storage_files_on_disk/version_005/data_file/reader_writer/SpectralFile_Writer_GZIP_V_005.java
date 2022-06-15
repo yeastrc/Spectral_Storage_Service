@@ -241,8 +241,6 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 			throw new SpectralStorageProcessingException(msg);
 		}
 		
-		writeScanCalled = true;
-
 		SpectralFile_Writer_SubPart__ProcessQueueEntry__V_005 processQueue_Entry = new SpectralFile_Writer_SubPart__ProcessQueueEntry__V_005();
 		
 		processQueue_Entry.setRequestType(SpectralFile_Writer_SubPart__ProcessQueueEntry_RequestType__V_005.WRITE_SCAN );
