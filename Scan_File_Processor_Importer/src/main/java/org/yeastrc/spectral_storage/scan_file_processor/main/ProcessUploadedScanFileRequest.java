@@ -3,7 +3,6 @@ package org.yeastrc.spectral_storage.scan_file_processor.main;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -23,7 +22,7 @@ import java.util.Date;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.constants_enums.ImporterTempSubDirNameConstants;
-import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Process_ScanFile_Create_SpectralFile;
+import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Parse_ScanFile_PassTo_Processing_Thread;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists_and_is_latest_version.CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem;
@@ -32,17 +31,23 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exception
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_File_Hashes;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes.Compute_Hashes_Result;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ComputeFromScanFileContentHashes;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ToFileReadWrite;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_Header_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Builder;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Writer_CurrentFormat_Factory;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Writer__IF;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Writer__NotifyOnProcessingCompleteOrException__IF;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.GetOrCreateSpectralStorageSubPath;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_999_latest.StorageFile_Version_999_LATEST_Constants;
 
 /**
  * 
  *
  */
-public class ProcessUploadedScanFileRequest {
+public class ProcessUploadedScanFileRequest implements SpectralFile_Writer__NotifyOnProcessingCompleteOrException__IF {
 
 	private static final Logger log = LoggerFactory.getLogger(ProcessUploadedScanFileRequest.class);
 
@@ -62,21 +67,41 @@ public class ProcessUploadedScanFileRequest {
 //	private static final int RETRY_DELETE_SCAN_FILE_DELAY = 500;  // milliseconds
 
 	
+	private static final ProcessUploadedScanFileRequest instance = new ProcessUploadedScanFileRequest();
+	
 	/**
 	 * private constructor
 	 */
 	private ProcessUploadedScanFileRequest(){}
-	public static ProcessUploadedScanFileRequest getInstance( ) throws Exception {
-		ProcessUploadedScanFileRequest instance = new ProcessUploadedScanFileRequest();
+	public static ProcessUploadedScanFileRequest getSingletonInstance() {
 		return instance;
 	}
 	
+	/**
+	 * Awaken from "wait()" call - Awaken the main thread of the Importer
+	 */
+	public void awaken() {
+
+		synchronized (this) {
+
+			notify();
+		}
+	}
+
+	/* 
+	 * Called when Processing is complete or there is an exception in the Write Spectral Storage Data Files
+	 */
+	@Override
+	public void notifyOnProcessingCompleteOrException() {
+		
+		this.awaken();
+	}
 
 	/**
 	 * @param pgmParams
-	 * @throws Exception
+	 * @throws Throwable 
 	 */
-	public void processUploadedScanFileRequest( Scan_File_Processor_MainProgram_Params pgmParams ) throws Exception {
+	public void processUploadedScanFileRequest( Scan_File_Processor_MainProgram_Params pgmParams ) throws Throwable {
 
 		// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 		
@@ -119,12 +144,11 @@ public class ProcessUploadedScanFileRequest {
 	 * @param inputScanFile
 	 * @param compute_Hashes
 	 * @return
-	 * @throws Exception
-	 * @throws IOException
+	 * @throws Throwable 
 	 */
 	public  String processInputFileWithComputedHash(
 			Scan_File_Processor_MainProgram_Params pgmParams,
-			Compute_Hashes compute_Hashes ) throws Exception, IOException {
+			Compute_Hashes compute_Hashes ) throws Throwable {
 
 		//  String of the API Key for this scan file, based on the hash of the file contents
 		String apiKey = 
@@ -167,16 +191,16 @@ public class ProcessUploadedScanFileRequest {
 //			}
 //
 //		} else {
-			if ( CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem.getInstance()
-					.doesSpectralFileAlreadyExist( 
-							pgmParams.getOutputBaseDir(), 
-							commonReader_File_And_S3,
-							apiKey ) ) {
+		if ( CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem.getInstance()
+				.doesSpectralFileAlreadyExist( 
+						pgmParams.getOutputBaseDir(), 
+						commonReader_File_And_S3,
+						apiKey ) ) {
 
-				System.out.println( "Data File already exists and is latest version so no processing needed");
+			System.out.println( "Data File already exists and is latest version so no processing needed");
 
-				return apiKey;
-			}
+			return apiKey;
+		}
 //		}
 
 			// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
@@ -184,9 +208,22 @@ public class ProcessUploadedScanFileRequest {
 //		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
 //			System.out.println( "Scan Data File does NOT already exist in S3 or is NOT latest Version so STARTING processing the scan file.  Now: " + new Date() );
 //		} else {
-			System.out.println( "Scan Data File does NOT already exist on Local Filesystem or is NOT latest Version so STARTING processing the scan file.  Now: " + new Date() );
+		System.out.println( "Scan Data File does NOT already exist on Local Filesystem or is NOT latest Version so STARTING processing the scan file.  Now: " + new Date() );
 //		}
 
+		{
+			File scanFile = pgmParams.getInputScanFile();
+			
+			if ( ! scanFile.exists() ) {
+				String msg = "Input scan file does not exist: " + scanFile.getAbsolutePath();
+				log.error( msg );
+				throw new IllegalArgumentException( msg );
+			}
+			
+			System.out.println( "Starting Processing input file: "  + scanFile.getAbsolutePath() 
+				+ ", Now: " + new Date() );
+		}
+		
 		File tempOutputDir = null;
 				
 		if ( pgmParams.getTempOutputBaseDir() != null ) {
@@ -227,12 +264,65 @@ public class ProcessUploadedScanFileRequest {
 			}
 		}
 		
-		//  Write the output files to the temp dir
+		//  Write the Spectral Storage Service data files to the temp dir for this Input Scan File
+		
+		SpectralFile_Writer__IF spectralFile_Writer = null;
+		
+		Parse_ScanFile_PassTo_Processing_Thread parse_ScanFile_PassTo_Processing_Thread = null;
 
 		try {
-			Process_ScanFile_Create_SpectralFile.getInstance()
-			.processScanFile( pgmParams, tempOutputDir, apiKey, compute_Hashes );
-
+			File scanFile = pgmParams.getInputScanFile();
+					
+			Compute_Hashes_Result compute_Hashes_Result = compute_Hashes.compute_Hashes();
+			
+			long scanFileLength_InBytes = scanFile.length();
+			
+			SpectralFile_Header_Common spectralFile_Header_Common = new SpectralFile_Header_Common();
+			
+			spectralFile_Header_Common.setScanFileLength_InBytes( scanFileLength_InBytes );
+			spectralFile_Header_Common.setMainHash( compute_Hashes_Result.getSha_384_Hash() );
+			spectralFile_Header_Common.setAltHashSHA512( compute_Hashes_Result.getSha_512_Hash() );
+			spectralFile_Header_Common.setAltHashSHA1( compute_Hashes_Result.getSha_1_Hash() );
+			
+			
+			//  spectralFile_Writer is the Writer for the Latest Version of the Spectral File Format
+			
+			spectralFile_Writer = SpectralFile_Writer_CurrentFormat_Factory.getInstance().getSpectralFile_Writer_LatestVersion();
+			
+			if ( StorageFile_Version_999_LATEST_Constants.FILE_VERSION != spectralFile_Writer.getVersion() ) {
+				
+				log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+				String msg = "ERROR: Call to SpectralFile_Writer_CurrentFormat_Factory.getInstance().getSpectralFile_Writer_LatestVersion() did not return latest version. StorageFile_Version_999_LATEST_Constants.FILE_VERSION != spectralFile_Writer.getVersion(). "
+							+ " StorageFile_Version_999_LATEST_Constants.FILE_VERSION: " + StorageFile_Version_999_LATEST_Constants.FILE_VERSION
+							+ "spectralFile_Writer.getVersion(): " + spectralFile_Writer.getVersion();
+				log.error( msg );
+				log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+				
+				System.err.println( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+				System.err.println( msg );
+				System.err.println( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+			}
+			
+			//   Open Output File: spectralFile_Writer is the Writer for the Latest Version of the Spectral File Format
+			
+			spectralFile_Writer.initialize( apiKey, tempOutputDir, spectralFile_Header_Common, this );
+			
+			
+			parse_ScanFile_PassTo_Processing_Thread = Parse_ScanFile_PassTo_Processing_Thread.getNewInstance(pgmParams, spectralFile_Writer);
+			
+			parse_ScanFile_PassTo_Processing_Thread.start();
+			
+			synchronized (this) {
+				
+				wait();   //  wait for Spectral Storage Files to be written to the temp dir for this Input Scan File
+				
+				//  notify()  [ in method awaken() ] called in 3 circumstances:
+				
+				//    1)   The Parse Scan File thread gets an exception
+				//    2)   The Write Spectral Storage Files gets an exception
+				//    3)   The Write Spectral Storage Files completes successfully
+			}
+			
 		} catch ( SpectralStorageDataException e ) {
 			
 			//  Data error so write messasge to data error file
@@ -241,11 +331,39 @@ public class ProcessUploadedScanFileRequest {
 			processSpectralStorageDataException( e );
 			throw e;
 			
-		} catch ( Exception e) {
+		} catch ( Throwable e) {
 
 			log.error( "Failed to process scan file: " + pgmParams.getInputScanFile().getAbsolutePath(), e );
 			throw e;
+		} finally {
+
+			try {
+				parse_ScanFile_PassTo_Processing_Thread.close_ScanFile_Parser();
+			} catch ( Throwable t ) {
+				log.warn( "EXCEPTION IGNORED:: Exception closing Scan File Parser. ", t );
+			}
 		}
+
+		//  wait() exit so evaluate parse_ScanFile_PassTo_Processing_Thread and spectralFile_Writer
+		
+		if ( parse_ScanFile_PassTo_Processing_Thread.getThrowable_Caught_Main_run_method() != null ) {
+			
+			//  Parse Scan File has an exception
+			
+			log.error( "In Main Processing: Parsing Scan File has an exception so rethrow exception", parse_ScanFile_PassTo_Processing_Thread.getThrowable_Caught_Main_run_method() );
+			throw parse_ScanFile_PassTo_Processing_Thread.getThrowable_Caught_Main_run_method();
+		}
+		
+		if ( spectralFile_Writer.getException() != null ) {
+			
+			//  Write Spectral Storage Files has an exception
+			
+			log.error( "In Main Processing: Write Spectral Storage Files has an exception so rethrow exception", spectralFile_Writer.getException() );
+			
+			throw spectralFile_Writer.getException();
+		}
+		
+		//  NO Exception in either so must be successful
 		
 
 		// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.

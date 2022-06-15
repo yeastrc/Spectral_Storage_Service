@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
 
 /**
+ * Package Private class
+ * 
  * V 005
  * 
  * Writer Sub Part:  Encode Scan Peaks To Byte Array
@@ -19,17 +21,17 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
  * Uses GZIPOutputStream for compression
  *
  */
-public class SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005 {
+class SpectralFile_Writer_SubPart__EncodeScanPeaksToByteArray_GZIP_V_005 {
 
-	private static final Logger log = LoggerFactory.getLogger( SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005.class );
+	private static final Logger log = LoggerFactory.getLogger( SpectralFile_Writer_SubPart__EncodeScanPeaksToByteArray_GZIP_V_005.class );
 	
 	private static final int TEMP_OUTPUT_STREAM_INITIAL_SIZE = 1024 * 1024;
 	
 	/**
-	 * 
+	 * Package Private
 	 *
 	 */
-	public static class SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005__MethodResult {
+	static class SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005__MethodResult {
 		
 		private byte[] encodedScanPeaks_ByteArray;
 		
@@ -48,11 +50,13 @@ public class SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005 {
 	}
 
 	/**
+	 * Package Private
+	 * 
 	 * @param scanPeaksAsObjectArray
 	 * @return
 	 * @throws Exception
 	 */
-	public SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005__MethodResult encodePeaksAsCompressedBytes( List<SpectralFile_SingleScanPeak_Common> scanPeaksAsObjectArray ) throws Exception {
+	SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005__MethodResult encodePeaksAsCompressedBytes( List<SpectralFile_SingleScanPeak_Common> scanPeaksAsObjectArray ) throws Exception {
 
 		long scanPeaksTotalBytes = 0;
 		long scanPeaksTotalCount = 0;

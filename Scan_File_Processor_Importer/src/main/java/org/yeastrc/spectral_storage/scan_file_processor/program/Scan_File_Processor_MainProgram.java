@@ -20,9 +20,9 @@ public class Scan_File_Processor_MainProgram {
 
 	/**
 	 * @param args
-	 * @throws Exception 
+	 * @throws Throwable 
 	 */
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Throwable {
 		
 //		{
 //			{
@@ -298,7 +298,7 @@ public class Scan_File_Processor_MainProgram {
 //				S3_AWS_InterfaceObjectHolder.getSingletonInstance().init();
 //			}
 			
-			ProcessUploadedScanFileRequest.getInstance().processUploadedScanFileRequest( pgmParams );
+			ProcessUploadedScanFileRequest.getSingletonInstance().processUploadedScanFileRequest( pgmParams );
 			
 		} finally {
 			

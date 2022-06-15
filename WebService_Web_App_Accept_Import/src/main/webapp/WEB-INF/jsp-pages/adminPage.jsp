@@ -1,4 +1,4 @@
-<%@page import="org.yeastrc.spectral_storage.scan_file_parser_web_app_testing_only.constants_enums.AdminPageConstants"%>
+<%@page import="org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.AdminPageConstants"%>
 <html>
 <head>
  <title>Admin Page</title>
