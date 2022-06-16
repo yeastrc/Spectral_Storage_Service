@@ -312,15 +312,48 @@ public class ProcessUploadedScanFileRequest implements SpectralFile_Writer__Noti
 			
 			parse_ScanFile_PassTo_Processing_Thread.start();
 			
-			synchronized (this) {
+			while (true) {  //  loop until 'break' inside the loop
+			
+				synchronized (this) {
+
+					//  wait for Spectral Storage Files to be written to the temp dir for this Input Scan File
+
+					wait( 2 * 60 * 1000 );  // Wait max of 2 minutes to ensure do not get stuck here
+					
+					//  notify()  [ in method awaken() ] called in 3 circumstances:
+
+					//    1)   The Write Spectral Storage Files completes successfully
+					//    2)   The Write Spectral Storage Files gets an exception
+					//    3)   The Parse Scan File thread gets an exception
+				}
+
+
+				//  wait() exit so evaluate parse_ScanFile_PassTo_Processing_Thread and spectralFile_Writer
+
+				if ( spectralFile_Writer.isProcessingIs_Successfull_And_Complete() ) {
+
+					//  The spectralFile_Writer has reached the "Close" main data file and completed all other processing successfully
+
+					break; //  EARLY LOOP EXIT
+				}
+
+				if ( spectralFile_Writer.getException() != null ) {
+
+					//  Write Spectral Storage Files has an exception
+
+					log.error( "In Main Processing: Write Spectral Storage Files has an exception so rethrow exception", spectralFile_Writer.getException() );
+
+					throw spectralFile_Writer.getException();
+				}
 				
-				wait();   //  wait for Spectral Storage Files to be written to the temp dir for this Input Scan File
-				
-				//  notify()  [ in method awaken() ] called in 3 circumstances:
-				
-				//    1)   The Parse Scan File thread gets an exception
-				//    2)   The Write Spectral Storage Files gets an exception
-				//    3)   The Write Spectral Storage Files completes successfully
+				if ( parse_ScanFile_PassTo_Processing_Thread.getThrowable_Caught_Main_run_method() != null ) {
+
+					//  Parse Scan File has an exception
+
+					log.error( "In Main Processing: Parsing Scan File has an exception so rethrow exception", parse_ScanFile_PassTo_Processing_Thread.getThrowable_Caught_Main_run_method() );
+					throw parse_ScanFile_PassTo_Processing_Thread.getThrowable_Caught_Main_run_method();
+				}
+
 			}
 			
 		} catch ( SpectralStorageDataException e ) {
@@ -344,27 +377,6 @@ public class ProcessUploadedScanFileRequest implements SpectralFile_Writer__Noti
 			}
 		}
 
-		//  wait() exit so evaluate parse_ScanFile_PassTo_Processing_Thread and spectralFile_Writer
-		
-		if ( parse_ScanFile_PassTo_Processing_Thread.getThrowable_Caught_Main_run_method() != null ) {
-			
-			//  Parse Scan File has an exception
-			
-			log.error( "In Main Processing: Parsing Scan File has an exception so rethrow exception", parse_ScanFile_PassTo_Processing_Thread.getThrowable_Caught_Main_run_method() );
-			throw parse_ScanFile_PassTo_Processing_Thread.getThrowable_Caught_Main_run_method();
-		}
-		
-		if ( spectralFile_Writer.getException() != null ) {
-			
-			//  Write Spectral Storage Files has an exception
-			
-			log.error( "In Main Processing: Write Spectral Storage Files has an exception so rethrow exception", spectralFile_Writer.getException() );
-			
-			throw spectralFile_Writer.getException();
-		}
-		
-		//  NO Exception in either so must be successful
-		
 
 		// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 		
