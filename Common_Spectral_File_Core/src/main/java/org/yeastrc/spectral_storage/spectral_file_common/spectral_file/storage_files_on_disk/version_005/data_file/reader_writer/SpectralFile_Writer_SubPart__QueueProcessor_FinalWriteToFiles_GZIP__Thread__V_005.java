@@ -68,7 +68,17 @@ class SpectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread
 	 * Pass any exceptions to this object
 	 */
 	private volatile SpectralFile_Writer_GZIP_V_005 spectralFile_Writer_GZIP_V_005;
-	
+
+	/**
+	 * 
+	 */
+	void awaken() {
+		
+		synchronized (this) {
+			notify();
+		}
+	}
+
 	/* 
 	 * Thread 'run()'
 	 * 
@@ -88,6 +98,22 @@ class SpectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread
 					spectralFile_Writer_SubPart__ActualWriteToFiles.open();
 					
 				} else if ( entry.requestType == SpectralFile_Writer_SubPart__ProcessQueueEntry_RequestType__V_005.WRITE_SCAN ) {
+					
+					while ( ! entry.isScanPeaksEncoded_And_Totals_Set() ) {
+						
+						//  Scan Peaks Not encoded yet.  'awaken() [ notify() ] will be called each time scan peaks are encoded.
+
+						synchronized (this) {
+							
+							try {
+								wait( 1000 ); // wait for scan peaks are encoded.  Wait max 1 second to ensure not miss 'notify()'.
+							} catch (InterruptedException e) {
+								
+								throw e;
+							}
+						}
+						
+					}
 					
 					spectralFile_Writer_SubPart__ActualWriteToFiles.writeScan( entry.getSpectralFile_SingleScan() );
 					

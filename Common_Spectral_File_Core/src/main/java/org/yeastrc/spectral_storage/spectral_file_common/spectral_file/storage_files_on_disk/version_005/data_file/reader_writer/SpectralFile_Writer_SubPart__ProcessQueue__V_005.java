@@ -86,6 +86,8 @@ public class SpectralFile_Writer_SubPart__ProcessQueue__V_005 {
 		private volatile long scanPeaksTotalBytes;
 		private volatile long scanPeaksTotalCount;
 		
+		private volatile boolean scanPeaksEncoded_And_Totals_Set;
+		
 		
 		
 		public long getScanPeaksTotalBytes() {
@@ -130,6 +132,12 @@ public class SpectralFile_Writer_SubPart__ProcessQueue__V_005 {
 		}
 		public void setRequestType(SpectralFile_Writer_SubPart__ProcessQueueEntry_RequestType__V_005 requestType) {
 			this.requestType = requestType;
+		}
+		public boolean isScanPeaksEncoded_And_Totals_Set() {
+			return scanPeaksEncoded_And_Totals_Set;
+		}
+		public void setScanPeaksEncoded_And_Totals_Set(boolean scanPeaksEncoded_And_Totals_Set) {
+			this.scanPeaksEncoded_And_Totals_Set = scanPeaksEncoded_And_Totals_Set;
 		}
 	}
 	

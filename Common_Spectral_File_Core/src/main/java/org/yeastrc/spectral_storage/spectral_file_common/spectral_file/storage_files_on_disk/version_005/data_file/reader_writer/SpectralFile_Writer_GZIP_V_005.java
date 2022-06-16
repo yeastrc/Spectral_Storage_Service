@@ -76,6 +76,8 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	private boolean openCalled;
 	
 	private SpectralFile_Writer_SubPart__ProcessQueue__V_005 processQueue;
+	
+	private SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005 encodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue;
 
 	/* (non-Javadoc)
 	 * @see org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Writer__IF#getVersion()
@@ -131,6 +133,9 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 				SpectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread__V_005.getNewInstance(processQueue, spectralFile_Writer_SubPart__ActualWriteToFiles, this);
 		
 		queueProcessor_FinalWriteToFiles.start();
+		
+		encodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue = 
+				SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005.getNewInstance(processingThreadsCount, queueProcessor_FinalWriteToFiles, this);
 	}
 	
 	/**
@@ -235,6 +240,10 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 		processQueue_Entry.setRequestType(SpectralFile_Writer_SubPart__ProcessQueueEntry_RequestType__V_005.WRITE_SCAN );
 		processQueue_Entry.setSpectralFile_SingleScan(spectralFile_SingleScan);
 		
+		//  Pass object for Encode Scan Peaks GZIP
+		encodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue.process_EncodeScanPeaksGZIP_Compute_Totals__UpdateInputObject__Blocking(processQueue_Entry);
+		
+		//  Pass object to Data File Writer queue
 		processQueue.addToQueue_Blocking( processQueue_Entry );
 	}
 

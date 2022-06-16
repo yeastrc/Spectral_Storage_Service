@@ -35,7 +35,6 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.index_file.from_data_file_writer_objects.SpectralFile_Index_FDFW_SingleScan_V_005;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.index_file.reader_writer.SpectralFile_Index_File_Writer_V_005;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.StorageFile_Version_005_Constants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.data_file.reader_writer.SpectralFile_Writer_SubPart__EncodeScanPeaksToByteArray_GZIP_V_005.SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005__MethodResult;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.scans_lvl_gt_1_partial.reader_writer.SpectralFile_ScansLvlGt1Partial_File_Writer_V_005;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.scans_other_data_extract_root__file.reader_writer.SpectralFile_Scans_OtherDataExtract_File_Writer_V_005;
 
@@ -758,12 +757,19 @@ class SpectralFile_Writer_SubPart__ActualWriteToFiles_GZIP_V_005 {
 		
 		//  Scan Peaks
 		
-		SpectralFile_Writer_SubPart__EncodeScanPeaksToByteArray_GZIP_V_005 spectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005 = new SpectralFile_Writer_SubPart__EncodeScanPeaksToByteArray_GZIP_V_005();
-
-		SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005__MethodResult encodePeaksAsCompressedBytes_Result =
-				spectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005.encodePeaksAsCompressedBytes( spectralFile_SingleScan.getScanPeaksAsObjectArray() );
 		
-		byte[] encodedScanPeaks_ByteArray = encodePeaksAsCompressedBytes_Result.getEncodedScanPeaks_ByteArray();
+//		WAS
+//		
+//		SpectralFile_Writer_SubPart__EncodeScanPeaksToByteArray_GZIP_V_005 spectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005 = new SpectralFile_Writer_SubPart__EncodeScanPeaksToByteArray_GZIP_V_005();
+//
+//		SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005__MethodResult encodePeaksAsCompressedBytes_Result =
+//				spectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005.encodePeaksAsCompressedBytes( spectralFile_SingleScan.getScanPeaksAsObjectArray() );
+//		
+//		byte[] encodedScanPeaks_ByteArray = encodePeaksAsCompressedBytes_Result.getEncodedScanPeaks_ByteArray();
+//
+//		int scanPeaksAsBAOS_Size = encodedScanPeaks_ByteArray.length;
+		
+		byte[] encodedScanPeaks_ByteArray = spectralFile_SingleScan.getScanPeaksAsByteArray();  // Previously Computed
 
 		int scanPeaksAsBAOS_Size = encodedScanPeaks_ByteArray.length;
 		

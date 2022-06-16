@@ -53,7 +53,7 @@ public class SpectralFile_SingleScan_Common {
 	/**
 	 * Number of scan peaks
 	 */
-	private int numberScanPeaks;
+	private long numberScanPeaks;
 	
 	/**
 	 * Length of scan Peaks which is written immediately after the data in this class.
@@ -223,12 +223,12 @@ public class SpectralFile_SingleScan_Common {
 	}
 
 
-	public int getNumberScanPeaks() {
+	public long getNumberScanPeaks() {
 		return numberScanPeaks;
 	}
 
 
-	public void setNumberScanPeaks(int numberScanPeaks) {
+	public void setNumberScanPeaks(long numberScanPeaks) {
 		this.numberScanPeaks = numberScanPeaks;
 	}
 
