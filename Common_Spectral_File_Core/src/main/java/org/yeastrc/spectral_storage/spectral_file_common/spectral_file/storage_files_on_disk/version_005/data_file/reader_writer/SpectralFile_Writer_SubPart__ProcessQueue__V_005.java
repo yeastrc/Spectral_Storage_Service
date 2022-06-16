@@ -17,7 +17,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 public class SpectralFile_Writer_SubPart__ProcessQueue__V_005 {
 	
 	/**
-	 * @param processingThreadsCount
+	 * @param processingThreadsCount - Used for Queue Size Computation
 	 * @return
 	 */
 	public static SpectralFile_Writer_SubPart__ProcessQueue__V_005 getNewInstance(int processingThreadsCount) {
@@ -27,7 +27,7 @@ public class SpectralFile_Writer_SubPart__ProcessQueue__V_005 {
 	
 	private SpectralFile_Writer_SubPart__ProcessQueue__V_005( int processingThreadsCount ) {
 		
-		processQueue = new ArrayBlockingQueue<>(processingThreadsCount + 2);
+		processQueue = new ArrayBlockingQueue<>(processingThreadsCount * 5);  // Size is 5 Times Thread Count
 	}
 	
 	private ArrayBlockingQueue<SpectralFile_Writer_SubPart__ProcessQueueEntry__V_005> processQueue;

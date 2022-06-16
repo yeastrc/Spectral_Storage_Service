@@ -140,6 +140,8 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	 */
 	void spectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread__V_005__ProcessingComplete() {
 		
+		processingIs_Successfull_And_Complete = true;
+		
 		notifyOnProcessingCompleteOrException.notifyOnProcessingCompleteOrException();
 	}
 	
