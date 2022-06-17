@@ -4,6 +4,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_CloseWriter_Data_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.version_005.data_file.reader_writer.SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005.SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005;
 
 /**
  * Queue of items to process.
@@ -79,6 +80,11 @@ public class SpectralFile_Writer_SubPart__ProcessQueue__V_005 {
 		
 		private volatile SpectralFile_SingleScan_Common spectralFile_SingleScan;
 		
+
+		//  Assigned Encode Scan Peaks Thread
+		
+		private volatile SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005 assigned__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005;
+		
 		//  Computed by Encode Scan Peaks code
 		
 		private volatile byte[] encodedScanPeaks_ByteArray;
@@ -138,6 +144,13 @@ public class SpectralFile_Writer_SubPart__ProcessQueue__V_005 {
 		}
 		public void setScanPeaksEncoded_And_Totals_Set(boolean scanPeaksEncoded_And_Totals_Set) {
 			this.scanPeaksEncoded_And_Totals_Set = scanPeaksEncoded_And_Totals_Set;
+		}
+		public SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005 getAssigned__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005() {
+			return assigned__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005;
+		}
+		public void setAssigned__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005(
+				SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005 assigned__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005) {
+			this.assigned__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005 = assigned__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005;
 		}
 	}
 	

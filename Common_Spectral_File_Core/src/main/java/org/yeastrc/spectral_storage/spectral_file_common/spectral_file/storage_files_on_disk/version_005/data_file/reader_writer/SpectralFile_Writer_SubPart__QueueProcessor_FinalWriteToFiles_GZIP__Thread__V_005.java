@@ -105,6 +105,14 @@ class SpectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread
 
 						synchronized (this) {
 							
+							if ( ( ! entry.isScanPeaksEncoded_And_Totals_Set() )
+									&& entry.getAssigned__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005().getQueueEntry() != entry ) {
+								
+								String msg = "( ! entry.isScanPeaksEncoded_And_Totals_Set() ) AND Assigned EncodeScanPeaksGZIP_Compute_Totals__Thread NO LONGER Holds Reference to Entry";
+								log.error(msg);
+								throw new SpectralStorageProcessingException(msg);
+							}
+								
 							if ( entry.isScanPeaksEncoded_And_Totals_Set() ) {
 								//  Data is Set so exit loop
 								break;  // EARLY BREAK LOOP

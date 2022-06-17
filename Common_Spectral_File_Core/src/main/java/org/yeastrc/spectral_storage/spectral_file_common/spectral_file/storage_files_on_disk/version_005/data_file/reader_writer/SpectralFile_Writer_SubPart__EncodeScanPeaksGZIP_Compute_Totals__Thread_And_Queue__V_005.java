@@ -32,6 +32,14 @@ class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_An
 			SpectralFile_Writer_GZIP_V_005 spectralFile_Writer_GZIP_V_005 //  Pass any exceptions to this object
 			) {
 		
+		if ( queueProcessor_FinalWriteToFiles_GZIP__Thread == null ) {
+			throw new IllegalArgumentException( "param 'queueProcessor_FinalWriteToFiles_GZIP__Thread' is null" );
+		}
+		
+		if ( spectralFile_Writer_GZIP_V_005 == null ) {
+			throw new IllegalArgumentException( "param 'spectralFile_Writer_GZIP_V_005' is null" );
+		}
+		
 		SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005 instance = 
 				new SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005(threadCountGzipScanPeaks);
 		
@@ -75,12 +83,13 @@ class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_An
 			SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005 thread = new SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005();
 			
 			thread.queueProcessor_FinalWriteToFiles_GZIP__Thread = queueProcessor_FinalWriteToFiles_GZIP__Thread;
+			thread.spectralFile_Writer_GZIP_V_005 = spectralFile_Writer_GZIP_V_005;
+			
 			thread.threadQueue = threadQueue;
 			
 			thread.setName( "SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals-" + counter );
 			thread.setDaemon(true); // Set Daemon so do NOT keep JVM from exit
 			
-			threadQueue.add(thread);
 			thread.start();
 		}
 		
@@ -97,15 +106,16 @@ class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_An
 		
 		SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005 thread = threadQueue.take(); // Waits if necessary until an element becomes available
 		
-		thread.queueEntry = queueEntry;
-		thread.awaken();
+		queueEntry.setAssigned__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005(thread);
+		
+		thread.set_Entry_And__Awaken( queueEntry );
 	}
 	
 	/**
 	 * !!  Thread class !!
 	 *
 	 */
-	private static class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005 extends Thread {
+	static class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005 extends Thread {
 
 		private static final Logger log = LoggerFactory.getLogger(SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005.class);
 		
@@ -124,13 +134,16 @@ class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_An
 
 		// for each 'process' through the loop
 		private volatile SpectralFile_Writer_SubPart__ProcessQueueEntry__V_005 queueEntry; //  Set before thread awaken to be processed
-
+		
 		/**
 		 * 
 		 */
-		private void awaken() {
+		private void set_Entry_And__Awaken(SpectralFile_Writer_SubPart__ProcessQueueEntry__V_005 queueEntry) {
 			
 			synchronized (this) {
+
+				this.queueEntry = queueEntry;
+				
 				notify();
 			}
 		}
@@ -147,10 +160,14 @@ class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_An
 			try {
 				while(true) {
 
-					while ( queueEntry == null ) {
+					this.queueEntry = null;
+
+					while ( this.queueEntry == null ) {
 
 						synchronized (this) {
 
+							threadQueue.add(this);
+							
 							try {
 								wait(); // wait for next request
 							} catch (InterruptedException e) {
@@ -158,27 +175,19 @@ class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_An
 							}
 						}
 					}
-
-
-					queueEntry.getSpectralFile_SingleScan().getScanPeaksAsObjectArray();
-
-
+					
 					SpectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005__MethodResult encodePeaksAsCompressedBytes_Result =
-							spectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005.encodePeaksAsCompressedBytes( queueEntry.getSpectralFile_SingleScan().getScanPeaksAsObjectArray() );
+							spectralFile_Writer__EncodeScanPeaksToByteArray_GZIP_V_005.encodePeaksAsCompressedBytes( this.queueEntry.getSpectralFile_SingleScan().getScanPeaksAsObjectArray() );
 
 					byte[] encodedScanPeaks_ByteArray = encodePeaksAsCompressedBytes_Result.getEncodedScanPeaks_ByteArray();
 
-					queueEntry.getSpectralFile_SingleScan().setScanPeaksAsByteArray(encodedScanPeaks_ByteArray);
-					queueEntry.getSpectralFile_SingleScan().setNumberScanPeaks( encodePeaksAsCompressedBytes_Result.getScanPeaksTotalCount() );
+					this.queueEntry.getSpectralFile_SingleScan().setScanPeaksAsByteArray(encodedScanPeaks_ByteArray);
+					this.queueEntry.getSpectralFile_SingleScan().setNumberScanPeaks( encodePeaksAsCompressedBytes_Result.getScanPeaksTotalCount() );
 					
-					queueEntry.setScanPeaksEncoded_And_Totals_Set(true); //  Set flag that will be checked to determine if this processing is complete for this scan
+					this.queueEntry.setScanPeaksEncoded_And_Totals_Set(true); //  Set flag that will be checked to determine if this processing is complete for this scan
 
 					//  Done processing
-
-					queueEntry = null;
-
-					threadQueue.add(this);
-
+					
 					queueProcessor_FinalWriteToFiles_GZIP__Thread.awaken();
 				}
 
@@ -188,6 +197,10 @@ class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_An
 				
 				spectralFile_Writer_GZIP_V_005.setThrowable_Caught_InProcessing__call_notifyOnProcessingCompleteOrException(t);
 			}
+		}
+
+		public SpectralFile_Writer_SubPart__ProcessQueueEntry__V_005 getQueueEntry() {
+			return queueEntry;
 		}
 	}
 	

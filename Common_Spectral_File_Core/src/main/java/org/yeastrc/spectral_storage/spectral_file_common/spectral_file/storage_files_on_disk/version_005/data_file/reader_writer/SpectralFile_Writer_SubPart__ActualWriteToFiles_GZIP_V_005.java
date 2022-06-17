@@ -626,6 +626,8 @@ class SpectralFile_Writer_SubPart__ActualWriteToFiles_GZIP_V_005 {
 	//////////////////////////
 	//////////////////////////
 	
+	private boolean writeScan__FirstCall = true;
+	
 	
 	/**
 	 * @param spectralFile_SingleScan
@@ -643,6 +645,13 @@ class SpectralFile_Writer_SubPart__ActualWriteToFiles_GZIP_V_005 {
 			String msg = "Must call writeHeader before call writeScan(...)";
 			log.error( msg );
 			throw new SpectralStorageProcessingException( msg );
+		}
+		
+		if ( writeScan__FirstCall ) {
+			
+			writeScan__FirstCall = false;
+			
+			log.info( "First call to writeScan(...): scan number: " + spectralFile_SingleScan.getScanNumber() );
 		}
 
 		int scanSize_InDataFile_InBytes = writeScanTo_Main_DataFile( spectralFile_SingleScan );
