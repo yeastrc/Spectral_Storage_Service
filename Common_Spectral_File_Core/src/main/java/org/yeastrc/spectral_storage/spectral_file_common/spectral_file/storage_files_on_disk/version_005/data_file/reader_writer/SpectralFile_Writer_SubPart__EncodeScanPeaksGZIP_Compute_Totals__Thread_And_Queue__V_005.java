@@ -166,10 +166,10 @@ class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_An
 
 						synchronized (this) {
 
-							threadQueue.add(this);
+							threadQueue.add(this); // Add to threadQueue in same 'synchronized' to ensure get the notify
 							
 							try {
-								wait(); // wait for next request
+								wait( 1000 ); // wait for next request.  Wait max 1 second to recheck queueEntry in case miss 'notify()'.
 							} catch (InterruptedException e) {
 
 							}
