@@ -99,17 +99,27 @@ class SpectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread
 					
 				} else if ( entry.requestType == SpectralFile_Writer_SubPart__ProcessQueueEntry_RequestType__V_005.WRITE_SCAN ) {
 					
-					while ( ! entry.isScanPeaksEncoded_And_Totals_Set() ) {
+					while ( true ) {
 						
-						//  Scan Peaks Not encoded yet.  'awaken() [ notify() ] will be called each time scan peaks are encoded.
+						//  Loop until Scan Peaks encoded and Totals Set.  'awaken() [ notify() ] will be called each time scan peaks are encoded.
 
 						synchronized (this) {
 							
+							if ( entry.isScanPeaksEncoded_And_Totals_Set() ) {
+								//  Data is Set so exit loop
+								break;  // EARLY BREAK LOOP
+							}
+							
 							try {
-								wait( 1000 ); // wait for scan peaks are encoded.  Wait max 1 second to ensure not miss 'notify()'.
+								wait( 1000 ); // wait for scan peaks are encoded.  Wait max 1 second to recheck flag in case miss 'notify()'.
 							} catch (InterruptedException e) {
 								
 								throw e;
+							}
+
+							if ( entry.isScanPeaksEncoded_And_Totals_Set() ) {
+								//  Data is Set so exit loop
+								break;  // EARLY BREAK LOOP
 							}
 						}
 						
