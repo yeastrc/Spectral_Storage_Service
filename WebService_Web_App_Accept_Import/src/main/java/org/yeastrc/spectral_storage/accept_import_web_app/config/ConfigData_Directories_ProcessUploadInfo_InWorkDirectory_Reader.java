@@ -22,7 +22,9 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 
 	private static final Logger log = LoggerFactory.getLogger(ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader.class);
 	
-	private static String BOOLEAN_STRING_TRUE = "true";
+	private static final String BOOLEAN_STRING_TRUE = "true";
+	
+	private static final int THREAD_COUNT_GZIP_SCAN_PEAKS__DEFAULT_VALUE = 1;
 
 	//  No Default file
 //	private static String CONFIG_DEFAULTS_FILENAME = "spectral_server_accept_import_config_dirs_process_cmd_defaults.properties";
@@ -61,9 +63,16 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 	private static String PROPERTY_NAME__DELETE_UPLOADED_SCAN_FILE_ON_SUCCESSFUL_IMPORT = 
 			"delete.uploaded.scan.file.on.successful.import";
 
+
+
+	//  Max Number of scans to read in a batch from Scan Parser Program - Integer
+
+	private static String PROPERTY_NAME__SCAN_READ_MAX_BATCH_SIZE = "importer.param.scan.read.max.batch.size";
 	
-	private static String PROPERTY_NAME__SCAN_READ_MAX_BATCH_SIZE = "scan.read.max.batch.size";
-	
+
+	// NUMBER OF THREADS USED FOR GIP SCAN PEAKS.  GZIP SCAN PEAKS IS HIGHEST CPU CONSUMING CODE.  ALLOCATE 1 (2 MAX) CPU CORE FOR ALL OTHER WORK IN IMPORTER. - Integer
+
+	private static String PROPERTY_NAME__THREAD_COUNT_GZIP_SCAN_PEAKS = "importer.param.thread.count.gzip.scan.peaks";
 	
 	//  Email on error config
 
@@ -354,7 +363,13 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 		
 		log.warn( "INFO: '" + PROPERTY_NAME__SCAN_READ_MAX_BATCH_SIZE
 				+ "' value or from default: " 
-				+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getScanReadMaxBatchSize() ); 
+				+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getScanReadMaxBatchSize() );
+
+		log.warn( "INFO: '" + PROPERTY_NAME__THREAD_COUNT_GZIP_SCAN_PEAKS
+				+ "' value or from default: " 
+				+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getThreadCountGzipScanPeaks_ImporterParam() );
+		
+		
 		
 		ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.setInstance( configData_Directories_ProcessUploadCommand_InWorkDirectory );
 	}
@@ -583,6 +598,15 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 					
 					try {
 						int number = Integer.parseInt( propertyValue_Local );
+
+						if ( number < 10 ) {
+							String msg = "Vaue for property '" + PROPERTY_NAME__SCAN_READ_MAX_BATCH_SIZE
+									+ "' is less than 1 so set to 10.  Value in config file: " + propertyValue_Local;
+							log.error( msg );
+							
+							number = 1;
+						}
+						
 						configData_Directories_ProcessUploadCommand_InWorkDirectory.setScanReadMaxBatchSize(number);
 						
 					} catch ( Exception e ) {
@@ -594,6 +618,34 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 					}
 				}
 			}
+
+			{
+				String propertyValue_Local = configProps.getProperty( PROPERTY_NAME__THREAD_COUNT_GZIP_SCAN_PEAKS );
+				if ( StringUtils.isNotEmpty( propertyValue_Local ) ) {
+					
+					try {
+						int number = Integer.parseInt( propertyValue_Local );
+						
+						if ( number < 1 ) {
+							String msg = "Vaue for property '" + PROPERTY_NAME__THREAD_COUNT_GZIP_SCAN_PEAKS
+									+ "' is less than 1 so set to 1.  Value in config file: " + propertyValue_Local;
+							log.error( msg );
+							
+							number = 1;
+						}
+						
+						configData_Directories_ProcessUploadCommand_InWorkDirectory.setThreadCountGzipScanPeaks_ImporterParam(number);
+						
+					} catch ( Exception e ) {
+						String msg = "Vaue for property '" + PROPERTY_NAME__THREAD_COUNT_GZIP_SCAN_PEAKS
+								+ "' failed to parse as integer so ignored.  Default value was used.  Value in config file: " + propertyValue_Local;
+						log.error( msg );
+						
+						configData_Directories_ProcessUploadCommand_InWorkDirectory.setThreadCountGzipScanPeaks_ImporterParam(THREAD_COUNT_GZIP_SCAN_PEAKS__DEFAULT_VALUE);
+					}
+				}
+			}
+			
 
 		} catch ( RuntimeException e ) {
 			log.error( "Error processing Properties file '" + propertiesFilename + "', exception: " + e.toString(), e );

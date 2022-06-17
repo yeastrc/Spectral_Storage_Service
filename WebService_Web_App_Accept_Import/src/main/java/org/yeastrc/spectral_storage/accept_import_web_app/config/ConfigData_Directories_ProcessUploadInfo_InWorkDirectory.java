@@ -97,6 +97,8 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	
 	private int scanReadMaxBatchSize;
 	
+	private int threadCountGzipScanPeaks_ImporterParam;
+	
 	//////////////////////////////////
 	//  Email on error config
 
@@ -322,6 +324,14 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 
 	public void setScanReadMaxBatchSize(int scanReadMaxBatchSize) {
 		this.scanReadMaxBatchSize = scanReadMaxBatchSize;
+	}
+
+	public int getThreadCountGzipScanPeaks_ImporterParam() {
+		return threadCountGzipScanPeaks_ImporterParam;
+	}
+
+	public void setThreadCountGzipScanPeaks_ImporterParam(int threadCountGzipScanPeaks_ImporterParam) {
+		this.threadCountGzipScanPeaks_ImporterParam = threadCountGzipScanPeaks_ImporterParam;
 	}
 		
 }

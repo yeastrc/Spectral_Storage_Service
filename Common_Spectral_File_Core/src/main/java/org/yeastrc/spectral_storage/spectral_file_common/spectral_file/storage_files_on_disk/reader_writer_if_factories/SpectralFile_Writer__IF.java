@@ -25,7 +25,8 @@ public interface SpectralFile_Writer__IF {
 			String hash_String, 
 			File subDirForStorageFiles,
 			SpectralFile_Header_Common spectralFile_Header_Common, 
-			SpectralFile_Writer__NotifyOnProcessingCompleteOrException__IF notifyOnProcessingComplete ) throws Exception;
+			SpectralFile_Writer__NotifyOnProcessingCompleteOrException__IF notifyOnProcessingComplete, 
+			int threadCountGzipScanPeaks ) throws Exception;
 	
 	public void open() throws Exception;
 

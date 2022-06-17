@@ -18,7 +18,6 @@ import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_S
 public class Parse_ScanFile_ScanBatch_Queue {
 
 	/**
-	 * @param processingThreadsCount - Used for Queue Size Computation
 	 * @return
 	 */
 	public static Parse_ScanFile_ScanBatch_Queue getNewInstance() {

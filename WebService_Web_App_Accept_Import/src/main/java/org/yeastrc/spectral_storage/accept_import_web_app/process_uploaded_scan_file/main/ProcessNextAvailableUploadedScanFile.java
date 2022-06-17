@@ -125,6 +125,8 @@ public class ProcessNextAvailableUploadedScanFile {
 				
 				processNextUploadedScanFile_Params.setScan_read_max_batch_size( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getScanReadMaxBatchSize() );
 				
+				processNextUploadedScanFile_Params.setThread_count_gzip_scan_peaks( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getThreadCountGzipScanPeaks_ImporterParam() );
+				
 				try {
 					ImportScanFilename_LocalDisk__ConverterURLPath__Result importScanFilename_LocalDisk__ConverterURLPath__Result =
 					ImportScanFilename_LocalDisk__ConverterURLPath.getInstance().getImportScanFilename_LocalDisk__ConverterURLPath(scanFileDir);

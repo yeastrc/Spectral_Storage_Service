@@ -22,18 +22,18 @@ class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_An
 	private static final Logger log = LoggerFactory.getLogger(SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005.class);
 
 	/**
-	 * @param processingThreadsCount - Used for Queue Size Computation
+	 * @param threadCountGzipScanPeaks - Used for Queue Size Computation
 	 * @return
 	 */
 	static SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005 getNewInstance(
 			
-			int processingThreadsCount,
+			int threadCountGzipScanPeaks,
 			SpectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread__V_005 queueProcessor_FinalWriteToFiles_GZIP__Thread,
 			SpectralFile_Writer_GZIP_V_005 spectralFile_Writer_GZIP_V_005 //  Pass any exceptions to this object
 			) {
 		
 		SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005 instance = 
-				new SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005(processingThreadsCount);
+				new SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005(threadCountGzipScanPeaks);
 		
 		instance.initialize( queueProcessor_FinalWriteToFiles_GZIP__Thread, spectralFile_Writer_GZIP_V_005 );
 		
@@ -43,17 +43,17 @@ class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_An
 	//  private constructor
 	private SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005( 
 			
-			int processingThreadsCount
+			int threadCountGzipScanPeaks
 			) {
 		
-		this.processingThreadsCount = processingThreadsCount;  // Set last from constructor params since 'volatile'
+		this.threadCountGzipScanPeaks = threadCountGzipScanPeaks;  // Set last from constructor params since 'volatile'
 		
-		this.threadQueue = new ArrayBlockingQueue<>(processingThreadsCount + 5);  // Add 5 so ensure Add to queue never blocks
+		this.threadQueue = new ArrayBlockingQueue<>(threadCountGzipScanPeaks + 5);  // Add 5 so ensure Add to queue never blocks
 	}
 	
 	//  Instance properties from constructor
 	
-	private volatile int processingThreadsCount;  //  Set last since Volatile
+	private volatile int threadCountGzipScanPeaks;  //  Set last since Volatile
 
 	//  Instance properties
 	
@@ -70,7 +70,7 @@ class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_An
 		
 		//  Create the Processing threads and add to queue and start
 		
-		for ( int counter = 1; counter <= processingThreadsCount; counter++ ) {
+		for ( int counter = 1; counter <= threadCountGzipScanPeaks; counter++ ) {
 			
 			SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005 thread = new SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread__V_005();
 			

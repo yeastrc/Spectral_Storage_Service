@@ -46,6 +46,7 @@ public class ProcessNextUploadedScanFile {
 		
 		private File importScanFileProcsesingDirectory;
 		private int scan_read_max_batch_size;
+		private int thread_count_gzip_scan_peaks;
 		private String converter_base_url;
 		private String input_scan_filename;
 		
@@ -60,6 +61,9 @@ public class ProcessNextUploadedScanFile {
 		}
 		public void setScan_read_max_batch_size(int scan_read_max_batch_size) {
 			this.scan_read_max_batch_size = scan_read_max_batch_size;
+		}
+		public void setThread_count_gzip_scan_peaks(int thread_count_gzip_scan_peaks) {
+			this.thread_count_gzip_scan_peaks = thread_count_gzip_scan_peaks;
 		}
 	}
 	
@@ -107,6 +111,7 @@ public class ProcessNextUploadedScanFile {
 			
 		File importScanFileProcsesingDirectory = methodParams.importScanFileProcsesingDirectory;
 		int scan_read_max_batch_size = methodParams.scan_read_max_batch_size;
+		int thread_count_gzip_scan_peaks = methodParams.thread_count_gzip_scan_peaks;
 		String converter_base_url = methodParams.converter_base_url;
 		String input_scan_filename = methodParams.input_scan_filename;
 		
@@ -147,6 +152,10 @@ public class ProcessNextUploadedScanFile {
 
 		{
 			String scan_read_max_batch_size_CommandString = "--scan_read_max_batch_size=" + scan_read_max_batch_size;
+			commandAndItsArgumentsAsList.add( scan_read_max_batch_size_CommandString );
+		}
+		{
+			String scan_read_max_batch_size_CommandString = "--thread_count_gzip_scan_peaks=" + thread_count_gzip_scan_peaks;
 			commandAndItsArgumentsAsList.add( scan_read_max_batch_size_CommandString );
 		}
 		{

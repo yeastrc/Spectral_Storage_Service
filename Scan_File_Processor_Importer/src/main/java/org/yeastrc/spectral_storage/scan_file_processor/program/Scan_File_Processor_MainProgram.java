@@ -56,6 +56,8 @@ public class Scan_File_Processor_MainProgram {
 		CmdLineParser.Option converterBaseUrlStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "converter_base_url" );
 		CmdLineParser.Option inputScanFilenameStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "input_scan_filename" );
 		CmdLineParser.Option scanReadMaxBatchSizeStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "scan_read_max_batch_size" );
+		CmdLineParser.Option threadCountGzipScanPeaksStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "thread_count_gzip_scan_peaks" );
+		
 		
 		CmdLineParser.Option outputBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "output_base_dir" );
 		CmdLineParser.Option tempOutputBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "temp_output_base_dir" );
@@ -164,9 +166,9 @@ public class Scan_File_Processor_MainProgram {
 			
 			Scan_File_Processor_MainProgram_Params pgmParams = new Scan_File_Processor_MainProgram_Params();
 
-			int scanReadMaxBatchSize = 0;
-			
 			{
+				int scanReadMaxBatchSize = 0;
+				
 				String scanReadMaxBatchSize_String = (String)cmdLineParser.getOptionValue( scanReadMaxBatchSizeStringCommandLineOpt );
 				
 				if ( StringUtils.isEmpty( scanReadMaxBatchSize_String ) ) {
@@ -177,6 +179,12 @@ public class Scan_File_Processor_MainProgram {
 				try {
 					scanReadMaxBatchSize = Integer.parseInt(scanReadMaxBatchSize_String);
 					
+					if ( scanReadMaxBatchSize < 1 ) {
+						System.err.println( "Value for param --scan_read_max_batch_size= is < 1. value: " + scanReadMaxBatchSize_String );
+						System.exit( PROGRAM_EXIT_CODE_INVALID_INPUT );  //  EARLY EXIT
+						
+					}
+					
 					pgmParams.setScanReadMaxBatchSize(scanReadMaxBatchSize);
 					
 				} catch ( Exception e ) {
@@ -184,6 +192,32 @@ public class Scan_File_Processor_MainProgram {
 					System.exit( PROGRAM_EXIT_CODE_INVALID_INPUT );  //  EARLY EXIT
 				}
 			}
+
+			{
+				String value_String = (String)cmdLineParser.getOptionValue( threadCountGzipScanPeaksStringCommandLineOpt );
+				
+				if ( StringUtils.isEmpty( value_String ) ) {
+					System.err.println( "No value or empty String for param --thread_count_gzip_scan_peaks=" );
+					System.exit( PROGRAM_EXIT_CODE_INVALID_INPUT );  //  EARLY EXIT
+				}
+				
+				try {
+					int valueNumber = Integer.parseInt(value_String);
+
+					if ( valueNumber < 1 ) {
+						System.err.println( "Value for param --thread_count_gzip_scan_peaks= is < 1. value: " + value_String );
+						System.exit( PROGRAM_EXIT_CODE_INVALID_INPUT );  //  EARLY EXIT
+						
+					}
+					
+					pgmParams.setThreadCountGzipScanPeaks(valueNumber);
+					
+				} catch ( Exception e ) {
+					System.err.println( "Value for param --thread_count_gzip_scan_peaks= not parsable as Integer. value: " + value_String );
+					System.exit( PROGRAM_EXIT_CODE_INVALID_INPUT );  //  EARLY EXIT
+				}
+			}
+			
 
 			{  //  Base URL for converter to parse scan file type
 				if ( StringUtils.isEmpty( converterBaseUrlString ) ) {

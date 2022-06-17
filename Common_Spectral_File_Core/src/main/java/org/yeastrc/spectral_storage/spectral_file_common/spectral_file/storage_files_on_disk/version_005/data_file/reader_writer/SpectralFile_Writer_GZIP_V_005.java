@@ -97,7 +97,10 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 			String hash_String, 
 			File subDirForStorageFiles, 
 			SpectralFile_Header_Common spectralFile_Header_Common,
-			SpectralFile_Writer__NotifyOnProcessingCompleteOrException__IF notifyOnProcessingCompleteOrException ) throws Exception {
+			SpectralFile_Writer__NotifyOnProcessingCompleteOrException__IF notifyOnProcessingCompleteOrException, 
+			int threadCountGzipScanPeaks
+			
+			) throws Exception {
 		
 		if ( initializeCalled ) {
 			String msg = "In Writer, initialize(...) cannot be called more than once";
@@ -119,15 +122,13 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 		}
 
 		this.notifyOnProcessingCompleteOrException = notifyOnProcessingCompleteOrException;
-		
-		int processingThreadsCount = 2;
-		
+				
 		SpectralFile_Writer_SubPart__ActualWriteToFiles_GZIP_V_005 spectralFile_Writer_SubPart__ActualWriteToFiles = 
 				SpectralFile_Writer_SubPart__ActualWriteToFiles_GZIP_V_005.getNewInstance();
 		
 		spectralFile_Writer_SubPart__ActualWriteToFiles.initialize(hash_String, subDirForStorageFiles, spectralFile_Header_Common, notifyOnProcessingCompleteOrException);
 				
-		processQueue = SpectralFile_Writer_SubPart__ProcessQueue__V_005.getNewInstance(processingThreadsCount);
+		processQueue = SpectralFile_Writer_SubPart__ProcessQueue__V_005.getNewInstance(threadCountGzipScanPeaks);
 		
 		SpectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread__V_005 queueProcessor_FinalWriteToFiles = 
 				SpectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread__V_005.getNewInstance(processQueue, spectralFile_Writer_SubPart__ActualWriteToFiles, this);
@@ -135,7 +136,7 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 		queueProcessor_FinalWriteToFiles.start();
 		
 		encodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue = 
-				SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005.getNewInstance(processingThreadsCount, queueProcessor_FinalWriteToFiles, this);
+				SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005.getNewInstance(threadCountGzipScanPeaks, queueProcessor_FinalWriteToFiles, this);
 	}
 	
 	/**

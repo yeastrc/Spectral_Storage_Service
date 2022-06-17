@@ -13,6 +13,7 @@ public class Scan_File_Processor_MainProgram_Params {
 	private File inputScanFile;
 	
 	private int scanReadMaxBatchSize;
+	private int threadCountGzipScanPeaks;
 	
 	private File outputBaseDir;
 	private File tempOutputBaseDir;
@@ -71,5 +72,11 @@ public class Scan_File_Processor_MainProgram_Params {
 	}
 	public void setScanReadMaxBatchSize(int scanReadMaxBatchSize) {
 		this.scanReadMaxBatchSize = scanReadMaxBatchSize;
+	}
+	public int getThreadCountGzipScanPeaks() {
+		return threadCountGzipScanPeaks;
+	}
+	public void setThreadCountGzipScanPeaks(int threadCountGzipScanPeaks) {
+		this.threadCountGzipScanPeaks = threadCountGzipScanPeaks;
 	}
 }

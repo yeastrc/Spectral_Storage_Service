@@ -151,6 +151,8 @@ public class ProcessUploadedScanFileRequest implements SpectralFile_Writer__Noti
 	public  String processInputFileWithComputedHash(
 			Scan_File_Processor_MainProgram_Params pgmParams,
 			Compute_Hashes compute_Hashes ) throws Throwable {
+		
+		final int threadCountGzipScanPeaks = pgmParams.getThreadCountGzipScanPeaks();
 
 		//  String of the API Key for this scan file, based on the hash of the file contents
 		String apiKey = 
@@ -309,7 +311,7 @@ public class ProcessUploadedScanFileRequest implements SpectralFile_Writer__Noti
 			
 			//   Open Output File: spectralFile_Writer is the Writer for the Latest Version of the Spectral File Format
 			
-			spectralFile_Writer.initialize( apiKey, tempOutputDir, spectralFile_Header_Common, this );
+			spectralFile_Writer.initialize( apiKey, tempOutputDir, spectralFile_Header_Common, this, threadCountGzipScanPeaks );
 			
 			Parse_ScanFile_ScanBatch_Queue parse_ScanFile_ScanBatch_Queue = Parse_ScanFile_ScanBatch_Queue.getNewInstance();
 			

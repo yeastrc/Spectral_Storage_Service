@@ -17,17 +17,17 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 public class SpectralFile_Writer_SubPart__ProcessQueue__V_005 {
 	
 	/**
-	 * @param processingThreadsCount - Used for Queue Size Computation
+	 * @param threadCountGzipScanPeaks - Used for Queue Size Computation
 	 * @return
 	 */
-	public static SpectralFile_Writer_SubPart__ProcessQueue__V_005 getNewInstance(int processingThreadsCount) {
+	public static SpectralFile_Writer_SubPart__ProcessQueue__V_005 getNewInstance(int threadCountGzipScanPeaks) {
 		
-		return new SpectralFile_Writer_SubPart__ProcessQueue__V_005(processingThreadsCount);
+		return new SpectralFile_Writer_SubPart__ProcessQueue__V_005(threadCountGzipScanPeaks);
 	}
 	
-	private SpectralFile_Writer_SubPart__ProcessQueue__V_005( int processingThreadsCount ) {
+	private SpectralFile_Writer_SubPart__ProcessQueue__V_005( int threadCountGzipScanPeaks ) {
 		
-		processQueue = new ArrayBlockingQueue<>(processingThreadsCount * 5);  // Size is 5 Times Thread Count
+		processQueue = new ArrayBlockingQueue<>(threadCountGzipScanPeaks * 5);  // Size is 5 Times Thread Count
 	}
 	
 	private ArrayBlockingQueue<SpectralFile_Writer_SubPart__ProcessQueueEntry__V_005> processQueue;
