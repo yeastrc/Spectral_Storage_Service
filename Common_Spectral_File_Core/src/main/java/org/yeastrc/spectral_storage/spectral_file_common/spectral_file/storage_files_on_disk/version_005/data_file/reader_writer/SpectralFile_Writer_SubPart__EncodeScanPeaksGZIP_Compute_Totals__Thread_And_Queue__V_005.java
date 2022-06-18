@@ -160,14 +160,23 @@ class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_An
 			try {
 				while(true) {
 
-					this.queueEntry = null;
+					synchronized (this) {
+
+						this.queueEntry = null;
+
+						threadQueue.add(this); // Add to threadQueue in same 'synchronized' to ensure get the notify
+						
+						try {
+							wait( 1000 ); // wait for next request.  Wait max 1 second to recheck queueEntry in case miss 'notify()'.
+						} catch (InterruptedException e) {
+
+						}
+					}
 
 					while ( this.queueEntry == null ) {
 
 						synchronized (this) {
 
-							threadQueue.add(this); // Add to threadQueue in same 'synchronized' to ensure get the notify
-							
 							try {
 								wait( 1000 ); // wait for next request.  Wait max 1 second to recheck queueEntry in case miss 'notify()'.
 							} catch (InterruptedException e) {

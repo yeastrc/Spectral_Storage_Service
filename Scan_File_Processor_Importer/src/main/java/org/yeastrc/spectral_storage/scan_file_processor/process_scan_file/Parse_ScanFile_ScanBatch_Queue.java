@@ -75,5 +75,7 @@ public class Parse_ScanFile_ScanBatch_Queue {
 		Parse_ScanFile_ScanBatch_QueueEntry_RequestType requestType;
 		
 		List<ScanFileParser_ScanBatch_SingleScan> scanBatchList;
+		
+		volatile byte[] webservice_ResponseBytes;  // Raw Bytes from Get Scan Batch Webservice Response when too large
 	}
 }

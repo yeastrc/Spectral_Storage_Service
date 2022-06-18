@@ -284,10 +284,15 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 	 */
 	public static class Call_ScanFileParser_HTTP_CommunicationManagement__Get_NextScans_Response {
 		
-		private ScanFileParser_ScanBatch_Root scanFileParser_ScanBatch_Root;
+		private volatile ScanFileParser_ScanBatch_Root scanFileParser_ScanBatch_Root;
+		
+		private volatile byte[] webservice_ResponseBytes; 
 
 		public ScanFileParser_ScanBatch_Root getScanFileParser_ScanBatch_Root() {
 			return scanFileParser_ScanBatch_Root;
+		}
+		public byte[] getWebservice_ResponseBytes() {
+			return webservice_ResponseBytes;
 		}
 	}
 	
@@ -312,22 +317,34 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		byte[] responseBytes = 
 				sendToServerSendByteArray_GetByteArrayResponseFromServer(requestBytesToSend, webserviceURL);
 		
-		ScanFileParser_ScanBatch_Root scanFileParser_ScanBatch_Root = null;
-		try {
-			scanFileParser_ScanBatch_Root = jacksonJSON_Mapper.readValue( responseBytes, ScanFileParser_ScanBatch_Root.class );
-		} catch ( Exception e ) {
-			log.error( "Failed to parse webservice response. ", e );
-			throw e;
-		}
-		
-		if ( scanFileParser_ScanBatch_Root.isError != null && scanFileParser_ScanBatch_Root.isError ) {
-			String msg = "webserviceResponse.isError is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.errorMessageToLog;
-			log.error( msg );
-			throw new SpectralStorageProcessingException(msg);
-		}
-		
 		Call_ScanFileParser_HTTP_CommunicationManagement__Get_NextScans_Response response = new Call_ScanFileParser_HTTP_CommunicationManagement__Get_NextScans_Response();
-		response.scanFileParser_ScanBatch_Root = scanFileParser_ScanBatch_Root;
+
+		if ( responseBytes.length > 100000 ) {
+			
+			//  Large response.  Responses with large batch size can be 10MB
+			
+			response.webservice_ResponseBytes = responseBytes;
+			
+		} else {
+
+			//  Small response so parse it here.
+			
+			ScanFileParser_ScanBatch_Root scanFileParser_ScanBatch_Root = null;
+			try {
+				scanFileParser_ScanBatch_Root = jacksonJSON_Mapper.readValue( responseBytes, ScanFileParser_ScanBatch_Root.class );
+			} catch ( Exception e ) {
+				log.error( "Failed to parse webservice response. ", e );
+				throw e;
+			}
+
+			if ( scanFileParser_ScanBatch_Root.isError != null && scanFileParser_ScanBatch_Root.isError ) {
+				String msg = "webserviceResponse.isError is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.errorMessageToLog;
+				log.error( msg );
+				throw new SpectralStorageProcessingException(msg);
+			}
+
+			response.scanFileParser_ScanBatch_Root = scanFileParser_ScanBatch_Root;
+		}
 		
 		return response;
 	}

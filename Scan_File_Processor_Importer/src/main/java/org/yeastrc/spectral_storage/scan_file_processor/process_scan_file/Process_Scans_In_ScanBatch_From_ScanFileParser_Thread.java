@@ -13,6 +13,7 @@ import org.apache.commons.lang3.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yeastrc.spectral_storage.scan_file_processor.main.ProcessUploadedScanFileRequest;
+import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.ScanFileParser_ScanBatch_Root;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.ScanFileParser_ScanBatch_SingleScan;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.ScanFileParser_ScanBatch_SingleScan_SinglePeak;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Parse_ScanFile_ScanBatch_Queue.Parse_ScanFile_ScanBatch_QueueEntry;
@@ -27,6 +28,8 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Writer__IF;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Processes Batches of Scans from Scan Parser Webservice. Submits individual scans to Spectral Storage File Writer.
@@ -218,8 +221,44 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 					break;  //  EARLY BREAK from Loop
 					
 				}
+				
+				List<ScanFileParser_ScanBatch_SingleScan> scanBatchList = parse_ScanFile_ScanBatch_QueueEntry.scanBatchList;
+				
+				if ( scanBatchList == null ) {
+
+					//  scanBatchList not populated in Entry so parse from Webservice Response Bytes
+
+					if ( parse_ScanFile_ScanBatch_QueueEntry.webservice_ResponseBytes == null ) {
+						String msg = "parse_ScanFile_ScanBatch_QueueEntry.scanBatchList AND parse_ScanFile_ScanBatch_QueueEntry.webservice_ResponseBytes are BOTH NULL";
+						log.error( msg );
+						throw new SpectralStorageProcessingException(msg);
+					}
+
+					ObjectMapper jacksonJSON_Mapper = new ObjectMapper();  //  Jackson JSON library object
+
+					ScanFileParser_ScanBatch_Root scanFileParser_ScanBatch_Root = null;
+					try {
+						scanFileParser_ScanBatch_Root = jacksonJSON_Mapper.readValue( parse_ScanFile_ScanBatch_QueueEntry.webservice_ResponseBytes, ScanFileParser_ScanBatch_Root.class );
+					} catch ( Exception e ) {
+						log.error( "Failed to parse Get Scan Batch webservice response. ", e );
+						throw e;
+					}
+
+					if ( scanFileParser_ScanBatch_Root.getIsError() != null && scanFileParser_ScanBatch_Root.getIsError() ) {
+						String msg = "Get Scan Batch webserviceResponse.getIsError() is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.getErrorMessageToLog();
+						log.error( msg );
+						throw new SpectralStorageProcessingException(msg);
+					}
+					
+					scanBatchList = scanFileParser_ScanBatch_Root.getScans();
+				}
+				
+				if ( scanBatchList == null || scanBatchList.isEmpty() ) {
+					
+					continue;  // EARLY CONTINUE
+				}
 			
-				for ( ScanFileParser_ScanBatch_SingleScan scanIn : parse_ScanFile_ScanBatch_QueueEntry.scanBatchList ) {
+				for ( ScanFileParser_ScanBatch_SingleScan scanIn : scanBatchList ) {
 
 					scanCounter++;
 					scansReadBlockCounter++;

@@ -7,13 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.yeastrc.spectral_storage.scan_file_processor.main.ProcessUploadedScanFileRequest;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.Call_ScanFileParser_HTTP_CommunicationManagement__Get_NextScans_Response;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.Call_ScanFileParser_HTTP_CommunicationManagement__InitializeParsing_Response;
+import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.ScanFileParser_ScanBatch_Root;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.ScanFileParser_ScanBatch_SingleScan;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Parse_ScanFile_ScanBatch_Queue.Parse_ScanFile_ScanBatch_QueueEntry;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Parse_ScanFile_ScanBatch_Queue.Parse_ScanFile_ScanBatch_QueueEntry_RequestType;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
 import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_CloseWriter_Data_Common;
 
 /**
  * Takes in Data to Put into Spectral File and Calls methods on Writer code for latest Spectral File Format (open, writeScan, close)
@@ -189,29 +189,40 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 				Call_ScanFileParser_HTTP_CommunicationManagement__Get_NextScans_Response get_NextScans_Response =
 						Call_ScanFileParser_HTTP_CommunicationManagement.getSingletonInstance().get_NextScans_ParsingOf_ScanFile(pgmParams, converter_identifier_for_scan_file);
 				
-				List<ScanFileParser_ScanBatch_SingleScan> scanBatchList =  get_NextScans_Response.getScanFileParser_ScanBatch_Root().getScans();
-				if ( scanBatchList == null || scanBatchList.isEmpty() ) {
+				ScanFileParser_ScanBatch_Root scanFileParser_ScanBatch_Root = get_NextScans_Response.getScanFileParser_ScanBatch_Root();
+				
+				if ( scanFileParser_ScanBatch_Root != null ) {
+					
+					//  Webservice Response has been parsed
+					
+					List<ScanFileParser_ScanBatch_SingleScan> scanBatchList = scanFileParser_ScanBatch_Root.getScans();
+
+					if ( scanBatchList != null && ( ! scanBatchList.isEmpty() ) ) {
+
+						{
+							//  Add Queue entry for 'SCAN_BATCH'
+							Parse_ScanFile_ScanBatch_QueueEntry entry = new Parse_ScanFile_ScanBatch_QueueEntry();
+							entry.requestType = Parse_ScanFile_ScanBatch_QueueEntry_RequestType.SCAN_BATCH;
+							entry.scanBatchList = scanBatchList;
+							parse_ScanFile_ScanBatch_Queue.addToQueue_Blocking(entry);
+						}
+
+					}
+
 					if ( get_NextScans_Response.getScanFileParser_ScanBatch_Root().isEndOfScans() ) {
-						
+
 						break;  // EARLY BREAK LOOP
 					}
-				}
-				
-				if ( scanBatchList != null && ( ! scanBatchList.isEmpty() ) ) {
+				} else {
+					//  Webservice Response has NOT been parsed
 
 					{
 						//  Add Queue entry for 'SCAN_BATCH'
 						Parse_ScanFile_ScanBatch_QueueEntry entry = new Parse_ScanFile_ScanBatch_QueueEntry();
 						entry.requestType = Parse_ScanFile_ScanBatch_QueueEntry_RequestType.SCAN_BATCH;
-						entry.scanBatchList = scanBatchList;
+						entry.webservice_ResponseBytes = get_NextScans_Response.getWebservice_ResponseBytes();
 						parse_ScanFile_ScanBatch_Queue.addToQueue_Blocking(entry);
 					}
-					
-				}
-				
-				if ( get_NextScans_Response.getScanFileParser_ScanBatch_Root().isEndOfScans() ) {
-					
-					break;  // EARLY BREAK LOOP
 				}
 			}
 			
