@@ -116,15 +116,11 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 
 				log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
 				log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
-				String msg = "Error Exception processing Scan file: " + scanFile.getAbsolutePath()
-						+ ",  Throwing Data error since probably error in file format.";
+				String msg = "Error Exception processing Scan file: " + scanFile.getAbsolutePath();
 				log.error( msg, t );
 				log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
-				String msgForException = "Error processing Scan file. " 
-						+ ".  Please check the file to ensure it contains the correct contents for "
-						+ "a scan file based on the suffix of the file";
 				
-				throw new SpectralStorageDataException( msgForException );
+				throw t;
 				
 			} finally {
 				if ( converter_identifier_for_scan_file != null ) {
@@ -242,13 +238,9 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 
 			File scanFile = pgmParams.getInputScanFile();
 					
-			String msg = "Error Exception processing Scan file: " + scanFile.getAbsolutePath()
-					+ ",  Throwing Data error since probably error in file format.";
+			String msg = "Error Exception processing Scan file: " + scanFile.getAbsolutePath();
 			log.error( msg, e );
-			String msgForException = "Error processing Scan file: " + scanFile.getAbsolutePath()
-					+ ".  Please check the file to ensure it contains the correct contents for "
-					+ "a scan file based on the suffix of the file ('mzML' or 'mzXML')";
-			throw new Exception( msgForException );
+			throw e;
 		}
 	}
 }
