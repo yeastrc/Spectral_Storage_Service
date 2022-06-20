@@ -12,10 +12,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.exceptions.YRCSpectralStorageGetDataWebserviceCallErrorException;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,6 +63,7 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 	public static class Call_ScanFileParser_HTTP_CommunicationManagement__InitializeParsing_Response {
 		
 		private String converter_identifier_for_scan_file;
+		private String errorMessage_ScanFileContentsError_ForEndUser; // Limelight (Proxl, etc) End User Display text - Shown to end User
 
 		public String getConverter_identifier_for_scan_file() {
 			return converter_identifier_for_scan_file;
@@ -95,6 +98,12 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		byte[] responseBytes = 
 				sendToServerSendByteArray_GetByteArrayResponseFromServer(requestBytesToSend, webserviceURL);
 		
+		{
+			
+			
+			log.warn(" About to parse response into WebserviceCall_Response__InitParsing:  response Bytes: " + new String(responseBytes, "UTF-8"));
+		}
+		
 		WebserviceCall_Response__InitParsing webserviceResponse = null;
 		try {
 			webserviceResponse = jacksonJSON_Mapper.readValue( responseBytes, WebserviceCall_Response__InitParsing.class );
@@ -104,6 +113,17 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		}
 		
 		if ( webserviceResponse.isError != null && webserviceResponse.isError ) {
+			
+			if ( StringUtils.isNotEmpty( webserviceResponse.errorMessage_ScanFileContentsError_ForEndUser ) ) {
+			
+
+				String msg = "webserviceResponse.isError is true. errorMessageToLog: " + webserviceResponse.errorMessageToLog
+						+ "\n webserviceResponse.errorMessage_ScanFileContentsError_ForEndUser: " + webserviceResponse.errorMessage_ScanFileContentsError_ForEndUser;
+				log.error( msg );
+				
+				throw new SpectralStorageDataException( webserviceResponse.errorMessage_ScanFileContentsError_ForEndUser );
+			}
+			
 			String msg = "webserviceResponse.isError is true. errorMessageToLog: " + webserviceResponse.errorMessageToLog;
 			log.error( msg );
 			throw new SpectralStorageProcessingException(msg);
@@ -148,7 +168,7 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		private Boolean isError;
 		private String errorMessageCode; // : <string>,   -- agreed upon strings like 'filenotfound', 'fileformatincorrect'
 		private String errorMessageToLog; // : <string> --  Spectr Core Log Error Message
-		
+		private String errorMessage_ScanFileContentsError_ForEndUser; // Limelight (Proxl, etc) End User Display text - Shown to end User
 		
 		@SuppressWarnings("unused")
 		public void setConverter_identifier_for_scan_file(String converter_identifier_for_scan_file) {
@@ -169,6 +189,10 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		@SuppressWarnings("unused")
 		public void setErrorMessageToLog(String errorMessageToLog) {
 			this.errorMessageToLog = errorMessageToLog;
+		}
+		@SuppressWarnings("unused")
+		public void setErrorMessage_ScanFileContentsError_ForEndUser(String errorMessage_ScanFileContentsError_ForEndUser) {
+			this.errorMessage_ScanFileContentsError_ForEndUser = errorMessage_ScanFileContentsError_ForEndUser;
 		}
 		
 	}
@@ -213,6 +237,17 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		}
 		
 		if ( webserviceResponse.isError != null && webserviceResponse.isError ) {
+
+			if ( StringUtils.isNotEmpty( webserviceResponse.errorMessage_ScanFileContentsError_ForEndUser ) ) {
+			
+
+				String msg = "webserviceResponse.isError is true. errorMessageToLog: " + webserviceResponse.errorMessageToLog
+						+ "\n webserviceResponse.errorMessage_ScanFileContentsError_ForEndUser: " + webserviceResponse.errorMessage_ScanFileContentsError_ForEndUser;
+				log.error( msg );
+				
+				throw new SpectralStorageDataException( webserviceResponse.errorMessage_ScanFileContentsError_ForEndUser );
+			}
+			
 			String msg = "webserviceResponse.isError is true. errorMessageToLog: " + webserviceResponse.errorMessageToLog;
 			log.error( msg );
 			throw new SpectralStorageProcessingException(msg);
@@ -258,7 +293,8 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		private Boolean isError;
 		private String errorMessageCode; // : <string>,   -- agreed upon strings like 'filenotfound', 'fileformatincorrect'
 		private String errorMessageToLog; // : <string> --  Spectr Core Log Error Message
-		
+		private String errorMessage_ScanFileContentsError_ForEndUser; // Limelight (Proxl, etc) End User Display text - Shown to end User
+
 		@SuppressWarnings("unused")
 		public void setIsError(Boolean isError) {
 			this.isError = isError;
@@ -270,6 +306,9 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		@SuppressWarnings("unused")
 		public void setErrorMessageToLog(String errorMessageToLog) {
 			this.errorMessageToLog = errorMessageToLog;
+		}
+		public void setErrorMessage_ScanFileContentsError_ForEndUser(String errorMessage_ScanFileContentsError_ForEndUser) {
+			this.errorMessage_ScanFileContentsError_ForEndUser = errorMessage_ScanFileContentsError_ForEndUser;
 		}
 		
 	}
@@ -338,7 +377,18 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 			}
 
 			if ( scanFileParser_ScanBatch_Root.isError != null && scanFileParser_ScanBatch_Root.isError ) {
-				String msg = "webserviceResponse.isError is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.errorMessageToLog;
+
+				if ( StringUtils.isNotEmpty( scanFileParser_ScanBatch_Root.errorMessage_ScanFileContentsError_ForEndUser ) ) {
+				
+
+					String msg = "get_NextScans_ParsingOf_ScanFile: webserviceResponse: isError is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.errorMessageToLog
+							+ "\n scanFileParser_ScanBatch_Root.errorMessage_ScanFileContentsError_ForEndUser: " + scanFileParser_ScanBatch_Root.errorMessage_ScanFileContentsError_ForEndUser;
+					log.error( msg );
+					
+					throw new SpectralStorageDataException( scanFileParser_ScanBatch_Root.errorMessage_ScanFileContentsError_ForEndUser );
+				}
+				
+				String msg = "get_NextScans_ParsingOf_ScanFile: webserviceResponse: isError is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.errorMessageToLog;
 				log.error( msg );
 				throw new SpectralStorageProcessingException(msg);
 			}
@@ -378,7 +428,8 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		private Boolean isError;
 		private String errorMessageCode; // : <string>,   -- agreed upon strings like 'filenotfound', 'fileformatincorrect'
 		private String errorMessageToLog; // : <string> --  Spectr Core Log Error Message
-		
+		private String errorMessage_ScanFileContentsError_ForEndUser; // Limelight (Proxl, etc) End User Display text - Shown to end User
+
 		public void setScan_batch_number(int scan_batch_number) {
 			this.scan_batch_number = scan_batch_number;
 		}
@@ -414,6 +465,12 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		}
 		public String getErrorMessageToLog() {
 			return errorMessageToLog;
+		}
+		public String getErrorMessage_ScanFileContentsError_ForEndUser() {
+			return errorMessage_ScanFileContentsError_ForEndUser;
+		}
+		public void setErrorMessage_ScanFileContentsError_ForEndUser(String errorMessage_ScanFileContentsError_ForEndUser) {
+			this.errorMessage_ScanFileContentsError_ForEndUser = errorMessage_ScanFileContentsError_ForEndUser;
 		}
 	}
 	

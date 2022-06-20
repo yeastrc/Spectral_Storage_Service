@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -245,6 +246,18 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 					}
 
 					if ( scanFileParser_ScanBatch_Root.getIsError() != null && scanFileParser_ScanBatch_Root.getIsError() ) {
+						
+
+						if ( StringUtils.isNotEmpty( scanFileParser_ScanBatch_Root.getErrorMessage_ScanFileContentsError_ForEndUser() ) ) {
+						
+
+							String msg = "get_NextScans_ParsingOf_ScanFile: webserviceResponse: isError is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.getErrorMessageToLog()
+									+ "\n scanFileParser_ScanBatch_Root.errorMessage_ScanFileContentsError_ForEndUser: " + scanFileParser_ScanBatch_Root.getErrorMessage_ScanFileContentsError_ForEndUser();
+							log.error( msg );
+							
+							throw new SpectralStorageDataException( scanFileParser_ScanBatch_Root.getErrorMessage_ScanFileContentsError_ForEndUser() );
+						}
+						
 						String msg = "Get Scan Batch webserviceResponse.getIsError() is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.getErrorMessageToLog();
 						log.error( msg );
 						throw new SpectralStorageProcessingException(msg);

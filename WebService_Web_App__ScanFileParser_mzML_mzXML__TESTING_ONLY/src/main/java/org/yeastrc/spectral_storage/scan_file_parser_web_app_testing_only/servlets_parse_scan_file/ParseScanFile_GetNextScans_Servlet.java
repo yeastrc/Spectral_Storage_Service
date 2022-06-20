@@ -76,7 +76,23 @@ public class ParseScanFile_GetNextScans_Servlet extends HttpServlet {
 			log.info( "webservice_Request.converter_identifier_for_scan_file: " + webservice_Request.converter_identifier_for_scan_file );
 
 			log.info( "webservice_Request.previous_scan_batch_number: " + webservice_Request.previous_scan_batch_number );
-
+//
+//			if ( true ) {
+//				
+//
+//				Webservice_Response webservice_Response = new Webservice_Response();
+//
+//				webservice_Response.isError = true;
+//				webservice_Response.errorMessageCode = "GetNextScanFailed";
+//				webservice_Response.errorMessageToLog = "GetNextScanFailed: " + webservice_Request.scan_filename_with_path;
+//				
+//				webservice_Response.errorMessage_ScanFileContentsError_ForEndUser = "Fake Error Message from Parser App On GetNextScan";
+//
+//				jacksonJSON_Mapper.writeValue( response.getOutputStream(), webservice_Response );
+//				
+//				return;
+//			}
+			
 			Webservice_Response webservice_Response = new Webservice_Response();
 
 			ScanFile_Parsing_InProgress_Item scanFile_Parsing_InProgress_Item =
@@ -217,6 +233,7 @@ public class ParseScanFile_GetNextScans_Servlet extends HttpServlet {
 		private Boolean isError;
 		private String errorMessageCode; // : <string>,   -- agreed upon strings like 'filenotfound', 'fileformatincorrect'
 		private String errorMessageToLog; // : <string> --  Spectr Core Log Error Message
+		private String errorMessage_ScanFileContentsError_ForEndUser;
 		
 		public Boolean getIsError() {
 			return isError;
@@ -235,6 +252,9 @@ public class ParseScanFile_GetNextScans_Servlet extends HttpServlet {
 		}
 		public List<Webservice_Response_SingleScan> getScans() {
 			return scans;
+		}
+		public String getErrorMessage_ScanFileContentsError_ForEndUser() {
+			return errorMessage_ScanFileContentsError_ForEndUser;
 		}
 	}
 	

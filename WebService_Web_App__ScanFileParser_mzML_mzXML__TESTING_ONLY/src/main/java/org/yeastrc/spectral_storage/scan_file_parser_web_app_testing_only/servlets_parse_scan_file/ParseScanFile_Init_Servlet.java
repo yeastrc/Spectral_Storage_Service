@@ -73,6 +73,23 @@ public class ParseScanFile_Init_Servlet extends HttpServlet {
 
 			log.info( "webservice_Request.scan_batch_size_maximum: " + webservice_Request.scan_batch_size_maximum );
 			
+//			if ( true ) {
+//				
+//
+//				Webservice_Response webservice_Response = new Webservice_Response();
+//
+//				webservice_Response.spectr_minimum_version_supported = 2;
+//				webservice_Response.isError = true;
+//				webservice_Response.errorMessageCode = "Parse Initialize Failed";
+//				webservice_Response.errorMessageToLog = "Parse Initialize Failed: " + webservice_Request.scan_filename_with_path;
+//				
+//				webservice_Response.errorMessage_ScanFileContentsError_ForEndUser = "Fake Error Message from Parser App On Init";
+//
+//				jacksonJSON_Mapper.writeValue( response.getOutputStream(), webservice_Response );
+//				
+//				return;
+//			}
+			
 			{
 				File scan_file = new File( webservice_Request.scan_filename_with_path );
 				if ( ! scan_file.exists() ) {
@@ -182,6 +199,7 @@ public class ParseScanFile_Init_Servlet extends HttpServlet {
 		private Boolean isError;
 		private String errorMessageCode; // : <string>,   -- agreed upon strings like 'filenotfound', 'fileformatincorrect'
 		private String errorMessageToLog; // : <string> --  Spectr Core Log Error Message
+		private String errorMessage_ScanFileContentsError_ForEndUser;
 		
 		public Integer getSpectr_minimum_version_supported() {
 			return spectr_minimum_version_supported;
@@ -197,6 +215,9 @@ public class ParseScanFile_Init_Servlet extends HttpServlet {
 		}
 		public String getConverter_identifier_for_scan_file() {
 			return converter_identifier_for_scan_file;
+		}
+		public String getErrorMessage_ScanFileContentsError_ForEndUser() {
+			return errorMessage_ScanFileContentsError_ForEndUser;
 		}
 	}
 }
