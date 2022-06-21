@@ -47,12 +47,26 @@ public class ScanFile_Parsing_InProgress_Item {
 	
 	private AtomicInteger scanBatchNumber_Current = new AtomicInteger( 0 );
 	
+	private boolean endOf_ScanFile_Reached;
+
+	public boolean isEndOf_ScanFile_Reached() {
+		return endOf_ScanFile_Reached;
+	}
+
 	/**
 	 * @return Next Batch Number
 	 */
 	public int getNext_scanBatchNumber() {
 		
 		return scanBatchNumber_Current.incrementAndGet();
+	}
+	
+	/**
+	 * @return Current Batch Number
+	 */
+	public int getCurrent_scanBatchNumber() {
+		
+		return scanBatchNumber_Current.get();
 	}
 	
 	/**
@@ -103,7 +117,18 @@ public class ScanFile_Parsing_InProgress_Item {
     
     public MzML_MzXmlScan getNextScan() throws Exception {
     	
-    	return this.scanFileReader__MzMl_MzXml_FileReader.getNextScan();
+    	if ( endOf_ScanFile_Reached ) {
+    		return null;
+    	}
+    	
+    	MzML_MzXmlScan scan = this.scanFileReader__MzMl_MzXml_FileReader.getNextScan();
+    	
+    	if ( scan == null ) {
+    		
+    		endOf_ScanFile_Reached = true;
+    	}
+    	
+    	return scan;
     }
 
 	public int getScanBatchSizeMaximum() {

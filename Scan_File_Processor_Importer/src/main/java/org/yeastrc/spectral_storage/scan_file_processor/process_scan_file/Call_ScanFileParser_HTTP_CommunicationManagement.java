@@ -41,6 +41,11 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 	private static final String SCAN_FILE_PARSE_GET_NEXT_SCANS_URI_PATH = "/scan-file-get-next-scans";
 	
 	
+	//  Response Error Message Code values
+	
+	private static final String RESPONSE_ERROR_MESSAGE_CODE__ERROR_MESSAGE_ALREADY_SENT = "ErrorMsgAlreadySent";
+	
+	
 	private static final Call_ScanFileParser_HTTP_CommunicationManagement instance = new Call_ScanFileParser_HTTP_CommunicationManagement();
 	
 	/**
@@ -202,6 +207,7 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 	 */
 	public static class Call_ScanFileParser_HTTP_CommunicationManagement__CloseParsing_Response {
 		
+		Integer last_scan_batch_number_sent;
 	}
 	
 	/**
@@ -216,8 +222,7 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 	public Call_ScanFileParser_HTTP_CommunicationManagement__CloseParsing_Response close_ParsingOf_ScanFile( 
 			
 			Scan_File_Processor_MainProgram_Params pgmParams, 
-			String converter_identifier_for_scan_file,
-			Integer last_scan_batch_number_received ) throws Exception {
+			String converter_identifier_for_scan_file ) throws Exception {
 
 
 		if ( close_ScanFile_Parser__Called ) {
@@ -234,10 +239,6 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		webserviceRequest.scan_filename_with_path = pgmParams.getInputScanFile().getAbsolutePath();
 		webserviceRequest.converter_identifier_for_scan_file = converter_identifier_for_scan_file;
 		
-		if ( last_scan_batch_number_received != null ) {
-			webserviceRequest.last_scan_batch_number_received = last_scan_batch_number_received;
-		}
-		
 		ObjectMapper jacksonJSON_Mapper = new ObjectMapper();  //  Jackson JSON library object
 		byte[] requestBytesToSend = jacksonJSON_Mapper.writeValueAsBytes( webserviceRequest );
 
@@ -251,6 +252,9 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 			log.error( "Failed to parse webservice response. ", e );
 			throw e;
 		}
+
+		
+		Call_ScanFileParser_HTTP_CommunicationManagement__CloseParsing_Response response = new Call_ScanFileParser_HTTP_CommunicationManagement__CloseParsing_Response();
 		
 		if ( webserviceResponse.isError != null && webserviceResponse.isError ) {
 
@@ -267,9 +271,10 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 			String msg = "webserviceResponse.isError is true. errorMessageToLog: " + webserviceResponse.errorMessageToLog;
 			log.error( msg );
 			throw new SpectralStorageProcessingException(msg);
+		} else {
+			
+			response.last_scan_batch_number_sent = webserviceResponse.last_scan_batch_number_sent;
 		}
-		
-		Call_ScanFileParser_HTTP_CommunicationManagement__CloseParsing_Response response = new Call_ScanFileParser_HTTP_CommunicationManagement__CloseParsing_Response();
 		
 		return response;
 	}
@@ -280,7 +285,6 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		private Integer spectr_core_version;
 	    private String scan_filename_with_path;
 		private String converter_identifier_for_scan_file;
-		private Integer last_scan_batch_number_received;
 		
 		@SuppressWarnings("unused")
 		public Integer getSpectr_core_version() {
@@ -294,10 +298,6 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		public String getConverter_identifier_for_scan_file() {
 			return converter_identifier_for_scan_file;
 		}
-		@SuppressWarnings("unused")
-		public Integer getLast_scan_batch_number_received() {
-			return last_scan_batch_number_received;
-		}
 	}
 	    
 	/**
@@ -306,6 +306,7 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 	 */
 	private static class WebserviceCall_Response__CloseParsing {
 
+		private Integer last_scan_batch_number_sent;
 		private Boolean isError;
 		private String errorMessageCode; // : <string>,   -- agreed upon strings like 'filenotfound', 'fileformatincorrect'
 		private String errorMessageToLog; // : <string> --  Spectr Core Log Error Message
@@ -326,6 +327,9 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		public void setErrorMessage_ScanFileContentsError_ForEndUser(String errorMessage_ScanFileContentsError_ForEndUser) {
 			this.errorMessage_ScanFileContentsError_ForEndUser = errorMessage_ScanFileContentsError_ForEndUser;
 		}
+		public void setLast_scan_batch_number_sent(Integer last_scan_batch_number_sent) {
+			this.last_scan_batch_number_sent = last_scan_batch_number_sent;
+		}
 		
 	}
 	
@@ -342,12 +346,17 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		private volatile ScanFileParser_ScanBatch_Root scanFileParser_ScanBatch_Root;
 		
 		private volatile byte[] webservice_ResponseBytes; 
+		
+		private volatile boolean errorMessageCode_Is_ErrorMsgAlreadySent;
 
 		public ScanFileParser_ScanBatch_Root getScanFileParser_ScanBatch_Root() {
 			return scanFileParser_ScanBatch_Root;
 		}
 		public byte[] getWebservice_ResponseBytes() {
 			return webservice_ResponseBytes;
+		}
+		public boolean isErrorMessageCode_Is_ErrorMsgAlreadySent() {
+			return errorMessageCode_Is_ErrorMsgAlreadySent;
 		}
 	}
 	
@@ -373,7 +382,7 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		
 		Call_ScanFileParser_HTTP_CommunicationManagement__Get_NextScans_Response response = new Call_ScanFileParser_HTTP_CommunicationManagement__Get_NextScans_Response();
 
-		if ( responseBytes.length > 1000 ) {
+		if ( responseBytes.length > 10000 ) {
 			
 			//  Large response.  Responses with large batch size can be 10MB
 			
@@ -391,24 +400,12 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 				throw e;
 			}
 
-			if ( scanFileParser_ScanBatch_Root.isError != null && scanFileParser_ScanBatch_Root.isError ) {
-
-				if ( StringUtils.isNotEmpty( scanFileParser_ScanBatch_Root.errorMessage_ScanFileContentsError_ForEndUser ) ) {
-				
-
-					String msg = "get_NextScans_ParsingOf_ScanFile: webserviceResponse: isError is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.errorMessageToLog
-							+ "\n scanFileParser_ScanBatch_Root.errorMessage_ScanFileContentsError_ForEndUser: " + scanFileParser_ScanBatch_Root.errorMessage_ScanFileContentsError_ForEndUser;
-					log.error( msg );
-					
-					throw new SpectralStorageDataException( scanFileParser_ScanBatch_Root.errorMessage_ScanFileContentsError_ForEndUser );
-				}
-				
-				String msg = "get_NextScans_ParsingOf_ScanFile: webserviceResponse: isError is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.errorMessageToLog;
-				log.error( msg );
-				throw new SpectralStorageProcessingException(msg);
-			}
-
 			response.scanFileParser_ScanBatch_Root = scanFileParser_ScanBatch_Root;
+			
+			if ( RESPONSE_ERROR_MESSAGE_CODE__ERROR_MESSAGE_ALREADY_SENT.equals(scanFileParser_ScanBatch_Root.errorMessageCode) ) {
+				
+				response.errorMessageCode_Is_ErrorMsgAlreadySent = true;
+			}
 		}
 		
 		return response;

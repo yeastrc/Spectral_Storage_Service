@@ -111,62 +111,70 @@ public class ParseScanFile_GetNextScans_Servlet extends HttpServlet {
 					
 					log.warn("INFO::  scan_batch_number assigned and returned by Get Next Scan Batch: " + webservice_Response.scan_batch_number );
 					
-							
-					final int scanReturnCountMax = scanFile_Parsing_InProgress_Item.getScanBatchSizeMaximum();
 					
-					int scanReadCount = 0;
-					
+					if ( scanFile_Parsing_InProgress_Item.isEndOf_ScanFile_Reached() ) {
 
-				    List<Webservice_Response_SingleScan> scans_ResultList = new ArrayList<>( scanReturnCountMax );
-				    webservice_Response.scans = scans_ResultList;
-					
-					while ( scanReadCount < scanReturnCountMax ) {
-						
-						scanReadCount++;
-					
-						MzML_MzXmlScan mzML_MzXmlScan_Input = scanFile_Parsing_InProgress_Item.getNextScan();
-						if ( mzML_MzXmlScan_Input == null ) {
-							
-							webservice_Response.endOfScans = true;  // End of Scans Reached
-							
-							break;  // EARLY BREAK LOOP
+						log.warn( "scanFile_Parsing_InProgress_Item.isEndOf_ScanFile_Reached() so webservice_Response.endOfScans = true" );
+
+						webservice_Response.endOfScans = true;  // End of Scans Reached
+
+					} else {
+
+
+						final int scanReturnCountMax = scanFile_Parsing_InProgress_Item.getScanBatchSizeMaximum();
+
+						int scanReadCount = 0;
+
+
+						List<Webservice_Response_SingleScan> scans_ResultList = new ArrayList<>( scanReturnCountMax );
+						webservice_Response.scans = scans_ResultList;
+
+						while ( scanReadCount < scanReturnCountMax ) {
+
+							scanReadCount++;
+
+							MzML_MzXmlScan mzML_MzXmlScan_Input = scanFile_Parsing_InProgress_Item.getNextScan();
+							if ( mzML_MzXmlScan_Input == null ) {
+
+								break;  // EARLY BREAK LOOP
+							}
+
+							Webservice_Response_SingleScan scan_Result = new Webservice_Response_SingleScan();
+							scans_ResultList.add(scan_Result);
+
+							scan_Result.scanLevel = mzML_MzXmlScan_Input.getMsLevel();
+							scan_Result.scanNumber  = mzML_MzXmlScan_Input.getScanNumber();
+							scan_Result.retentionTime  = mzML_MzXmlScan_Input.getRetentionTime();
+							scan_Result.isCentroid  = mzML_MzXmlScan_Input.getIsCentroided() == 0 ? false : true;
+
+							if ( scan_Result.scanLevel > 1 ) {
+								scan_Result.parentScanNumber  = mzML_MzXmlScan_Input.getPrecursorScanNum();
+								scan_Result.precursorCharge = (int) mzML_MzXmlScan_Input.getPrecursorCharge();
+								scan_Result.precursor_M_Over_Z  = mzML_MzXmlScan_Input.getPrecursorMz();
+							}
+							scan_Result.ionInjectionTime  = mzML_MzXmlScan_Input.getIonInjectionTime();
+
+							// Process Scan Peaks
+
+							List<ScanPeak> scanPeakList_Input = mzML_MzXmlScan_Input.getScanPeakList();
+
+							List<Webservice_Response_SingleScan_SinglePeak> scanPeakList_Output = new ArrayList<>( scanPeakList_Input.size() );
+
+							for ( ScanPeak scanPeak_Input : scanPeakList_Input ) {
+
+								Webservice_Response_SingleScan_SinglePeak webservice_Response_SingleScan_SinglePeak = new Webservice_Response_SingleScan_SinglePeak();
+								webservice_Response_SingleScan_SinglePeak.m_over_Z = scanPeak_Input.getMz();
+								webservice_Response_SingleScan_SinglePeak.intensity = scanPeak_Input.getIntensity();
+
+								scanPeakList_Output.add( webservice_Response_SingleScan_SinglePeak );
+							}
+
+							scan_Result.scanPeaks = scanPeakList_Output;
+
+
+							scan_Result.totalIonCurrent = mzML_MzXmlScan_Input.getTotalIonCurrent();  // Copy Float to Float
+
 						}
-						
-						Webservice_Response_SingleScan scan_Result = new Webservice_Response_SingleScan();
-						scans_ResultList.add(scan_Result);
-						
-						scan_Result.scanLevel = mzML_MzXmlScan_Input.getMsLevel();
-						scan_Result.scanNumber  = mzML_MzXmlScan_Input.getScanNumber();
-						scan_Result.retentionTime  = mzML_MzXmlScan_Input.getRetentionTime();
-						scan_Result.isCentroid  = mzML_MzXmlScan_Input.getIsCentroided() == 0 ? false : true;
-						
-						if ( scan_Result.scanLevel > 1 ) {
-							scan_Result.parentScanNumber  = mzML_MzXmlScan_Input.getPrecursorScanNum();
-							scan_Result.precursorCharge = (int) mzML_MzXmlScan_Input.getPrecursorCharge();
-							scan_Result.precursor_M_Over_Z  = mzML_MzXmlScan_Input.getPrecursorMz();
-						}
-						scan_Result.ionInjectionTime  = mzML_MzXmlScan_Input.getIonInjectionTime();
-
-						// Process Scan Peaks
-
-		    			List<ScanPeak> scanPeakList_Input = mzML_MzXmlScan_Input.getScanPeakList();
-		    			
-		    			List<Webservice_Response_SingleScan_SinglePeak> scanPeakList_Output = new ArrayList<>( scanPeakList_Input.size() );
-		    			
-		    			for ( ScanPeak scanPeak_Input : scanPeakList_Input ) {
-		    				
-		    				Webservice_Response_SingleScan_SinglePeak webservice_Response_SingleScan_SinglePeak = new Webservice_Response_SingleScan_SinglePeak();
-		    				webservice_Response_SingleScan_SinglePeak.m_over_Z = scanPeak_Input.getMz();
-		    				webservice_Response_SingleScan_SinglePeak.intensity = scanPeak_Input.getIntensity();
-		    				
-		    				scanPeakList_Output.add( webservice_Response_SingleScan_SinglePeak );
-		    			}
-		    			
-		    			scan_Result.scanPeaks = scanPeakList_Output;
-		    			
-
-		    			scan_Result.totalIonCurrent = mzML_MzXmlScan_Input.getTotalIonCurrent();  // Copy Float to Float
-		    			
 					}
 					
 					log.info( "Read of Scan File Parser: Found and Successful: webservice_Request.converter_identifier_for_scan_file: " + webservice_Request.converter_identifier_for_scan_file );

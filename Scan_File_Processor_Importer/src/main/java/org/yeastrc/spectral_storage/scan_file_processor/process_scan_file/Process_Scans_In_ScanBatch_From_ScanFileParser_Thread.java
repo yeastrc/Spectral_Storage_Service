@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,10 +80,19 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 		this.pgmParams = pgmParams;  // Always set last since 'volatile'
 	}
 	
-	private Throwable throwable_Caught_Main_run_method;
+	private volatile Throwable throwable_Caught_Main_run_method;
 
 	public Throwable getThrowable_Caught_Main_run_method() {
 		return throwable_Caught_Main_run_method;
+	}
+	
+	/**
+	 * Set to true when get to end of the 'run()' with no exceptions
+	 */
+	private volatile boolean writeSpectralFiles_Complete_And_Successful = false;
+	
+	public boolean isWriteSpectralFiles_Complete_And_Successful() {
+		return writeSpectralFiles_Complete_And_Successful;
 	}
 	
 	/**
@@ -164,6 +174,8 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 				
 			} catch ( Throwable t) {
 
+				throwable_Caught_Main_run_method = t;
+				
 				spectralFile_CloseWriter_Data_Common.setExceptionEncounteredProcessingScanFile(true);
 				
 				log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
@@ -177,6 +189,10 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 				
 				try {
 					this.parse_ScanFile_Pass_ScanBatch_To_Processing_Thread.close_ScanFile_Parser(this.prev_ScanBatchNumber);
+					
+				} catch ( Throwable t ) {
+					
+					throwable_Caught_Main_run_method = t;
 					
 				} finally {
 
@@ -201,8 +217,21 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 						//  Close Output Data File and write other files (index, etc)
 
 						//  spectralFile_Writer is the Writer for the Latest Version of the Spectral File Format
+						
+						try {
 
-						spectralFile_Writer.close(spectralFile_CloseWriter_Data_Common);
+							spectralFile_Writer.close(spectralFile_CloseWriter_Data_Common);
+							
+							if ( throwable_Caught_Main_run_method == null ) {
+								this.writeSpectralFiles_Complete_And_Successful = true;
+							}
+							
+						} catch ( Throwable t) {
+
+							throwable_Caught_Main_run_method = t;
+							
+							ProcessUploadedScanFileRequest.getSingletonInstance().awaken();
+						}
 					}
 				}
 			}
@@ -239,7 +268,21 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 					
 					//  End of Scans
 					
+					if ( parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number != null ) {
+						this.prev_ScanBatchNumber = parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number;
+					}
+					
 					break;  //  EARLY BREAK from Loop
+				}
+				
+				{
+					//  FAKE FORCE Exception for Exception testing
+					
+//					if (parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number > 3) {
+//						String msg = "FAKE FORCE Exception for Exception testing";
+//						log.error(msg);
+//						throw new SpectralStorageProcessingException(msg);
+//					}
 				}
 				
 				//  Validate scan_batch_number
@@ -251,7 +294,7 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 						throw new SpectralStorageProcessingException(msg);
 					}
 					
-					log.warn( "INFO::  parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number: " + parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number );
+//					log.warn( "INFO::  parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number: " + parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number );
 					
 					if ( this.prev_ScanBatchNumber == null && parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number.intValue() != 1 ) {
 						String msg = "For Scan Entry, the parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number does NOT start at 1";
@@ -436,4 +479,5 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 			}
 		}
 	}
+
 }

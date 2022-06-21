@@ -72,9 +72,6 @@ public class ParseScanFile_Close_Servlet extends HttpServlet {
 
 			log.info( "webservice_Request.converter_identifier_for_scan_file: " + webservice_Request.converter_identifier_for_scan_file );
 
-			log.info( "webservice_Request.last_scan_batch_number_received: " + webservice_Request.last_scan_batch_number_received );
-			
-			log.warn( "Need to validate webservice_Request.last_scan_batch_number_received" );
 			
 //			if ( true ) {   //  Error returned from 'Close' is currently ignored
 //				
@@ -111,6 +108,8 @@ public class ParseScanFile_Close_Servlet extends HttpServlet {
 					
 					log.info( "Close of Scan File Parser: Found and Successful: webservice_Request.converter_identifier_for_scan_file: " + webservice_Request.converter_identifier_for_scan_file );
 					
+					webservice_Response.last_scan_batch_number_sent = scanFile_Parsing_InProgress_Item.getCurrent_scanBatchNumber();
+					
 				} catch ( Throwable t ) {
 					
 					log.error( "Close of Scan File Parser: Found but NOT successful: webservice_Request.converter_identifier_for_scan_file: " + webservice_Request.converter_identifier_for_scan_file, t );
@@ -141,7 +140,6 @@ public class ParseScanFile_Close_Servlet extends HttpServlet {
 		private Integer spectr_core_version;
 	    private String scan_filename_with_path;
 		private String converter_identifier_for_scan_file;
-		private Integer last_scan_batch_number_received;
 	    
 		public void setSpectr_core_version(Integer spectr_core_version) {
 			this.spectr_core_version = spectr_core_version;
@@ -152,19 +150,17 @@ public class ParseScanFile_Close_Servlet extends HttpServlet {
 		public void setConverter_identifier_for_scan_file(String converter_identifier_for_scan_file) {
 			this.converter_identifier_for_scan_file = converter_identifier_for_scan_file;
 		}
-		public void setLast_scan_batch_number_received(Integer last_scan_batch_number_received) {
-			this.last_scan_batch_number_received = last_scan_batch_number_received;
-		}
 	}
 
 	public static class Webservice_Response {
-		
-		private Boolean isError;
+
+		private Integer last_scan_batch_number_sent;
+		private boolean isError;
 		private String errorMessageCode; // : <string>,   -- agreed upon strings like 'filenotfound', 'fileformatincorrect'
 		private String errorMessageToLog; // : <string> --  Spectr Core Log Error Message
 		private String errorMessage_ScanFileContentsError_ForEndUser;
 
-		public Boolean getIsError() {
+		public boolean getIsError() {
 			return isError;
 		}
 		public String getErrorMessageCode() {
@@ -175,6 +171,9 @@ public class ParseScanFile_Close_Servlet extends HttpServlet {
 		}
 		public String getErrorMessage_ScanFileContentsError_ForEndUser() {
 			return errorMessage_ScanFileContentsError_ForEndUser;
+		}
+		public Integer getLast_scan_batch_number_sent() {
+			return last_scan_batch_number_sent;
 		}
 	}
 }

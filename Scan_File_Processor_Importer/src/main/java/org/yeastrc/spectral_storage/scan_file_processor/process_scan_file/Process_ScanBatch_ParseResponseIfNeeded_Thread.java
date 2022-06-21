@@ -1,6 +1,8 @@
 package org.yeastrc.spectral_storage.scan_file_processor.process_scan_file;
 
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yeastrc.spectral_storage.scan_file_processor.main.ProcessUploadedScanFileRequest;
@@ -9,6 +11,7 @@ import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_S
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue.GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue.GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -130,8 +133,27 @@ public class Process_ScanBatch_ParseResponseIfNeeded_Thread extends Thread {
 							log.error( "Failed to parse Get Scan Batch webservice response. ", e );
 							throw e;
 						}
+
+						if ( scanFileParser_ScanBatch_Root.getIsError() != null && scanFileParser_ScanBatch_Root.getIsError() ) {
+
+							if ( StringUtils.isNotEmpty( scanFileParser_ScanBatch_Root.getErrorMessage_ScanFileContentsError_ForEndUser() ) ) {
+							
+
+								String msg = "get_NextScans_ParsingOf_ScanFile: webserviceResponse: isError is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.getErrorMessageToLog()
+										+ "\n scanFileParser_ScanBatch_Root.errorMessage_ScanFileContentsError_ForEndUser: " + scanFileParser_ScanBatch_Root.getErrorMessage_ScanFileContentsError_ForEndUser();
+								log.error( msg );
+								
+								throw new SpectralStorageDataException( scanFileParser_ScanBatch_Root.getErrorMessage_ScanFileContentsError_ForEndUser() );
+							}
+							
+							String msg = "get_NextScans_ParsingOf_ScanFile: webserviceResponse: isError is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.getErrorMessageToLog();
+							log.error( msg );
+							throw new SpectralStorageProcessingException(msg);
+						}
+						
 						
 						parse_ScanFile_ScanBatch_QueueEntry.scanBatchList = scanFileParser_ScanBatch_Root.getScans();
+						
 						parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number = scanFileParser_ScanBatch_Root.getScan_batch_number();
 					}
 					

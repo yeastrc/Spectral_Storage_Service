@@ -341,10 +341,10 @@ public class ProcessUploadedScanFileRequest implements SpectralFile_Writer__Noti
 
 					//  wait for Spectral Storage Files to be written to the temp dir for this Input Scan File
 
-					wait( 2 * 60 * 1000 );  // Wait max of 2 minutes to ensure do not get stuck here
+//					wait( 2 * 60 * 1000 );  // Wait max of 2 minutes to ensure do not get stuck here
 
 					//  TESTING
-//					wait( 1000 );  // Wait max of 2 minutes to ensure do not get stuck here
+					wait( 1000 );  // Wait max of 2 minutes to ensure do not get stuck here
 					
 					//  notify()  [ in method awaken() ] called in 3 circumstances:
 
@@ -354,9 +354,9 @@ public class ProcessUploadedScanFileRequest implements SpectralFile_Writer__Noti
 				}
 
 
-				//  wait() exit so evaluate parse_ScanFile_Pass_ScanBatch_To_Processing_Thread and spectralFile_Writer
+				//  wait() exit so evaluate parse_ScanFile_Pass_ScanBatch_To_Processing_Thread
 
-				if ( spectralFile_Writer.isProcessingIs_Successfull_And_Complete() ) {
+				if ( process_Scans_In_ScanBatch_From_ScanFileParser_Thread.isWriteSpectralFiles_Complete_And_Successful() ) {
 
 					//  The spectralFile_Writer has reached the "Close" main data file and completed all other processing successfully
 
@@ -432,7 +432,7 @@ public class ProcessUploadedScanFileRequest implements SpectralFile_Writer__Noti
 //
 //		} else {
 			//  Move files in temp dir to final output dir
-			moveFilesToFinalSubdirLocalFilesytem( pgmParams, apiKey, tempOutputDir );
+		moveFilesToFinalSubdirLocalFilesytem( pgmParams, apiKey, tempOutputDir );
 //		}
 		
 		System.out.println( "DONE Successfully processing the scan file.  Now: " + new Date() );
