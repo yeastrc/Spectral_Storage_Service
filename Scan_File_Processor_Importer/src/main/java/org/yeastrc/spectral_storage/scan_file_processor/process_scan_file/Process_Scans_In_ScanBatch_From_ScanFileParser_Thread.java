@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,100 +136,119 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 			SpectralFile_CloseWriter_Data_Common spectralFile_CloseWriter_Data_Common = new SpectralFile_CloseWriter_Data_Common();
 
 			File scanFile = pgmParams.getInputScanFile();
-					
-			try {
-				//  Wait for "Open" first entry in Queue
-				GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry parse_ScanFile_ScanBatch_QueueEntry = parse_ScanFile_ScanBatch_Queue.getNextEntryFromQueue_Blocking();
+				
 			
-				if ( parse_ScanFile_ScanBatch_QueueEntry.requestType != GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType.OPEN_DATA_FILE ) {
-					
-					String msg = "First Entry from Queue is NOT requestType OPEN_DATA_FILE";
-					log.error(msg);
-					throw new SpectralStorageProcessingException(msg);
-				}
+			try {
 				
 				try {
-					spectralFile_Writer.open();
-				} catch ( Exception e ) {
-					log.error( "spectralFile_Writer.open() threw Exception: ", e );
+					//  Wait for "Open" first entry in Queue
+					GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry parse_ScanFile_ScanBatch_QueueEntry = parse_ScanFile_ScanBatch_Queue.getNextEntryFromQueue_Blocking();
+				
+					if ( parse_ScanFile_ScanBatch_QueueEntry.requestType != GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType.OPEN_DATA_FILE ) {
+						
+						String msg = "First Entry from Queue is NOT requestType OPEN_DATA_FILE";
+						log.error(msg);
+						throw new SpectralStorageProcessingException(msg);
+					}
+					
+					try {
+						spectralFile_Writer.open();
+					} catch ( Exception e ) {
+						log.error( "spectralFile_Writer.open() threw Exception: ", e );
+						throw e;
+					}
+	
+					//    Process all Scans in Scan File
+					
+					processAllScans( pgmParams, spectralFile_Writer, validateInputScanFile );
+	
+				} catch ( SpectralStorageDataException e ) {
+
+					throwable_Caught_Main_run_method = e;
+					
+					log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+					log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+					String msg = "Error Exception processing Scan Batch from Scan file: " + scanFile.getAbsolutePath();
+					log.error( msg, e );
+					log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+					
 					throw e;
-				}
-
-				//    Process all Scans in Scan File
-				
-				processAllScans( pgmParams, spectralFile_Writer, validateInputScanFile );
-
-			} catch ( SpectralStorageDataException e ) {
-				
-				spectralFile_CloseWriter_Data_Common.setExceptionEncounteredProcessingScanFile(true);
-				
-				log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
-				log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
-				String msg = "Error Exception processing Scan Batch from Scan file: " + scanFile.getAbsolutePath();
-				log.error( msg, e );
-				log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
-				
-				throw e;
-				
-			} catch ( Throwable t) {
-
-				throwable_Caught_Main_run_method = t;
-				
-				spectralFile_CloseWriter_Data_Common.setExceptionEncounteredProcessingScanFile(true);
-				
-				log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
-				log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
-				String msg = "Error Exception processing Scan Batch from Scan file: " + scanFile.getAbsolutePath();
-				log.error( msg, t );
-				log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
-				throw t;
-				
-			} finally {
-				
-				try {
-					this.parse_ScanFile_Pass_ScanBatch_To_Processing_Thread.close_ScanFile_Parser(this.prev_ScanBatchNumber);
 					
-				} catch ( Throwable t ) {
-					
+				} catch ( Throwable t) {
+	
 					throwable_Caught_Main_run_method = t;
 					
+					log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+					log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+					String msg = "Error Exception processing Scan Batch from Scan file: " + scanFile.getAbsolutePath();
+					log.error( msg, t );
+					log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+					
+					throw t;
+					
 				} finally {
+					
+					try {
+						this.parse_ScanFile_Pass_ScanBatch_To_Processing_Thread.close_ScanFile_Parser(this.prev_ScanBatchNumber);
+						
+					} catch ( Throwable t ) {
 
-					if ( spectralFile_Writer != null ) {
+						if ( throwable_Caught_Main_run_method != null ) {
+							
+							//  No existing saved Exception so save this and throw it
+							
+							throwable_Caught_Main_run_method = t;
+						
+							throw t;
+						}
+					}
+				}
+					
+			} finally {
 
-						if ( ! spectralFile_CloseWriter_Data_Common.isExceptionEncounteredProcessingScanFile() ) {
+				if ( spectralFile_Writer != null ) {
+					
+					if ( throwable_Caught_Main_run_method != null ) {
+						
+						spectralFile_CloseWriter_Data_Common.setExceptionEncounteredProcessingScanFile(true);
+					
+					} else {
 
-							ValidateInputScanFile_Result validateInputScanFile_Result = validateInputScanFile.get_ValidateInputScanFile_Result();
+						ValidateInputScanFile_Result validateInputScanFile_Result = validateInputScanFile.get_ValidateInputScanFile_Result();
 
-							if ( validateInputScanFile_Result.isNoScans_InScanFile_Have_TotalIonCurrent_Populated() ) {
-								spectralFile_CloseWriter_Data_Common.setTotalIonCurrent_ForEachScan_ComputedFromScanPeaks( true );  //  Boolean so must set to true or false
-							} else {
-								spectralFile_CloseWriter_Data_Common.setTotalIonCurrent_ForEachScan_ComputedFromScanPeaks( false );  //  Boolean so must set to true or false
-							}
-							if ( validateInputScanFile_Result.isNoScans_InScanFile_Have_IonInjectionTime_Populated() ) {
-								spectralFile_CloseWriter_Data_Common.setIonInjectionTime_NotPopulated( true );  //  Boolean so must set to true or false
-							} else {
-								spectralFile_CloseWriter_Data_Common.setIonInjectionTime_NotPopulated( false );  //  Boolean so must set to true or false
-							}
+						if ( validateInputScanFile_Result.isNoScans_InScanFile_Have_TotalIonCurrent_Populated() ) {
+							spectralFile_CloseWriter_Data_Common.setTotalIonCurrent_ForEachScan_ComputedFromScanPeaks( true );  //  Boolean so must set to true or false
+						} else {
+							spectralFile_CloseWriter_Data_Common.setTotalIonCurrent_ForEachScan_ComputedFromScanPeaks( false );  //  Boolean so must set to true or false
+						}
+						if ( validateInputScanFile_Result.isNoScans_InScanFile_Have_IonInjectionTime_Populated() ) {
+							spectralFile_CloseWriter_Data_Common.setIonInjectionTime_NotPopulated( true );  //  Boolean so must set to true or false
+						} else {
+							spectralFile_CloseWriter_Data_Common.setIonInjectionTime_NotPopulated( false );  //  Boolean so must set to true or false
+						}
+					}
+
+					//  Close Output Data File and write other files (index, etc)
+
+					//  spectralFile_Writer is the Writer for the Latest Version of the Spectral File Format
+
+					try {
+
+						spectralFile_Writer.close(spectralFile_CloseWriter_Data_Common);
+
+						if ( throwable_Caught_Main_run_method == null ) {
+							this.writeSpectralFiles_Complete_And_Successful = true;
 						}
 
-						//  Close Output Data File and write other files (index, etc)
+					} catch ( Throwable t) {
 
-						//  spectralFile_Writer is the Writer for the Latest Version of the Spectral File Format
-						
-						try {
-
-							spectralFile_Writer.close(spectralFile_CloseWriter_Data_Common);
+						if ( throwable_Caught_Main_run_method != null ) {
 							
-							if ( throwable_Caught_Main_run_method == null ) {
-								this.writeSpectralFiles_Complete_And_Successful = true;
-							}
+							//  No existing saved Exception so save this and throw it
 							
-						} catch ( Throwable t) {
-
 							throwable_Caught_Main_run_method = t;
-							
-							ProcessUploadedScanFileRequest.getSingletonInstance().awaken();
+						
+							throw t;
 						}
 					}
 				}
@@ -263,6 +281,7 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 			while (true) {  //  Exit using 'break' when get 'END_OF_SCANS'
 			
 				GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry parse_ScanFile_ScanBatch_QueueEntry = parse_ScanFile_ScanBatch_Queue.getNextEntryFromQueue_Blocking();
+				
 				
 				if ( parse_ScanFile_ScanBatch_QueueEntry.requestType == GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType.END_OF_SCANS ) {
 					
