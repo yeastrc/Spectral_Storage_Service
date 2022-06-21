@@ -72,9 +72,9 @@ public class ParseScanFile_Close_Servlet extends HttpServlet {
 
 			log.info( "webservice_Request.converter_identifier_for_scan_file: " + webservice_Request.converter_identifier_for_scan_file );
 
-			log.info( "webservice_Request.previous_scan_batch_number: " + webservice_Request.previous_scan_batch_number );
+			log.info( "webservice_Request.last_scan_batch_number_received: " + webservice_Request.last_scan_batch_number_received );
 			
-			log.warn( "Need to validate webservice_Request.previous_scan_batch_number" );
+			log.warn( "Need to validate webservice_Request.last_scan_batch_number_received" );
 			
 //			if ( true ) {   //  Error returned from 'Close' is currently ignored
 //				
@@ -141,7 +141,7 @@ public class ParseScanFile_Close_Servlet extends HttpServlet {
 		private Integer spectr_core_version;
 	    private String scan_filename_with_path;
 		private String converter_identifier_for_scan_file;
-		private Integer previous_scan_batch_number;
+		private Integer last_scan_batch_number_received;
 	    
 		public void setSpectr_core_version(Integer spectr_core_version) {
 			this.spectr_core_version = spectr_core_version;
@@ -152,8 +152,8 @@ public class ParseScanFile_Close_Servlet extends HttpServlet {
 		public void setConverter_identifier_for_scan_file(String converter_identifier_for_scan_file) {
 			this.converter_identifier_for_scan_file = converter_identifier_for_scan_file;
 		}
-		public void setPrevious_scan_batch_number(Integer previous_scan_batch_number) {
-			this.previous_scan_batch_number = previous_scan_batch_number;
+		public void setLast_scan_batch_number_received(Integer last_scan_batch_number_received) {
+			this.last_scan_batch_number_received = last_scan_batch_number_received;
 		}
 	}
 

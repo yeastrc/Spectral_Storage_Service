@@ -7,6 +7,15 @@ import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_S
 
 
 /**
+ * !!  More than just Scan Batch, Also Open and Close Scan File  !!
+ * 
+ * 
+ * There are 2 instances of this class
+ * 
+ *    1)  The immediate response from the Parse Scan File Webservice call
+ *    2)  After the response is parsed
+ * 
+ * 
  * Queue of items to process.
  * 
  * items:  
@@ -15,22 +24,22 @@ import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_S
  *   End of Scans
  *
  */
-public class Parse_ScanFile_ScanBatch_Queue {
+public class GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue {
 
 	/**
 	 * @return
 	 */
-	public static Parse_ScanFile_ScanBatch_Queue getNewInstance() {
+	public static GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue getNewInstance() {
 		
-		return new Parse_ScanFile_ScanBatch_Queue();
+		return new GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue();
 	}
 	
-	private Parse_ScanFile_ScanBatch_Queue() {
+	private GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue() {
 		
 		processQueue = new ArrayBlockingQueue<>( 5 );  // Hold up to 5 scan batches
 	}
 	
-	private ArrayBlockingQueue<Parse_ScanFile_ScanBatch_QueueEntry> processQueue;
+	private ArrayBlockingQueue<GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry> processQueue;
 	
 	/**
 	 * Waits for space to become available if the queue is full
@@ -38,7 +47,7 @@ public class Parse_ScanFile_ScanBatch_Queue {
 	 * @param entry
 	 * @throws InterruptedException 
 	 */
-	void addToQueue_Blocking( Parse_ScanFile_ScanBatch_QueueEntry entry ) throws InterruptedException {
+	void addToQueue_Blocking( GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry entry ) throws InterruptedException {
 		
 		processQueue.put(entry); //  Waits for space to become available if the queue is full
 	}
@@ -49,7 +58,7 @@ public class Parse_ScanFile_ScanBatch_Queue {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	Parse_ScanFile_ScanBatch_QueueEntry getNextEntryFromQueue_Blocking() throws InterruptedException {
+	GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry getNextEntryFromQueue_Blocking() throws InterruptedException {
 		return processQueue.take(); // Waits if necessary until an element becomes available
 	}
 
@@ -57,7 +66,7 @@ public class Parse_ScanFile_ScanBatch_Queue {
 	 * Package Private
 	 *
 	 */
-	enum Parse_ScanFile_ScanBatch_QueueEntry_RequestType {
+	enum GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType {
 		
 		OPEN_DATA_FILE,
 		SCAN_BATCH,
@@ -70,11 +79,13 @@ public class Parse_ScanFile_ScanBatch_Queue {
 	 * One entry in Queue
 	 *
 	 */
-	static class Parse_ScanFile_ScanBatch_QueueEntry {
+	static class GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry {
 		
-		Parse_ScanFile_ScanBatch_QueueEntry_RequestType requestType;
+		GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType requestType;
 		
 		List<ScanFileParser_ScanBatch_SingleScan> scanBatchList;
+		
+		Integer scan_batch_number;
 		
 		volatile byte[] webservice_ResponseBytes;  // Raw Bytes from Get Scan Batch Webservice Response when too large
 	}

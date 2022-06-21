@@ -9,14 +9,18 @@ import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_S
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.Call_ScanFileParser_HTTP_CommunicationManagement__InitializeParsing_Response;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.ScanFileParser_ScanBatch_Root;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.ScanFileParser_ScanBatch_SingleScan;
-import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Parse_ScanFile_ScanBatch_Queue.Parse_ScanFile_ScanBatch_QueueEntry;
-import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Parse_ScanFile_ScanBatch_Queue.Parse_ScanFile_ScanBatch_QueueEntry_RequestType;
+import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue.GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry;
+import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue.GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
 import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 
 /**
- * Takes in Data to Put into Spectral File and Calls methods on Writer code for latest Spectral File Format (open, writeScan, close)
+ * This Thread calls Scan Parser Webservices to initiate parsing of scan file and getting batches of scans.
+ * 
+ * This thread repeatedly calls Scan Parser Webservice to get next batch of scans and then puts the scan batch response bytes into a queue to be processed by another thread.
+ * 
+ * Calling the Scan Parser Webservice to close parsing of the scan file is done elsewhere.
  *
  */
 public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
@@ -27,14 +31,14 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 	 * @param pgmParams
 	 * @return
 	 */
-	public static Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread getNewInstance( Scan_File_Processor_MainProgram_Params pgmParams, Parse_ScanFile_ScanBatch_Queue parse_ScanFile_ScanBatch_Queue ) {
+	public static Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread getNewInstance( Scan_File_Processor_MainProgram_Params pgmParams, GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue parse_ScanFile_ScanBatch_Queue ) {
 		
 		Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread instance = new Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread(pgmParams, parse_ScanFile_ScanBatch_Queue);
 		return instance;
 	}
 
 	// Private Constructor
-	private Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread(Scan_File_Processor_MainProgram_Params pgmParams, Parse_ScanFile_ScanBatch_Queue parse_ScanFile_ScanBatch_Queue ) {
+	private Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread(Scan_File_Processor_MainProgram_Params pgmParams, GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue parse_ScanFile_ScanBatch_Queue ) {
 
 		this.setName( "Thread-Parse_ScanFile_PassTo_Processing_Thread" );
 		this.setDaemon(true);  // Make daemon thread so program can exit without this thread exit
@@ -55,7 +59,7 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 	 */
 	private volatile Scan_File_Processor_MainProgram_Params pgmParams;
 	
-	private Parse_ScanFile_ScanBatch_Queue parse_ScanFile_ScanBatch_Queue;
+	private GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue parse_ScanFile_ScanBatch_Queue;
 	
 	private volatile String converter_identifier_for_scan_file; // Can get call on alt thread using this
 	
@@ -65,10 +69,6 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 	public void run() {
 		
 		try {
-//			Thread thisThread = Thread.currentThread();
-//			thisThread.setName( "Thread-Parse_ScanFile_PassTo_Processing_Thread" );
-//			thisThread.setDaemon(true);  // Make daemon thread so program can exit without this thread exit
-
 			ValidateInputScanFile validateInputScanFile = ValidateInputScanFile.getInstance();
 
 			converter_identifier_for_scan_file = null;
@@ -76,6 +76,7 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 			File scanFile = pgmParams.getInputScanFile();
 					
 			try {
+				//  Call Scan File Parser Webservice to Initiate Parsing of scan file 
 				{
 					Call_ScanFileParser_HTTP_CommunicationManagement__InitializeParsing_Response initResponse =
 							Call_ScanFileParser_HTTP_CommunicationManagement.getSingletonInstance().initialize_ParsingOf_ScanFile(pgmParams);
@@ -85,8 +86,8 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 				
 				{
 					//  Add Queue entry for 'Open Data File'
-					Parse_ScanFile_ScanBatch_QueueEntry entry = new Parse_ScanFile_ScanBatch_QueueEntry();
-					entry.requestType = Parse_ScanFile_ScanBatch_QueueEntry_RequestType.OPEN_DATA_FILE;
+					GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry entry = new GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry();
+					entry.requestType = GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType.OPEN_DATA_FILE;
 					parse_ScanFile_ScanBatch_Queue.addToQueue_Blocking(entry);
 				}
 				
@@ -96,8 +97,8 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 
 				{
 					//  Add Queue entry for 'END_OF_SCANS'
-					Parse_ScanFile_ScanBatch_QueueEntry entry = new Parse_ScanFile_ScanBatch_QueueEntry();
-					entry.requestType = Parse_ScanFile_ScanBatch_QueueEntry_RequestType.END_OF_SCANS;
+					GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry entry = new GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry();
+					entry.requestType = GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType.END_OF_SCANS;
 					parse_ScanFile_ScanBatch_Queue.addToQueue_Blocking(entry);
 				}
 				
@@ -123,18 +124,7 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 				throw t;
 				
 			} finally {
-				if ( converter_identifier_for_scan_file != null ) {
-					
-					//  Close Input Scan File
-					
-					try {
-						close_ScanFile_Parser();
-					} catch ( Throwable t ) {
-						
-						log.warn( "EXCEPTION IGNORED:: Exception closing Scan File Parser. ", t );
-						// eat exception
-					}
-				}
+		
 			}
 
 		} catch ( Throwable t) {
@@ -144,11 +134,14 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 			ProcessUploadedScanFileRequest.getSingletonInstance().awaken();
 		}
 	}
-	
+
 	/**
+	 * !!!   Called from External Code/Thread since this object has the 'converter_identifier_for_scan_file' value
+	 * 
+	 * 
 	 * @throws Exception
 	 */
-	public void close_ScanFile_Parser() throws Exception {
+	public void close_ScanFile_Parser( Integer last_scan_batch_number_received ) throws Exception {
 
 		//  Close Input Scan File
 		
@@ -160,7 +153,7 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 		close_ScanFile_Parser__Called = true;
 		
 		if ( converter_identifier_for_scan_file != null ) {
-			Call_ScanFileParser_HTTP_CommunicationManagement.getSingletonInstance().close_ParsingOf_ScanFile(pgmParams, converter_identifier_for_scan_file);
+			Call_ScanFileParser_HTTP_CommunicationManagement.getSingletonInstance().close_ParsingOf_ScanFile(pgmParams, converter_identifier_for_scan_file, last_scan_batch_number_received);
 		}
 	}
 
@@ -197,9 +190,10 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 
 						{
 							//  Add Queue entry for 'SCAN_BATCH'
-							Parse_ScanFile_ScanBatch_QueueEntry entry = new Parse_ScanFile_ScanBatch_QueueEntry();
-							entry.requestType = Parse_ScanFile_ScanBatch_QueueEntry_RequestType.SCAN_BATCH;
+							GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry entry = new GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry();
+							entry.requestType = GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType.SCAN_BATCH;
 							entry.scanBatchList = scanBatchList;
+							entry.scan_batch_number = scanFileParser_ScanBatch_Root.getScan_batch_number();
 							parse_ScanFile_ScanBatch_Queue.addToQueue_Blocking(entry);
 						}
 
@@ -214,8 +208,8 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 
 					{
 						//  Add Queue entry for 'SCAN_BATCH'
-						Parse_ScanFile_ScanBatch_QueueEntry entry = new Parse_ScanFile_ScanBatch_QueueEntry();
-						entry.requestType = Parse_ScanFile_ScanBatch_QueueEntry_RequestType.SCAN_BATCH;
+						GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry entry = new GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry();
+						entry.requestType = GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType.SCAN_BATCH;
 						entry.webservice_ResponseBytes = get_NextScans_Response.getWebservice_ResponseBytes();
 						parse_ScanFile_ScanBatch_Queue.addToQueue_Blocking(entry);
 					}

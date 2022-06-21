@@ -75,8 +75,7 @@ public class ParseScanFile_GetNextScans_Servlet extends HttpServlet {
 
 			log.info( "webservice_Request.converter_identifier_for_scan_file: " + webservice_Request.converter_identifier_for_scan_file );
 
-			log.info( "webservice_Request.previous_scan_batch_number: " + webservice_Request.previous_scan_batch_number );
-//
+
 //			if ( true ) {
 //				
 //
@@ -107,8 +106,11 @@ public class ParseScanFile_GetNextScans_Servlet extends HttpServlet {
 			} else {
 
 				try {
+					
 					webservice_Response.scan_batch_number = scanFile_Parsing_InProgress_Item.getNext_scanBatchNumber();
-							
+					
+					log.warn("INFO::  scan_batch_number assigned and returned by Get Next Scan Batch: " + webservice_Response.scan_batch_number );
+					
 							
 					final int scanReturnCountMax = scanFile_Parsing_InProgress_Item.getScanBatchSizeMaximum();
 					
@@ -151,8 +153,6 @@ public class ParseScanFile_GetNextScans_Servlet extends HttpServlet {
 		    			
 		    			List<Webservice_Response_SingleScan_SinglePeak> scanPeakList_Output = new ArrayList<>( scanPeakList_Input.size() );
 		    			
-				        double scanIntensitiesSummedForScan = 0;
-				        
 		    			for ( ScanPeak scanPeak_Input : scanPeakList_Input ) {
 		    				
 		    				Webservice_Response_SingleScan_SinglePeak webservice_Response_SingleScan_SinglePeak = new Webservice_Response_SingleScan_SinglePeak();
@@ -160,23 +160,12 @@ public class ParseScanFile_GetNextScans_Servlet extends HttpServlet {
 		    				webservice_Response_SingleScan_SinglePeak.intensity = scanPeak_Input.getIntensity();
 		    				
 		    				scanPeakList_Output.add( webservice_Response_SingleScan_SinglePeak );
-		    				
-		    				scanIntensitiesSummedForScan += scanPeak_Input.getIntensity();
 		    			}
 		    			
 		    			scan_Result.scanPeaks = scanPeakList_Output;
 		    			
-		    			
 
-		    			if ( mzML_MzXmlScan_Input.getTotalIonCurrent() != null ) {
-		    				scan_Result.totalIonCurrent = mzML_MzXmlScan_Input.getTotalIonCurrent();
-		    			} else {
-
-		    				//  TotalIonCurrent not in header so used Summed value from Scan Peaks
-
-		    				float totalIonCurrent = (float) scanIntensitiesSummedForScan;
-		    				scan_Result.totalIonCurrent = totalIonCurrent;
-		    			}
+		    			scan_Result.totalIonCurrent = mzML_MzXmlScan_Input.getTotalIonCurrent();  // Copy Float to Float
 		    			
 					}
 					
@@ -209,7 +198,6 @@ public class ParseScanFile_GetNextScans_Servlet extends HttpServlet {
 		private Integer spectr_core_version;
 	    private String scan_filename_with_path;
 		private String converter_identifier_for_scan_file;
-		private Integer previous_scan_batch_number;
 		   
 		public void setSpectr_core_version(Integer spectr_core_version) {
 			this.spectr_core_version = spectr_core_version;
@@ -219,9 +207,6 @@ public class ParseScanFile_GetNextScans_Servlet extends HttpServlet {
 		}
 		public void setConverter_identifier_for_scan_file(String converter_identifier_for_scan_file) {
 			this.converter_identifier_for_scan_file = converter_identifier_for_scan_file;
-		}
-		public void setPrevious_scan_batch_number(Integer previous_scan_batch_number) {
-			this.previous_scan_batch_number = previous_scan_batch_number;
 		}
 	}
 

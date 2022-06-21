@@ -23,7 +23,8 @@ import java.util.Date;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.constants_enums.ImporterTempSubDirNameConstants;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread;
-import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Parse_ScanFile_ScanBatch_Queue;
+import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Process_ScanBatch_ParseResponseIfNeeded_Thread;
+import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Process_Scans_In_ScanBatch_From_ScanFileParser_Thread;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
@@ -273,7 +274,7 @@ public class ProcessUploadedScanFileRequest implements SpectralFile_Writer__Noti
 		SpectralFile_Writer__IF spectralFile_Writer = null;
 		
 		Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread parse_ScanFile_Pass_ScanBatch_To_Processing_Thread = null;
-		
+		Process_ScanBatch_ParseResponseIfNeeded_Thread process_ScanBatch_ParseResponseIfNeeded_Thread = null;
 		Process_Scans_In_ScanBatch_From_ScanFileParser_Thread process_Scans_In_ScanBatch_From_ScanFileParser_Thread = null;
 
 		try {
@@ -313,15 +314,26 @@ public class ProcessUploadedScanFileRequest implements SpectralFile_Writer__Noti
 			
 			spectralFile_Writer.initialize( apiKey, tempOutputDir, spectralFile_Header_Common, this, threadCountGzipScanPeaks );
 			
-			Parse_ScanFile_ScanBatch_Queue parse_ScanFile_ScanBatch_Queue = Parse_ScanFile_ScanBatch_Queue.getNewInstance();
+			GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue getScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue__ResponseBytes = GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue.getNewInstance();
+			GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue getScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue__ResponseParsed = GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue.getNewInstance();
 			
-			process_Scans_In_ScanBatch_From_ScanFileParser_Thread = Process_Scans_In_ScanBatch_From_ScanFileParser_Thread.getNewInstance(pgmParams, parse_ScanFile_ScanBatch_Queue, spectralFile_Writer);
 			
-			process_Scans_In_ScanBatch_From_ScanFileParser_Thread.start();
+			//  Instantiated in the order they process the data
 			
-			parse_ScanFile_Pass_ScanBatch_To_Processing_Thread = Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread.getNewInstance(pgmParams, parse_ScanFile_ScanBatch_Queue);
-			
+			parse_ScanFile_Pass_ScanBatch_To_Processing_Thread = 
+					Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread.getNewInstance(
+							pgmParams, getScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue__ResponseBytes);
 			parse_ScanFile_Pass_ScanBatch_To_Processing_Thread.start();
+			
+			process_ScanBatch_ParseResponseIfNeeded_Thread = 
+					Process_ScanBatch_ParseResponseIfNeeded_Thread.getNewInstance(
+							pgmParams, getScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue__ResponseBytes, getScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue__ResponseParsed);
+			process_ScanBatch_ParseResponseIfNeeded_Thread.start();
+
+			process_Scans_In_ScanBatch_From_ScanFileParser_Thread = 
+					Process_Scans_In_ScanBatch_From_ScanFileParser_Thread.getNewInstance(
+							pgmParams, getScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue__ResponseParsed, spectralFile_Writer, parse_ScanFile_Pass_ScanBatch_To_Processing_Thread);
+			process_Scans_In_ScanBatch_From_ScanFileParser_Thread.start();
 			
 			while (true) {  //  loop until 'break' inside the loop
 			
@@ -368,6 +380,14 @@ public class ProcessUploadedScanFileRequest implements SpectralFile_Writer__Noti
 					throw parse_ScanFile_Pass_ScanBatch_To_Processing_Thread.getThrowable_Caught_Main_run_method();
 				}
 
+				if ( process_ScanBatch_ParseResponseIfNeeded_Thread.getThrowable_Caught_Main_run_method() != null ) {
+
+					//  Parse Scan File has an exception
+
+					log.error( "In Main Processing: Parsing Scan File has an exception so rethrow exception", process_ScanBatch_ParseResponseIfNeeded_Thread.getThrowable_Caught_Main_run_method() );
+					throw process_ScanBatch_ParseResponseIfNeeded_Thread.getThrowable_Caught_Main_run_method();
+				}
+				
 				if ( process_Scans_In_ScanBatch_From_ScanFileParser_Thread.getThrowable_Caught_Main_run_method() != null ) {
 
 					//  Parse Scan File has an exception
@@ -392,12 +412,14 @@ public class ProcessUploadedScanFileRequest implements SpectralFile_Writer__Noti
 			log.error( "Failed to process scan file: " + pgmParams.getInputScanFile().getAbsolutePath(), e );
 			throw e;
 		} finally {
+			
+			//  Close Scan File Parser Scan File for absolutely sure.   If no errors, the close would already be called.
 
-			try {
-				parse_ScanFile_Pass_ScanBatch_To_Processing_Thread.close_ScanFile_Parser();
-			} catch ( Throwable t ) {
-				log.warn( "EXCEPTION IGNORED:: Exception closing Scan File Parser. ", t );
-			}
+//			try {
+//				parse_ScanFile_Pass_ScanBatch_To_Processing_Thread.close_ScanFile_Parser( null /* last_scan_batch_number_received */ );
+//			} catch ( Throwable t ) {
+//				log.warn( "EXCEPTION IGNORED:: Exception closing Scan File Parser. ", t );
+//			}
 		}
 
 

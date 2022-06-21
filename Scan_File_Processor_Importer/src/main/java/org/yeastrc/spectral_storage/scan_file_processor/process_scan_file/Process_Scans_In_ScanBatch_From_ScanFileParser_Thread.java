@@ -9,16 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yeastrc.spectral_storage.scan_file_processor.main.ProcessUploadedScanFileRequest;
-import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.ScanFileParser_ScanBatch_Root;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.ScanFileParser_ScanBatch_SingleScan;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Call_ScanFileParser_HTTP_CommunicationManagement.ScanFileParser_ScanBatch_SingleScan_SinglePeak;
-import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Parse_ScanFile_ScanBatch_Queue.Parse_ScanFile_ScanBatch_QueueEntry;
-import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Parse_ScanFile_ScanBatch_Queue.Parse_ScanFile_ScanBatch_QueueEntry_RequestType;
+import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue.GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry;
+import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue.GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
 import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile;
 import org.yeastrc.spectral_storage.scan_file_processor.validate_input_scan_file.ValidateInputScanFile.ValidateInputScanFile_Result;
@@ -30,12 +28,14 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Writer__IF;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 /**
  * Processes Batches of Scans from Scan Parser Webservice. Submits individual scans to Spectral Storage File Writer.
  * 
  * Takes in Data to Put into Spectral File and Calls methods on Writer code for latest Spectral File Format (open, writeScan, close)
+ * 
+ * This validates the Scan Batch Numbers start at 1 and are sequential.
+ * 
+ * This calls the Scan Parser Webservice to Close the Scan File.
  *
  */
 public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Thread {
@@ -49,10 +49,13 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 	public static Process_Scans_In_ScanBatch_From_ScanFileParser_Thread getNewInstance( 
 			
 			Scan_File_Processor_MainProgram_Params pgmParams, 
-			Parse_ScanFile_ScanBatch_Queue parse_ScanFile_ScanBatch_Queue,
-			SpectralFile_Writer__IF spectralFile_Writer ) {
+			GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue parse_ScanFile_ScanBatch_Queue,
+			SpectralFile_Writer__IF spectralFile_Writer,
+			Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread parse_ScanFile_Pass_ScanBatch_To_Processing_Thread // For 'Close' call
+			) {
 		
-		Process_Scans_In_ScanBatch_From_ScanFileParser_Thread instance = new Process_Scans_In_ScanBatch_From_ScanFileParser_Thread(pgmParams, parse_ScanFile_ScanBatch_Queue, spectralFile_Writer);
+		Process_Scans_In_ScanBatch_From_ScanFileParser_Thread instance = 
+				new Process_Scans_In_ScanBatch_From_ScanFileParser_Thread(pgmParams, parse_ScanFile_ScanBatch_Queue, spectralFile_Writer, parse_ScanFile_Pass_ScanBatch_To_Processing_Thread);
 		return instance;
 	}
 
@@ -60,14 +63,19 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 	private Process_Scans_In_ScanBatch_From_ScanFileParser_Thread(
 			
 			Scan_File_Processor_MainProgram_Params pgmParams, 
-			Parse_ScanFile_ScanBatch_Queue parse_ScanFile_ScanBatch_Queue,
-			SpectralFile_Writer__IF spectralFile_Writer ) {
+			GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue parse_ScanFile_ScanBatch_Queue,
+			SpectralFile_Writer__IF spectralFile_Writer,
+			Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread parse_ScanFile_Pass_ScanBatch_To_Processing_Thread // For 'Close' call
+			) {
 
 		this.setName( "Thread-Process_Scans_In_ScanBatch_From_ScanFileParser_Thread" );
 		this.setDaemon(true);  // Make daemon thread so program can exit without this thread exit
 
 		this.parse_ScanFile_ScanBatch_Queue = parse_ScanFile_ScanBatch_Queue;
 		this.spectralFile_Writer = spectralFile_Writer;
+		
+		this.parse_ScanFile_Pass_ScanBatch_To_Processing_Thread = parse_ScanFile_Pass_ScanBatch_To_Processing_Thread;
+		
 		this.pgmParams = pgmParams;  // Always set last since 'volatile'
 	}
 	
@@ -83,8 +91,17 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 	private volatile Scan_File_Processor_MainProgram_Params pgmParams;
 	
 	private SpectralFile_Writer__IF spectralFile_Writer;
+	
+	private Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread parse_ScanFile_Pass_ScanBatch_To_Processing_Thread;  // For 'Close' call
 
-	private Parse_ScanFile_ScanBatch_Queue parse_ScanFile_ScanBatch_Queue;
+	private GetScanBatch_ResponseBytes_AndOr_ResponseParsed_Queue parse_ScanFile_ScanBatch_Queue;
+	
+	//  Tracking prev_ScanBatchNumber
+	
+	/**
+	 * 
+	 */
+	private Integer prev_ScanBatchNumber = null;
 	
 	//  Properties used for reporting while processing scans
 
@@ -95,9 +112,6 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 	private long scanCounter = 0;
 
 	private Map<Integer, MutableLong> scanCountsPerScanLevel = new HashMap<>();
-	
-	
-	
 	
 	@Override
 	public void run() {
@@ -116,9 +130,9 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 					
 			try {
 				//  Wait for "Open" first entry in Queue
-				Parse_ScanFile_ScanBatch_QueueEntry parse_ScanFile_ScanBatch_QueueEntry = parse_ScanFile_ScanBatch_Queue.getNextEntryFromQueue_Blocking();
+				GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry parse_ScanFile_ScanBatch_QueueEntry = parse_ScanFile_ScanBatch_Queue.getNextEntryFromQueue_Blocking();
 			
-				if ( parse_ScanFile_ScanBatch_QueueEntry.requestType != Parse_ScanFile_ScanBatch_QueueEntry_RequestType.OPEN_DATA_FILE ) {
+				if ( parse_ScanFile_ScanBatch_QueueEntry.requestType != GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType.OPEN_DATA_FILE ) {
 					
 					String msg = "First Entry from Queue is NOT requestType OPEN_DATA_FILE";
 					log.error(msg);
@@ -160,30 +174,36 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 				throw t;
 				
 			} finally {
+				
+				try {
+					this.parse_ScanFile_Pass_ScanBatch_To_Processing_Thread.close_ScanFile_Parser(this.prev_ScanBatchNumber);
+					
+				} finally {
 
-				if ( spectralFile_Writer != null ) {
+					if ( spectralFile_Writer != null ) {
 
-					if ( ! spectralFile_CloseWriter_Data_Common.isExceptionEncounteredProcessingScanFile() ) {
-						
-						ValidateInputScanFile_Result validateInputScanFile_Result = validateInputScanFile.get_ValidateInputScanFile_Result();
-						
-						if ( validateInputScanFile_Result.isNoScans_InScanFile_Have_TotalIonCurrent_Populated() ) {
-							spectralFile_CloseWriter_Data_Common.setTotalIonCurrent_ForEachScan_ComputedFromScanPeaks( true );  //  Boolean so must set to true or false
-						} else {
-							spectralFile_CloseWriter_Data_Common.setTotalIonCurrent_ForEachScan_ComputedFromScanPeaks( false );  //  Boolean so must set to true or false
+						if ( ! spectralFile_CloseWriter_Data_Common.isExceptionEncounteredProcessingScanFile() ) {
+
+							ValidateInputScanFile_Result validateInputScanFile_Result = validateInputScanFile.get_ValidateInputScanFile_Result();
+
+							if ( validateInputScanFile_Result.isNoScans_InScanFile_Have_TotalIonCurrent_Populated() ) {
+								spectralFile_CloseWriter_Data_Common.setTotalIonCurrent_ForEachScan_ComputedFromScanPeaks( true );  //  Boolean so must set to true or false
+							} else {
+								spectralFile_CloseWriter_Data_Common.setTotalIonCurrent_ForEachScan_ComputedFromScanPeaks( false );  //  Boolean so must set to true or false
+							}
+							if ( validateInputScanFile_Result.isNoScans_InScanFile_Have_IonInjectionTime_Populated() ) {
+								spectralFile_CloseWriter_Data_Common.setIonInjectionTime_NotPopulated( true );  //  Boolean so must set to true or false
+							} else {
+								spectralFile_CloseWriter_Data_Common.setIonInjectionTime_NotPopulated( false );  //  Boolean so must set to true or false
+							}
 						}
-						if ( validateInputScanFile_Result.isNoScans_InScanFile_Have_IonInjectionTime_Populated() ) {
-							spectralFile_CloseWriter_Data_Common.setIonInjectionTime_NotPopulated( true );  //  Boolean so must set to true or false
-						} else {
-							spectralFile_CloseWriter_Data_Common.setIonInjectionTime_NotPopulated( false );  //  Boolean so must set to true or false
-						}
+
+						//  Close Output Data File and write other files (index, etc)
+
+						//  spectralFile_Writer is the Writer for the Latest Version of the Spectral File Format
+
+						spectralFile_Writer.close(spectralFile_CloseWriter_Data_Common);
 					}
-
-					//  Close Output Data File and write other files (index, etc)
-					
-					//  spectralFile_Writer is the Writer for the Latest Version of the Spectral File Format
-					
-					spectralFile_Writer.close(spectralFile_CloseWriter_Data_Common);
 				}
 			}
 
@@ -213,58 +233,49 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 		try {
 			while (true) {  //  Exit using 'break' when get 'END_OF_SCANS'
 			
-				Parse_ScanFile_ScanBatch_QueueEntry parse_ScanFile_ScanBatch_QueueEntry = parse_ScanFile_ScanBatch_Queue.getNextEntryFromQueue_Blocking();
+				GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry parse_ScanFile_ScanBatch_QueueEntry = parse_ScanFile_ScanBatch_Queue.getNextEntryFromQueue_Blocking();
 				
-				if ( parse_ScanFile_ScanBatch_QueueEntry.requestType == Parse_ScanFile_ScanBatch_QueueEntry_RequestType.END_OF_SCANS ) {
+				if ( parse_ScanFile_ScanBatch_QueueEntry.requestType == GetScanBatch_ResponseBytes_AndOr_ResponseParsed_QueueEntry_RequestType.END_OF_SCANS ) {
 					
 					//  End of Scans
 					
 					break;  //  EARLY BREAK from Loop
+				}
+				
+				//  Validate scan_batch_number
+				
+				{
+					if ( parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number == null ) {
+						String msg = "For Scan Entry, the parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number == null or unassigned";
+						log.error(msg);
+						throw new SpectralStorageProcessingException(msg);
+					}
 					
+					log.warn( "INFO::  parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number: " + parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number );
+					
+					if ( this.prev_ScanBatchNumber == null && parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number.intValue() != 1 ) {
+						String msg = "For Scan Entry, the parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number does NOT start at 1";
+						log.error(msg);
+						throw new SpectralStorageProcessingException(msg);
+					}
+					if ( this.prev_ScanBatchNumber != null ) {
+						
+						//  Not first one so validate they are sequential
+						
+						if ( ( this.prev_ScanBatchNumber.intValue() + 1 ) != parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number.intValue() ) {
+							String msg = "For Scan Entry, the parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number is not sequential.  Prev Value: "
+									+ this.prev_ScanBatchNumber.intValue()
+									+ ", current value: "
+									+ parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number.intValue();
+							log.error(msg);
+							throw new SpectralStorageProcessingException(msg);
+						}
+					}
+
+					this.prev_ScanBatchNumber = parse_ScanFile_ScanBatch_QueueEntry.scan_batch_number;
 				}
 				
 				List<ScanFileParser_ScanBatch_SingleScan> scanBatchList = parse_ScanFile_ScanBatch_QueueEntry.scanBatchList;
-				
-				if ( scanBatchList == null ) {
-
-					//  scanBatchList not populated in Entry so parse from Webservice Response Bytes
-
-					if ( parse_ScanFile_ScanBatch_QueueEntry.webservice_ResponseBytes == null ) {
-						String msg = "parse_ScanFile_ScanBatch_QueueEntry.scanBatchList AND parse_ScanFile_ScanBatch_QueueEntry.webservice_ResponseBytes are BOTH NULL";
-						log.error( msg );
-						throw new SpectralStorageProcessingException(msg);
-					}
-
-					ObjectMapper jacksonJSON_Mapper = new ObjectMapper();  //  Jackson JSON library object
-
-					ScanFileParser_ScanBatch_Root scanFileParser_ScanBatch_Root = null;
-					try {
-						scanFileParser_ScanBatch_Root = jacksonJSON_Mapper.readValue( parse_ScanFile_ScanBatch_QueueEntry.webservice_ResponseBytes, ScanFileParser_ScanBatch_Root.class );
-					} catch ( Exception e ) {
-						log.error( "Failed to parse Get Scan Batch webservice response. ", e );
-						throw e;
-					}
-
-					if ( scanFileParser_ScanBatch_Root.getIsError() != null && scanFileParser_ScanBatch_Root.getIsError() ) {
-						
-
-						if ( StringUtils.isNotEmpty( scanFileParser_ScanBatch_Root.getErrorMessage_ScanFileContentsError_ForEndUser() ) ) {
-						
-
-							String msg = "get_NextScans_ParsingOf_ScanFile: webserviceResponse: isError is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.getErrorMessageToLog()
-									+ "\n scanFileParser_ScanBatch_Root.errorMessage_ScanFileContentsError_ForEndUser: " + scanFileParser_ScanBatch_Root.getErrorMessage_ScanFileContentsError_ForEndUser();
-							log.error( msg );
-							
-							throw new SpectralStorageDataException( scanFileParser_ScanBatch_Root.getErrorMessage_ScanFileContentsError_ForEndUser() );
-						}
-						
-						String msg = "Get Scan Batch webserviceResponse.getIsError() is true. errorMessageToLog: " + scanFileParser_ScanBatch_Root.getErrorMessageToLog();
-						log.error( msg );
-						throw new SpectralStorageProcessingException(msg);
-					}
-					
-					scanBatchList = scanFileParser_ScanBatch_Root.getScans();
-				}
 				
 				if ( scanBatchList == null || scanBatchList.isEmpty() ) {
 					

@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.exceptions.YRCSpectralStorageGetDataWebserviceCallErrorException;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
+import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.SpectralStorageService__CurrentMajorVersion_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 
@@ -88,7 +89,7 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		String webserviceURL = pgmParams.getConverterBaseUrlString() + SCAN_FILE_PARSE_INIT_URI_PATH;
 		
 		WebserviceCall_Request__InitParsing webserviceRequest = new WebserviceCall_Request__InitParsing();
-//		webserviceRequest.spectr_core_version = ;
+		webserviceRequest.spectr_core_version = SpectralStorageService__CurrentMajorVersion_Constants.CURRENT_MAJOR_VERSION;
 		webserviceRequest.scan_filename_with_path = pgmParams.getInputScanFile().getAbsolutePath();
 		webserviceRequest.scan_batch_size_maximum = pgmParams.getScanReadMaxBatchSize();
 		
@@ -97,12 +98,6 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 
 		byte[] responseBytes = 
 				sendToServerSendByteArray_GetByteArrayResponseFromServer(requestBytesToSend, webserviceURL);
-		
-		{
-			
-			
-			log.warn(" About to parse response into WebserviceCall_Response__InitParsing:  response Bytes: " + new String(responseBytes, "UTF-8"));
-		}
 		
 		WebserviceCall_Response__InitParsing webserviceResponse = null;
 		try {
@@ -198,7 +193,8 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 	}
 	
 	//////////////////////////////
-	
+
+	private static boolean close_ScanFile_Parser__Called = false;
 
 	/**
 	 * 
@@ -210,17 +206,37 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 	
 	/**
 	 * @param pgmParams
-	 * @return
-	 * @throws Exception 
+	 * @param converter_identifier_for_scan_file
+	 * @param last_scan_batch_number_received - may be null
+	 * 
+	 * @return - null if already called
+	 * 
+	 * @throws Exception
 	 */
-	public Call_ScanFileParser_HTTP_CommunicationManagement__CloseParsing_Response close_ParsingOf_ScanFile( Scan_File_Processor_MainProgram_Params pgmParams, String converter_identifier_for_scan_file ) throws Exception {
+	public Call_ScanFileParser_HTTP_CommunicationManagement__CloseParsing_Response close_ParsingOf_ScanFile( 
+			
+			Scan_File_Processor_MainProgram_Params pgmParams, 
+			String converter_identifier_for_scan_file,
+			Integer last_scan_batch_number_received ) throws Exception {
 
+
+		if ( close_ScanFile_Parser__Called ) {
+			// already called
+			return null;
+		}
+		
+		close_ScanFile_Parser__Called = true;
+		
 		String webserviceURL = pgmParams.getConverterBaseUrlString() + SCAN_FILE_PARSE_CLOSE_URI_PATH;
 		
 		WebserviceCall_Request__CloseParsing webserviceRequest = new WebserviceCall_Request__CloseParsing();
-//		webserviceRequest.spectr_core_version = ;
+		webserviceRequest.spectr_core_version = SpectralStorageService__CurrentMajorVersion_Constants.CURRENT_MAJOR_VERSION;
 		webserviceRequest.scan_filename_with_path = pgmParams.getInputScanFile().getAbsolutePath();
 		webserviceRequest.converter_identifier_for_scan_file = converter_identifier_for_scan_file;
+		
+		if ( last_scan_batch_number_received != null ) {
+			webserviceRequest.last_scan_batch_number_received = last_scan_batch_number_received;
+		}
 		
 		ObjectMapper jacksonJSON_Mapper = new ObjectMapper();  //  Jackson JSON library object
 		byte[] requestBytesToSend = jacksonJSON_Mapper.writeValueAsBytes( webserviceRequest );
@@ -264,7 +280,7 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		private Integer spectr_core_version;
 	    private String scan_filename_with_path;
 		private String converter_identifier_for_scan_file;
-		private Integer previous_scan_batch_number;
+		private Integer last_scan_batch_number_received;
 		
 		@SuppressWarnings("unused")
 		public Integer getSpectr_core_version() {
@@ -279,8 +295,8 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 			return converter_identifier_for_scan_file;
 		}
 		@SuppressWarnings("unused")
-		public Integer getPrevious_scan_batch_number() {
-			return previous_scan_batch_number;
+		public Integer getLast_scan_batch_number_received() {
+			return last_scan_batch_number_received;
 		}
 	}
 	    
@@ -345,10 +361,9 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		String webserviceURL = pgmParams.getConverterBaseUrlString() + SCAN_FILE_PARSE_GET_NEXT_SCANS_URI_PATH;
 		
 		WebserviceCall_Request__Get_NextScans webserviceRequest = new WebserviceCall_Request__Get_NextScans();
-//		webserviceRequest.spectr_core_version = ;
+		webserviceRequest.spectr_core_version = SpectralStorageService__CurrentMajorVersion_Constants.CURRENT_MAJOR_VERSION;
 		webserviceRequest.scan_filename_with_path = pgmParams.getInputScanFile().getAbsolutePath();
 		webserviceRequest.converter_identifier_for_scan_file = converter_identifier_for_scan_file;
-//		webserviceRequest.previous_scan_batch_number = ;
 		
 		ObjectMapper jacksonJSON_Mapper = new ObjectMapper();  //  Jackson JSON library object
 		byte[] requestBytesToSend = jacksonJSON_Mapper.writeValueAsBytes( webserviceRequest );
@@ -358,7 +373,7 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		
 		Call_ScanFileParser_HTTP_CommunicationManagement__Get_NextScans_Response response = new Call_ScanFileParser_HTTP_CommunicationManagement__Get_NextScans_Response();
 
-		if ( responseBytes.length > 100000 ) {
+		if ( responseBytes.length > 1000 ) {
 			
 			//  Large response.  Responses with large batch size can be 10MB
 			
@@ -404,7 +419,6 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		private Integer spectr_core_version;
 	    private String scan_filename_with_path;
 		private String converter_identifier_for_scan_file;
-		private Integer previous_scan_batch_number;
 		
 		public Integer getSpectr_core_version() {
 			return spectr_core_version;
@@ -415,14 +429,11 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		public String getConverter_identifier_for_scan_file() {
 			return converter_identifier_for_scan_file;
 		}
-		public Integer getPrevious_scan_batch_number() {
-			return previous_scan_batch_number;
-		}
 	}
 
 	public static class ScanFileParser_ScanBatch_Root {
 		   
-		private int scan_batch_number;
+		private Integer scan_batch_number;
 	    private boolean endOfScans; //: <boolean>,  -- can be true when return scans
 	    private List<ScanFileParser_ScanBatch_SingleScan> scans; //: [ <scan> ],   --  <scan> defined below
 		private Boolean isError;
@@ -430,7 +441,7 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		private String errorMessageToLog; // : <string> --  Spectr Core Log Error Message
 		private String errorMessage_ScanFileContentsError_ForEndUser; // Limelight (Proxl, etc) End User Display text - Shown to end User
 
-		public void setScan_batch_number(int scan_batch_number) {
+		public void setScan_batch_number(Integer scan_batch_number) {
 			this.scan_batch_number = scan_batch_number;
 		}
 		public void setEndOfScans(boolean endOfScans) {
@@ -448,7 +459,7 @@ public class Call_ScanFileParser_HTTP_CommunicationManagement {
 		public void setErrorMessageToLog(String errorMessageToLog) {
 			this.errorMessageToLog = errorMessageToLog;
 		}
-		public int getScan_batch_number() {
+		public Integer getScan_batch_number() {
 			return scan_batch_number;
 		}
 		public boolean isEndOfScans() {
