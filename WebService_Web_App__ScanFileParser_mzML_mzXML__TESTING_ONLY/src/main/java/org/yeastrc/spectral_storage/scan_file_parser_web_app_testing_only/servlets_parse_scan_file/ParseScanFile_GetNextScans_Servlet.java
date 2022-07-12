@@ -69,11 +69,11 @@ public class ParseScanFile_GetNextScans_Servlet extends HttpServlet {
 				throw e;
 			}
 
-			log.info( "webservice_Request.spectr_core_version: " + webservice_Request.spectr_core_version );
-
-			log.info( "webservice_Request.scan_filename_with_path: " + webservice_Request.scan_filename_with_path );
-
-			log.info( "webservice_Request.converter_identifier_for_scan_file: " + webservice_Request.converter_identifier_for_scan_file );
+//			log.info( "webservice_Request.spectr_core_version: " + webservice_Request.spectr_core_version );
+//
+//			log.info( "webservice_Request.scan_filename_with_path: " + webservice_Request.scan_filename_with_path );
+//
+//			log.info( "webservice_Request.converter_identifier_for_scan_file: " + webservice_Request.converter_identifier_for_scan_file );
 
 
 //			if ( true ) {
