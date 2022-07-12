@@ -1,5 +1,7 @@
 package org.yeastrc.spectral_storage.scan_file_parser_web_app_testing_only.scan_parsing_in_progress;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -37,13 +39,29 @@ public class ScanFile_Parsing_InProgress_Container {
 		return false;
 	}
 
+	/**
+	 * @param identifier
+	 * @return
+	 */
 	public ScanFile_Parsing_InProgress_Item getItem( String identifier ) {
 		
 		return scanFile_Parsing_InProgress_Item_Map.get(identifier);
 	}
 	
+	/**
+	 * @param identifier
+	 */
 	public void removeItem( String identifier ) {
 		
 		scanFile_Parsing_InProgress_Item_Map.remove(identifier);
 	}
+	
+	/**
+	 * @return - All
+	 */
+	public Collection<ScanFile_Parsing_InProgress_Item> get_ALL_Items() {
+		
+		return Collections.unmodifiableCollection( scanFile_Parsing_InProgress_Item_Map.values() );
+	}
+	
 }
