@@ -272,7 +272,7 @@ public class Parse_ScanFile_Pass_ScanBatch_To_Processing_Thread extends Thread {
 //			String msg = "Error IOException processing mzML or MzXml Scan file: " + scanFileWithPath.getAbsolutePath();
 //			log.error( msg, e );
 //			throw new Exception( msg, e );
-		} catch ( Exception e ) {
+		} catch ( Throwable e ) {
 
 			File scanFile = pgmParams.getInputScanFile();
 					

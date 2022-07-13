@@ -205,6 +205,8 @@ class SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_An
 				log.error( "Exception Encountered encoding scan peaks to byte array GZIP", t );
 				
 				spectralFile_Writer_GZIP_V_005.setThrowable_Caught_InProcessing__call_notifyOnProcessingCompleteOrException(t);
+
+				throw new RuntimeException(t);
 			}
 		}
 

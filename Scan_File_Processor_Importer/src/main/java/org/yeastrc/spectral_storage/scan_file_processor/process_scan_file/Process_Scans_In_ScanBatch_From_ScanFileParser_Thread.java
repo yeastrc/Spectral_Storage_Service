@@ -255,10 +255,18 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 			}
 
 		} catch ( Throwable t) {
+
+			log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+			log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+			String msg = "Error Top level of class in run() method: ";
+			log.error( msg, t );
+			log.error( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
 			
 			throwable_Caught_Main_run_method = t;
 			
 			ProcessUploadedScanFileRequest.getSingletonInstance().awaken();
+
+			throw new RuntimeException(t);
 		}
 	}
 	

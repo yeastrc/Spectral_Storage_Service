@@ -150,7 +150,7 @@ class SpectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread
 
 		} catch (Throwable t) {
 			
-			log.error( "Exception/Throwable in Writer: ", t );
+			log.error( "Exception/Throwable in Thread: ", t );
 			
 			spectralFile_Writer_GZIP_V_005.setThrowable_Caught_InProcessing__call_notifyOnProcessingCompleteOrException(t);
 			
