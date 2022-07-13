@@ -29,7 +29,7 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	 * 'spectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread__V_005__ProcessingComplete' 
 	 * is called by the Thread that does the actual writing of output files to disk.
 	 */
-	private boolean processingIs_Successfull_And_Complete; 
+	private volatile boolean processingIs_Successfull_And_Complete; 
 	
 	@Override
 	public boolean isProcessingIs_Successfull_And_Complete() {
