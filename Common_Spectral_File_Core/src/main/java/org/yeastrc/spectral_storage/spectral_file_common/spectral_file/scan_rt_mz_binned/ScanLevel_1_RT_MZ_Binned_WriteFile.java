@@ -65,19 +65,25 @@ public class ScanLevel_1_RT_MZ_Binned_WriteFile {
 		
 		File dataFileFinal = new File( subDirForStorageFiles, filenameFinal );
 		File dataFileWhileWriting = new File( subDirForStorageFiles, filenameWhileWriting );
-
+		
+		log.warn("START: Writing file: " + filenameWhileWriting );
+		
 		//  Jackson JSON Mapper object for JSON deserialization and serialization
 		ObjectMapper jacksonJSON_Mapper = new ObjectMapper();  //  Jackson JSON library object
 		
 		try ( OutputStream outputStream = new BufferedOutputStream( new GZIPOutputStream( new FileOutputStream( dataFileWhileWriting ) ) ) ) {
 			//  Serialize intensitiesMapToJSONRoot to JSON, and write to file
 			jacksonJSON_Mapper.writeValue( outputStream, summedDataRoot );
-		} catch ( Exception e ) {
+		} catch ( Throwable e ) {
 			String msg = "Failed to write to ScanLevel_1_RT_MZ_Binned_File file: " + dataFileWhileWriting.getAbsolutePath();
 			log.error( msg, e );
 			throw e;
 		}
-		
+
+		log.warn("FINISHED: Writing file: " + filenameWhileWriting );
+
+		log.warn("START: Renaming file: " + dataFileWhileWriting.getAbsolutePath() + " TO " + dataFileFinal.getAbsolutePath() );
+
 		if ( ! dataFileWhileWriting.renameTo( dataFileFinal ) ) {
 			String msg = "Failed to rename ScanLevel_1_RT_MZ_Binned_File file: " 
 					+ dataFileWhileWriting.getAbsolutePath()
@@ -86,5 +92,7 @@ public class ScanLevel_1_RT_MZ_Binned_WriteFile {
 			log.error( msg );
 			throw new SpectralStorageProcessingException( msg );
 		}
+		
+		log.warn("FINISHED: Renaming file: " + dataFileWhileWriting.getAbsolutePath() + " TO " + dataFileFinal.getAbsolutePath() );
 	}
 }

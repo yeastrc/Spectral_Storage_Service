@@ -86,12 +86,16 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 	}
 	
 	/**
-	 * Set to true when get to end of the 'run()' with no exceptions
+	 * @return Dependent on spectralFile_Writer since spectralFile_Writer submits to the last queue and then the thread that actually writes the output files
 	 */
-	private volatile boolean writeSpectralFiles_Complete_And_Successful = false;
-	
 	public boolean isWriteSpectralFiles_Complete_And_Successful() {
-		return writeSpectralFiles_Complete_And_Successful;
+		
+		if ( throwable_Caught_Main_run_method != null ) {
+			
+			return false;
+		}
+		
+		return spectralFile_Writer.isProcessingIs_Successfull_And_Complete();
 	}
 	
 	/**
@@ -233,13 +237,13 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 					//  spectralFile_Writer is the Writer for the Latest Version of the Spectral File Format
 
 					try {
+						
+						//  Calling 'spectralFile_Writer.close(...) adds to the queue that a Thread is processing 
+						//     SO  the processing in the '.close' does not happen immediately
+						//     SO  cannot set 'this.writeSpectralFiles_Complete_And_Successful = true' here
 
 						spectralFile_Writer.close(spectralFile_CloseWriter_Data_Common);
-
-						if ( throwable_Caught_Main_run_method == null ) {
-							this.writeSpectralFiles_Complete_And_Successful = true;
-						}
-
+						
 					} catch ( Throwable t) {
 
 						if ( throwable_Caught_Main_run_method != null ) {
@@ -407,6 +411,7 @@ public class Process_Scans_In_ScanBatch_From_ScanFileParser_Thread extends Threa
 					//  Process Scan Peaks and if needed compute totalIonCurrent from individual scan peaks
 
 					List<ScanFileParser_ScanBatch_SingleScan_SinglePeak> scanPeakList = scanIn.getScanPeaks();
+					
 					List<SpectralFile_SingleScanPeak_Common> scanPeaksList = new ArrayList<>( scanPeakList.size() );
 					spectralFile_SingleScan.setScanPeaksAsObjectArray( scanPeaksList );
 

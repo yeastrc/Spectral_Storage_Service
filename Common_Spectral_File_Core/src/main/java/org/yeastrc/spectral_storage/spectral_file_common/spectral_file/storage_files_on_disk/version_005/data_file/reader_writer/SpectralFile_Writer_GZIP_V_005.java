@@ -25,7 +25,9 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 	private static final Logger log = LoggerFactory.getLogger(SpectralFile_Writer_GZIP_V_005.class);
 	
 	/**
-	 * Set to True on successful close and spectralFile_CloseWriter_Data_Common.isExceptionEncounteredProcessingScanFile() returns false
+	 * Set to True when method 
+	 * 'spectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread__V_005__ProcessingComplete' 
+	 * is called by the Thread that does the actual writing of output files to disk.
 	 */
 	private boolean processingIs_Successfull_And_Complete; 
 	
@@ -34,6 +36,18 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 		return processingIs_Successfull_And_Complete;
 	}
 
+	/**
+	 * Package Private
+	 * 
+	 * Called by SpectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread__V_005 object when the "CLOSE..." is received and processed successfully
+	 */
+	void spectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread__V_005__ProcessingComplete() {
+		
+		processingIs_Successfull_And_Complete = true;
+		
+		notifyOnProcessingCompleteOrException.notifyOnProcessingCompleteOrException();
+	}
+	
 	private volatile Throwable throwable_Caught_InProcessing;
 	
 	
@@ -138,19 +152,6 @@ public class SpectralFile_Writer_GZIP_V_005 implements SpectralFile_Writer__IF  
 		encodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue = 
 				SpectralFile_Writer_SubPart__EncodeScanPeaksGZIP_Compute_Totals__Thread_And_Queue__V_005.getNewInstance(threadCountGzipScanPeaks, queueProcessor_FinalWriteToFiles, this);
 	}
-	
-	/**
-	 * Package Private
-	 * 
-	 * Called by SpectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread__V_005 object when the "CLOSE..." is received and processed successfully
-	 */
-	void spectralFile_Writer_SubPart__QueueProcessor_FinalWriteToFiles_GZIP__Thread__V_005__ProcessingComplete() {
-		
-		processingIs_Successfull_And_Complete = true;
-		
-		notifyOnProcessingCompleteOrException.notifyOnProcessingCompleteOrException();
-	}
-	
 	
 	/* 
 	 * Close Main Data File

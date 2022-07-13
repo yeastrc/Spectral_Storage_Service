@@ -147,9 +147,6 @@ class SpectralFile_Writer_SubPart__ActualWriteToFiles_GZIP_V_005 {
 	
 	private long nextScanIndex_InBytes = 0;
 	
-	private long scanPeaksTotalBytes = 0;
-	private long scanPeaksTotalCount = 0;
-	
 	private List<SpectralFile_Index_FDFW_SingleScan_V_005> indexScanEntries = new ArrayList<>();
 	
 	private Set<Byte> isCentroidUniqueValuesInScans = new HashSet<>();
