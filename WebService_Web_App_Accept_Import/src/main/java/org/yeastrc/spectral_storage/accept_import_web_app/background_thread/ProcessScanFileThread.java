@@ -3,6 +3,7 @@ package org.yeastrc.spectral_storage.accept_import_web_app.background_thread;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.cleanup_temp_upload_dir.CleanupUploadFileTempBaseDirectory;
 import org.yeastrc.spectral_storage.accept_import_web_app.log_error_after_webapp_undeploy_started.Log_Info_Error_AfterWebAppUndeploy_Started;
+import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.main.ProcessNextAvailableUploadedScanFile;
 import org.yeastrc.spectral_storage.accept_import_web_app.process_uploaded_scan_file.move_old_processed_directories.MoveOldProcessedUploadScanFileDirectories;
 import org.yeastrc.spectral_storage.accept_import_web_app.reset_killed_import_to_pending_on_webapp_startup.ResetKilledImportToPendingOnWebappStartup;
@@ -38,6 +39,8 @@ class ProcessScanFileThread extends Thread {
 	
 
 	private volatile ProcessNextAvailableUploadedScanFile processNextAvailableUploadedScanFile;
+	
+	private volatile Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories;
 	
 	private volatile boolean keepRunning = true;
 	
@@ -128,8 +131,20 @@ class ProcessScanFileThread extends Thread {
 
 		//  awaken this thread if it is in 'wait' state ( not currently processing a job )
 		this.awaken();
-		if ( processNextAvailableUploadedScanFile != null ) {
-			processNextAvailableUploadedScanFile.shutdown();
+		
+		try {
+			if ( processNextAvailableUploadedScanFile != null ) {
+				processNextAvailableUploadedScanFile.shutdown();
+			}
+		} catch ( Throwable t ) {
+			
+		}
+		try {
+			if ( cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories != null ) {
+				cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories.shutdown();
+			}
+		} catch ( Throwable t ) {
+			
 		}
 	}
 
@@ -393,6 +408,17 @@ class ProcessScanFileThread extends Thread {
 			}
 				
 //			} ( catch)
+			
+			try {
+				cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories = Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories.getInstance();
+				
+				cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories.cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories();
+				
+				cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories = null;
+				
+			} catch ( Throwable t ) {
+				
+			}
 		}
 	}
 
