@@ -6,27 +6,22 @@ import java.util.Comparator;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
-import org.yeastrc.spectral_storage.accept_import_web_app.delete_directory_and_contents.DeleteDirectoryAndContents;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 
 /**
- * Cleanup Old "Import Processing" Directories.  Remove after 3 days.
+ * Cleanup Old "Import Processing" Directories - remove the scan file to reduce disk usage until the whole directory can be deleted
  *
  */
-public class Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories {
+public class Cleanup_Remove_ScanFileIn_OldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories {
 
-	private static final Logger log = LoggerFactory.getLogger(Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories.class);
-	
-	private static final int MAX_KEEP_SUCCESS_FAILED_DIRECTORIES_IN_DAYS = 3;
-	
-	private static final long MAX_KEEP_SUCCESS_FAILED_DIRECTORIES_IN_MILLISECONDS = ( (long) MAX_KEEP_SUCCESS_FAILED_DIRECTORIES_IN_DAYS) * 1000 * 60 * 60 * 24;
+	private static final Logger log = LoggerFactory.getLogger(Cleanup_Remove_ScanFileIn_OldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories.class);
 
 	private volatile boolean keepRunning = true;
 	
 
-	private Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories() { }
-	public static Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories getInstance() { 
-		return new Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories(); 
+	private Cleanup_Remove_ScanFileIn_OldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories() { }
+	public static Cleanup_Remove_ScanFileIn_OldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories getInstance() { 
+		return new Cleanup_Remove_ScanFileIn_OldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories(); 
 	}
 	
 
@@ -59,7 +54,7 @@ public class Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSu
 	/**
 	 * 
 	 */
-	public void cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories() {
+	public void cleanup_Remove_ScanFileIn_OldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories() {
 		
 //		log.warn("INFO:: cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSubdirectories(): ENTER");
 
@@ -68,7 +63,9 @@ public class Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSu
 
 				delete_Successful_OR_Failed( 
 						
-						ScanFileToProcessConstants.SCAN_FILES_PROCESSED_SUCCESS_BASE_DIR
+						ScanFileToProcessConstants.SCAN_FILES_PROCESSED_SUCCESS_BASE_DIR,
+						ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getMax_ImportScanFilesToKeep_SuccessfulImport(),
+						ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getMax_DaysToKeep_ImportScanFiles_SuccessfulImport()
 						);						
 			
 			}
@@ -76,7 +73,9 @@ public class Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSu
 
 				delete_Successful_OR_Failed( 
 						
-						ScanFileToProcessConstants.SCAN_FILES_PROCESSED_FAILED_BASE_DIR
+						ScanFileToProcessConstants.SCAN_FILES_PROCESSED_FAILED_BASE_DIR,
+						ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getMax_ImportScanFilesToKeep_FailedImport(),
+						ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getMax_DaysToKeep_ImportScanFiles_FailedImport()
 						);						
 			
 			}
@@ -94,14 +93,17 @@ public class Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSu
 
 	/**
 	 * @param scanFilesProcessedBaseDirString
-	 * @param max_ImportExecutionDirectoriesToKeep
-	 * @param max_DaysToKeep_ImportExecutionDirectories
+	 * @param max_ImportScanFilesToKeep
+	 * @param max_DaysToKeep_ImportScanFiles
 	 * @throws Exception
 	 */
 	private void delete_Successful_OR_Failed( 
 			
-			String scanFilesProcessedBaseDirString
+			String scanFilesProcessedBaseDirString,
 
+			int max_ImportScanFilesToKeep,
+			int max_DaysToKeep_ImportScanFiles
+			
 			) throws Exception {
 
 		File tempScanUploadBaseDirectoryFile =
@@ -131,7 +133,7 @@ public class Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSu
 			}
 		});
 		
-		long deleteDirectoryBefore_Milliseconds = System.currentTimeMillis() - MAX_KEEP_SUCCESS_FAILED_DIRECTORIES_IN_MILLISECONDS;
+		long deleteDirectoryBefore_Milliseconds = System.currentTimeMillis() - ( ( (long) max_DaysToKeep_ImportScanFiles ) * 1000 * 60 * 60 * 24 );
 		
 		for ( int index = 0; index < scanFilesProcessedBaseDirContents.length; index++ ) {
 			
@@ -147,12 +149,20 @@ public class Cleanup_RemoveOldImportProcessDirectoriesUnderSuccessfulAndFailedSu
 				continue;  //  EARLY CONTINUE
 			}
 			
-			if ( dirEntry.lastModified() < deleteDirectoryBefore_Milliseconds ) {
+			if ( dirEntry.lastModified() < deleteDirectoryBefore_Milliseconds  
+					|| index < scanFilesProcessedBaseDirContents.length - max_ImportScanFilesToKeep ) {
 				
-				//  Can delete directory
+				//  Can delete scan file in directory
 				
-				DeleteDirectoryAndContents.getInstance().deleteDirectoryAndContents(dirEntry);
+				for ( File fileInSubdir : dirEntry.listFiles() ) {
 				
+					if ( fileInSubdir.getName().startsWith( ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_FILENAME_PREFIX ) ) {
+						
+						if ( ! fileInSubdir.delete() ) {
+							log.error( "Unable delete scan file under success or fail dir. scan file: " + fileInSubdir.getAbsolutePath() );
+						}
+					}
+				}
 			}
 		}
 		

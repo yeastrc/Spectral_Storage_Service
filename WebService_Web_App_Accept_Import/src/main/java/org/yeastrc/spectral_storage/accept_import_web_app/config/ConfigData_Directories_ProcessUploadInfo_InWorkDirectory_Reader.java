@@ -62,45 +62,45 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 	private static final String PROPERTY_NAME__DELETE_UPLOADED_SCAN_FILE_ON_SUCCESSFUL_IMPORT = 
 			"delete.uploaded.scan.file.on.successful.import";
 
-	private static final String PROPERTY_NAME__MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_SUCCESSFUL_IMPORT = 
-			"max.import.execution.directories.to.keep.for.successful.import";
+	private static final String PROPERTY_NAME__MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_SUCCESSFUL_IMPORT = 
+			"max.import.scan.files.to.keep.for.successful.import";
 
-	private static final String PROPERTY_NAME__MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_FAILED_IMPORT = 
-			"max.import.execution.directories.to.keep.for.failed.import";
+	private static final String PROPERTY_NAME__MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_FAILED_IMPORT = 
+			"max.import.scan.files.to.keep.for.failed.import";
 
-	private static final String PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_SUCCESSFUL_IMPORT = 
-			"max.days.to.keep.import.execution.directories.for.successful.import";
+	private static final String PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_SUCCESSFUL_IMPORT = 
+			"max.days.to.keep.import.scan.files.for.successful.import";
 
-	private static final String PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_FAILED_IMPORT = 
-			"max.days.to.keep.import.execution.directories.for.failed.import";
+	private static final String PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_FAILED_IMPORT = 
+			"max.days.to.keep.import.scan.files.for.failed.import";
 	
 
 //	 * Max Number of Import execution directories to keep for Successful Import
 //	 * 
 //	 * Has a default.  Maybe 2.
 //	 */
-//	private int max_ImportExecutionDirectoriesToKeep_SuccessfulImport;
+//	private int max_ImportScanFilesToKeep_SuccessfulImport;
 //	
 //	/**
 //	 * Max Number of Import execution directories to keep for Failed Import
 //	 * 
 //	 * Has a default.  Maybe 2.
 //	 */
-//	private int max_ImportExecutionDirectoriesToKeep_FailedImport;
+//	private int max_ImportScanFilesToKeep_FailedImport;
 //
 //	/**
 //	 * Max Number of Days to keep Import execution directories for Successful Import
 //	 * 
 //	 * Has a default.  Maybe 2.
 //	 */
-//	private int max_DaysToKeep_ImportExecutionDirectories_SuccessfulImport;
+//	private int max_DaysToKeep_ImportScanFiles_SuccessfulImport;
 //
 //	/**
 //	 * Max Number of Days to keep Import execution directories for Failed Import
 //	 * 
 //	 * Has a default.  Maybe 2.
 //	 */
-//	private int max_DaysToKeep_ImportExecutionDirectories_FailedImport;
+//	private int max_DaysToKeep_ImportScanFiles_FailedImport;
 //	
 //	
 	
@@ -394,10 +394,10 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 					+ "' so will NOT delete uploaded scan file on successful import" ); 
 		}
 		
-		//  MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_SUCCESSFUL_IMPORT
+		//  MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_SUCCESSFUL_IMPORT
 		
-		if ( StringUtils.isNotEmpty( internalConfig_OptionalParams_Temp.max_ImportExecutionDirectoriesToKeep_SuccessfulImport ) ) {
-			String valueString = internalConfig_OptionalParams_Temp.max_ImportExecutionDirectoriesToKeep_SuccessfulImport;
+		if ( StringUtils.isNotEmpty( internalConfig_OptionalParams_Temp.max_ImportScanFilesToKeep_SuccessfulImport ) ) {
+			String valueString = internalConfig_OptionalParams_Temp.max_ImportScanFilesToKeep_SuccessfulImport;
 			try {
 				int valueInt = Integer.parseInt( valueString );
 				
@@ -405,36 +405,36 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 
 					valueInt = 0;
 					
-					log.warn( "INFO: '" + PROPERTY_NAME__MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_SUCCESSFUL_IMPORT
+					log.warn( "INFO: '" + PROPERTY_NAME__MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_SUCCESSFUL_IMPORT
 							+ "' has value that is negative so so will only keep last " + valueInt + " uploaded scan file processing directories on successful import" ); 
 				}
 				
-				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_ImportExecutionDirectoriesToKeep_SuccessfulImport(valueInt);
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_ImportScanFilesToKeep_SuccessfulImport(valueInt);
 				
-				log.warn( "INFO: '" + PROPERTY_NAME__MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_SUCCESSFUL_IMPORT
+				log.warn( "INFO: '" + PROPERTY_NAME__MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_SUCCESSFUL_IMPORT
 						+ "' has value so will only keep last " + valueInt + " uploaded scan file processing directories on successful import" ); 
 				
 			} catch ( Exception e ) {
 
-				log.error( "FAILED TO PARSE Config value as Integer for property '" + PROPERTY_NAME__MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_SUCCESSFUL_IMPORT
+				log.error( "FAILED TO PARSE Config value as Integer for property '" + PROPERTY_NAME__MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_SUCCESSFUL_IMPORT
 						+ "'. Value '" + valueString 
 						+ "'.  Using default for only keeping last " + MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES 
 						+ " uploaded scan file processing directories on successful import" ); 
 				
-				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_ImportExecutionDirectoriesToKeep_SuccessfulImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_ImportScanFilesToKeep_SuccessfulImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
 			}
 		} else {
 
-			log.warn( "INFO: NO Value for config property '" + PROPERTY_NAME__MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_SUCCESSFUL_IMPORT
+			log.warn( "INFO: NO Value for config property '" + PROPERTY_NAME__MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_SUCCESSFUL_IMPORT
 					+ "' so using DEFAULT for only keep last " + MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES + " uploaded scan file processing directories on successful import" );
 			
-			configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_ImportExecutionDirectoriesToKeep_SuccessfulImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
+			configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_ImportScanFilesToKeep_SuccessfulImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
 		}
 
-		//  PROPERTY_NAME__MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_FAILED_IMPORT
+		//  PROPERTY_NAME__MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_FAILED_IMPORT
 		
-		if ( StringUtils.isNotEmpty( internalConfig_OptionalParams_Temp.max_ImportExecutionDirectoriesToKeep_FailedImport ) ) {
-			String valueString = internalConfig_OptionalParams_Temp.max_ImportExecutionDirectoriesToKeep_FailedImport;
+		if ( StringUtils.isNotEmpty( internalConfig_OptionalParams_Temp.max_ImportScanFilesToKeep_FailedImport ) ) {
+			String valueString = internalConfig_OptionalParams_Temp.max_ImportScanFilesToKeep_FailedImport;
 			try {
 				int valueInt = Integer.parseInt( valueString );
 				
@@ -442,36 +442,36 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 
 					valueInt = 0;
 					
-					log.warn( "INFO: '" + PROPERTY_NAME__MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_FAILED_IMPORT
+					log.warn( "INFO: '" + PROPERTY_NAME__MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_FAILED_IMPORT
 							+ "' has value that is negative so so will only keep last " + valueInt + " uploaded scan file processing directories on successful import" ); 
 				}
 				
-				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_ImportExecutionDirectoriesToKeep_FailedImport(valueInt);
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_ImportScanFilesToKeep_FailedImport(valueInt);
 				
-				log.warn( "INFO: '" + PROPERTY_NAME__MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_FAILED_IMPORT
+				log.warn( "INFO: '" + PROPERTY_NAME__MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_FAILED_IMPORT
 						+ "' has value so will only keep last " + valueInt + " uploaded scan file processing directories on failed import" ); 
 				
 			} catch ( Exception e ) {
 
-				log.error( "FAILED TO PARSE Config value as Integer for property '" + PROPERTY_NAME__MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_FAILED_IMPORT
+				log.error( "FAILED TO PARSE Config value as Integer for property '" + PROPERTY_NAME__MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_FAILED_IMPORT
 						+ "'. Value '" + valueString 
 						+ "'.  Using default for only keeping last " + MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES 
 						+ " uploaded scan file processing directories on failed import" ); 
 				
-				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_ImportExecutionDirectoriesToKeep_FailedImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_ImportScanFilesToKeep_FailedImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
 			}
 		} else {
 
-			log.warn( "INFO: NO Value for config property '" + PROPERTY_NAME__MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_FAILED_IMPORT
+			log.warn( "INFO: NO Value for config property '" + PROPERTY_NAME__MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_FAILED_IMPORT
 					+ "' so using DEFAULT for only keep last " + MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES + " uploaded scan file processing directories on failed import" );
 			
-			configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_ImportExecutionDirectoriesToKeep_FailedImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
+			configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_ImportScanFilesToKeep_FailedImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
 		}
 
-		//  PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_SUCCESSFUL_IMPORT
+		//  PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_SUCCESSFUL_IMPORT
 		
-		if ( StringUtils.isNotEmpty( internalConfig_OptionalParams_Temp.max_DaysToKeep_ImportExecutionDirectories_SuccessfulImport ) ) {
-			String valueString = internalConfig_OptionalParams_Temp.max_DaysToKeep_ImportExecutionDirectories_SuccessfulImport;
+		if ( StringUtils.isNotEmpty( internalConfig_OptionalParams_Temp.max_DaysToKeep_ImportScanFiles_SuccessfulImport ) ) {
+			String valueString = internalConfig_OptionalParams_Temp.max_DaysToKeep_ImportScanFiles_SuccessfulImport;
 			try {
 				int valueInt = Integer.parseInt( valueString );
 				
@@ -479,36 +479,36 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 
 					valueInt = 0;
 					
-					log.warn( "INFO: '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_SUCCESSFUL_IMPORT
+					log.warn( "INFO: '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_SUCCESSFUL_IMPORT
 							+ "' has value that is negative so so will only keep last " + valueInt + " uploaded scan file processing directories on successful import" ); 
 				}
 				
-				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_DaysToKeep_ImportExecutionDirectories_SuccessfulImport(valueInt);
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_DaysToKeep_ImportScanFiles_SuccessfulImport(valueInt);
 				
-				log.warn( "INFO: '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_SUCCESSFUL_IMPORT
+				log.warn( "INFO: '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_SUCCESSFUL_IMPORT
 						+ "' has value so will only keep last " + valueInt + " days of uploaded scan file processing directories on successful import" ); 
 				
 			} catch ( Exception e ) {
 
-				log.error( "FAILED TO PARSE Config value as Integer for property '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_SUCCESSFUL_IMPORT
+				log.error( "FAILED TO PARSE Config value as Integer for property '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_SUCCESSFUL_IMPORT
 						+ "'. Value '" + valueString 
 						+ "'.  Using default for only keeping last " + MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES 
 						+ " days of uploaded scan file processing directories on successful import" ); 
 				
-				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_DaysToKeep_ImportExecutionDirectories_SuccessfulImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_DaysToKeep_ImportScanFiles_SuccessfulImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
 			}
 		} else {
 
-			log.warn( "INFO: NO Value for config property '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_SUCCESSFUL_IMPORT
+			log.warn( "INFO: NO Value for config property '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_SUCCESSFUL_IMPORT
 					+ "' so using DEFAULT for only keep last " + MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES + " days of uploaded scan file processing directories on successful import" );
 			
-			configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_DaysToKeep_ImportExecutionDirectories_SuccessfulImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
+			configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_DaysToKeep_ImportScanFiles_SuccessfulImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
 		}
 
-		//  PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_FAILED_IMPORT
+		//  PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_FAILED_IMPORT
 		
-		if ( StringUtils.isNotEmpty( internalConfig_OptionalParams_Temp.max_DaysToKeep_ImportExecutionDirectories_FailedImport ) ) {
-			String valueString = internalConfig_OptionalParams_Temp.max_DaysToKeep_ImportExecutionDirectories_FailedImport;
+		if ( StringUtils.isNotEmpty( internalConfig_OptionalParams_Temp.max_DaysToKeep_ImportScanFiles_FailedImport ) ) {
+			String valueString = internalConfig_OptionalParams_Temp.max_DaysToKeep_ImportScanFiles_FailedImport;
 			try {
 				int valueInt = Integer.parseInt( valueString );
 				
@@ -516,30 +516,30 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 
 					valueInt = 0;
 					
-					log.warn( "INFO: '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_FAILED_IMPORT
+					log.warn( "INFO: '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_FAILED_IMPORT
 							+ "' has value that is negative so so will only keep last " + valueInt + " uploaded scan file processing directories on successful import" ); 
 				}
 				
-				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_DaysToKeep_ImportExecutionDirectories_FailedImport(valueInt);
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_DaysToKeep_ImportScanFiles_FailedImport(valueInt);
 				
-				log.warn( "INFO: '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_FAILED_IMPORT
+				log.warn( "INFO: '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_FAILED_IMPORT
 						+ "' has value so will only keep last " + valueInt + " days of uploaded scan file processing directories on failed import" ); 
 				
 			} catch ( Exception e ) {
 
-				log.error( "FAILED TO PARSE Config value as Integer for property '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_FAILED_IMPORT
+				log.error( "FAILED TO PARSE Config value as Integer for property '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_FAILED_IMPORT
 						+ "'. Value '" + valueString 
 						+ "'.  Using default for only keeping last " + MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES 
 						+ " days of uploaded scan file processing directories on failed import" ); 
 				
-				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_DaysToKeep_ImportExecutionDirectories_FailedImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_DaysToKeep_ImportScanFiles_FailedImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
 			}
 		} else {
 
-			log.warn( "INFO: NO Value for config property '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_FAILED_IMPORT
+			log.warn( "INFO: NO Value for config property '" + PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_FAILED_IMPORT
 					+ "' so using DEFAULT for only keep last " + MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES + " days of uploaded scan file processing directories on failed import" );
 			
-			configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_DaysToKeep_ImportExecutionDirectories_FailedImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
+			configData_Directories_ProcessUploadCommand_InWorkDirectory.setMax_DaysToKeep_ImportScanFiles_FailedImport(MAX_DAYS_AND_COUNT_OF_IMPORT_DIRECTORIES);
 		}
 
 		
@@ -765,17 +765,17 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 				configData_Directories_ProcessUploadCommand_InWorkDirectory.setDeleteUploadedScanFileOnSuccessfulImport( true );
 			}
 			
-			internalConfig_OptionalParams_Temp.max_ImportExecutionDirectoriesToKeep_SuccessfulImport = 
-					configProps.getProperty( PROPERTY_NAME__MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_SUCCESSFUL_IMPORT );
+			internalConfig_OptionalParams_Temp.max_ImportScanFilesToKeep_SuccessfulImport = 
+					configProps.getProperty( PROPERTY_NAME__MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_SUCCESSFUL_IMPORT );
 			
-			internalConfig_OptionalParams_Temp.max_ImportExecutionDirectoriesToKeep_FailedImport = 
-					configProps.getProperty( PROPERTY_NAME__MAX_IMPORT_EXECUTION_DIRECTORIES_TO_KEEP_FOR_FAILED_IMPORT );
+			internalConfig_OptionalParams_Temp.max_ImportScanFilesToKeep_FailedImport = 
+					configProps.getProperty( PROPERTY_NAME__MAX_IMPORT_SCAN_FILES_TO_KEEP_FOR_FAILED_IMPORT );
 
-			internalConfig_OptionalParams_Temp.max_DaysToKeep_ImportExecutionDirectories_SuccessfulImport = 
-					configProps.getProperty( PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_SUCCESSFUL_IMPORT );
+			internalConfig_OptionalParams_Temp.max_DaysToKeep_ImportScanFiles_SuccessfulImport = 
+					configProps.getProperty( PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_SUCCESSFUL_IMPORT );
 
-			internalConfig_OptionalParams_Temp.max_DaysToKeep_ImportExecutionDirectories_FailedImport = 
-					configProps.getProperty( PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_EXECUTION_DIRECTORIES_FOR_FAILED_IMPORT );
+			internalConfig_OptionalParams_Temp.max_DaysToKeep_ImportScanFiles_FailedImport = 
+					configProps.getProperty( PROPERTY_NAME__MAX_DAYS_TO_KEEP_IMPORT_SCAN_FILES_FOR_FAILED_IMPORT );
 
 		} catch ( RuntimeException e ) {
 			log.error( "Error processing Properties file '" + propertiesFilename + "', exception: " + e.toString(), e );
@@ -834,22 +834,22 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 		/**
 		 * Max Number of Import execution directories to keep for Successful Import
 		 */
-		private String max_ImportExecutionDirectoriesToKeep_SuccessfulImport;
+		private String max_ImportScanFilesToKeep_SuccessfulImport;
 
 		/**
 		 * Max Number of Import execution directories to keep for Failed Import
 		 */
-		private String max_ImportExecutionDirectoriesToKeep_FailedImport;
+		private String max_ImportScanFilesToKeep_FailedImport;
 
 		/**
 		 * Max Number of Days to keep Import execution directories for Successful Import
 		 */
-		private String max_DaysToKeep_ImportExecutionDirectories_SuccessfulImport;
+		private String max_DaysToKeep_ImportScanFiles_SuccessfulImport;
 
 		/**
 		 * Max Number of Days to keep Import execution directories for Failed Import
 		 */
-		private String max_DaysToKeep_ImportExecutionDirectories_FailedImport;
+		private String max_DaysToKeep_ImportScanFiles_FailedImport;
 
 	}
 	

@@ -100,28 +100,28 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	 * 
 	 * Has a default.  Maybe 2.
 	 */
-	private int max_ImportExecutionDirectoriesToKeep_SuccessfulImport;
+	private int max_ImportScanFilesToKeep_SuccessfulImport;
 	
 	/**
 	 * Max Number of Import execution directories to keep for Failed Import
 	 * 
 	 * Has a default.  Maybe 2.
 	 */
-	private int max_ImportExecutionDirectoriesToKeep_FailedImport;
+	private int max_ImportScanFilesToKeep_FailedImport;
 
 	/**
 	 * Max Number of Days to keep Import execution directories for Successful Import
 	 * 
 	 * Has a default.  Maybe 2.
 	 */
-	private int max_DaysToKeep_ImportExecutionDirectories_SuccessfulImport;
+	private int max_DaysToKeep_ImportScanFiles_SuccessfulImport;
 
 	/**
 	 * Max Number of Days to keep Import execution directories for Failed Import
 	 * 
 	 * Has a default.  Maybe 2.
 	 */
-	private int max_DaysToKeep_ImportExecutionDirectories_FailedImport;
+	private int max_DaysToKeep_ImportScanFiles_FailedImport;
 	
 	
 	
@@ -345,40 +345,40 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 		this.emailToEmailAddresses_FailedOnly = emailToEmailAddresses_FailedOnly;
 	}
 
-	public int getMax_ImportExecutionDirectoriesToKeep_SuccessfulImport() {
-		return max_ImportExecutionDirectoriesToKeep_SuccessfulImport;
+	public int getMax_ImportScanFilesToKeep_SuccessfulImport() {
+		return max_ImportScanFilesToKeep_SuccessfulImport;
 	}
 
-	public void setMax_ImportExecutionDirectoriesToKeep_SuccessfulImport(
-			int max_ImportExecutionDirectoriesToKeep_SuccessfulImport) {
-		this.max_ImportExecutionDirectoriesToKeep_SuccessfulImport = max_ImportExecutionDirectoriesToKeep_SuccessfulImport;
+	public void setMax_ImportScanFilesToKeep_SuccessfulImport(
+			int max_ImportScanFilesToKeep_SuccessfulImport) {
+		this.max_ImportScanFilesToKeep_SuccessfulImport = max_ImportScanFilesToKeep_SuccessfulImport;
 	}
 
-	public int getMax_ImportExecutionDirectoriesToKeep_FailedImport() {
-		return max_ImportExecutionDirectoriesToKeep_FailedImport;
+	public int getMax_ImportScanFilesToKeep_FailedImport() {
+		return max_ImportScanFilesToKeep_FailedImport;
 	}
 
-	public void setMax_ImportExecutionDirectoriesToKeep_FailedImport(
-			int max_ImportExecutionDirectoriesToKeep_FailedImport) {
-		this.max_ImportExecutionDirectoriesToKeep_FailedImport = max_ImportExecutionDirectoriesToKeep_FailedImport;
+	public void setMax_ImportScanFilesToKeep_FailedImport(
+			int max_ImportScanFilesToKeep_FailedImport) {
+		this.max_ImportScanFilesToKeep_FailedImport = max_ImportScanFilesToKeep_FailedImport;
 	}
 
-	public int getMax_DaysToKeep_ImportExecutionDirectories_SuccessfulImport() {
-		return max_DaysToKeep_ImportExecutionDirectories_SuccessfulImport;
+	public int getMax_DaysToKeep_ImportScanFiles_SuccessfulImport() {
+		return max_DaysToKeep_ImportScanFiles_SuccessfulImport;
 	}
 
-	public void setMax_DaysToKeep_ImportExecutionDirectories_SuccessfulImport(
-			int max_DaysToKeep_ImportExecutionDirectories_SuccessfulImport) {
-		this.max_DaysToKeep_ImportExecutionDirectories_SuccessfulImport = max_DaysToKeep_ImportExecutionDirectories_SuccessfulImport;
+	public void setMax_DaysToKeep_ImportScanFiles_SuccessfulImport(
+			int max_DaysToKeep_ImportScanFiles_SuccessfulImport) {
+		this.max_DaysToKeep_ImportScanFiles_SuccessfulImport = max_DaysToKeep_ImportScanFiles_SuccessfulImport;
 	}
 
-	public int getMax_DaysToKeep_ImportExecutionDirectories_FailedImport() {
-		return max_DaysToKeep_ImportExecutionDirectories_FailedImport;
+	public int getMax_DaysToKeep_ImportScanFiles_FailedImport() {
+		return max_DaysToKeep_ImportScanFiles_FailedImport;
 	}
 
-	public void setMax_DaysToKeep_ImportExecutionDirectories_FailedImport(
-			int max_DaysToKeep_ImportExecutionDirectories_FailedImport) {
-		this.max_DaysToKeep_ImportExecutionDirectories_FailedImport = max_DaysToKeep_ImportExecutionDirectories_FailedImport;
+	public void setMax_DaysToKeep_ImportScanFiles_FailedImport(
+			int max_DaysToKeep_ImportScanFiles_FailedImport) {
+		this.max_DaysToKeep_ImportScanFiles_FailedImport = max_DaysToKeep_ImportScanFiles_FailedImport;
 	}
 		
 }
