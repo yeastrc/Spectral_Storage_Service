@@ -1,5 +1,6 @@
 package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.index_file_root_data_object_cache;
 
+import java.lang.ref.SoftReference;
 import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -191,12 +192,10 @@ public class IndexFileRootDataObjectCache {
 			this.parentObject = parentObject;
 		}
 		
-		private boolean cacheDataInitialized;
-		
 		/**
 		 * cached data, left null if no caching
 		 */
-		private LoadingCache<CacheKey, SpectralFile_Index_FileContents_Root_IF> dataCache = null;
+		private SoftReference<LoadingCache<CacheKey, SpectralFile_Index_FileContents_Root_IF>> dataCache_SoftReference = null;
 		
 		private int cacheMaxSize;
 
@@ -218,52 +217,66 @@ public class IndexFileRootDataObjectCache {
 		 */
 		@SuppressWarnings("static-access")
 		private synchronized LoadingCache<CacheKey, SpectralFile_Index_FileContents_Root_IF> getCache(  ) throws Exception {
-			if ( ! cacheDataInitialized ) { 
-//				CachedDataSizeOptions cachedDataSizeOptions = 
-//						CachedDataCentralConfigStorageAndProcessing.getInstance().getCurrentSizeConfigValue();
+			
+
+			if ( dataCache_SoftReference == null ) {
 				
-//				if ( cachedDataSizeOptions == CachedDataSizeOptions.FEW ) {
-//					//  No Cache, just mark initialized, dbRecordsDataCache already set to null;
-//					cacheDataInitialized = true;
-//					return dbRecordsDataCache;  //  EARLY RETURN
-//				}
+				//  NO Cache
 				
-//				int cacheTimeout = CACHE_TIMEOUT_FULL_SIZE;
-				cacheMaxSize = IndexFileRootDataObjectCache.CACHE_MAX_SIZE_FULL_SIZE;
-//				if ( cachedDataSizeOptions == CachedDataSizeOptions.HALF ) {
-////					cacheMaxSize = cacheMaxSize / 2;
-//				} else if ( cachedDataSizeOptions == CachedDataSizeOptions.SMALL ) {
-////					cacheMaxSize = parentObject.CACHE_MAX_SIZE_SMALL;
-////					cacheTimeout = CACHE_TIMEOUT_SMALL;
-//				}
-				
-				dataCache = CacheBuilder.newBuilder()
-//						.expireAfterAccess( cacheTimeout, TimeUnit.DAYS ) // always in cache
-						.maximumSize( cacheMaxSize )
-						.build(
-								new CacheLoader<CacheKey, SpectralFile_Index_FileContents_Root_IF>() {
-									@Override
-									public SpectralFile_Index_FileContents_Root_IF load( CacheKey cacheKey ) throws Exception {
-										
-										String hashKey = cacheKey.hashKey;
-										int indexVersion = cacheKey.indexVersion;
-										
-										//   WARNING  cannot return null.  
-										//   If would return null, throw SpectralStorageDataNotFoundException and catch at the .get(...)
-										
-										//  value is NOT in cache so get it and return it
-										return loadIndexFile( hashKey, indexVersion );
-									}
-								});
-			//			    .build(); // no CacheLoader
-				cacheDataInitialized = true;
+				return create_Cache();
 			}
+			
+			LoadingCache<CacheKey, SpectralFile_Index_FileContents_Root_IF> dataCache = dataCache_SoftReference.get();
+
+			if ( dataCache != null ) {
+				
+				return dataCache;
+			}
+
+			//  NO Cache
+			
+			return create_Cache();
+		}
+		
+		/**
+		 * @return
+		 * @throws Exception
+		 */
+		private LoadingCache<CacheKey, SpectralFile_Index_FileContents_Root_IF> create_Cache() throws Exception {
+			
+
+			cacheMaxSize = IndexFileRootDataObjectCache.CACHE_MAX_SIZE_FULL_SIZE;
+
+			LoadingCache<CacheKey, SpectralFile_Index_FileContents_Root_IF>dataCache = CacheBuilder.newBuilder()
+//						.expireAfterAccess( cacheTimeout, TimeUnit.DAYS ) // always in cache
+					.maximumSize( cacheMaxSize )
+					.build(
+							new CacheLoader<CacheKey, SpectralFile_Index_FileContents_Root_IF>() {
+								@Override
+								public SpectralFile_Index_FileContents_Root_IF load( CacheKey cacheKey ) throws Exception {
+
+									String hashKey = cacheKey.hashKey;
+									int indexVersion = cacheKey.indexVersion;
+
+									//   WARNING  cannot return null.  
+									//   If would return null, throw SpectralStorageDataNotFoundException and catch at the .get(...)
+
+									//  value is NOT in cache so get it and return it
+									return loadIndexFile( hashKey, indexVersion );
+								}
+							});
+			//			    .build(); // no CacheLoader
+
+			dataCache_SoftReference = new SoftReference<>( dataCache );
+			
 			return dataCache;
 		}
 
+		/**
+		 * 
+		 */
 		private synchronized void invalidate() {
-			dataCache = null;
-			cacheDataInitialized = false;
+			dataCache_SoftReference = null;
 		}
 		
 

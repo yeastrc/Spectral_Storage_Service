@@ -1,5 +1,6 @@
 package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.scans_lvl_gt_1_file_root_data_cache;
 
+import java.lang.ref.SoftReference;
 import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -192,12 +193,10 @@ public class ScansLvlGt1PartialFileRootDataObjectCache {
 			this.parentObject = parentObject;
 		}
 		
-		private boolean cacheDataInitialized;
-		
 		/**
 		 * cached data, left null if no caching
 		 */
-		private LoadingCache<CacheKey, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF> fileDataCache = null;
+		private SoftReference<LoadingCache<CacheKey, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF>> fileDataCache_SoftReference = null;
 		
 		private int cacheMaxSize;
 
@@ -219,52 +218,74 @@ public class ScansLvlGt1PartialFileRootDataObjectCache {
 		 */
 		@SuppressWarnings("static-access")
 		private synchronized LoadingCache<CacheKey, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF> getCache(  ) throws Exception {
-			if ( ! cacheDataInitialized ) { 
-//				CachedDataSizeOptions cachedDataSizeOptions = 
-//						CachedDataCentralConfigStorageAndProcessing.getInstance().getCurrentSizeConfigValue();
-				
-//				if ( cachedDataSizeOptions == CachedDataSizeOptions.FEW ) {
-//					//  No Cache, just mark initialized, dbRecordsDataCache already set to null;
-//					cacheDataInitialized = true;
-//					return dbRecordsDataCache;  //  EARLY RETURN
-//				}
-				
-//				int cacheTimeout = CACHE_TIMEOUT_FULL_SIZE;
-				cacheMaxSize = ScansLvlGt1PartialFileRootDataObjectCache.CACHE_MAX_SIZE_FULL_SIZE;
-//				if ( cachedDataSizeOptions == CachedDataSizeOptions.HALF ) {
-////					cacheMaxSize = cacheMaxSize / 2;
-//				} else if ( cachedDataSizeOptions == CachedDataSizeOptions.SMALL ) {
-////					cacheMaxSize = parentObject.CACHE_MAX_SIZE_SMALL;
-////					cacheTimeout = CACHE_TIMEOUT_SMALL;
-//				}
-				
-				fileDataCache = CacheBuilder.newBuilder()
-//						.expireAfterAccess( cacheTimeout, TimeUnit.DAYS ) // always in cache
-						.maximumSize( cacheMaxSize )
-						.build(
-								new CacheLoader<CacheKey, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF>() {
-									@Override
-									public SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF load( CacheKey cacheKey ) throws Exception {
 
-										String hashKey = cacheKey.hashKey;
-										int fileVersionNumber = cacheKey.fileVersionNumber;
-										
-										//   WARNING  cannot return null.  
-										//   If would return null, throw SpectralStorageDataNotFoundException and catch at the .get(...)
-										
-										//  value is NOT in cache so get it and return it
-										return loadFromScansLvlGt1PartialFile( hashKey, fileVersionNumber );
-									}
-								});
-			//			    .build(); // no CacheLoader
-				cacheDataInitialized = true;
+
+			if ( fileDataCache_SoftReference == null ) {
+				
+				//  NO Cache
+				
+				return create_Cache();
 			}
+			
+			LoadingCache<CacheKey, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF> dataCache = fileDataCache_SoftReference.get();
+
+			if ( dataCache != null ) {
+				
+				return dataCache;
+			}
+
+			//  NO Cache
+			
+			return create_Cache();
+		}
+		
+		/**
+		 * @return
+		 * @throws Exception
+		 */
+		private LoadingCache<CacheKey, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF> create_Cache() throws Exception {
+
+			cacheMaxSize = ScansLvlGt1PartialFileRootDataObjectCache.CACHE_MAX_SIZE_FULL_SIZE;
+			//				if ( cachedDataSizeOptions == CachedDataSizeOptions.HALF ) {
+			////					cacheMaxSize = cacheMaxSize / 2;
+			//				} else if ( cachedDataSizeOptions == CachedDataSizeOptions.SMALL ) {
+			////					cacheMaxSize = parentObject.CACHE_MAX_SIZE_SMALL;
+			////					cacheTimeout = CACHE_TIMEOUT_SMALL;
+			//				}
+
+			LoadingCache<CacheKey, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF> fileDataCache = CacheBuilder.newBuilder()
+//						.expireAfterAccess( cacheTimeout, TimeUnit.DAYS ) // always in cache
+					.maximumSize( cacheMaxSize )
+					.build(
+							new CacheLoader<CacheKey, SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF>() {
+								@Override
+								public SpectralFile_ScansLvlGt1Partial_FileContents_Root_IF load( CacheKey cacheKey ) throws Exception {
+
+									String hashKey = cacheKey.hashKey;
+									int fileVersionNumber = cacheKey.fileVersionNumber;
+
+									//   WARNING  cannot return null.  
+									//   If would return null, throw SpectralStorageDataNotFoundException and catch at the .get(...)
+
+									//  value is NOT in cache so get it and return it
+									return loadFromScansLvlGt1PartialFile( hashKey, fileVersionNumber );
+								}
+							});
+			//			    .build(); // no CacheLoader
+
+
+			fileDataCache_SoftReference = new SoftReference<>( fileDataCache );
+
+			log.warn("new SoftReference");
+			
 			return fileDataCache;
 		}
 
+		/**
+		 * 
+		 */
 		private synchronized void invalidate() {
-			fileDataCache = null;
-			cacheDataInitialized = false;
+			fileDataCache_SoftReference = null;
 		}
 		
 
