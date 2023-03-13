@@ -276,8 +276,6 @@ public class ScansLvlGt1PartialFileRootDataObjectCache {
 
 			fileDataCache_SoftReference = new SoftReference<>( fileDataCache );
 
-			log.warn("new SoftReference");
-			
 			return fileDataCache;
 		}
 

@@ -268,8 +268,6 @@ public class Scans_OtherDataExtract_FileRootDataObjectCache {
 
 			fileDataCache_SoftReference = new SoftReference<>( fileDataCache );
 			
-			log.warn("new SoftReference");
-
 			return fileDataCache;
 		}
 
