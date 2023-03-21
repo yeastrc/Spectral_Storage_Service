@@ -40,14 +40,14 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
 
-//  import com.amazonaws.services.s3.AmazonS3;
-//  import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
-//  import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
-//  import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
-//  import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
-//  import com.amazonaws.services.s3.model.PartETag;
-//  import com.amazonaws.services.s3.model.UploadPartRequest;
-//  import com.amazonaws.services.s3.model.UploadPartResult;
+  import com.amazonaws.services.s3.AmazonS3;
+  import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
+  import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
+  import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
+  import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
+  import com.amazonaws.services.s3.model.PartETag;
+  import com.amazonaws.services.s3.model.UploadPartRequest;
+  import com.amazonaws.services.s3.model.UploadPartResult;
 
 
 /**
@@ -274,16 +274,16 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 
 		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
-//			if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket() ) ) {
-//				
-//				//  Save uploaded scan file to S3 Object. Returns a response to client if fail
-//				saveUploadedScanFileToS3Object( request, response, scanFilenameToProcess, uploadScanFileTempKey_Dir );
-//
-//			} else {
+			if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket() ) ) {
+				
+				//  Save uploaded scan file to S3 Object. Returns a response to client if fail
+				saveUploadedScanFileToS3Object( request, response, scanFilenameToProcess, uploadScanFileTempKey_Dir );
+
+			} else {
 			
 				//  Save uploaded scan file to local disk file. Returns a response to client if fail
 				saveUploadedScanFileToLocalDiskFile( request, response, scanFilenameToProcess, uploadScanFileTempKey_Dir );
-//			}
+			}
 			
 			UploadScanFile_UploadScanFile_Response uploadResponse = new UploadScanFile_UploadScanFile_Response();
 			
@@ -329,196 +329,196 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 
 //  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
-//	/**
-//	 * @param request
-//	 * @param response
-//	 * @param scanFilenameToProcess
-//	 * @param uploadScanFileTempKey_Dir
-//	 * @throws Exception 
-//	 */
-//	private void saveUploadedScanFileToS3Object(
-//			HttpServletRequest request, 
-//			HttpServletResponse response,
-//			String scanFilenameToProcess, 
-//			File uploadScanFileTempKey_Dir ) throws Exception {
-//		
-//
-//		//  Compute the API key on the fly as the scan file data comes in: 
-//		Compute_Hashes compute_Hashes = Compute_Hashes.getNewInstance();
-//		
-//		final String bucketName = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket();
-//		
-//		String uploadScanFileTempKey_Dir_Name = uploadScanFileTempKey_Dir.getName();
-//		
-//		String s3_Object_Key = 
-//				Create_S3_Object_Paths.getInstance()
-//				.get_ScanFile_Uploaded_S3ObjectPath( uploadScanFileTempKey_Dir_Name, scanFilenameToProcess );
-//
-//		//  Write a file to uploadScanFileTempKey_Dir with info on file to be written to S3
-//		{
-//			UploadScanfileS3Location uploadScanfileS3Location = new UploadScanfileS3Location();
-//			uploadScanfileS3Location.setScanFilenameToProcess( scanFilenameToProcess );
-//			uploadScanfileS3Location.setS3_bucketName( bucketName );
-//			uploadScanfileS3Location.setS3_objectName( s3_Object_Key );
-//			
-//			JAXBContext jaxbContext = JAXBContext.newInstance( UploadScanfileS3Location.class );
-//			Marshaller marshaller = jaxbContext.createMarshaller();
-//		
-//			File scanfileS3InfoFile = new File( uploadScanFileTempKey_Dir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
-//			
-//			try ( OutputStream os = new FileOutputStream( scanfileS3InfoFile ) ) {
-//				marshaller.marshal( uploadScanfileS3Location, os );
-//			} catch (Exception e ) {
-//				String msg = "Failed to write uploadScanfileS3Location to scanfileS3InfoFile: " + scanfileS3InfoFile.getAbsolutePath();
-//				log.error( msg, e );
-//				throw new SpectralFileWebappInternalException( msg, e );
-//			}
-//		}		
-//		
-//		//  Transfer the file from the stream to an S3 object
-//		final AmazonS3 amazonS3 = CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3().getS3_Client();
-//
-//		byte[] uploadPartByteBuffer = new byte[ S3_MULIPART_UPLOAD_PART_SIZE ];
-//
-//		int partNumber = 0; // Must start at 1, incremented at top of loop, max of 10,000
-//		int bytesRead = 0;
-//		
-//		try ( InputStream scanDataFileOnDiskIS = request.getInputStream() ) {
-//
-//	        // Create a list of UploadPartResponse objects. You get one of these
-//	        // for each part upload.
-//	        List<PartETag> partETags = new ArrayList<>( 10001 ); // Init to max possible size
-//
-//	    	InitiateMultipartUploadResult initResponse = null;
-//	    	
-//    		int uploadInitToS3_RetryCounter = 0;
-//    		
-//    		while ( true ) {
-//    			try {
-//    				// Step 1: Initialize.
-//    				InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest( bucketName, s3_Object_Key );
-//    				initResponse = amazonS3.initiateMultipartUpload(initRequest);
-//
-//    				break; //  Exit while( true ) since S3 call succeeded
-//
-//    			} catch ( Exception e ) {
-//    				uploadInitToS3_RetryCounter++;
-//    				if ( uploadInitToS3_RetryCounter > UPLOAD_SCAN_FILE_INIT_UPLOAD_TO_S3_RETRY_COUNT_MAX ) {
-//    					throw e;
-//    				}
-//    				Thread.sleep( UPLOAD_SCAN_FILE_INIT_UPLOAD_TO_S3_RETRY_DELAY );
-//    			}
-//    		}
-//    		
-//        	String uploadId = initResponse.getUploadId();
-//        
-//	        try {
-//	        	//  Step 2:  Upload parts.
-//	        	while ( ( bytesRead = populateBufferFromScanDataFile( scanDataFileOnDiskIS, uploadPartByteBuffer ) ) > 0 ) {
-//
-//					compute_Hashes.updateHashesComputing( uploadPartByteBuffer, bytesRead );
-//					
-//	        		partNumber++;
-//	        		boolean lastPart = false;
-//	        		if ( bytesRead < uploadPartByteBuffer.length ) { // uploadPartByteBuffer not full so is at end of file
-//	        			lastPart = true;
-//	        		}
-//	        		
-//	        		int uploadPartToS3_RetryCounter = 0;
-//	        		
-//	        		while ( true ) {
-//	        			try {
-//	        				ByteArrayInputStream scanFilePartIS = new ByteArrayInputStream( uploadPartByteBuffer, 0 /* offset */, bytesRead /* length */ );
-//	        				UploadPartRequest uploadRequest = 
-//	        						new UploadPartRequest().withUploadId( uploadId )
-//	        						.withBucketName( bucketName )
-//	        						.withKey( s3_Object_Key )
-//	        						.withInputStream( scanFilePartIS )
-//	        						.withPartNumber( partNumber )
-//	        						.withPartSize( bytesRead )
-//	        						.withLastPart( lastPart );
-//
-//	        				//   Consider computing MD5 on scanFilePartIS and add to uploadRequest
-//	        				//       S3 uses that for an integrity check
-//
-//	        				UploadPartResult result =  amazonS3.uploadPart( uploadRequest );
-//	        				PartETag partETag = result.getPartETag();
-//	        				partETags.add( partETag );
-//	        				
-//	        				break; //  Exit while( true ) since S3 call succeeded
-//
-//	        			} catch ( Exception e ) {
-//	        				uploadPartToS3_RetryCounter++;
-//	        				if ( uploadPartToS3_RetryCounter > UPLOAD_SCAN_FILE_PART_TO_S3_RETRY_COUNT_MAX ) {
-//	        					throw e;
-//	        				}
-//	        				Thread.sleep( UPLOAD_SCAN_FILE_PART_TO_S3_RETRY_DELAY );
-//	        			}
-//	        		}
-//	        		
-//	        		if ( bytesRead < uploadPartByteBuffer.length ) { // uploadPartByteBuffer not full so is at end of file
-//	        			break; // exit loop since at last part
-//	        		}
-//	        	}
-//
-//        		int uploadPartToS3_RetryCounter = 0;
-//        		
-//        		while ( true ) {
-//        			try {
-//        				// Step 3: Complete.
-//        				CompleteMultipartUploadRequest compRequest = new 
-//        						CompleteMultipartUploadRequest(
-//        								bucketName, 
-//        								s3_Object_Key, 
-//        								uploadId,
-//        								partETags);
-//
-//        				amazonS3.completeMultipartUpload( compRequest );
-//
-//        				break; //  Exit while( true ) since S3 call succeeded
-//
-//        			} catch ( Exception e ) {
-//        				uploadPartToS3_RetryCounter++;
-//        				if ( uploadPartToS3_RetryCounter > UPLOAD_SCAN_FILE_COMPLETE_UPLOAD_TO_S3_RETRY_COUNT_MAX ) {
-//        					throw e;
-//        				}
-//        				Thread.sleep( UPLOAD_SCAN_FILE_COMPLETE_UPLOAD_TO_S3_RETRY_DELAY );
-//        			}
-//        		}
-//	        } catch (Exception e) {
-//	        	log.error( "Exception transfering uploaded Scan file from request.inputstream to S3. amazonS3.abortMultipartUpload(...) will be called next " );
-//	        	amazonS3.abortMultipartUpload( new AbortMultipartUploadRequest( bucketName, s3_Object_Key, uploadId ) );
-//	        	throw e;
-//	        }
-//		}
-//		
-//
-//		writeAPIKeyToFile( compute_Hashes, uploadScanFileTempKey_Dir );
-//	}
-//	
-//	/**
-//	 * @param scanDataFileIS
-//	 * @param uploadPartByteBuffer
-//	 * @return number of bytes read into uploadPartByteBuffer.  If < uploadPartByteBuffer.length, at last buffer for file
-//	 * @throws IOException 
-//	 */
-//	private int populateBufferFromScanDataFile( InputStream scanDataFileIS, byte[] uploadPartByteBuffer ) throws IOException {
-//		
-//		int byteBufferLength = uploadPartByteBuffer.length;
-//		
-//		int bytesRead = 0;
-//		int byteBufferIndex = 0;
-//		
-//		while ( ( bytesRead = 
-//				scanDataFileIS.read( uploadPartByteBuffer, byteBufferIndex, byteBufferLength - byteBufferIndex) ) != -1 ) {
-//			byteBufferIndex += bytesRead;
-//			if ( byteBufferIndex >= byteBufferLength ) {
-//				break;
-//			}
-//		}
-//		
-//		return byteBufferIndex;
-//	}
+	/**
+	 * @param request
+	 * @param response
+	 * @param scanFilenameToProcess
+	 * @param uploadScanFileTempKey_Dir
+	 * @throws Exception 
+	 */
+	private void saveUploadedScanFileToS3Object(
+			HttpServletRequest request, 
+			HttpServletResponse response,
+			String scanFilenameToProcess, 
+			File uploadScanFileTempKey_Dir ) throws Exception {
+		
+
+		//  Compute the API key on the fly as the scan file data comes in: 
+		Compute_Hashes compute_Hashes = Compute_Hashes.getNewInstance();
+		
+		final String bucketName = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket();
+		
+		String uploadScanFileTempKey_Dir_Name = uploadScanFileTempKey_Dir.getName();
+		
+		String s3_Object_Key = 
+				Create_S3_Object_Paths.getInstance()
+				.get_ScanFile_Uploaded_S3ObjectPath( uploadScanFileTempKey_Dir_Name, scanFilenameToProcess );
+
+		//  Write a file to uploadScanFileTempKey_Dir with info on file to be written to S3
+		{
+			UploadScanfileS3Location uploadScanfileS3Location = new UploadScanfileS3Location();
+			uploadScanfileS3Location.setScanFilenameToProcess( scanFilenameToProcess );
+			uploadScanfileS3Location.setS3_bucketName( bucketName );
+			uploadScanfileS3Location.setS3_objectName( s3_Object_Key );
+			
+			JAXBContext jaxbContext = JAXBContext.newInstance( UploadScanfileS3Location.class );
+			Marshaller marshaller = jaxbContext.createMarshaller();
+		
+			File scanfileS3InfoFile = new File( uploadScanFileTempKey_Dir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
+			
+			try ( OutputStream os = new FileOutputStream( scanfileS3InfoFile ) ) {
+				marshaller.marshal( uploadScanfileS3Location, os );
+			} catch (Exception e ) {
+				String msg = "Failed to write uploadScanfileS3Location to scanfileS3InfoFile: " + scanfileS3InfoFile.getAbsolutePath();
+				log.error( msg, e );
+				throw new SpectralFileWebappInternalException( msg, e );
+			}
+		}		
+		
+		//  Transfer the file from the stream to an S3 object
+		final AmazonS3 amazonS3 = CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3().getS3_Client();
+
+		byte[] uploadPartByteBuffer = new byte[ S3_MULIPART_UPLOAD_PART_SIZE ];
+
+		int partNumber = 0; // Must start at 1, incremented at top of loop, max of 10,000
+		int bytesRead = 0;
+		
+		try ( InputStream scanDataFileOnDiskIS = request.getInputStream() ) {
+
+	        // Create a list of UploadPartResponse objects. You get one of these
+	        // for each part upload.
+	        List<PartETag> partETags = new ArrayList<>( 10001 ); // Init to max possible size
+
+	    	InitiateMultipartUploadResult initResponse = null;
+	    	
+    		int uploadInitToS3_RetryCounter = 0;
+    		
+    		while ( true ) {
+    			try {
+    				// Step 1: Initialize.
+    				InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest( bucketName, s3_Object_Key );
+    				initResponse = amazonS3.initiateMultipartUpload(initRequest);
+
+    				break; //  Exit while( true ) since S3 call succeeded
+
+    			} catch ( Exception e ) {
+    				uploadInitToS3_RetryCounter++;
+    				if ( uploadInitToS3_RetryCounter > UPLOAD_SCAN_FILE_INIT_UPLOAD_TO_S3_RETRY_COUNT_MAX ) {
+    					throw e;
+    				}
+    				Thread.sleep( UPLOAD_SCAN_FILE_INIT_UPLOAD_TO_S3_RETRY_DELAY );
+    			}
+    		}
+    		
+        	String uploadId = initResponse.getUploadId();
+        
+	        try {
+	        	//  Step 2:  Upload parts.
+	        	while ( ( bytesRead = populateBufferFromScanDataFile( scanDataFileOnDiskIS, uploadPartByteBuffer ) ) > 0 ) {
+
+					compute_Hashes.updateHashesComputing( uploadPartByteBuffer, bytesRead );
+					
+	        		partNumber++;
+	        		boolean lastPart = false;
+	        		if ( bytesRead < uploadPartByteBuffer.length ) { // uploadPartByteBuffer not full so is at end of file
+	        			lastPart = true;
+	        		}
+	        		
+	        		int uploadPartToS3_RetryCounter = 0;
+	        		
+	        		while ( true ) {
+	        			try {
+	        				ByteArrayInputStream scanFilePartIS = new ByteArrayInputStream( uploadPartByteBuffer, 0 /* offset */, bytesRead /* length */ );
+	        				UploadPartRequest uploadRequest = 
+	        						new UploadPartRequest().withUploadId( uploadId )
+	        						.withBucketName( bucketName )
+	        						.withKey( s3_Object_Key )
+	        						.withInputStream( scanFilePartIS )
+	        						.withPartNumber( partNumber )
+	        						.withPartSize( bytesRead )
+	        						.withLastPart( lastPart );
+
+	        				//   Consider computing MD5 on scanFilePartIS and add to uploadRequest
+	        				//       S3 uses that for an integrity check
+
+	        				UploadPartResult result =  amazonS3.uploadPart( uploadRequest );
+	        				PartETag partETag = result.getPartETag();
+	        				partETags.add( partETag );
+	        				
+	        				break; //  Exit while( true ) since S3 call succeeded
+
+	        			} catch ( Exception e ) {
+	        				uploadPartToS3_RetryCounter++;
+	        				if ( uploadPartToS3_RetryCounter > UPLOAD_SCAN_FILE_PART_TO_S3_RETRY_COUNT_MAX ) {
+	        					throw e;
+	        				}
+	        				Thread.sleep( UPLOAD_SCAN_FILE_PART_TO_S3_RETRY_DELAY );
+	        			}
+	        		}
+	        		
+	        		if ( bytesRead < uploadPartByteBuffer.length ) { // uploadPartByteBuffer not full so is at end of file
+	        			break; // exit loop since at last part
+	        		}
+	        	}
+
+        		int uploadPartToS3_RetryCounter = 0;
+        		
+        		while ( true ) {
+        			try {
+        				// Step 3: Complete.
+        				CompleteMultipartUploadRequest compRequest = new 
+        						CompleteMultipartUploadRequest(
+        								bucketName, 
+        								s3_Object_Key, 
+        								uploadId,
+        								partETags);
+
+        				amazonS3.completeMultipartUpload( compRequest );
+
+        				break; //  Exit while( true ) since S3 call succeeded
+
+        			} catch ( Exception e ) {
+        				uploadPartToS3_RetryCounter++;
+        				if ( uploadPartToS3_RetryCounter > UPLOAD_SCAN_FILE_COMPLETE_UPLOAD_TO_S3_RETRY_COUNT_MAX ) {
+        					throw e;
+        				}
+        				Thread.sleep( UPLOAD_SCAN_FILE_COMPLETE_UPLOAD_TO_S3_RETRY_DELAY );
+        			}
+        		}
+	        } catch (Exception e) {
+	        	log.error( "Exception transfering uploaded Scan file from request.inputstream to S3. amazonS3.abortMultipartUpload(...) will be called next " );
+	        	amazonS3.abortMultipartUpload( new AbortMultipartUploadRequest( bucketName, s3_Object_Key, uploadId ) );
+	        	throw e;
+	        }
+		}
+		
+
+		writeAPIKeyToFile( compute_Hashes, uploadScanFileTempKey_Dir );
+	}
+	
+	/**
+	 * @param scanDataFileIS
+	 * @param uploadPartByteBuffer
+	 * @return number of bytes read into uploadPartByteBuffer.  If < uploadPartByteBuffer.length, at last buffer for file
+	 * @throws IOException 
+	 */
+	private int populateBufferFromScanDataFile( InputStream scanDataFileIS, byte[] uploadPartByteBuffer ) throws IOException {
+		
+		int byteBufferLength = uploadPartByteBuffer.length;
+		
+		int bytesRead = 0;
+		int byteBufferIndex = 0;
+		
+		while ( ( bytesRead = 
+				scanDataFileIS.read( uploadPartByteBuffer, byteBufferIndex, byteBufferLength - byteBufferIndex) ) != -1 ) {
+			byteBufferIndex += bytesRead;
+			if ( byteBufferIndex >= byteBufferLength ) {
+				break;
+			}
+		}
+		
+		return byteBufferIndex;
+	}
 	
 	/**
 	 * @param request

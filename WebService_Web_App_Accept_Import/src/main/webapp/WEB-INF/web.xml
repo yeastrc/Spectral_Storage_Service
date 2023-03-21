@@ -49,15 +49,15 @@
 
   <!-- Send S3 location of scan file to process - return XML -->
   
-  <!--    AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+  <!--    AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.   -->  
   
   <servlet>
     <servlet-name>Send S3 location of scan file to process Servlet - XML Response</servlet-name>
     <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.UploadScanFile_AddScanFileInS3Bucket_Servlet</servlet-class>
-    	< ! - - required parameter resultDataFormat - - >
+    	<!-- required parameter resultDataFormat -->
     <init-param>
-      <param-name>resultDataFormat</param-name> < ! - - Must be value in Java Class ServletResultDataFormatConstants - - >
-      <param-value>XML</param-value> < ! - - Must be value in Java Class ServletResultDataFormatConstants - - >
+      <param-name>resultDataFormat</param-name> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
+      <param-value>XML</param-value> <!-- Must be value in Java Class ServletResultDataFormatConstants -->
     </init-param>    
     <load-on-startup>2</load-on-startup>
   </servlet>
@@ -66,8 +66,6 @@
     <url-pattern>/update/uploadScanFile_addScanFileInS3Bucket_XML</url-pattern>
   </servlet-mapping>   
 
--->  
-  
   <!-- Send Scan Filename with Path to process - return XML -->
   
   <servlet>

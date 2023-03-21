@@ -2,6 +2,7 @@ package org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_con
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 
 import org.slf4j.LoggerFactory;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
@@ -49,25 +50,36 @@ public class Compute_File_Hashes {
 			log.error( msg );
 			throw new SpectralStorageProcessingException( msg );
 		}
-		
-		Compute_Hashes compute_Hashes = Compute_Hashes.getNewInstance();
 
 		try ( FileInputStream fis = new FileInputStream( inputFile ); ) {
 			
-			byte[] dataBytes = new byte[4096];
-
-			int numberBytesRead = 0; 
-
-			while ( ( numberBytesRead = fis.read( dataBytes ) ) != -1 ) {
-				
-				if ( shutdownReceived ) {
-					return null; // EARLY RETURN
-				}
-				compute_Hashes.updateHashesComputing( dataBytes, numberBytesRead );
-			}
+			return this.compute_File_Hashes_ForInputStream(fis);
 		}
+	}
+	
 
-	    return compute_Hashes;
+	/**
+	 * @param inputStream
+	 * @return null if shutdown() has been called;
+	 * @throws Exception 
+	 */
+	public Compute_Hashes compute_File_Hashes_ForInputStream( InputStream inputStream ) throws Exception {
+
+		Compute_Hashes compute_Hashes = Compute_Hashes.getNewInstance();
+
+		byte[] dataBytes = new byte[320000];
+
+		int numberBytesRead = 0; 
+
+		while ( ( numberBytesRead = inputStream.read( dataBytes ) ) != -1 ) {
+			
+			if ( shutdownReceived ) {
+				return null; // EARLY RETURN
+			}
+			compute_Hashes.updateHashesComputing( dataBytes, numberBytesRead );
+		}
+		
+		return compute_Hashes;
 	}
 	
 }

@@ -49,12 +49,17 @@ public class Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir {
 	public void shutdown() {
 		log.info("shutdown() called");
 		synchronized (this) {
-//			this.keepRunning = false;
+			this.shutdownReceived = true;
 		}
 		
-		if ( compute_APIKey_Value_StoreInFile_SingleProcessingDir != null ) {
-			compute_APIKey_Value_StoreInFile_SingleProcessingDir.shutdown();
+		try {
+			if ( compute_APIKey_Value_StoreInFile_SingleProcessingDir != null ) {
+				compute_APIKey_Value_StoreInFile_SingleProcessingDir.shutdown();
+			}
+		} catch ( Throwable t ) {
+			//  eat exception
 		}
+		
 		//  awaken this thread if it is in 'wait' state ( not currently processing a job )
 		this.awaken();
 	}
@@ -82,8 +87,10 @@ public class Compute_APIKey_Value_StoreInFile_NextAvailableProcessingDir {
 			}
 
 			if ( scanFileProcessingDir == null ) {
+				
+				//  Nothing to process found so exit method
 
-				return false;   //  EARLY LOOP EXIT
+				return false;   //  EARLY RETURN
 
 			} else {
 				

@@ -27,14 +27,14 @@ public class CommonReader_File_And_S3_Builder {
 		commonReader_File_And_S3.setSubDirForStorageFiles( subDirForStorageFiles );
 		return this;
 	}
-//	public CommonReader_File_And_S3_Builder setS3_Bucket(String s3_Bucket) {
-//		commonReader_File_And_S3.setS3_Bucket( s3_Bucket );
-//		return this;
-//	}
-//	public CommonReader_File_And_S3_Builder setS3_Region(String s3_Region) {
-//		commonReader_File_And_S3.setS3_Region( s3_Region );
-//		return this;
-//	}
+	public CommonReader_File_And_S3_Builder setS3_Bucket(String s3_Bucket) {
+		commonReader_File_And_S3.setS3_Bucket( s3_Bucket );
+		return this;
+	}
+	public CommonReader_File_And_S3_Builder setS3_Region(String s3_Region) {
+		commonReader_File_And_S3.setS3_Region( s3_Region );
+		return this;
+	}
 
 	/**
 	 * Final build

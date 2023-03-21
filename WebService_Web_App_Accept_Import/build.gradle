@@ -82,16 +82,16 @@ dependencies {
 	
 	//  Logging Log4j Version 2
 	
-	compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.17.0'
-	compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.0'	
-	compile group: 'org.apache.logging.log4j', name: 'log4j-web', version: '2.17.0' //  Needed for Web app
+	implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.17.2'
+	implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.2'	
+	implementation group: 'org.apache.logging.log4j', name: 'log4j-web', version: '2.17.2' //  Needed for Web app
 	
 	// SLF4j
 	// https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl
-	compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.17.0'
+	implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.17.2'
 	
 	//  Jakarta Commons Logging to SLF4J
-	compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.25'
+	implementation group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.36'
 	
 	
 	//   Apache Commons
@@ -102,10 +102,10 @@ dependencies {
 	
 	//  New StringUtils
 	// https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+	implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
 	
 	// https://mvnrepository.com/artifact/commons-io/commons-io
-	compile group: 'commons-io', name: 'commons-io', version: '2.6'
+	implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
 	
 	
 		// JAXB dependencies (Required for Java 11+)
@@ -116,7 +116,7 @@ dependencies {
 	
 	
     // https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core
-    providedCompile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '8.5.29'
+    providedCompile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '8.5.77'
 
 	//  
 	// https://mvnrepository.com/artifact/javax.servlet/servlet-api

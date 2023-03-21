@@ -11,7 +11,7 @@
 
     <Logger name="org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_LocalFilesystem"
     	level="debug"/>
-    <Logger name="org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_S3_Object"
+    <Logger name="org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists.CheckIfSpectralFileAlreadyExists_And_IsLatestVersion__S3_Object"
     	level="debug"/>
 
     <Root level="warn">
