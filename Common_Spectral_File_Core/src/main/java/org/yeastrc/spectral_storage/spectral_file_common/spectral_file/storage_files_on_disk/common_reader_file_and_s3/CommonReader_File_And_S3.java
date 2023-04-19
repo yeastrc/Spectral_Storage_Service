@@ -5,20 +5,21 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.SpectralStorage_DataFiles_S3_Prefix_Constants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageConfigException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.storage_file__path__filenames.GetOrCreateSpectralStorageSubPath;
 
-//  import com.amazonaws.AmazonServiceException;
-//  import com.amazonaws.SdkClientException;
- //  import com.amazonaws.services.s3.AmazonS3;
-//  import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-//  import com.amazonaws.services.s3.model.GetObjectRequest;
-//  import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 
 
 //  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
@@ -47,23 +48,23 @@ public class CommonReader_File_And_S3 {
 //  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
 	//  Storing in S3
-//	private String s3_Bucket;
+	private String s3_Bucket;
 
 	//  Storing in S3 - Optional Region, otherwise SDK uses environment variables 
-//	private String s3_Region;
+	private String s3_Region;
 	
-//	private AmazonS3 s3_Client;
-
-//	@Override
-//	public String toString() {
-//		return "CommonReader_File_And_S3 [subDirForStorageFiles=" + subDirForStorageFiles + ", s3_Bucket=" + s3_Bucket
-//				+ ", s3_Region=" + s3_Region + "]";
-//	}
+	private AmazonS3 s3_Client;
 
 	@Override
 	public String toString() {
-		return "CommonReader_File_And_S3 [subDirForStorageFiles=" + subDirForStorageFiles + "]";
+		return "CommonReader_File_And_S3 [subDirForStorageFiles=" + subDirForStorageFiles + ", s3_Bucket=" + s3_Bucket
+				+ ", s3_Region=" + s3_Region + "]";
 	}
+
+//	@Override
+//	public String toString() {
+//		return "CommonReader_File_And_S3 [subDirForStorageFiles=" + subDirForStorageFiles + "]";
+//	}
 
 	/**
 	 * @param mainFilename - main filename with hash ('main' since in S3 it will be prefaced)
@@ -73,7 +74,7 @@ public class CommonReader_File_And_S3 {
 	 */
 	public InputStream getInputStreamForScanStorageItem( String mainFilename, String hash_String ) throws Exception {
 		
-//		if ( subDirForStorageFiles != null ) {
+		if ( subDirForStorageFiles != null ) {
 	
 			//  getDirsForHash returns null when no data at path
 			File subDirForHashForStorageFiles = 
@@ -94,38 +95,38 @@ public class CommonReader_File_And_S3 {
 			}
 			
 			return new FileInputStream( mainFile );
-//		}
+		}
 
 		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
 		//  S3 object
 		
-//		String s3_objectName = 
-//				SpectralStorage_DataFiles_S3_Prefix_Constants.S3_PREFIX_DATA_FILES 
-//				+ mainFilename;
-//		
-//		//  throws exception when object not found for bucket and object name
-//		
-//		S3Object s3Object = null;
-//		
-//		try {
-//			s3Object = s3_Client.getObject( s3_Bucket, s3_objectName );
-//
-//		} catch ( AmazonServiceException e ) {
-//
-//			if ( e.getStatusCode() == 404 ) {
-//					String msg = "Hash Key not found: " + s3_objectName;
-////					log.warn( msg );
-//					throw new SpectralStorageDataNotFoundException( msg );
-//			}
-//			throw e;
-//		} catch ( SdkClientException e ) {
-//			throw e;
-//		}
-//        
-//		
-//		InputStream isS3Object = s3Object.getObjectContent();
-//		return isS3Object;
+		String s3_objectName = 
+				SpectralStorage_DataFiles_S3_Prefix_Constants.S3_PREFIX_DATA_FILES 
+				+ mainFilename;
+		
+		//  throws exception when object not found for bucket and object name
+		
+		S3Object s3Object = null;
+		
+		try {
+			s3Object = s3_Client.getObject( s3_Bucket, s3_objectName );
+
+		} catch ( AmazonServiceException e ) {
+
+			if ( e.getStatusCode() == 404 ) {
+					String msg = "Hash Key not found: " + s3_objectName;
+//					log.warn( msg );
+					throw new SpectralStorageDataNotFoundException( msg );
+			}
+			throw e;
+		} catch ( SdkClientException e ) {
+			throw e;
+		}
+        
+		
+		InputStream isS3Object = s3Object.getObjectContent();
+		return isS3Object;
 	}
 	
 	/**
@@ -145,7 +146,7 @@ public class CommonReader_File_And_S3 {
 
 		byte[] bytesReadArray = new byte[ length ];
 
-//		if ( subDirForStorageFiles != null ) {
+		if ( subDirForStorageFiles != null ) {
 			
 			//  getDirsForHash returns null when no data at path
 			File subDirForHashForStorageFiles = 
@@ -194,67 +195,67 @@ public class CommonReader_File_And_S3 {
 			}
 		
 			return bytesReadArray;  // EARLY EXIT
-//		} 
+		} 
 
 		//  S3 object
 		
-//		String s3_objectName = 
-//				SpectralStorage_DataFiles_S3_Prefix_Constants.S3_PREFIX_DATA_FILES 
-//				+ mainFilename;
-//		
-//		long endIndex = startOffset + length - 1;
-//
-//		GetObjectRequest rangeObjectRequest = new GetObjectRequest( s3_Bucket, s3_objectName );
-//		
-//		rangeObjectRequest.setRange( startOffset, endIndex ); // retrieve byte range, zero based (start,end).
-//
-//		S3Object objectPortion_S3 = null;
-//		
-//		try {
-//			objectPortion_S3 = s3_Client.getObject( rangeObjectRequest );
-//
-//		} catch ( AmazonServiceException e ) {
-//
-//			if ( e.getStatusCode() == 404 ) {
-//					String msg = "Hash Key not found: " + s3_objectName;
-////					log.warn( msg );
-//					throw new SpectralStorageDataNotFoundException( msg );
-//			}
-//			throw e;
-//		} catch ( SdkClientException e ) {
-//			throw e;
-//		}
-//        
-//		
-//		try ( InputStream objectDataIS = objectPortion_S3.getObjectContent() ) {
-//
-//			int totalBytesRead = 0;
-//			int numBytesRead = -1;
-//
-//			do {
-//				numBytesRead = objectDataIS.read( bytesReadArray, totalBytesRead, bytesReadArray.length - totalBytesRead );
-//				totalBytesRead += numBytesRead;
-//
-//			} while ( numBytesRead != -1 && totalBytesRead < bytesReadArray.length );
-//
-//			if ( totalBytesRead != bytesReadArray.length ) {
-//				//  Not at end of file and bytes read not number of bytes requested:
-//				String msg = "Number of bytes read is not number of bytes needed. totalBytesRead: " + totalBytesRead
-//						+ ", scanBytes.length: " + bytesReadArray.length
-//						+ ", startOffset: " + startOffset
-//						+ ", mainFilename: " + mainFilename;
-//				log.error( msg );
-//				throw new SpectralStorageProcessingException(msg);
-//			}
-//		} catch ( Exception e ) {
-//			String msg = "Error reading range of bytes from file. byte count to read: " + bytesReadArray.length
-//					+ ", startOffset: " + startOffset
-//					+ ", s3_objectName: " + s3_objectName;
-//			log.error( msg, e );
-//			throw e;
-//		}
-//		
-//		return bytesReadArray;
+		String s3_objectName = 
+				SpectralStorage_DataFiles_S3_Prefix_Constants.S3_PREFIX_DATA_FILES 
+				+ mainFilename;
+		
+		long endIndex = startOffset + length - 1;
+
+		GetObjectRequest rangeObjectRequest = new GetObjectRequest( s3_Bucket, s3_objectName );
+		
+		rangeObjectRequest.setRange( startOffset, endIndex ); // retrieve byte range, zero based (start,end).
+
+		S3Object objectPortion_S3 = null;
+		
+		try {
+			objectPortion_S3 = s3_Client.getObject( rangeObjectRequest );
+
+		} catch ( AmazonServiceException e ) {
+
+			if ( e.getStatusCode() == 404 ) {
+					String msg = "Hash Key not found: " + s3_objectName;
+//					log.warn( msg );
+					throw new SpectralStorageDataNotFoundException( msg );
+			}
+			throw e;
+		} catch ( SdkClientException e ) {
+			throw e;
+		}
+        
+		
+		try ( InputStream objectDataIS = objectPortion_S3.getObjectContent() ) {
+
+			int totalBytesRead = 0;
+			int numBytesRead = -1;
+
+			do {
+				numBytesRead = objectDataIS.read( bytesReadArray, totalBytesRead, bytesReadArray.length - totalBytesRead );
+				totalBytesRead += numBytesRead;
+
+			} while ( numBytesRead != -1 && totalBytesRead < bytesReadArray.length );
+
+			if ( totalBytesRead != bytesReadArray.length ) {
+				//  Not at end of file and bytes read not number of bytes requested:
+				String msg = "Number of bytes read is not number of bytes needed. totalBytesRead: " + totalBytesRead
+						+ ", scanBytes.length: " + bytesReadArray.length
+						+ ", startOffset: " + startOffset
+						+ ", mainFilename: " + mainFilename;
+				log.error( msg );
+				throw new SpectralStorageProcessingException(msg);
+			}
+		} catch ( Exception e ) {
+			String msg = "Error reading range of bytes from file. byte count to read: " + bytesReadArray.length
+					+ ", startOffset: " + startOffset
+					+ ", s3_objectName: " + s3_objectName;
+			log.error( msg, e );
+			throw e;
+		}
+		
+		return bytesReadArray;
 	}
 	
 	//  Package Private methods
@@ -266,24 +267,24 @@ public class CommonReader_File_And_S3 {
 	void init() throws SpectralStorageConfigException {
 		
 		
-//		if ( subDirForStorageFiles == null && StringUtils.isEmpty( s3_Bucket ) ) {
-//			String msg = "Must specify subDirForStorageFiles or s3 bucket but not both";
-//			log.error( msg );
-//			throw new SpectralStorageConfigException(msg);
-//		}
-//		if ( subDirForStorageFiles != null && StringUtils.isNotEmpty( s3_Bucket ) ) {
-//			String msg = "Not valid to specify both subDirForStorageFiles and s3 bucket";
-//			log.error( msg );
-//			throw new SpectralStorageConfigException(msg);
-//		}
-//		
-//		if ( StringUtils.isNotEmpty( s3_Bucket ) ) {
-//			AmazonS3ClientBuilder amazonS3ClientBuilder = AmazonS3ClientBuilder.standard();
-//			if ( StringUtils.isNotEmpty( s3_Region ) ) {
-//				amazonS3ClientBuilder = amazonS3ClientBuilder.withRegion( s3_Region );  // "us-west-2"
-//			}
-//			s3_Client = amazonS3ClientBuilder.build();
-//		}
+		if ( subDirForStorageFiles == null && StringUtils.isEmpty( s3_Bucket ) ) {
+			String msg = "Must specify subDirForStorageFiles or s3 bucket but not both";
+			log.error( msg );
+			throw new SpectralStorageConfigException(msg);
+		}
+		if ( subDirForStorageFiles != null && StringUtils.isNotEmpty( s3_Bucket ) ) {
+			String msg = "Not valid to specify both subDirForStorageFiles and s3 bucket";
+			log.error( msg );
+			throw new SpectralStorageConfigException(msg);
+		}
+		
+		if ( StringUtils.isNotEmpty( s3_Bucket ) ) {
+			AmazonS3ClientBuilder amazonS3ClientBuilder = AmazonS3ClientBuilder.standard();
+			if ( StringUtils.isNotEmpty( s3_Region ) ) {
+				amazonS3ClientBuilder = amazonS3ClientBuilder.withRegion( s3_Region );  // "us-west-2"
+			}
+			s3_Client = amazonS3ClientBuilder.build();
+		}
 	}
 
 	//  Package Private Setters
@@ -292,17 +293,17 @@ public class CommonReader_File_And_S3 {
 		this.subDirForStorageFiles = subDirForStorageFiles;
 	}
 
-//	void setS3_Bucket(String s3_Bucket) {
-//		this.s3_Bucket = s3_Bucket;
-//	}
-//
-//	void setS3_Region(String s3_Region) {
-//		this.s3_Region = s3_Region;
-//	}
-//
-//	public AmazonS3 getS3_Client() {
-//		return s3_Client;
-//	}
+	void setS3_Bucket(String s3_Bucket) {
+		this.s3_Bucket = s3_Bucket;
+	}
+
+	void setS3_Region(String s3_Region) {
+		this.s3_Region = s3_Region;
+	}
+
+	public AmazonS3 getS3_Client() {
+		return s3_Client;
+	}
 
 	
 }

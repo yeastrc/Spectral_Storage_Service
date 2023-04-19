@@ -7,7 +7,7 @@ import java.io.File;
  * 
  * Not serialized to bytes (XML, JSON, ?)
  *
- * Used only in call to CallSpectralStorageWebservice.call_UploadScanFile_Service(...)
+ * Used only in call to CallSpectralStorageWebservice.call_UploadScanFile_UploadScanFile_Service(...)
  */
 public class UploadScanFile_UploadScanFile_Request {
 	

@@ -57,15 +57,25 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 
 	// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 	
-//	/**
-//	 * The S3 bucket that the scan data is written to for perm storage
-//	 */
-//	private String s3Bucket;
-//
-//	/**
-//	 * The S3 region that the scan data is written to for perm storage
-//	 */
-//	private String s3Region;
+	/**
+	 * The S3 bucket that the scan data is written to for perm storage
+	 */
+	private String s3Bucket;
+
+	/**
+	 * The S3 region that the scan data is written to for perm storage
+	 */
+	private String s3Region;
+
+	/**
+	 * The S3 bucket that the incoming scan file to parse is written to
+	 */
+	private String s3Bucket_InputScanFileStorage;
+
+	/**
+	 * The S3 region that the incoming scan file to parse is written to
+	 */
+	private String s3Region_InputScanFileStorage;
 
 
 	
@@ -313,21 +323,21 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 		this.emailMachineName = emailMachineName;
 	}
 
-//	public String getS3Bucket() {
-//		return s3Bucket;
-//	}
-//
-//	public void setS3Bucket(String s3Bucket) {
-//		this.s3Bucket = s3Bucket;
-//	}
-//
-//	public String getS3Region() {
-//		return s3Region;
-//	}
-//
-//	public void setS3Region(String s3Region) {
-//		this.s3Region = s3Region;
-//	}
+	public String getS3Bucket() {
+		return s3Bucket;
+	}
+
+	public void setS3Bucket(String s3Bucket) {
+		this.s3Bucket = s3Bucket;
+	}
+
+	public String getS3Region() {
+		return s3Region;
+	}
+
+	public void setS3Region(String s3Region) {
+		this.s3Region = s3Region;
+	}
 
 	public List<String> getSubmittedScanFilePathRestrictions() {
 		return submittedScanFilePathRestrictions;
@@ -379,6 +389,22 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	public void setMax_DaysToKeep_ImportScanFiles_FailedImport(
 			int max_DaysToKeep_ImportScanFiles_FailedImport) {
 		this.max_DaysToKeep_ImportScanFiles_FailedImport = max_DaysToKeep_ImportScanFiles_FailedImport;
+	}
+
+	public String getS3Bucket_InputScanFileStorage() {
+		return s3Bucket_InputScanFileStorage;
+	}
+
+	public void setS3Bucket_InputScanFileStorage(String s3Bucket_InputScanFileStorage) {
+		this.s3Bucket_InputScanFileStorage = s3Bucket_InputScanFileStorage;
+	}
+
+	public String getS3Region_InputScanFileStorage() {
+		return s3Region_InputScanFileStorage;
+	}
+
+	public void setS3Region_InputScanFileStorage(String s3Region_InputScanFileStorage) {
+		this.s3Region_InputScanFileStorage = s3Region_InputScanFileStorage;
 	}
 		
 }
