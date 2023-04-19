@@ -10,7 +10,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.ConfigData_Directories_ProcessUploadInfo_InWorkDirectory;
@@ -68,6 +67,9 @@ public class CleanupUploadFileTempBaseDirectory {
 		return instance; 
 	}
 	
+	/**
+	 * @throws Exception
+	 */
 	public void cleanupUploadFileTempBaseDirectory() throws Exception {
 		
 		synchronized ( this ) {
@@ -123,11 +125,9 @@ public class CleanupUploadFileTempBaseDirectory {
 
 		// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 		
-		if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket() ) ) {
+		//  First delete uploaded scan file in S3 bucket if exists
+		deleteUploadedScanFileIn_S3_Object(tempUpload_scanFileDir);
 
-			//  First delete uploaded scan file in S3 bucket
-			deleteUploadedScanFileIn_S3_Object();
-		}
 		
 		//  Delete contents of directory and directory
 		
@@ -185,9 +185,9 @@ public class CleanupUploadFileTempBaseDirectory {
 	/**
 	 * @throws Exception
 	 */
-	private void deleteUploadedScanFileIn_S3_Object() throws Exception {
+	private void deleteUploadedScanFileIn_S3_Object( File tempUpload_scanFileDir ) throws Exception {
 
-		File scanFile_S3_LocationFile = new File( UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
+		File scanFile_S3_LocationFile = new File( tempUpload_scanFileDir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
 		
 		if ( ! scanFile_S3_LocationFile.exists() ) {
 			//  No file with info on scan file location in S3, so must be local file

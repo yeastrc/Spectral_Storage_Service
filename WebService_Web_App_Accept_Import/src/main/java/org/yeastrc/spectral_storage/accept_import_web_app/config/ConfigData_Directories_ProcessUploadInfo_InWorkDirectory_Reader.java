@@ -51,6 +51,9 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 
 	private static final String PROPERTY_NAME__S3_BUCKET = "s3.bucket";
 	private static final String PROPERTY_NAME__S3_REGION = "s3.region";
+
+	private static final String PROPERTY_NAME__S3_BUCKET_INPUT_SCAN_FILE_STORAGE = "s3.bucket.input.scan.file.storage";
+	private static final String PROPERTY_NAME__S3_REGION_INPUT_SCAN_FILE_STORAGE = "s3.region.input.scan.file.storage";
 	
 	private static final String PROPERTY_NAME__SUBMITTED_SCAN_FILE_PATH_RESTRICTIONS = "submitted.scan.file.path.restrictions";
 	
@@ -157,6 +160,8 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 		log.warn( "Finished processing config file '" 
 				+ CONFIG_OVERRIDES_FILENAME
 				+ "'." );
+		
+		//  TODO   Uncomment THIS ?????
 
 //		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) 
 //				&& StringUtils.isNotEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Bucket() ) ) {
@@ -218,8 +223,16 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			log.warn( "INFO: '" + PROPERTY_NAME__S3_REGION + "' has value: " 
 					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region() );
 		}
-		
 
+		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region_InputScanFileStorage() ) ) {
+			log.warn( "INFO: '" + PROPERTY_NAME__S3_BUCKET_INPUT_SCAN_FILE_STORAGE + "' has value: " 
+					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region() );
+		}
+		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region_InputScanFileStorage() ) ) {
+			log.warn( "INFO: '" + PROPERTY_NAME__S3_REGION_INPUT_SCAN_FILE_STORAGE + "' has value: " 
+					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region() );
+		}
+		
 		if ( configData_Directories_ProcessUploadCommand_InWorkDirectory.getSubmittedScanFilePathRestrictions() != null 
 				&& ( !  configData_Directories_ProcessUploadCommand_InWorkDirectory.getSubmittedScanFilePathRestrictions().isEmpty() ) ) {
 			log.warn( "INFO: '" + PROPERTY_NAME__SUBMITTED_SCAN_FILE_PATH_RESTRICTIONS + "' has value(s) (comma delim): " 
@@ -672,6 +685,38 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 //				
 //				String msg = "No S3 support so property '"
 //					+ PROPERTY_NAME__S3_REGION
+//					+ "' cannot have a value.";
+//				log.error( msg );
+//				throw new SpectralFileWebappConfigException( msg );
+			}
+
+			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_BUCKET_INPUT_SCAN_FILE_STORAGE );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+
+				//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setS3Bucket_InputScanFileStorage( propertyValue );
+				
+//				//  NO S3 so if PROPERTY_NAME__S3_BUCKET_INPUT_SCAN_FILE_STORAGE is set throw Error
+//				
+//				String msg = "No S3 support so property '"
+//					+ PROPERTY_NAME__S3_BUCKET_INPUT_SCAN_FILE_STORAGE
+//					+ "' cannot have a value.";
+//				log.error( msg );
+//				throw new SpectralFileWebappConfigException( msg );
+			}
+
+			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_REGION_INPUT_SCAN_FILE_STORAGE );
+			if ( StringUtils.isNotEmpty( propertyValue ) ) {
+
+				//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
+
+				configData_Directories_ProcessUploadCommand_InWorkDirectory.setS3Region_InputScanFileStorage( propertyValue );
+				
+//				//  NO S3 so if PROPERTY_NAME__S3_BUCKET_INPUT_SCAN_FILE_STORAGE is set throw Error
+//				
+//				String msg = "No S3 support so property '"
+//					+ PROPERTY_NAME__S3_REGION_INPUT_SCAN_FILE_STORAGE
 //					+ "' cannot have a value.";
 //				log.error( msg );
 //				throw new SpectralFileWebappConfigException( msg );

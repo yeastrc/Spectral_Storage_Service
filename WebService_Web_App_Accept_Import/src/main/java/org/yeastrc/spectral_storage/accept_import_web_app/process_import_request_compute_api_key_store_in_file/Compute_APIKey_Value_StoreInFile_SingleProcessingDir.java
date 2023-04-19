@@ -245,6 +245,7 @@ public class Compute_APIKey_Value_StoreInFile_SingleProcessingDir {
 		
 		String s3_bucketName = uploadScanfileS3Location.getS3_bucketName();
 		String s3_objectName = uploadScanfileS3Location.getS3_objectName();
+		String s3_region = uploadScanfileS3Location.getS3_region(); // May be not populated
 
 		if ( StringUtils.isEmpty( s3_bucketName ) ) {
 			String msg = "s3_bucketName is empty in " + scanFile_S3_LocationFile.getAbsolutePath();
@@ -259,7 +260,7 @@ public class Compute_APIKey_Value_StoreInFile_SingleProcessingDir {
 		
 		Compute_Hashes compute_Hashes = null;
 
-		final AmazonS3 s3 = S3_AWS_InterfaceObjectHolder.getSingletonInstance().getS3_Client_Input();
+		final AmazonS3 s3 = S3_AWS_InterfaceObjectHolder.getSingletonInstance().getS3_Client_PassInOptionalRegion( s3_region );
 		try {
 			S3Object s3Object = s3.getObject( s3_bucketName, s3_objectName );
 			try ( InputStream isS3Object = s3Object.getObjectContent() ) {

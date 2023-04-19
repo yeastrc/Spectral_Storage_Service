@@ -36,6 +36,7 @@ import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.w
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_Init_Response;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_Submit_Request;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_Submit_Response;
+import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_UploadScanFile_Pass_Filename_InputStream_Size_Request;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_UploadScanFile_Request;
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.UploadScanFile_UploadScanFile_Response;
 
@@ -270,7 +271,106 @@ public class CallSpectralStorageAcceptImportWebservice {
 		
 		Object webserviceResponseAsObject = 
 				callActualWebserviceOnServerSendByteArrayOrFileAsStreamReturnObject(
-						null /* bytesToSend */, scanFile, webserviceURL );
+						null /* bytesToSend */, 
+						scanFile,
+						null /* scanFilename */,
+						null /* scanFile_InputStream */,
+						null /* scanFile_Size */,
+						webserviceURL );
+		
+		if ( ! ( webserviceResponseAsObject instanceof UploadScanFile_UploadScanFile_Response ) ) {
+			String msg = "Response unmarshaled to class other than UploadScanFile_UploadScanFile_Response.  "
+					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
+			YRCSpectralStorageAcceptImportWebserviceCallErrorException exception = new YRCSpectralStorageAcceptImportWebserviceCallErrorException( msg );
+			exception.setFailToDecodeDataReceivedFromServer(true);
+			throw exception;
+		}
+		UploadScanFile_UploadScanFile_Response webserviceResponse = null;
+		try {
+			webserviceResponse = (UploadScanFile_UploadScanFile_Response) webserviceResponseAsObject;
+		} catch ( Exception e ) {
+			String msg = "Error. Fail to cast response as UploadScanFile_UploadScanFile_Response: "
+					+ e.toString();
+			YRCSpectralStorageAcceptImportWebserviceCallErrorException exception = new YRCSpectralStorageAcceptImportWebserviceCallErrorException( msg );
+			exception.setFailToDecodeDataReceivedFromServer(true);
+			throw exception;
+		}
+		return webserviceResponse;
+	}
+
+	/**
+	 * @param scanFile
+	 * @return
+	 * @throws Exception 
+	 */
+	public UploadScanFile_UploadScanFile_Response call_UploadScanFile_Pass_Filename_InputStream_Size_Service( UploadScanFile_UploadScanFile_Pass_Filename_InputStream_Size_Request webserviceRequest ) throws Exception {
+		if ( ! instanceInitialized ) {
+			throw new IllegalStateException( "Not initialized" );
+		}
+		
+		if ( webserviceRequest == null ) {
+			throw new IllegalArgumentException( "webserviceRequest param must not be null in call to call_UploadScanFile_Pass_Filename_InputStream_Size_Service(...)" );
+		}
+		
+		String scanFilename = webserviceRequest.getScanFilename();
+		if ( scanFilename == null || scanFilename.length() == 0 ) {
+			throw new IllegalArgumentException( "scanFilename property in webserviceRequest param must not be null or empty string in call to call_UploadScanFile_Pass_Filename_InputStream_Size_Service(...)" );
+		}
+		InputStream scanFile_InputStream = webserviceRequest.getScanFile_InputStream();
+		if ( scanFile_InputStream == null ) {
+			throw new IllegalArgumentException( "scanFile_InputStream property in webserviceRequest param must not be null in call to call_UploadScanFile_Pass_Filename_InputStream_Size_Service(...)" );
+		}
+		Long scanFile_Size = webserviceRequest.getScanFile_Size();
+		if ( scanFile_Size == null ) {
+			throw new IllegalArgumentException( "scanFile_Size property in webserviceRequest param must not be null in call to call_UploadScanFile_Pass_Filename_InputStream_Size_Service(...)" );
+		}
+		String uploadScanFileTempKey = webserviceRequest.getUploadScanFileTempKey();
+		if ( uploadScanFileTempKey == null || uploadScanFileTempKey.length() == 0 ) {
+			throw new IllegalArgumentException( "uploadScanFileTempKey property in webserviceRequest param must not be null or empty in call to call_UploadScanFile_Pass_Filename_InputStream_Size_Service(...)" );
+		}
+		
+		String scanFilenameSuffix = null;
+				
+	    if ( scanFilename.endsWith( WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML ) ) {
+	    	
+	    	scanFilenameSuffix = WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML;
+	    
+	    } else if ( scanFilename.endsWith( WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML ) ) {
+
+	    	scanFilenameSuffix = WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML;
+	    	
+	    } else {
+	    	String msg = "Scan Filename must end with '" 
+	    			+ WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML
+	    			+ "' or '"
+	    			+ WebserviceSpectralStorageAcceptImportScanFileAllowedSuffixesConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML
+	    			+ "'.";
+			YRCSpectralStorageAcceptImportWebserviceCallErrorException exception = new YRCSpectralStorageAcceptImportWebserviceCallErrorException( msg );
+			exception.setScanFilenameError(true);
+			exception.setScanFilenameErrorMessage( msg );
+			throw exception;
+	    }
+		
+		String webserviceURL = spectralStorageServerBaseURL
+				+ WebserviceSpectralStorageAcceptImportPathConstants.UPLOAD_SCAN_FILE_UPLOAD_SCAN_FILE_SERVLET_XML
+				+ "?"
+				+ WebserviceSpectralStorageAcceptImportQueryParamsConstants.UPLOAD_SCAN_FILE_SERVLET_QUERY_PARAM_SCAN_FILENAME_SUFFIX
+				+ "="
+				+ scanFilenameSuffix
+				+ "&"
+				+ WebserviceSpectralStorageAcceptImportQueryParamsConstants.UPLOAD_SCAN_FILE_TEMP_KEY_QUERY_PARAM
+				+ "="
+				+ uploadScanFileTempKey;
+		
+		Object webserviceResponseAsObject = 
+				callActualWebserviceOnServerSendByteArrayOrFileAsStreamReturnObject(
+						null /* bytesToSend */,
+						null /* scanFile */,
+						scanFilename,
+						scanFile_InputStream,
+						scanFile_Size,
+						webserviceURL );
+		
 		if ( ! ( webserviceResponseAsObject instanceof UploadScanFile_UploadScanFile_Response ) ) {
 			String msg = "Response unmarshaled to class other than UploadScanFile_UploadScanFile_Response.  "
 					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
@@ -450,7 +550,12 @@ public class CallSpectralStorageAcceptImportWebservice {
 		}
 		
 		return callActualWebserviceOnServerSendByteArrayOrFileAsStreamReturnObject( 
-				byteArrayOutputStream_ToSend, null /* fileToSendAsStream */, webserviceURL );
+				byteArrayOutputStream_ToSend, 
+				null /* fileToSendAsStream */, 
+				null /* scanFilename */,
+				null /* scanFile_InputStream */,
+				null /* scanFile_Size */,
+				webserviceURL );
 	}
 	
 	/**
@@ -467,6 +572,10 @@ public class CallSpectralStorageAcceptImportWebservice {
 	private Object callActualWebserviceOnServerSendByteArrayOrFileAsStreamReturnObject( 
 			ByteArrayOutputStream byteArrayOutputStream_ToSend,
 			File fileToSendAsStream,
+			//  Scan file passed in as stream so also add scanFilename and scanFile_Size
+			String scanFilename,
+			InputStream scanFile_InputStream,
+			Long scanFile_Size,
 			String webserviceURL ) throws Exception {
 
 		Object webserviceResponseAsObject = null;
@@ -475,6 +584,9 @@ public class CallSpectralStorageAcceptImportWebservice {
 				sendToServerSendByteArrayOrFileAsStream_GetByteArrayResponseFromServer(
 						byteArrayOutputStream_ToSend,
 						fileToSendAsStream, 
+						scanFilename,
+						scanFile_InputStream,
+						scanFile_Size,
 						webserviceURL );
 
 		ByteArrayInputStream inputStreamBufferOfServerResponse = 
@@ -506,18 +618,45 @@ public class CallSpectralStorageAcceptImportWebservice {
 	private byte[] sendToServerSendByteArrayOrFileAsStream_GetByteArrayResponseFromServer(
 			ByteArrayOutputStream byteArrayOutputStream_ToSend,
 			File fileToSendAsStream, 
+			
+			//  Scan file passed in as stream so also add scanFilename and scanFile_Size
+			String scanFilename,
+			InputStream scanFile_InputStream,
+			Long scanFile_Size,
+
 			String webserviceURL) throws YRCSpectralStorageAcceptImportWebserviceCallErrorException {
 		
 		byte[] serverResponseByteArray = null;
 		
-		if ( ( ! ( byteArrayOutputStream_ToSend != null || fileToSendAsStream != null ) )
-				|| (  byteArrayOutputStream_ToSend != null && fileToSendAsStream != null)) {
-			String msg = "Exactly one of either byteArrayOutputStream_ToSend or fileToSendAsStream must be not null";
+		if ( 
+				( ! ( byteArrayOutputStream_ToSend != null || fileToSendAsStream != null || scanFile_InputStream != null ) ) // None is != null
+				//  any 2 are not null
+				|| (  byteArrayOutputStream_ToSend != null && fileToSendAsStream != null) 
+				|| (  byteArrayOutputStream_ToSend != null && scanFile_InputStream != null)
+				|| (  scanFile_InputStream != null && fileToSendAsStream != null)
+				) {
+			
+			//  Combination of populated input parameters to method is invalid
+			
+			String msg = "Exactly one of either byteArrayOutputStream_ToSend or fileToSendAsStream or scanFile_InputStream must be not null";
 			YRCSpectralStorageAcceptImportWebserviceCallErrorException exception = new YRCSpectralStorageAcceptImportWebserviceCallErrorException( msg );
 			exception.setCallInterfaceInternalError(true);
 			exception.setCallInterfaceInternalErrorMessage(msg);
 			throw exception;
 		}
+		
+		if ( scanFile_InputStream != null 
+				&& ( scanFilename == null || scanFilename.length() == 0 || scanFile_Size == null ) ) {
+
+			//  Combination of populated input parameters to method is invalid
+			
+			String msg = "scanFile_InputStream is not null so scanFilename cannot be null or empty string and scanFile_Size cannot be null";
+			YRCSpectralStorageAcceptImportWebserviceCallErrorException exception = new YRCSpectralStorageAcceptImportWebserviceCallErrorException( msg );
+			exception.setCallInterfaceInternalError(true);
+			exception.setCallInterfaceInternalErrorMessage(msg);
+			throw exception;
+		}
+			
 		
 		//  Get number of bytes to send to specify in httpURLConnection.setFixedLengthStreamingMode(...)
 		//  (This causes httpURLConnection to not buffer the sent data to get the length,
@@ -526,8 +665,10 @@ public class CallSpectralStorageAcceptImportWebservice {
 		
 		if ( byteArrayOutputStream_ToSend != null ) {
 			numberOfBytesToSend = byteArrayOutputStream_ToSend.size();
-		} else {
+		} else if ( fileToSendAsStream != null ) {
 			numberOfBytesToSend = fileToSendAsStream.length();
+		} else {
+			numberOfBytesToSend = scanFile_Size.longValue();
 		}
 		
 		//   Create object for connecting to server
@@ -597,11 +738,19 @@ public class CallSpectralStorageAcceptImportWebservice {
 					byteArrayOutputStream_ToSend.writeTo( outputStream );
 				} else {
 					//  Send file contents to server
-					fileInputStream = new FileInputStream( fileToSendAsStream );
+					
+					InputStream inputStream_LOCAL = scanFile_InputStream;
+					
+					if ( fileToSendAsStream != null ) {
+					
+						fileInputStream = new FileInputStream( fileToSendAsStream );
+						inputStream_LOCAL = fileInputStream;
+					}
+					
 					int byteArraySize = 5000;
 					byte[] data = new byte[ byteArraySize ];
 					while (true) {
-						int bytesRead = fileInputStream.read( data );
+						int bytesRead = inputStream_LOCAL.read( data );
 						if ( bytesRead == -1 ) {  // end of input
 							break;
 						}

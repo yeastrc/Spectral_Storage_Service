@@ -1,22 +1,12 @@
-package org.yeastrc.spectral_storage.scan_file_processor.process_scan_file;
+package org.yeastrc.spectral_storage.scan_file_processor.scan_file_input_on_s3;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.stream.StreamSource;
-
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
-import org.yeastrc.spectral_storage.shared_server_importer.create__xml_input_factory__xxe_safe.Create_XMLInputFactory_XXE_Safe;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.s3_aws_interface.S3_AWS_InterfaceObjectHolder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
@@ -60,10 +50,12 @@ public class GetScanFileFrom_S3_IfHave_S3_Info_File {
 	 * @throws Exception 
 	 */
 	public void getScanFileFrom_S3_IfHave_S3_Info_File() throws Exception {
+
+		UploadScanfileS3Location uploadScanfileS3Location = 
+				GetScanFileFrom_S3_LocationData_From_UploadScanFileS3LocationFile.getInstance()
+				.getScanFileFrom_S3_LocationData_From_UploadScanFileS3LocationFile();
 		
-		File scanFile_S3_LocationFile = new File( UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
-		
-		if ( ! scanFile_S3_LocationFile.exists() ) {
+		if ( uploadScanfileS3Location == null ) {
 			//  No file with info on scan file location in S3, so must be local file
 			return;  //  EARLY EXIT
 		}
@@ -71,50 +63,10 @@ public class GetScanFileFrom_S3_IfHave_S3_Info_File {
 		//  Remove any existing scan files since will copy it from S3
 		cleanLocalDirOfScanFiles();
 		
-		UploadScanfileS3Location uploadScanfileS3Location = null;
-		
-		JAXBContext jaxbContext = JAXBContext.newInstance( UploadScanfileS3Location.class ); 
-		
-		//  Test code to create a file
-//		uploadScanfileS3Location = new UploadScanfileS3Location();
-//		uploadScanfileS3Location.setS3_bucketName( "spl_bkt" );
-//		uploadScanfileS3Location.setS3_objectName( "scan_fileInput.mzML" );
-//		
-//		try ( OutputStream os = new FileOutputStream(scanFile_S3_LocationFile) ) {
-//			Marshaller marshaller = jaxbContext.createMarshaller();
-//			marshaller.marshal( uploadScanfileS3Location, os );
-//		}
-		
-		try ( InputStream is = new FileInputStream( scanFile_S3_LocationFile ) ) {
-
-			XMLInputFactory xmlInputFactory = Create_XMLInputFactory_XXE_Safe.create_XMLInputFactory_XXE_Safe();
-			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader( new StreamSource( is ) );
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			Object uploadScanfileS3LocationAsObject = unmarshaller.unmarshal( xmlStreamReader );
-
-			if ( uploadScanfileS3LocationAsObject instanceof UploadScanfileS3Location ) {
-				uploadScanfileS3Location = ( UploadScanfileS3Location ) uploadScanfileS3LocationAsObject;
-			} else {
-				String msg = "Failed to deserialize data in " + scanFile_S3_LocationFile.getAbsolutePath();
-				log.error( msg );
-				throw new SpectralStorageProcessingException(msg);
-			}
-		}
-		
 		String s3_bucketName = uploadScanfileS3Location.getS3_bucketName();
 		String s3_objectName = uploadScanfileS3Location.getS3_objectName();
+		String s3_region = uploadScanfileS3Location.getS3_region();
 		
-		if ( StringUtils.isEmpty( s3_bucketName ) ) {
-			String msg = "s3_bucketName is empty in " + scanFile_S3_LocationFile.getAbsolutePath();
-			log.error( msg );
-			throw new SpectralStorageProcessingException(msg);
-		}
-		if ( StringUtils.isEmpty( s3_objectName ) ) {
-			String msg = "s3_objectName is empty in " + scanFile_S3_LocationFile.getAbsolutePath();
-			log.error( msg );
-			throw new SpectralStorageProcessingException(msg);
-		}
-
 		String objectName_Suffix = null;
 
 		if ( s3_objectName.endsWith( ScanFileToProcessConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML ) ) {
@@ -134,7 +86,7 @@ public class GetScanFileFrom_S3_IfHave_S3_Info_File {
 		String localScanFilename = ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_FILENAME_PREFIX
 				+ objectName_Suffix;
 		
-		final AmazonS3 s3 = S3_AWS_InterfaceObjectHolder.getSingletonInstance().getS3_Client_Input();
+		final AmazonS3 s3 = S3_AWS_InterfaceObjectHolder.getSingletonInstance().getS3_Client_PassInOptionalRegion(s3_region);
 		try {
 	    	try ( FileOutputStream fos = new FileOutputStream( new File( localScanFilename ) ) ) {
 	    		S3Object s3Object = s3.getObject( s3_bucketName, s3_objectName );

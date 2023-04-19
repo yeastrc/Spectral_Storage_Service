@@ -63,7 +63,6 @@ public class Scan_File_Processor_MainProgram {
 		
 		CmdLineParser.Option s3OutputBucketCommandLineOpt = cmdLineParser.addStringOption( 'Z', "s3_output_bucket" );
 		CmdLineParser.Option s3OutputRegionCommandLineOpt = cmdLineParser.addStringOption( 'Z', "s3_output_region" );
-		CmdLineParser.Option s3InputRegionCommandLineOpt = cmdLineParser.addStringOption( 'Z', "s3_input_region" );
 		
 		CmdLineParser.Option deleteScanFileOnSuccessfulProcessingCommandLineOpt = cmdLineParser.addBooleanOption('Z', "delete-scan-file-on-successful-processing"); 
 		CmdLineParser.Option helpOpt = cmdLineParser.addBooleanOption('h', "help"); 
@@ -76,7 +75,6 @@ public class Scan_File_Processor_MainProgram {
 
 		String s3_OutputBucket = null;
 		String s3_OutputRegion = null;
-		String s3_InputRegion = null;
 		
 		try {
 			// parse command line options
@@ -120,9 +118,7 @@ public class Scan_File_Processor_MainProgram {
 			s3_OutputBucket = (String)cmdLineParser.getOptionValue( s3OutputBucketCommandLineOpt );
 			
 			s3_OutputRegion = (String)cmdLineParser.getOptionValue( s3OutputRegionCommandLineOpt );
-			
-			s3_InputRegion = (String)cmdLineParser.getOptionValue( s3InputRegionCommandLineOpt );
-	
+				
 			Boolean deleteScanFileOnSuccess = (Boolean) cmdLineParser.getOptionValue(deleteScanFileOnSuccessfulProcessingCommandLineOpt, Boolean.FALSE);
 
 			if ( StringUtils.isEmpty( outputBaseDirString ) ) {
@@ -145,9 +141,6 @@ public class Scan_File_Processor_MainProgram {
 			}
 			if ( StringUtils.isNotEmpty( s3_OutputRegion ) ) {
 				System.out.println( "S3 output region (--s3_output_region): " + s3_OutputRegion );
-			}
-			if ( StringUtils.isNotEmpty( s3_InputRegion ) ) {
-				System.out.println( "S3 input region (--s3_input_region): " + s3_InputRegion );
 			}
 
 			if ( deleteScanFileOnSuccess ) {
@@ -228,11 +221,8 @@ public class Scan_File_Processor_MainProgram {
 
 		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
-			if ( StringUtils.isNotEmpty( s3_InputRegion ) || StringUtils.isNotEmpty( s3_OutputRegion ) ) {
+			if ( StringUtils.isNotEmpty( s3_OutputRegion ) ) {
 
-				if ( StringUtils.isNotEmpty( s3_InputRegion ) ) {
-					S3_AWS_InterfaceObjectHolder.getSingletonInstance().setS3_InputRegion( s3_InputRegion );
-				}
 				if ( StringUtils.isNotEmpty( s3_OutputRegion ) ) {
 					S3_AWS_InterfaceObjectHolder.getSingletonInstance().setS3_OutputRegion( s3_OutputRegion );
 				}

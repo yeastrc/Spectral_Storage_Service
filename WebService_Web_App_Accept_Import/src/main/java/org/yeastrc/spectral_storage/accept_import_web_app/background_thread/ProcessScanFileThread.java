@@ -64,7 +64,7 @@ class ProcessScanFileThread extends Thread {
 	 */
 	private volatile boolean exited_Main_keepRunning_Loop = false;
 	
-	private volatile boolean shutdownRequested = true;
+	private volatile boolean shutdownRequested = false;
 
 	private volatile boolean skipWait = false;
 	

@@ -35,9 +35,9 @@ import org.yeastrc.spectral_storage.accept_import_web_app.utils.Create_S3_Object
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_Hashes;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.s3_aws_interface.S3_AWS_InterfaceObjectHolder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ComputeFromScanFileContentHashes;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_file_api_key_processing.ScanFileAPIKey_ToFileReadWrite;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
 
   import com.amazonaws.services.s3.AmazonS3;
@@ -274,7 +274,7 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 
 		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
-			if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket() ) ) {
+			if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket_InputScanFileStorage() ) ) {
 				
 				//  Save uploaded scan file to S3 Object. Returns a response to client if fail
 				saveUploadedScanFileToS3Object( request, response, scanFilenameToProcess, uploadScanFileTempKey_Dir );
@@ -346,7 +346,8 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 		//  Compute the API key on the fly as the scan file data comes in: 
 		Compute_Hashes compute_Hashes = Compute_Hashes.getNewInstance();
 		
-		final String bucketName = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket();
+		final String bucketName = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket_InputScanFileStorage();
+		final String s3_region = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Region_InputScanFileStorage();
 		
 		String uploadScanFileTempKey_Dir_Name = uploadScanFileTempKey_Dir.getName();
 		
@@ -360,6 +361,7 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 			uploadScanfileS3Location.setScanFilenameToProcess( scanFilenameToProcess );
 			uploadScanfileS3Location.setS3_bucketName( bucketName );
 			uploadScanfileS3Location.setS3_objectName( s3_Object_Key );
+			uploadScanfileS3Location.setS3_region( s3_region );
 			
 			JAXBContext jaxbContext = JAXBContext.newInstance( UploadScanfileS3Location.class );
 			Marshaller marshaller = jaxbContext.createMarshaller();
@@ -376,7 +378,8 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 		}		
 		
 		//  Transfer the file from the stream to an S3 object
-		final AmazonS3 amazonS3 = CommonReader_File_And_S3_Holder.getSingletonInstance().getCommonReader_File_And_S3().getS3_Client();
+		final AmazonS3 amazonS3 = 
+				S3_AWS_InterfaceObjectHolder.getSingletonInstance().getS3_Client_PassInOptionalRegion( s3_region );
 
 		byte[] uploadPartByteBuffer = new byte[ S3_MULIPART_UPLOAD_PART_SIZE ];
 

@@ -14,27 +14,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.stream.StreamSource;
-
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.scan_file_processor.input_scan_file.constants_enums.ImporterTempSubDirNameConstants;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetInputScanFile_CurrentLocalDirectory;
-import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.GetScanFileFrom_S3_IfHave_S3_Info_File;
 import org.yeastrc.spectral_storage.scan_file_processor.process_scan_file.Process_ScanFile_Create_SpectralFile;
 import org.yeastrc.spectral_storage.scan_file_processor.program.Scan_File_Processor_MainProgram_Params;
+import org.yeastrc.spectral_storage.scan_file_processor.scan_file_input_on_s3.GetScanFileFrom_S3_IfHave_S3_Info_File;
+import org.yeastrc.spectral_storage.scan_file_processor.scan_file_input_on_s3.GetScanFileFrom_S3_LocationData_From_UploadScanFileS3LocationFile;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.SpectralStorage_DataFiles_S3_Prefix_Constants;
-import org.yeastrc.spectral_storage.shared_server_importer.create__xml_input_factory__xxe_safe.Create_XMLInputFactory_XXE_Safe;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists_and_is_latest_version.CheckIfSpectralFileAlreadyExists_And_IsLatestVersion__S3_Object;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.check_if_spectral_file_exists_and_is_latest_version.CheckIfSpectralFile_AlreadyExists_And_IsLatestVersion__LocalFilesystem;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.SpectralStorage_Filename_Constants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.file_contents_hash_processing.Compute_File_Hashes;
@@ -829,34 +822,16 @@ public class ProcessUploadedScanFileRequest {
 	 * @throws Exception
 	 */
 	private void deleteUploadedScanFileIn_S3_Object() throws Exception {
-
-		File scanFile_S3_LocationFile = new File( UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
 		
-		if ( ! scanFile_S3_LocationFile.exists() ) {
+		UploadScanfileS3Location uploadScanfileS3Location = 
+				GetScanFileFrom_S3_LocationData_From_UploadScanFileS3LocationFile.getInstance()
+				.getScanFileFrom_S3_LocationData_From_UploadScanFileS3LocationFile();
+
+		if ( uploadScanfileS3Location == null ) {
 			//  No file with info on scan file location in S3, so must be local file
 			return;  //  EARLY EXIT
 		}
 		
-		UploadScanfileS3Location uploadScanfileS3Location = null;
-		
-		JAXBContext jaxbContext = JAXBContext.newInstance( UploadScanfileS3Location.class ); 
-		
-		try ( InputStream is = new FileInputStream( scanFile_S3_LocationFile ) ) {
-
-			XMLInputFactory xmlInputFactory = Create_XMLInputFactory_XXE_Safe.create_XMLInputFactory_XXE_Safe();
-			XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader( new StreamSource( is ) );
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			Object uploadScanfileS3LocationAsObject = unmarshaller.unmarshal( xmlStreamReader );
-
-			if ( uploadScanfileS3LocationAsObject instanceof UploadScanfileS3Location ) {
-				uploadScanfileS3Location = ( UploadScanfileS3Location ) uploadScanfileS3LocationAsObject;
-			} else {
-				String msg = "Failed to deserialize data in " + scanFile_S3_LocationFile.getAbsolutePath();
-				log.error( msg );
-				throw new SpectralStorageProcessingException(msg);
-			}
-		}
-
 		if ( uploadScanfileS3Location.isS3_infoFrom_RemoteSystem() ) {
 			//  Scan File S3 object came from external system so that system is responsible for deleting it
 			return;  //  EARLY EXIT
@@ -865,7 +840,9 @@ public class ProcessUploadedScanFileRequest {
 		String s3_bucketName = uploadScanfileS3Location.getS3_bucketName();
 		String s3_objectName = uploadScanfileS3Location.getS3_objectName();
 		
-		final AmazonS3 amazonS3client = S3_AWS_InterfaceObjectHolder.getSingletonInstance().getS3_Client_Input();
+		final AmazonS3 amazonS3client = 
+				S3_AWS_InterfaceObjectHolder.getSingletonInstance()
+				.getS3_Client_PassInOptionalRegion(uploadScanfileS3Location.getS3_region());
 		
 		int retryDeleteScanFileCount = 0;
 		
@@ -882,15 +859,18 @@ public class ProcessUploadedScanFileRequest {
 				log.error( msg );
 
 				retryDeleteScanFileCount++;
+				
 				if ( retryDeleteScanFileCount > RETRY_DELETE_SCAN_FILE_MAX ) {
 					throw new SpectralStorageProcessingException(msg, e);
 				}
+				
 			} catch (Exception e) {
 				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
 						+ " s3_objectName: " + s3_objectName;
 				log.error( msg );
 
 				retryDeleteScanFileCount++;
+				
 				if ( retryDeleteScanFileCount > RETRY_DELETE_SCAN_FILE_MAX ) {
 					throw new SpectralStorageProcessingException(msg, e);
 				}

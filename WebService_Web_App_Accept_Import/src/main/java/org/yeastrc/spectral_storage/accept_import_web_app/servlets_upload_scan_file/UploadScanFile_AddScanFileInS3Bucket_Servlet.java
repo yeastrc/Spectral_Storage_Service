@@ -168,7 +168,7 @@ public class UploadScanFile_AddScanFileInS3Bucket_Servlet extends HttpServlet {
 
 
 			UploadScanFile_AddScanFileInS3Bucket_Response webserviceResponse = new UploadScanFile_AddScanFileInS3Bucket_Response();
-
+			
 			File uploadBaseDir = ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getTempScanUploadBaseDirectory();
 
 			String uploadFileTempDirString = FileUploadConstants.UPLOAD_FILE_TEMP_BASE_DIR;

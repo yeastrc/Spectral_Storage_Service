@@ -261,7 +261,7 @@ public class ProcessImportRequest_APIKey_Value_InFile {
 		String s3_bucketName = uploadScanfileS3Location.getS3_bucketName();
 		String s3_objectName = uploadScanfileS3Location.getS3_objectName();
 		
-		final AmazonS3 amazonS3client = S3_AWS_InterfaceObjectHolder.getSingletonInstance().getS3_Client_Input();
+		final AmazonS3 amazonS3client = S3_AWS_InterfaceObjectHolder.getSingletonInstance().getS3_Client_PassInOptionalRegion(uploadScanfileS3Location.getS3_region());
 		
 		int retryDeleteScanFileCount = 0;
 		

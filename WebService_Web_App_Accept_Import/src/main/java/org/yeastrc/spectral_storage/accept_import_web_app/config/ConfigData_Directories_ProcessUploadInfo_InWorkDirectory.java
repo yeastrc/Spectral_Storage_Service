@@ -67,6 +67,16 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	 */
 	private String s3Region;
 
+	/**
+	 * The S3 bucket that the incoming scan file to parse is written to
+	 */
+	private String s3Bucket_InputScanFileStorage;
+
+	/**
+	 * The S3 region that the incoming scan file to parse is written to
+	 */
+	private String s3Region_InputScanFileStorage;
+
 
 	
 	/**
@@ -379,6 +389,22 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	public void setMax_DaysToKeep_ImportScanFiles_FailedImport(
 			int max_DaysToKeep_ImportScanFiles_FailedImport) {
 		this.max_DaysToKeep_ImportScanFiles_FailedImport = max_DaysToKeep_ImportScanFiles_FailedImport;
+	}
+
+	public String getS3Bucket_InputScanFileStorage() {
+		return s3Bucket_InputScanFileStorage;
+	}
+
+	public void setS3Bucket_InputScanFileStorage(String s3Bucket_InputScanFileStorage) {
+		this.s3Bucket_InputScanFileStorage = s3Bucket_InputScanFileStorage;
+	}
+
+	public String getS3Region_InputScanFileStorage() {
+		return s3Region_InputScanFileStorage;
+	}
+
+	public void setS3Region_InputScanFileStorage(String s3Region_InputScanFileStorage) {
+		this.s3Region_InputScanFileStorage = s3Region_InputScanFileStorage;
 	}
 		
 }
