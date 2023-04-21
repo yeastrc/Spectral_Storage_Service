@@ -272,8 +272,6 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 				}
 			}
 
-		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 			if ( StringUtils.isNotEmpty( ConfigData_Directories_ProcessUploadInfo_InWorkDirectory.getSingletonInstance().getS3Bucket_InputScanFileStorage() ) ) {
 				
 				//  Save uploaded scan file to S3 Object. Returns a response to client if fail
@@ -325,9 +323,6 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 		}
 
 	}
-	
-
-//  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
 	/**
 	 * @param request

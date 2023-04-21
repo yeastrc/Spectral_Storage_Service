@@ -15,16 +15,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 
-//  import com.amazonaws.AmazonServiceException;
-//  import com.amazonaws.services.s3.AmazonS3;
-//  import com.amazonaws.services.s3.model.S3Object;
-
-//  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 /**
- * AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
- * 
- * 
  * If have info on file in S3, 
  *   Validate that object name ends with ScanFileToProcessConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZML
  *     or ScanFileToProcessConstants.UPLOAD_SCAN_FILE_ALLOWED_SUFFIX_MZXML

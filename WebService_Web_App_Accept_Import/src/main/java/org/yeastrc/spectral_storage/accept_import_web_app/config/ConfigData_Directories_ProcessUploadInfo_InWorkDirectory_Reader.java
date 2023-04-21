@@ -47,8 +47,6 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 //	#     Valid to not configure this. 
 	private static final String PROPERTY_NAME__BACKUP_OLD_BASE_DIRECTORY = "backup.old.base.directory";
 
-//  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 	private static final String PROPERTY_NAME__S3_BUCKET = "s3.bucket";
 	private static final String PROPERTY_NAME__S3_REGION = "s3.region";
 
@@ -193,8 +191,6 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 		
 		} else {
 
-		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 			if ( StringUtils.isEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Bucket() ) ) {
 				String msg = "Must set One of properties '"
 					+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
@@ -216,8 +212,6 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 				log.error( msg );
 				throw new SpectralFileWebappConfigException( msg );
 		}
-
-		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
 		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region() ) ) {
 			log.warn( "INFO: '" + PROPERTY_NAME__S3_REGION + "' has value: " 
@@ -661,65 +655,25 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_BUCKET );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 
-				//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 				configData_Directories_ProcessUploadCommand_InWorkDirectory.setS3Bucket( propertyValue );
-				
-//				//  NO S3 so if PROPERTY_NAME__S3_BUCKET is set throw Error
-//				
-//				String msg = "No S3 support so property '"
-//					+ PROPERTY_NAME__S3_BUCKET
-//					+ "' cannot have a value.";
-//				log.error( msg );
-//				throw new SpectralFileWebappConfigException( msg );
 			}
 
 			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_REGION );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 
-				//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 				configData_Directories_ProcessUploadCommand_InWorkDirectory.setS3Region( propertyValue );
-				
-//				//  NO S3 so if PROPERTY_NAME__S3_BUCKET is set throw Error
-//				
-//				String msg = "No S3 support so property '"
-//					+ PROPERTY_NAME__S3_REGION
-//					+ "' cannot have a value.";
-//				log.error( msg );
-//				throw new SpectralFileWebappConfigException( msg );
 			}
 
 			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_BUCKET_INPUT_SCAN_FILE_STORAGE );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 
-				//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 				configData_Directories_ProcessUploadCommand_InWorkDirectory.setS3Bucket_InputScanFileStorage( propertyValue );
-				
-//				//  NO S3 so if PROPERTY_NAME__S3_BUCKET_INPUT_SCAN_FILE_STORAGE is set throw Error
-//				
-//				String msg = "No S3 support so property '"
-//					+ PROPERTY_NAME__S3_BUCKET_INPUT_SCAN_FILE_STORAGE
-//					+ "' cannot have a value.";
-//				log.error( msg );
-//				throw new SpectralFileWebappConfigException( msg );
 			}
 
 			propertyValue = configProps.getProperty( PROPERTY_NAME__S3_REGION_INPUT_SCAN_FILE_STORAGE );
 			if ( StringUtils.isNotEmpty( propertyValue ) ) {
 
-				//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 				configData_Directories_ProcessUploadCommand_InWorkDirectory.setS3Region_InputScanFileStorage( propertyValue );
-				
-//				//  NO S3 so if PROPERTY_NAME__S3_BUCKET_INPUT_SCAN_FILE_STORAGE is set throw Error
-//				
-//				String msg = "No S3 support so property '"
-//					+ PROPERTY_NAME__S3_REGION_INPUT_SCAN_FILE_STORAGE
-//					+ "' cannot have a value.";
-//				log.error( msg );
-//				throw new SpectralFileWebappConfigException( msg );
 			}
 			
 			propertyValue = configProps.getProperty( PROPERTY_NAME__SUBMITTED_SCAN_FILE_PATH_RESTRICTIONS );

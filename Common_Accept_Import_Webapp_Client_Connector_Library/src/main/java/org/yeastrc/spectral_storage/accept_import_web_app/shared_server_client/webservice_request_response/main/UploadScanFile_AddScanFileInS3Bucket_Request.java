@@ -5,21 +5,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-//  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 /**
- *  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
- *  
- *  
  * Request object for POST to Webservice UploadScanFile_Init_Servlet
  *
  */
 @XmlRootElement(name="uploadScanFile_AddScanFileInS3Bucket_Request")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UploadScanFile_AddScanFileInS3Bucket_Request extends BaseAcceptImportWebserviceRequest {
-
-	//  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-	
 	
 	// Properties as XML attributes
 

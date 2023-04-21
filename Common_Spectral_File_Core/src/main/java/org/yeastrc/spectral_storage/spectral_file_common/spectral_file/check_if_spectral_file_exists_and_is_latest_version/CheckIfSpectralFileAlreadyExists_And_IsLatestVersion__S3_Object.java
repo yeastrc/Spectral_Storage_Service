@@ -12,13 +12,7 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_f
 
 import com.amazonaws.services.s3.AmazonS3;
 
-
-//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 /**
- * AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
- * 
- * 
  * Check if the spectral storage file already exists for this hash key
  * 
  * For when stored in AWS S3 bucket

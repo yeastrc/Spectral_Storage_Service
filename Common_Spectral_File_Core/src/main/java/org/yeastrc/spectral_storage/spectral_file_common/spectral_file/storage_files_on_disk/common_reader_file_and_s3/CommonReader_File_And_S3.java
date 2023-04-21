@@ -22,9 +22,6 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 
 
-//  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
-
 /**
  * Common reader code for retrieving bytes from Files or AWS S3
  * 
@@ -45,8 +42,6 @@ public class CommonReader_File_And_S3 {
 	//  Storing in local file system
 	private File subDirForStorageFiles;
 	
-//  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 	//  Storing in S3
 	private String s3_Bucket;
 
@@ -96,8 +91,6 @@ public class CommonReader_File_And_S3 {
 			
 			return new FileInputStream( mainFile );
 		}
-
-		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
 		//  S3 object
 		

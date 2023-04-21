@@ -33,8 +33,6 @@ public class A_Load_Config_Populate_Objects {
 			ConfigData_ScanDataLocation_InWorkDirectory configData_ScanDataLocation_InWorkDirectory = ConfigData_ScanDataLocation_InWorkDirectory.getSingletonInstance();
 			CommonReader_File_And_S3_Builder commonReader_File_And_S3_Builder = CommonReader_File_And_S3_Builder.newBuilder();
 
-		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 			if ( StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() ) ) {
 				commonReader_File_And_S3_Builder.setS3_Bucket( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() );
 				if ( StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Region() ) ) {

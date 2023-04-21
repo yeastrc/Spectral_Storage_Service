@@ -261,9 +261,6 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 			
 			String scanProcessStatusKey = null;
 
-		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-			
-
 			File scanfileS3InfoFile = new File( uploadScanFileTempKey_Dir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
 			
 
@@ -349,9 +346,6 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 					+ ", uploadScanFileTempKey: " + uploadScanFile_Submit_Request.getUploadScanFileTempKey() );
 		}
 	}
-	
-
-	//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
 	/**
 	 * @param scanFilenameToMove
@@ -399,8 +393,6 @@ public class UploadScanFile_Submit_Servlet extends HttpServlet {
 				getTempUpload_UploadScanfileS3Location( uploadFileTempDir, jaxbContext );
 
 		write_scanfileS3Location_InDirToProcessScanFile( uploadScanfileS3Location_InUploadTemp, dirToProcessScanFile, jaxbContext );
-
-	//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
 		if ( ! uploadScanfileS3Location_InUploadTemp.isS3_infoFrom_RemoteSystem() ) {
 			createScanFileS3_Submitted_S3_Object( uploadScanfileS3Location_InUploadTemp );

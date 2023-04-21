@@ -42,8 +42,6 @@ import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_sc
   import com.amazonaws.services.s3.model.S3Object;
 
 
-// COMMENTED OUT:   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 
 /**
  * Submit the Upload Scan Process  

@@ -122,8 +122,6 @@ public class CleanupUploadFileTempBaseDirectory {
 	 * @throws Exception 
 	 */
 	private void deleteTempUploadDirectory( File tempUpload_scanFileDir ) throws Exception {
-
-		// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 		
 		//  First delete uploaded scan file in S3 bucket if exists
 		deleteUploadedScanFileIn_S3_Object(tempUpload_scanFileDir);
@@ -179,8 +177,6 @@ public class CleanupUploadFileTempBaseDirectory {
 		}
 
 	}
-
-//  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
 	/**
 	 * @throws Exception

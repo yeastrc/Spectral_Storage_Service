@@ -49,8 +49,6 @@
 
   <!-- Send S3 location of scan file to process - return XML -->
   
-  <!--    AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.   -->  
-  
   <servlet>
     <servlet-name>Send S3 location of scan file to process Servlet - XML Response</servlet-name>
     <servlet-class>org.yeastrc.spectral_storage.accept_import_web_app.servlets_upload_scan_file.UploadScanFile_AddScanFileInS3Bucket_Servlet</servlet-class>

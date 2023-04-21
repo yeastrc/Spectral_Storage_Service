@@ -53,10 +53,7 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	 * Only applicable when scanStorageBaseDirectory is populated.
 	 */
 	private File backupOldBaseDirectory;
-	
-
-	// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-	
+		
 	/**
 	 * The S3 bucket that the scan data is written to for perm storage
 	 */

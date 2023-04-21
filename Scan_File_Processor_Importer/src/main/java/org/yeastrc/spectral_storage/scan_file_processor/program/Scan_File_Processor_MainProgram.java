@@ -49,8 +49,6 @@ public class Scan_File_Processor_MainProgram {
 		}
 		System.out.println( "INFO: Command Line args END");
 
-	//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 		//  If writing to S3, the '--output_base_dir' is the temp dir to write to before copy to S3
 		
 		CmdLineParser cmdLineParser = new CmdLineParser();
@@ -58,8 +56,6 @@ public class Scan_File_Processor_MainProgram {
 		CmdLineParser.Option outputBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "output_base_dir" );
 		CmdLineParser.Option tempOutputBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "temp_output_base_dir" );
 		CmdLineParser.Option backupOldBaseDirStringCommandLineOpt = cmdLineParser.addStringOption( 'Z', "backup_old_base_dir" );
-
-	//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 		
 		CmdLineParser.Option s3OutputBucketCommandLineOpt = cmdLineParser.addStringOption( 'Z', "s3_output_bucket" );
 		CmdLineParser.Option s3OutputRegionCommandLineOpt = cmdLineParser.addStringOption( 'Z', "s3_output_region" );
@@ -70,8 +66,6 @@ public class Scan_File_Processor_MainProgram {
 		String outputBaseDirString = null; 
 		String tempOutputBaseDirString = null;
 		String backupOldBaseDirString = null;
-
-	//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
 		String s3_OutputBucket = null;
 		String s3_OutputRegion = null;
@@ -209,17 +203,12 @@ public class Scan_File_Processor_MainProgram {
 				System.out.println( "See Accept Webapp configuration.");
 				System.out.println( "!!!!!!!!!!!!!!!!!!!!!!!!!");
 			}
-
-		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 			
 			if ( StringUtils.isNotEmpty( s3_OutputBucket ) ) {
 				pgmParams.setS3_OutputBucket( s3_OutputBucket );
 			}
 			
 			pgmParams.setDeleteScanFileOnSuccess( deleteScanFileOnSuccess );
-
-		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
 			if ( StringUtils.isNotEmpty( s3_OutputRegion ) ) {
 

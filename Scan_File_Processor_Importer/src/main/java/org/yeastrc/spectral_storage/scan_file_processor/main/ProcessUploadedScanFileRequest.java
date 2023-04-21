@@ -92,8 +92,6 @@ public class ProcessUploadedScanFileRequest {
 	 */
 	public void processUploadedScanFileRequest( Scan_File_Processor_MainProgram_Params pgmParams ) throws Exception {
 
-		// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-		
 		//  If have file with info on scan file in S3, copy that scan file to local dir in standard scan filename
 		GetScanFileFrom_S3_IfHave_S3_Info_File.getInstance().getScanFileFrom_S3_IfHave_S3_Info_File();
 		
@@ -122,8 +120,6 @@ public class ProcessUploadedScanFileRequest {
 			System.out.println( "INFO: pgmParams.isDeleteScanFileOnSuccess() is true so removing input scan file  Now: " + new Date() );
 			
 			cleanupInputScanFile( inputScanFile );
-
-			// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 			
 			deleteUploadedScanFileIn_S3_Object();
 		}
@@ -154,20 +150,15 @@ public class ProcessUploadedScanFileRequest {
 
 		CommonReader_File_And_S3_Builder commonReader_File_And_S3_Builder = CommonReader_File_And_S3_Builder.newBuilder();
 
-		// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-				
 		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
 
 			commonReader_File_And_S3_Builder.setS3_Bucket( pgmParams.getS3_OutputBucket() );
-				//			commonReader_File_And_S3_Builder.setS3_Region( pgmParams.get );
 		
 		} else {
 			commonReader_File_And_S3_Builder.setSubDirForStorageFiles( pgmParams.getOutputBaseDir() );
 		}
 		
 		CommonReader_File_And_S3 commonReader_File_And_S3 = commonReader_File_And_S3_Builder.build();
-
-		// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 		
 		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
 			
@@ -195,8 +186,6 @@ public class ProcessUploadedScanFileRequest {
 			}
 		}
 
-			// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-			
 		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
 			System.out.println( "Scan Data File does NOT already exist in S3 or is NOT latest Version so STARTING processing the scan file.  Now: " + new Date() );
 		} else {
@@ -262,9 +251,6 @@ public class ProcessUploadedScanFileRequest {
 			throw e;
 		}
 		
-
-		// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-		
 		if ( StringUtils.isNotEmpty( pgmParams.getS3_OutputBucket() ) ) {
 			
 			//   Copy files in temp dir to S3 and remove from temp dir
@@ -279,8 +265,6 @@ public class ProcessUploadedScanFileRequest {
 		
 		return apiKey;
 	}
-
-	// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 	
 	/**
 	 * @param pgmParams
@@ -815,8 +799,6 @@ public class ProcessUploadedScanFileRequest {
 		}
 		
 	}
-
-	// AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 	
 	/**
 	 * @throws Exception

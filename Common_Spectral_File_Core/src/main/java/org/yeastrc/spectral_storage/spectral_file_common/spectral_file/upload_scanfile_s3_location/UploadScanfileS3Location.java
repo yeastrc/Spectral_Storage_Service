@@ -5,12 +5,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-//  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 /**
- *   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
- *   
- *   
  * Object form of info passed from web app to importer for where in S3 the scan file to process is located.
  * 
  * Matching filename is in UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME
@@ -19,8 +14,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name="uploadScanfileS3Location")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UploadScanfileS3Location {
-
-//  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
 	/**
 	 * Was the S3 info on the scan file location provided by a remote system.

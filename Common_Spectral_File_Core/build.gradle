@@ -35,9 +35,6 @@ dependencies {
 	compile project(":Common_Get_Data_Webapp_Client_Connector_Library")
 	
 	
-	
-//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-	
 
 	// https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3
 	compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.12.416'

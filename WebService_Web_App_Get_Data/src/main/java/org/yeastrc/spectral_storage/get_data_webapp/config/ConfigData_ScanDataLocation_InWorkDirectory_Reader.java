@@ -25,8 +25,6 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 
 	private static String PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY = "scan.storage.base.directory";
 
-//  AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 	private static String PROPERTY_NAME__S3_BUCKET = "s3.bucket";
 	private static String PROPERTY_NAME__S3_REGION = "s3.region";
 	
@@ -75,8 +73,6 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 				+ "'." );
 		
 
-	//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) 
 				&& StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() ) ) {
 			String msg = "Cannot set both properties '"
@@ -107,8 +103,6 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 		
 		} else {
 
-			//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
 				if ( StringUtils.isEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() ) ) {
 					String msg = "Must set One of properties '"
 						+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
@@ -122,8 +116,6 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 				log.warn( "INFO: '" + PROPERTY_NAME__S3_BUCKET + "' has value: " 
 						+ configData_ScanDataLocation_InWorkDirectory.getS3Bucket() );
 		}
-
-		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
 		if ( StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Region() ) ) {
 			log.warn( "INFO: '" + PROPERTY_NAME__S3_REGION + "' has value: " 
