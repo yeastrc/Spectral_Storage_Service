@@ -35,13 +35,12 @@ public class A_Load_Config_Populate_Objects {
 
 		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
-//			if ( StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() ) ) {
-//				commonReader_File_And_S3_Builder.setS3_Bucket( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() );
-//				if ( StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Region() ) ) {
-//					commonReader_File_And_S3_Builder.setS3_Region( configData_ScanDataLocation_InWorkDirectory.getS3Region() );
-//				}
-//			} else 
-				if ( configData_ScanDataLocation_InWorkDirectory.getScanStorageBaseDirectory() != null ) {
+			if ( StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() ) ) {
+				commonReader_File_And_S3_Builder.setS3_Bucket( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() );
+				if ( StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Region() ) ) {
+					commonReader_File_And_S3_Builder.setS3_Region( configData_ScanDataLocation_InWorkDirectory.getS3Region() );
+				}
+			} else if ( configData_ScanDataLocation_InWorkDirectory.getScanStorageBaseDirectory() != null ) {
 				commonReader_File_And_S3_Builder.setSubDirForStorageFiles( configData_ScanDataLocation_InWorkDirectory.getScanStorageBaseDirectory() );
 			} else {
 				String msg = "Scan Storage location in config invalid.  Must be directory or S3 bucket";

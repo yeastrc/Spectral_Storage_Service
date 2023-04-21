@@ -77,16 +77,16 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 
 	//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
-//		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) 
-//				&& StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() ) ) {
-//			String msg = "Cannot set both properties '"
-//				+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
-//				+ "' and '"
-//				+ PROPERTY_NAME__S3_BUCKET
-//				+ "' to a value in config.";
-//			log.error( msg );
-//			throw new SpectralFileWebappConfigException( msg );
-//		}
+		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) 
+				&& StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() ) ) {
+			String msg = "Cannot set both properties '"
+				+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
+				+ "' and '"
+				+ PROPERTY_NAME__S3_BUCKET
+				+ "' to a value in config.";
+			log.error( msg );
+			throw new SpectralFileWebappConfigException( msg );
+		}
 		
 		if ( StringUtils.isNotEmpty( internalConfigDirectoryStrings.scanStorageBaseDirectory ) ) {
 
@@ -109,34 +109,26 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 
 			//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
-//				if ( StringUtils.isEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Bucket() ) ) {
-//					String msg = "Must set One of properties '"
-//						+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
-//						+ "' and '"
-//						+ PROPERTY_NAME__S3_BUCKET
-//						+ "' to a value in config.";
-//					log.error( msg );
-//					throw new SpectralFileWebappConfigException( msg );
-//				}
-	//
-//				log.warn( "INFO: '" + PROPERTY_NAME__S3_BUCKET + "' has value: " 
-//						+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Bucket() );
-				
-				//  NO S3 so if PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY not set throw Error
-				
-				String msg = "Must set property '"
+				if ( StringUtils.isEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Bucket() ) ) {
+					String msg = "Must set One of properties '"
 						+ PROPERTY_NAME__SCAN_STORAGE_BASE_DIRECTORY 
+						+ "' and '"
+						+ PROPERTY_NAME__S3_BUCKET
 						+ "' to a value in config.";
 					log.error( msg );
 					throw new SpectralFileWebappConfigException( msg );
+				}
+	
+				log.warn( "INFO: '" + PROPERTY_NAME__S3_BUCKET + "' has value: " 
+						+ configData_ScanDataLocation_InWorkDirectory.getS3Bucket() );
 		}
 
 		//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
 
-//		if ( StringUtils.isNotEmpty( configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region() ) ) {
-//			log.warn( "INFO: '" + PROPERTY_NAME__S3_REGION + "' has value: " 
-//					+ configData_Directories_ProcessUploadCommand_InWorkDirectory.getS3Region() );
-//		}
+		if ( StringUtils.isNotEmpty( configData_ScanDataLocation_InWorkDirectory.getS3Region() ) ) {
+			log.warn( "INFO: '" + PROPERTY_NAME__S3_REGION + "' has value: " 
+					+ configData_ScanDataLocation_InWorkDirectory.getS3Region() );
+		}
 		
 
 
@@ -245,43 +237,15 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 			{
 				String propertyValue = configProps.getProperty( PROPERTY_NAME__S3_BUCKET );
 				if ( StringUtils.isNotEmpty( propertyValue ) ) {
-
-					//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-
-					// configData_Directories_ProcessUploadCommand_InWorkDirectory.setS3Bucket( propertyValue );
-
-					//  NO S3 so if PROPERTY_NAME__S3_BUCKET is set throw Error
-
-					String msg = "No S3 support so property '"
-							+ PROPERTY_NAME__S3_BUCKET
-							+ "' cannot have a value.";
-					log.error( msg );
-					throw new SpectralFileWebappConfigException( msg );
+					configData_ScanDataLocation_InWorkDirectory.setS3Bucket( propertyValue.trim() );
 				}
-
-//				if ( StringUtils.isNotEmpty( propertyValue ) ) {
-//					configData_ScanDataLocation_InWorkDirectory.setS3Bucket( propertyValue.trim() );
-//				}
 			}
 
 			{
 				String propertyValue = configProps.getProperty( PROPERTY_NAME__S3_REGION );
 				if ( StringUtils.isNotEmpty( propertyValue ) ) {
-
-					//   AWS S3 Support commented out.  See file ZZ__AWS_S3_Support_CommentedOut.txt in GIT repo root.
-					
-					//  NO S3 so if PROPERTY_NAME__S3_BUCKET is set throw Error
-
-					String msg = "No S3 support so property '"
-							+ PROPERTY_NAME__S3_REGION
-							+ "' cannot have a value.";
-					log.error( msg );
-					throw new SpectralFileWebappConfigException( msg );
+					configData_ScanDataLocation_InWorkDirectory.setS3Region( propertyValue.trim() );
 				}
-
-//				if ( StringUtils.isNotEmpty( propertyValue ) ) {
-//					configData_ScanDataLocation_InWorkDirectory.setS3Region( propertyValue.trim() );
-//				}
 			}
 			
 			{
