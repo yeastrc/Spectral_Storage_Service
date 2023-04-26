@@ -47,7 +47,10 @@ public class ComputeAPIKeyForScanFileThread extends Thread {
 	/**
 	 * Constructor - Package Private
 	 */
-	ComputeAPIKeyForScanFileThread() {}
+	ComputeAPIKeyForScanFileThread() {
+		super();
+		this.setDaemon(true);
+	}
 
 	/**
 	 * awaken thread to process request, calls "notify()"

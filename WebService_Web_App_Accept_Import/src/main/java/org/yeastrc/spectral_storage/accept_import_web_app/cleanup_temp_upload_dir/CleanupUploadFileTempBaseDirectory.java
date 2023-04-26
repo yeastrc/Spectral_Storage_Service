@@ -17,11 +17,9 @@ import org.yeastrc.spectral_storage.accept_import_web_app.constants_enums.FileUp
 import org.yeastrc.spectral_storage.shared_server_importer.constants_enums.ScanFileToProcessConstants;
 import org.yeastrc.spectral_storage.shared_server_importer.create__xml_input_factory__xxe_safe.Create_XMLInputFactory_XXE_Safe;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.UploadProcessing_InputScanfileS3InfoConstants;
-import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageProcessingException;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.upload_scanfile_s3_location.UploadScanfileS3Location;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 
@@ -39,10 +37,21 @@ public class CleanupUploadFileTempBaseDirectory {
 	
 	
 	private static final long DEFAULT_CUTOFF_IN_DAYS = 3;
-	
+
 	private static final long DEFAULT_CUTOFF_IN_HOURS = 24 * DEFAULT_CUTOFF_IN_DAYS;
 
-	 private static final long DEFAULT_CUTOFF_IN_MILLISECONDS = DEFAULT_CUTOFF_IN_HOURS * MILLISECONDS_IN_HOUR;
+	private static final long DEFAULT_CUTOFF_IN_MILLISECONDS = DEFAULT_CUTOFF_IN_HOURS * MILLISECONDS_IN_HOUR;
+
+
+	private static final long NOT_DELETE_S3_OBJECT_AFTER_X_DAYS = 3;
+
+	private static final long NOT_DELETE_S3_OBJECT_AFTER_X_DAYS_IN_HOURS = 24 * NOT_DELETE_S3_OBJECT_AFTER_X_DAYS;
+
+	private static final long NOT_DELETE_S3_OBJECT_AFTER_X_DAYS_IN_MILLISECONDS = NOT_DELETE_S3_OBJECT_AFTER_X_DAYS_IN_HOURS * MILLISECONDS_IN_HOUR;
+
+	 
+	 
+	 private static final String SCANFILE_S3_LOCATION_FILENAME__FAILED_TO_DELETE_FROM_S3_FIRST_TRY_SUFFIX = "__failedToDeleteFromS3_FirstTry";
 	
 	//  TESTING
 //	private static final long DEFAULT_CUTOFF_IN_MILLISECONDS = 5 * 1000; // 5 seconds
@@ -107,9 +116,25 @@ public class CleanupUploadFileTempBaseDirectory {
 
 
 		for ( File tempUpload_scanFileDir : scanFilesTempUploadBaseDirContents ) {
+			
+			if ( ! tempUpload_scanFileDir.isDirectory() ) {
+				//  NOT a Directory
+				continue; // EARLY CONTINUE
+			}
 
 			long directoryLastModified = tempUpload_scanFileDir.lastModified();
+
+			//  Cannot use directory last modified since create a file in it below.
 			
+			// Use the file 'c_dir_created_tracking.txt' inside the directory
+			
+			{
+				File c_dir_created_tracking = new File( tempUpload_scanFileDir, ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_SUB_DIR_CREATE_TRACKING_FILE );
+				if ( c_dir_created_tracking.exists() ) {
+					directoryLastModified = c_dir_created_tracking.lastModified();
+				}
+			}
+						
 			if ( directoryLastModified < directoryLastModifiedCutoff_InMilliseconds ) {
 				
 				deleteTempUploadDirectory( tempUpload_scanFileDir );
@@ -124,7 +149,12 @@ public class CleanupUploadFileTempBaseDirectory {
 	private void deleteTempUploadDirectory( File tempUpload_scanFileDir ) throws Exception {
 		
 		//  First delete uploaded scan file in S3 bucket if exists
-		deleteUploadedScanFileIn_S3_Object(tempUpload_scanFileDir);
+		if ( ! deleteUploadedScanFileIn_S3_Object(tempUpload_scanFileDir) ) {
+			
+			//  Delete S3 Object failed so try again another day
+			
+			return;  //  EARLY RETURN
+		}
 
 		
 		//  Delete contents of directory and directory
@@ -179,15 +209,39 @@ public class CleanupUploadFileTempBaseDirectory {
 	}
 
 	/**
+	 * @param tempUpload_scanFileDir
+	 * @return - true if successfully deleted S3 objects
 	 * @throws Exception
 	 */
-	private void deleteUploadedScanFileIn_S3_Object( File tempUpload_scanFileDir ) throws Exception {
-
-		File scanFile_S3_LocationFile = new File( tempUpload_scanFileDir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
+	private boolean deleteUploadedScanFileIn_S3_Object( File tempUpload_scanFileDir ) throws Exception {
 		
+		boolean deleteMain = deleteUploadedScanFileIn_S3_Object_Specific_LocationFile(tempUpload_scanFileDir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME);
+		
+		boolean deleteBeforeUploadedFile = deleteUploadedScanFileIn_S3_Object_Specific_LocationFile(tempUpload_scanFileDir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME__BEFORE_CREATE_S3_OBJECT);
+
+		if ( ( ! deleteMain ) || ( ! deleteBeforeUploadedFile ) ) {
+			
+			return false;
+		}
+		
+		return true;
+		
+	}
+	
+
+
+	/**
+	 * @param tempUpload_scanFileDir
+	 * @return - true if successfully deleted S3 object OR has been X days since 
+	 * @throws Exception
+	 */
+	private boolean deleteUploadedScanFileIn_S3_Object_Specific_LocationFile( File tempUpload_scanFileDir, String scanFile_S3_LocationFile_String ) throws Exception {
+
+		File scanFile_S3_LocationFile = new File( tempUpload_scanFileDir, scanFile_S3_LocationFile_String );
+				
 		if ( ! scanFile_S3_LocationFile.exists() ) {
 			//  No file with info on scan file location in S3, so must be local file
-			return;  //  EARLY EXIT
+			return true;  //  EARLY EXIT
 		}
 		
 		UploadScanfileS3Location uploadScanfileS3Location = null;
@@ -206,13 +260,21 @@ public class CleanupUploadFileTempBaseDirectory {
 			} else {
 				String msg = "Failed to deserialize data in " + scanFile_S3_LocationFile.getAbsolutePath();
 				log.error( msg );
-				throw new SpectralStorageProcessingException(msg);
+				
+				//  Skip since cannot process contents
+				return true;  //  EARLY EXIT
+				
+				//  throw new SpectralStorageProcessingException(msg);
 			}
+		} catch ( Exception e ) {
+
+			//  Skip since cannot process contents
+			return true;  //  EARLY EXIT
 		}
 
 		if ( uploadScanfileS3Location.isS3_infoFrom_RemoteSystem() ) {
 			//  Scan File S3 object came from external system so that system is responsible for deleting it
-			return;  //  EARLY EXIT
+			return true;  //  EARLY EXIT
 		}
 		
 		String s3_bucketName = uploadScanfileS3Location.getS3_bucketName();
@@ -227,68 +289,65 @@ public class CleanupUploadFileTempBaseDirectory {
 				amazonS3client.deleteObject( new DeleteObjectRequest(
 						uploadScanfileS3Location.getS3_bucketName(), uploadScanfileS3Location.getS3_objectName() ));
 
-				break;  // Exit loop on success
+				// Exit loop on success
+				
+				return true;  //  EARLY RETURN
 
-			} catch (AmazonServiceException e) {
-				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
-						+ " s3_objectName: " + s3_objectName;
-				log.error( msg );
-
-				retryDeleteScanFileCount++;
-				if ( retryDeleteScanFileCount > RETRY_DELETE_SCAN_FILE_MAX ) {
-					throw new SpectralStorageProcessingException(msg, e);
-				}
+//			} catch (AmazonServiceException e) {
+//				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
+//						+ " s3_objectName: " + s3_objectName;
+//				log.error( msg );
+//
+//				retryDeleteScanFileCount++;
+//				if ( retryDeleteScanFileCount > RETRY_DELETE_SCAN_FILE_MAX ) {
+//					throw new SpectralStorageProcessingException(msg, e);
+//				}
 			} catch (Exception e) {
+	
+				retryDeleteScanFileCount++;
+				if ( retryDeleteScanFileCount > RETRY_DELETE_SCAN_FILE_MAX ) {
+					
+					File trackFirstError = new File( tempUpload_scanFileDir, scanFile_S3_LocationFile_String + SCANFILE_S3_LOCATION_FILENAME__FAILED_TO_DELETE_FROM_S3_FIRST_TRY_SUFFIX );
+					
+					if ( trackFirstError.exists() ) {
+						
+						long now = System.currentTimeMillis();
+						
+						long trackFirstError_lastModified = trackFirstError.lastModified();
+						
+						if ( now > ( trackFirstError_lastModified + NOT_DELETE_S3_OBJECT_AFTER_X_DAYS_IN_MILLISECONDS ) ) {
+							
+							//  Has been too many tries to delete S3 object.  Leave for the auto delete that should be on the bucket
+							
+							String msg = "Error deleting scan file on S3  Will STOP attempting deleting the S3 Object. s3_bucketName: " + s3_bucketName
+									+ " s3_objectName: " + s3_objectName;
+							log.error( msg, e );
+							
+							return true;  //  EARLY RETURN
+						}
+						
+					} else {
+						trackFirstError.createNewFile();
+					}
+					
+					//  EXIT LOOP
+
+					String msg = "Error deleting scan file on S3  Will attempt deleting the S3 Object again in main processing loop. s3_bucketName: " + s3_bucketName
+							+ " s3_objectName: " + s3_objectName;
+					log.error( msg, e );
+					
+					return false;  // EARLY RETURN
+				}
+
 				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
 						+ " s3_objectName: " + s3_objectName;
 				log.error( msg );
 
-				retryDeleteScanFileCount++;
-				if ( retryDeleteScanFileCount > RETRY_DELETE_SCAN_FILE_MAX ) {
-					throw new SpectralStorageProcessingException(msg, e);
-				}
 			}
 			
 			Thread.sleep( RETRY_DELETE_SCAN_FILE_DELAY );
 		}
 
-		// the same object name as scan file but with ".submitted" on the end
-		String objectKey_SubmittedObject = uploadScanfileS3Location.getS3_objectName()
-				+ ScanFileToProcessConstants.SCAN_FILE_TO_PROCESS_FILENAME_SUBMITTED_FILE_SUFFIX;
-		
-
-		int retryDeleteScanFileSubmittedCount = 0;
-
-		while ( true ) {
-			try {
-				amazonS3client.deleteObject( new DeleteObjectRequest(
-						uploadScanfileS3Location.getS3_bucketName(), objectKey_SubmittedObject ) );
-
-				break;  // Exit loop on success
-
-			} catch (AmazonServiceException e) {
-				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
-						+ " s3_objectName: " + s3_objectName;
-				log.error( msg );
-
-				retryDeleteScanFileSubmittedCount++;
-				if ( retryDeleteScanFileSubmittedCount > RETRY_DELETE_SCAN_FILE_MAX ) {
-					throw new SpectralStorageProcessingException(msg, e);
-				}
-			} catch (Exception e) {
-				String msg = "Error deleting scan file on S3. s3_bucketName: " + s3_bucketName
-						+ " s3_objectName: " + s3_objectName;
-				log.error( msg );
-
-				retryDeleteScanFileSubmittedCount++;
-				if ( retryDeleteScanFileSubmittedCount > RETRY_DELETE_SCAN_FILE_MAX ) {
-					throw new SpectralStorageProcessingException(msg, e);
-				}
-			}
-
-			Thread.sleep( RETRY_DELETE_SCAN_FILE_DELAY );
-		}
 	}
-	
 	
 }

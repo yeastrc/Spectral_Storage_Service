@@ -89,6 +89,7 @@ class ProcessScanFileThread extends Thread {
 	 */
 	ProcessScanFileThread() {
 		super();
+		this.setDaemon(true);
 	}
 
 	

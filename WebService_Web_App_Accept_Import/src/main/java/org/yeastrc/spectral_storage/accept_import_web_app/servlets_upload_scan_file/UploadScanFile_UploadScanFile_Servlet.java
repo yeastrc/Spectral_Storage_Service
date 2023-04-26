@@ -361,7 +361,7 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 			JAXBContext jaxbContext = JAXBContext.newInstance( UploadScanfileS3Location.class );
 			Marshaller marshaller = jaxbContext.createMarshaller();
 		
-			File scanfileS3InfoFile = new File( uploadScanFileTempKey_Dir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
+			File scanfileS3InfoFile = new File( uploadScanFileTempKey_Dir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME__BEFORE_CREATE_S3_OBJECT );
 			
 			try ( OutputStream os = new FileOutputStream( scanfileS3InfoFile ) ) {
 				marshaller.marshal( uploadScanfileS3Location, os );
@@ -488,6 +488,33 @@ public class UploadScanFile_UploadScanFile_Servlet extends HttpServlet {
 	        	amazonS3.abortMultipartUpload( new AbortMultipartUploadRequest( bucketName, s3_Object_Key, uploadId ) );
 	        	throw e;
 	        }
+		}
+
+		//  Write a file to uploadScanFileTempKey_Dir with info on file to be written to S3
+		{
+			UploadScanfileS3Location uploadScanfileS3Location = new UploadScanfileS3Location();
+			uploadScanfileS3Location.setScanFilenameToProcess( scanFilenameToProcess );
+			uploadScanfileS3Location.setS3_bucketName( bucketName );
+			uploadScanfileS3Location.setS3_objectName( s3_Object_Key );
+			uploadScanfileS3Location.setS3_region( s3_region );
+			
+			JAXBContext jaxbContext = JAXBContext.newInstance( UploadScanfileS3Location.class );
+			Marshaller marshaller = jaxbContext.createMarshaller();
+		
+			File scanfileS3InfoFile = new File( uploadScanFileTempKey_Dir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME );
+			
+			try ( OutputStream os = new FileOutputStream( scanfileS3InfoFile ) ) {
+				marshaller.marshal( uploadScanfileS3Location, os );
+			} catch (Exception e ) {
+				String msg = "Failed to write uploadScanfileS3Location to scanfileS3InfoFile: " + scanfileS3InfoFile.getAbsolutePath();
+				log.error( msg, e );
+				throw new SpectralFileWebappInternalException( msg, e );
+			}
+		}		
+		
+		{
+			File scanfileS3InfoFile = new File( uploadScanFileTempKey_Dir, UploadProcessing_InputScanfileS3InfoConstants.SCANFILE_S3_LOCATION_FILENAME__BEFORE_CREATE_S3_OBJECT );
+			scanfileS3InfoFile.delete();
 		}
 		
 
