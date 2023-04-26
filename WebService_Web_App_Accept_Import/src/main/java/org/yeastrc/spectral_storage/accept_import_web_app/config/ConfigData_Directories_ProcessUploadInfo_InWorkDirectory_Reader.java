@@ -111,6 +111,16 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 	private static final String PROPERTY_NAME__EMAIL_SMTP_HOST = "email.smtp.host";
 	private static final String ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_HOST = "SPECTRAL_STORAGE_EMAIL_SMTP_HOST";
 	
+	private static final String PROPERTY_NAME__EMAIL_SMTP_PORT = "email.smtp.port";
+	private static final String ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_PORT = "SPECTRAL_STORAGE_EMAIL_SMTP_PORT";
+	
+
+	public static final String PROPERTY_NAME__EMAIL_SMTP_SERVER_AUTH_USERNAME = "email.smtp.server.auth.username";
+	private static final String ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_SERVER_AUTH_USERNAME = "SPECTRAL_STORAGE_EMAIL_SMTP_SERVER_AUTH_USERNAME";
+	
+	public static final String PROPERTY_NAME__EMAIL_SMTP_SERVER_AUTH_PASSWORD = "email.smtp.server.auth.password";
+	private static final String ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_SERVER_AUTH_PASSWORD = "SPECTRAL_STORAGE_EMAIL_SMTP_SERVER_AUTH_PASSWORD";
+	
 	private static final String PROPERTY_NAME__EMAIL_FROM_ADDRESS = "email.from.address";
 	private static final String ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_FROM_ADDRESS = "SPECTRAL_STORAGE_EMAIL_FROM_ADDRESS";
 	
@@ -1009,6 +1019,172 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory_Reader {
 				}
 			}
 
+			{
+				///   EmailSmtpServerPort -- Send Email on Import end, success or fail
+
+				String valueFoundInLabel_String = System.getenv( ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_PORT );
+
+				if ( valueFoundInLabel_String != null ) {
+					valueFoundInLabel_String = valueFoundInLabel_String.trim();
+				}
+				if ( StringUtils.isNotEmpty( valueFoundInLabel_String ) ) {
+					
+					configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailSmtpServerPort(valueFoundInLabel_String);
+
+					log.warn( "INFO: Email SMTP Port to use: Value found in Environment Variable: '" + ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_PORT + "' with value: " + valueFoundInLabel_String );
+
+				} else {
+
+					//  Not in config file or Environment Variable so get from JVM -D Property
+
+					Properties prop = System.getProperties();
+					valueFoundInLabel_String = prop.getProperty(ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_PORT);
+
+					if ( valueFoundInLabel_String != null ) {
+
+						valueFoundInLabel_String = valueFoundInLabel_String.trim();
+					}
+
+					if ( StringUtils.isNotEmpty( valueFoundInLabel_String ) ) {
+
+						configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailSmtpServerPort(valueFoundInLabel_String);
+
+						log.warn( "INFO: Email SMTP Port to use: Value found in JVM param: '-D" + ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_PORT + "' with value: " + valueFoundInLabel_String );
+
+					} else {
+
+						//  Last place to check is Properties File
+
+						if ( propertiesFile_Properties != null ) {
+							valueFoundInLabel_String = propertiesFile_Properties.getProperty( PROPERTY_NAME__EMAIL_SMTP_PORT );
+
+							if ( StringUtils.isNotEmpty( valueFoundInLabel_String ) ) {
+
+								configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailSmtpServerPort(valueFoundInLabel_String);
+
+								log.warn( "INFO: Email SMTP Port to to use: Value found in Properties file with key: '" + PROPERTY_NAME__EMAIL_SMTP_PORT + "' with value: " + valueFoundInLabel_String );
+							}
+						}
+					}
+				}
+			}
+			
+			
+			{
+				///   EmailSmtpServerAuthUsername -- Send Email on Import end, success or fail
+
+				String valueFoundInLabel_String = System.getenv( ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_SERVER_AUTH_USERNAME );
+
+				if ( valueFoundInLabel_String != null ) {
+					valueFoundInLabel_String = valueFoundInLabel_String.trim();
+				}
+				if ( StringUtils.isNotEmpty( valueFoundInLabel_String ) ) {
+					
+					configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailSmtpServerAuthUsername(valueFoundInLabel_String);
+
+					log.warn( "INFO: Email SMTP Server Auth Username to use: Value found in Environment Variable: '" + ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_SERVER_AUTH_USERNAME + "' with value: " + valueFoundInLabel_String );
+
+				} else {
+
+					//  Not in config file or Environment Variable so get from JVM -D Property
+
+					Properties prop = System.getProperties();
+					valueFoundInLabel_String = prop.getProperty(ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_SERVER_AUTH_USERNAME);
+
+					if ( valueFoundInLabel_String != null ) {
+
+						valueFoundInLabel_String = valueFoundInLabel_String.trim();
+					}
+
+					if ( StringUtils.isNotEmpty( valueFoundInLabel_String ) ) {
+
+						configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailSmtpServerAuthUsername(valueFoundInLabel_String);
+
+						log.warn( "INFO: Email SMTP Server Auth Username to use: Value found in JVM param: '-D" + ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_SERVER_AUTH_USERNAME + "' with value: " + valueFoundInLabel_String );
+
+					} else {
+
+						//  Last place to check is Properties File
+
+						if ( propertiesFile_Properties != null ) {
+							valueFoundInLabel_String = propertiesFile_Properties.getProperty( PROPERTY_NAME__EMAIL_SMTP_SERVER_AUTH_USERNAME );
+
+							if ( StringUtils.isNotEmpty( valueFoundInLabel_String ) ) {
+
+								configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailSmtpServerAuthUsername(valueFoundInLabel_String);
+
+								log.warn( "INFO: Email SMTP Server Auth Username to to use: Value found in Properties file with key: '" + PROPERTY_NAME__EMAIL_SMTP_SERVER_AUTH_USERNAME + "' with value: " + valueFoundInLabel_String );
+							}
+						}
+					}
+				}
+			}
+
+			{
+				///   EmailSmtpServerHost -- Send Email on Import end, success or fail
+
+				String valueFoundInLabel_String = System.getenv( ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_SERVER_AUTH_PASSWORD );
+
+				if ( valueFoundInLabel_String != null ) {
+					valueFoundInLabel_String = valueFoundInLabel_String.trim();
+				}
+				if ( StringUtils.isNotEmpty( valueFoundInLabel_String ) ) {
+					
+					configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailSmtpServerAuthPassword(valueFoundInLabel_String);
+					
+					String passwordStartsWith_Display = valueFoundInLabel_String;
+					if ( passwordStartsWith_Display.length() > 3 ) {
+						passwordStartsWith_Display = passwordStartsWith_Display.substring(0, 3);
+					}
+
+					log.warn( "INFO: Email SMTP Server Auth Password to use: Value found in Environment Variable: '" + ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_SERVER_AUTH_PASSWORD + "' starts with value: " + passwordStartsWith_Display );
+
+				} else {
+
+					//  Not in config file or Environment Variable so get from JVM -D Property
+
+					Properties prop = System.getProperties();
+					valueFoundInLabel_String = prop.getProperty(ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_SERVER_AUTH_PASSWORD);
+
+					if ( valueFoundInLabel_String != null ) {
+
+						valueFoundInLabel_String = valueFoundInLabel_String.trim();
+					}
+
+					if ( StringUtils.isNotEmpty( valueFoundInLabel_String ) ) {
+
+						configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailSmtpServerAuthPassword(valueFoundInLabel_String);
+
+						String passwordStartsWith_Display = valueFoundInLabel_String;
+						if ( passwordStartsWith_Display.length() > 3 ) {
+							passwordStartsWith_Display = passwordStartsWith_Display.substring(0, 3);
+						}
+
+						log.warn( "INFO: Email SMTP SMTP Server Auth Password to use: Value found in JVM param: '-D" + ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_EMAIL_SMTP_SERVER_AUTH_PASSWORD + "' starts with value: " + passwordStartsWith_Display );
+
+					} else {
+
+						//  Last place to check is Properties File
+
+						if ( propertiesFile_Properties != null ) {
+							valueFoundInLabel_String = propertiesFile_Properties.getProperty( PROPERTY_NAME__EMAIL_SMTP_SERVER_AUTH_PASSWORD );
+
+							if ( StringUtils.isNotEmpty( valueFoundInLabel_String ) ) {
+
+								configData_Directories_ProcessUploadCommand_InWorkDirectory.setEmailSmtpServerAuthPassword(valueFoundInLabel_String);
+
+								String passwordStartsWith_Display = valueFoundInLabel_String;
+								if ( passwordStartsWith_Display.length() > 3 ) {
+									passwordStartsWith_Display = passwordStartsWith_Display.substring(0, 3);
+								}
+
+								log.warn( "INFO: Email SMTP SMTP Server Auth Password to to use: Value found in Properties file with key: '" + PROPERTY_NAME__EMAIL_SMTP_SERVER_AUTH_PASSWORD + "' starts with value: " + passwordStartsWith_Display );
+							}
+						}
+					}
+				}
+			}
+			
 			{
 				///   EmailFromEmailAddress -- Send Email on Import end, success or fail
 

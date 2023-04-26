@@ -145,6 +145,12 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	//  Probably used.  SMTP Server Host
 	private String emailSmtpServerHost;
 	
+	private String emailSmtpServerPort;
+	
+	private String emailSmtpServerAuthUsername;
+	
+	private String emailSmtpServerAuthPassword;
+
 	private String emailFromEmailAddress;
 
 	private List<String> emailToEmailAddresses;
@@ -408,6 +414,30 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 
 	public void setS3Region_InputScanFileStorage(String s3Region_InputScanFileStorage) {
 		this.s3Region_InputScanFileStorage = s3Region_InputScanFileStorage;
+	}
+
+	public String getEmailSmtpServerAuthUsername() {
+		return emailSmtpServerAuthUsername;
+	}
+
+	public void setEmailSmtpServerAuthUsername(String emailSmtpServerAuthUsername) {
+		this.emailSmtpServerAuthUsername = emailSmtpServerAuthUsername;
+	}
+
+	public String getEmailSmtpServerAuthPassword() {
+		return emailSmtpServerAuthPassword;
+	}
+
+	public void setEmailSmtpServerAuthPassword(String emailSmtpServerAuthPassword) {
+		this.emailSmtpServerAuthPassword = emailSmtpServerAuthPassword;
+	}
+
+	public String getEmailSmtpServerPort() {
+		return emailSmtpServerPort;
+	}
+
+	public void setEmailSmtpServerPort(String emailSmtpServerPort) {
+		this.emailSmtpServerPort = emailSmtpServerPort;
 	}
 		
 }
