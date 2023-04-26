@@ -32,6 +32,8 @@ public class ConfigData_ScanDataLocation_InWorkDirectory {
 	static void setSingletonInstance( ConfigData_ScanDataLocation_InWorkDirectory newInstance ) { 
 		instance = newInstance; 
 	}
+	
+	//  !!!  Only scanStorageBaseDirectory OR s3Bucket will be populated.  The other will be null
 
 	/**
 	 * The Base Directory that the scan data is written to for perm storage

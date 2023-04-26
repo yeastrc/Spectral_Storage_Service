@@ -42,6 +42,10 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	 * If this is not configured, then a special directory is created under scanStorageBaseDirectory and that is used.
 	 */
 	private File importerTempOutputBaseDirectory;
+	
+	
+	
+	//  !!!  Only scanStorageBaseDirectory OR s3Bucket will be populated.  The other will be null
 
 	/**
 	 * The Base Directory that the scans are written to for perm storage
@@ -54,6 +58,8 @@ public class ConfigData_Directories_ProcessUploadInfo_InWorkDirectory {
 	 */
 	private File backupOldBaseDirectory;
 		
+	
+	
 	/**
 	 * The S3 bucket that the scan data is written to for perm storage
 	 */

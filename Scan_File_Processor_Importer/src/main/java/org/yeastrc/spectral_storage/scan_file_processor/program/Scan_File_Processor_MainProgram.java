@@ -204,17 +204,21 @@ public class Scan_File_Processor_MainProgram {
 				System.out.println( "!!!!!!!!!!!!!!!!!!!!!!!!!");
 			}
 			
+			pgmParams.setDeleteScanFileOnSuccess( deleteScanFileOnSuccess );
+
 			if ( StringUtils.isNotEmpty( s3_OutputBucket ) ) {
 				pgmParams.setS3_OutputBucket( s3_OutputBucket );
 			}
-			
-			pgmParams.setDeleteScanFileOnSuccess( deleteScanFileOnSuccess );
 
 			if ( StringUtils.isNotEmpty( s3_OutputRegion ) ) {
 
 				if ( StringUtils.isNotEmpty( s3_OutputRegion ) ) {
 					S3_AWS_InterfaceObjectHolder.getSingletonInstance().setS3_OutputRegion( s3_OutputRegion );
 				}
+			}
+			
+
+			if ( StringUtils.isNotEmpty( s3_OutputBucket ) ) {
 
 				S3_AWS_InterfaceObjectHolder.getSingletonInstance().init();
 			}

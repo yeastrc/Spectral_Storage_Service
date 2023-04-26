@@ -17,14 +17,10 @@ public class ConfigDataInWebApp_Reader {
 
 	private static final Logger log = LoggerFactory.getLogger(ConfigDataInWebApp_Reader.class);
 	
-
-	private static String CONFIG_DEFAULTS_FILENAME = "spectral_server_accept_import_config_defaults.properties";
 	private static String CONFIG_OVERRIDES_FILENAME = "spectral_server_accept_import_config.properties";
 
 	private static String PROPERTY_NAME__WEBAPP_WORK_DIRECTORY = "webapp.work.directory";
-	
-
-	private static enum AllowNoPropertiesFile { YES, NO }
+	private static String ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_WEBAPP_WORK_DIRECTORY = "SPECTRAL_STORAGE_WEBAPP_WORK_DIRECTORY";
 	
 	//  private constructor
 	private ConfigDataInWebApp_Reader() { }
@@ -44,39 +40,86 @@ public class ConfigDataInWebApp_Reader {
 		
 		ConfigDataInWebApp configDataInWebApp = new ConfigDataInWebApp();
 
-		String webappWorkDirectoryDefaultString =
-				processPropertiesFilename( CONFIG_DEFAULTS_FILENAME, AllowNoPropertiesFile.NO, configDataInWebApp );
-		
-		String webappWorkDirectoryString =
-				processPropertiesFilename( CONFIG_OVERRIDES_FILENAME, AllowNoPropertiesFile.YES, configDataInWebApp );
-		
-		if ( StringUtils.isEmpty( webappWorkDirectoryString ) 
-				&& ( ! StringUtils.isEmpty( webappWorkDirectoryDefaultString ) ) ) {
-			
-			webappWorkDirectoryString = webappWorkDirectoryDefaultString;
-		}
+		String webappWorkDirectoryString = System.getenv( ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_WEBAPP_WORK_DIRECTORY );
 
-		if ( StringUtils.isEmpty( webappWorkDirectoryString ) ) {
-			String msg = "Property '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY 
-					+ "' in config is empty or missing";
-			log.error( msg );
-			throw new SpectralFileWebappConfigException( msg );
+		if ( webappWorkDirectoryString != null ) {
+			webappWorkDirectoryString = webappWorkDirectoryString.trim();
 		}
-		
-		File workDirectory = new File( webappWorkDirectoryString );
-		if ( ! ( workDirectory.exists() && workDirectory.isDirectory() && workDirectory.canRead() ) ) {
-			String msg = "Property '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY 
-					+ "' in config does not exist, is not  a directory, or is not readable. Value: "
-					+ webappWorkDirectoryString;
-			log.error( msg );
-			throw new SpectralFileWebappConfigException( msg );
-		}
-		
-		configDataInWebApp.setWebappWorkDirectory( workDirectory );
+		if ( StringUtils.isNotEmpty( webappWorkDirectoryString ) ) {
 
-		log.warn( "INFO: '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY 
-				+ "' has value: " 
-				+ configDataInWebApp.getWebappWorkDirectory().getCanonicalPath() );
+			log.warn( "INFO: Webapp Work Directory - to use: Value found in Environment Variable: '" + ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_WEBAPP_WORK_DIRECTORY + "' with value: " + webappWorkDirectoryString );
+
+			File workDirectory = new File( webappWorkDirectoryString );
+			if ( ! ( workDirectory.exists() && workDirectory.isDirectory() && workDirectory.canRead() ) ) {
+				String msg = "INFO: Webapp Work Directory - to use: Value found in Environment Variable: '" 
+						+ ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_WEBAPP_WORK_DIRECTORY + "' with value: " + webappWorkDirectoryString
+						+ "' does not exist, is not  a directory, or is not readable. ";
+				log.error( msg );
+				throw new SpectralFileWebappConfigException( msg );
+			}
+
+			configDataInWebApp.setWebappWorkDirectory( workDirectory );
+
+			log.warn( "INFO: '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY 
+					+ "' has value: " 
+					+ configDataInWebApp.getWebappWorkDirectory().getCanonicalPath() );
+		} else {
+
+			//  Not in config file or Environment Variable so get from JVM -D Property
+
+			Properties prop = System.getProperties();
+			webappWorkDirectoryString = prop.getProperty(ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_WEBAPP_WORK_DIRECTORY);
+
+			if ( webappWorkDirectoryString != null ) {
+
+				webappWorkDirectoryString = webappWorkDirectoryString.trim();
+			}
+
+			if ( StringUtils.isNotEmpty( webappWorkDirectoryString ) ) {
+
+				log.warn( "INFO: Webapp Work Directory - to use: Value found in JVM param: '-D" + ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_WEBAPP_WORK_DIRECTORY + "' with value: " + webappWorkDirectoryString );
+
+				File workDirectory = new File( webappWorkDirectoryString );
+				if ( ! ( workDirectory.exists() && workDirectory.isDirectory() && workDirectory.canRead() ) ) {
+					String msg = "INFO: Webapp Work Directory - to use: Value found in JVM param: '-D" 
+							+ ENVIRONMENT_VARIABLE__SPECTRAL_STORAGE_WEBAPP_WORK_DIRECTORY + "' with value: " + webappWorkDirectoryString
+							+ "' does not exist, is not  a directory, or is not readable. ";
+					log.error( msg );
+					throw new SpectralFileWebappConfigException( msg );
+				}
+
+				configDataInWebApp.setWebappWorkDirectory( workDirectory );
+
+				log.warn( "INFO: '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY 
+						+ "' has value: " 
+						+ configDataInWebApp.getWebappWorkDirectory().getCanonicalPath() );
+			} else {
+				
+				webappWorkDirectoryString = processPropertiesFilename( CONFIG_OVERRIDES_FILENAME );
+
+				if ( StringUtils.isEmpty( webappWorkDirectoryString ) ) {
+					log.warn( "Property '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY 
+							+ "' in config is empty or missing.  " );
+
+				} else { 
+
+					File workDirectory = new File( webappWorkDirectoryString );
+					if ( ! ( workDirectory.exists() && workDirectory.isDirectory() && workDirectory.canRead() ) ) {
+						String msg = "Property '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY 
+								+ "' in config does not exist, is not  a directory, or is not readable. Value: "
+								+ webappWorkDirectoryString;
+						log.error( msg );
+						throw new SpectralFileWebappConfigException( msg );
+					}
+
+					configDataInWebApp.setWebappWorkDirectory( workDirectory );
+
+					log.warn( "INFO: '" + PROPERTY_NAME__WEBAPP_WORK_DIRECTORY 
+							+ "' has value: " 
+							+ configDataInWebApp.getWebappWorkDirectory().getCanonicalPath() );
+				}
+			}
+		}
 		
 		ConfigDataInWebApp.setInstance( configDataInWebApp );
 	}
@@ -88,9 +131,7 @@ public class ConfigDataInWebApp_Reader {
 	 * @throws SpectralFileWebappConfigException 
 	 */
 	private String processPropertiesFilename( 
-			String propertiesFilename, 
-			AllowNoPropertiesFile allowNoPropertiesFile,
-			ConfigDataInWebApp configDataInWebApp ) throws Exception {
+			String propertiesFilename ) throws Exception {
 
 		InputStream propertiesFileAsStream = null;
 		try {
@@ -99,13 +140,7 @@ public class ConfigDataInWebApp_Reader {
 			URL configPropFile = thisClassLoader.getResource( propertiesFilename );
 			if ( configPropFile == null ) {
 				//  No properties file
-				//  No properties file
-				if ( allowNoPropertiesFile == AllowNoPropertiesFile.YES ) {
-					return null;  //  EARLY EXIT
-				}
-				String msg = "Properties file '" + propertiesFilename + "' not found in class path.";
-				log.error( msg );
-				throw new SpectralFileWebappConfigException( msg );
+				return null;  //  EARLY EXIT
 			} else {
 				log.info( "Properties file '" 
 						+ propertiesFilename 
@@ -115,14 +150,7 @@ public class ConfigDataInWebApp_Reader {
 			propertiesFileAsStream = thisClassLoader.getResourceAsStream( propertiesFilename );
 			if ( propertiesFileAsStream == null ) {
 				//  No properties file
-				if ( allowNoPropertiesFile == AllowNoPropertiesFile.YES ) {
-					return null;  //  EARLY EXIT
-				}
-				String msg = "Properties file '" 
-				+ propertiesFilename 
-				+ "' not found in class path.";
-				log.error( msg );
-				throw new SpectralFileWebappConfigException( msg );
+				return null;  //  EARLY EXIT
 			}
 			Properties configProps = new Properties();
 			configProps.load(propertiesFileAsStream);
