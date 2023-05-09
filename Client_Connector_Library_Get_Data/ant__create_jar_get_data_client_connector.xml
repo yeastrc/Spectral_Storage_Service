@@ -17,7 +17,9 @@
      	<delete dir="deploy" />
     	<mkdir dir="deploy" />
     	
-    	<ant antfile="ant__create_jar_common_get_data_client_connector_library.xml"  dir="../Common_Importer_Get_Data_Client_Connector" />
+    	<ant antfile="ant__create_jar_common_importer_get_data_client_connector_library.xml"  dir="..${file.separator}Common_Importer_Get_Data_Client_Connector" />
+        	
+    	<ant antfile="ant__create_jar_common_get_data_client_connector_library.xml"  dir="..${file.separator}Common_Get_Data_Webapp_Client_Connector_Library" />
         	
 		<exec executable="${executableToRun_Get_Data_Client_Connector}" dir="." failonerror="true" 
 		    resolveexecutable="true" >
@@ -39,8 +41,10 @@
     		filesetmanifest="merge"	
     		destfile="deploy${file.separator}spectral_storage_get_data_client_connector_code.jar"
 		>
-    	  <zipgroupfileset dir="build${file.separator}libs" includes="Client_Connector_Library_Get_Data.jar" />
-    		<zipgroupfileset dir="../Common_Importer_Get_Data_Client_Connector${file.separator}build${file.separator}libs" includes="Common_Importer_Get_Data_Client_Connector.jar" />
+    	  	<zipgroupfileset dir="build${file.separator}libs" includes="Client_Connector_Library_Get_Data.jar" />
+    		<zipgroupfileset dir="..${file.separator}Common_Importer_Get_Data_Client_Connector${file.separator}build${file.separator}libs" includes="Common_Importer_Get_Data_Client_Connector.jar" />
+    		<zipgroupfileset dir="..${file.separator}Common_Get_Data_Webapp_Client_Connector_Library${file.separator}build${file.separator}libs" includes="Common_Get_Data_Webapp_Client_Connector_Library.jar" />
+    		
     	  <!-- other options -->
     			 <!-- 
     	  <manifest>
