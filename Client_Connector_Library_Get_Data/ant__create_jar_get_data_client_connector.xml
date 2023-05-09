@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="create_run_jar" name="Get Data: Client Connector Jar: Create Jar using Gradle task shadowJar">
+<project default="create_run_jar" name="Get Data: Client Connector Jar: Build local Jar and Combine with dependent jar to deploy subdir">
 
 	<!--  Runs Gradle (gradlew or gradlew.bat 
 		 with correct task 'shadowJar' to create runnable jar -->
@@ -13,7 +13,12 @@
 	<!-- Clean the build directory -->
 	<!-- ================================================================================== -->
     <target name="create_run_jar" description="Do build">
+
+     	<delete dir="deploy" />
+    	<mkdir dir="deploy" />
     	
+    	<ant antfile="ant__create_jar_common_get_data_client_connector_library.xml"  dir="../Common_Importer_Get_Data_Client_Connector" />
+        	
 		<exec executable="${executableToRun_Get_Data_Client_Connector}" dir="." failonerror="true" 
 		    resolveexecutable="true" >
 		    <!--
@@ -23,10 +28,27 @@
 		    On Unix systems, if you only want to allow execution of 
 		    commands in the user's path, set this to false. since Ant 1.6
 		    -->
-			<arg value="shadowJar" />
+			<arg value="build" />
+					<!--
+					<arg value="shadowJar" />
+					-->
 			<!--   <arg value="XXXX" /> -->
 		</exec>
 
+    	<jar
+    		filesetmanifest="merge"	
+    		destfile="deploy${file.separator}spectral_storage_get_data_client_connector_code.jar"
+		>
+    	  <zipgroupfileset dir="build${file.separator}libs" includes="Client_Connector_Library_Get_Data.jar" />
+    		<zipgroupfileset dir="../Common_Importer_Get_Data_Client_Connector${file.separator}build${file.separator}libs" includes="Common_Importer_Get_Data_Client_Connector.jar" />
+    	  <!-- other options -->
+    			 <!-- 
+    	  <manifest>
+    	    <attribute name="Main-Class" value="Main.MainClass" />
+    	  </manifest>
+    			  -->
+    	</jar>
+    	
     	
     </target>
 	
