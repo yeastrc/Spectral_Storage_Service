@@ -22,6 +22,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.constants.WebserviceSpectralStorageGetDataPathConstants;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.exceptions.YRCSpectralStorageGetDataWebserviceCallErrorException;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_MaxScanCountToReturn_Request;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_MaxScanCountToReturn_Response;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Request;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Response;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanData_AllScans_ExcludePeaks_Request;
@@ -78,6 +80,8 @@ public class CallSpectralStorageGetDataWebservice {
 
 		jaxbContext = 
 				JAXBContext.newInstance( 
+						Get_MaxScanCountToReturn_Request.class,
+						Get_MaxScanCountToReturn_Response.class,
 						Get_ScanNumbers_Request.class,
 						Get_ScanNumbers_Response.class,
 						Get_ScanData_AllScans_ExcludePeaks_Request.class,
@@ -101,6 +105,43 @@ public class CallSpectralStorageGetDataWebservice {
 	
 	/////////////////////////////
 	
+	
+
+	/**
+	 * @param webserviceRequest
+	 * @return
+	 * @throws Exception 
+	 */
+	public Get_MaxScanCountToReturn_Response call_Get_MaxScanCountToReturn_Webservice( Get_MaxScanCountToReturn_Request webserviceRequest ) throws Exception {
+		if ( ! instanceInitialized ) {
+			throw new IllegalStateException( "Not initialized" );
+		}
+		if ( webserviceRequest == null ) {
+			throw new IllegalArgumentException( "webserviceRequest param must not be null in call to call_Get_ScanNumbers_Request_Webservice(...)" );
+		}
+
+		String webserviceURL = spectralStorageServerBaseURL
+				+ WebserviceSpectralStorageGetDataPathConstants.GET_MAX_SCAN_COUNT_TO_RETURN_SERVLET_XML;
+		Object webserviceResponseAsObject = callActualWebserviceOnServerSendObject( webserviceRequest, webserviceURL );
+		if ( ! ( webserviceResponseAsObject instanceof Get_MaxScanCountToReturn_Response ) ) {
+			String msg = "Response unmarshaled to class other than Get_MaxScanCountToReturn_Response.  "
+					+ " Unmarshaled Class: " + webserviceResponseAsObject.getClass();
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
+			exception.setFailToDecodeDataReceivedFromServer(true);
+			throw exception;
+		}
+		Get_MaxScanCountToReturn_Response webserviceResponse = null;
+		try {
+			webserviceResponse = (Get_MaxScanCountToReturn_Response) webserviceResponseAsObject;
+		} catch ( Exception e ) {
+			String msg = "Error. Fail to cast response as Get_MaxScanCountToReturn_Response: "
+					+ e.toString();
+			YRCSpectralStorageGetDataWebserviceCallErrorException exception = new YRCSpectralStorageGetDataWebserviceCallErrorException( msg );
+			exception.setFailToDecodeDataReceivedFromServer(true);
+			throw exception;
+		}
+		return webserviceResponse;
+	}
 	
 	/**
 	 * @param webserviceRequest
