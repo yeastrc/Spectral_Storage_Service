@@ -2,9 +2,11 @@ package org.yeastrc.spectral_storage.get_data_webapp.servlets_retrieve_data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -19,6 +21,7 @@ import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.MaxNumberSca
 import org.yeastrc.spectral_storage.get_data_webapp.constants_enums.ServetResponseFormatEnum;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileBadRequestToServletException;
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileDeserializeRequestException;
+import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileWebappInternalRuntimeException;
 import org.yeastrc.spectral_storage.get_data_webapp.servlet_response_factories.SingleScan_SubResponse_Factory;
 import org.yeastrc.spectral_storage.get_data_webapp.servlet_response_factories.SingleScan_SubResponse_Factory_Parameters;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.GetRequestObjectFromInputStream;
@@ -246,6 +249,8 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 					webserviceResponse.setStatus_scanFileAPIKeyNotFound( Get_ScanData_ScanFileAPI_Key_NotFound.YES );
 				
 				} else {
+					
+					final SpectralFile_Reader__IF spectralFile_Reader_AfterAssigned_InsideTry = spectralFile_Reader;
 
 					Byte maxScanLevelFound = null;
 
@@ -304,26 +309,109 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 
 					singleScan_SubResponse_Factory_Parameters.setMzHighCutoff( get_ScanDataFromScanNumbers_Request.getMzHighCutoff() );
 					singleScan_SubResponse_Factory_Parameters.setMzLowCutoff( get_ScanDataFromScanNumbers_Request.getMzLowCutoff() );
+					
+					//  Updated in method processScanNumber(...):   (Not synchronized here since always read and updated in a synchronized block on 'insertedScansScanNumbers'
 
 					List<SingleScan_SubResponse> scans = new ArrayList<>( returnedScanListInitialSize );
 
 					Set<Integer> insertedScansScanNumbers = new HashSet<>();
+					
+					Set<Integer> loadingScansInProgress_ScanNumbers = new HashSet<>();
 
-					for ( Integer scanNumber : scanNumbers ) {
-						processScanNumber( 
-								1, // recursionLevel
-								scanNumber, 
-								includeParentScans,
-								excludeReturnScanPeakData,
-								includeReturnIonInjectionTimeData,
-								includeReturnScanLevelTotalIonCurrentData,
-								scans, 
-								insertedScansScanNumbers, 
-								spectralFile_Reader,
-								singleScan_SubResponse_Factory,
-								singleScan_SubResponse_Factory_Parameters );
+		        	{
+		        		AtomicBoolean anyThrownInsideStreamProcessing = new AtomicBoolean(false);
+		        		
+		        		List<Throwable> thrownInsideStream_List = Collections.synchronizedList(new ArrayList<>());
+		        		
+		        		SpectralStorageDataNotFoundException_HolderClass spectralStorageDataNotFoundException_HolderClass = new SpectralStorageDataNotFoundException_HolderClass();
+		        		
+			    		if ( ConfigData_ScanDataLocation_InWorkDirectory.getSingletonInstance().isParallelStream_DefaultThreadPool_Java_Processing_Enabled_True() ) {
+			
+			    			//  YES execute in parallel
+			
+			    			scanNumbers.parallelStream().forEach( scanNumber -> { 
+
+			    				try {
+
+			    					processScanNumber( 
+			    							1, // recursionLevel
+			    							scanNumber, 
+			    							includeParentScans,
+			    							excludeReturnScanPeakData,
+			    							includeReturnIonInjectionTimeData,
+			    							includeReturnScanLevelTotalIonCurrentData,
+			    							scans, 
+			    							insertedScansScanNumbers, 
+			    							loadingScansInProgress_ScanNumbers,
+			    							spectralFile_Reader_AfterAssigned_InsideTry,
+			    							singleScan_SubResponse_Factory,
+			    							singleScan_SubResponse_Factory_Parameters );
+			    					
+			    				} catch (SpectralStorageDataNotFoundException e) {
+
+			    					spectralStorageDataNotFoundException_HolderClass.spectralStorageDataNotFoundException = e;
+			    					
+			    				} catch (Throwable t) {
+
+		        					log.error( "Fail processing scanNumbers: scanNumber" + scanNumber, t);
+
+		        					anyThrownInsideStreamProcessing.set(true);
+		        					
+		        					thrownInsideStream_List.add(t);
+		        				}
+		        			});
+		        			
+		        		} else {
+		        			
+		        			//  NOT execute in parallel
+
+		        			scanNumbers.forEach( scanNumber -> {
+
+		        				try {
+
+		        					processScanNumber( 
+		        							1, // recursionLevel
+		        							scanNumber, 
+		        							includeParentScans,
+		        							excludeReturnScanPeakData,
+		        							includeReturnIonInjectionTimeData,
+		        							includeReturnScanLevelTotalIonCurrentData,
+		        							scans, 
+		        							insertedScansScanNumbers, 
+		        							loadingScansInProgress_ScanNumbers,
+		        							spectralFile_Reader_AfterAssigned_InsideTry,
+		        							singleScan_SubResponse_Factory,
+		        							singleScan_SubResponse_Factory_Parameters );
+
+			    				} catch (SpectralStorageDataNotFoundException e) {
+
+			    					spectralStorageDataNotFoundException_HolderClass.spectralStorageDataNotFoundException = e;
+			    					
+		        				} catch (Throwable t) {
+
+		        					log.error( "Fail processing scanNumbers: scanNumber" + scanNumber, t);
+
+		        					anyThrownInsideStreamProcessing.set(true);
+
+		        					thrownInsideStream_List.add(t);
+
+		        					throw new SpectralFileWebappInternalRuntimeException( t );
+		        				}
+		        			});
+		        		}
+			    		
+
+		        		if ( anyThrownInsideStreamProcessing.get() ) {
+		        			
+		        			throw new SpectralFileWebappInternalRuntimeException( "At least 1 exception processing resultList_Temp" );
+		        		}
+
+			        	if ( spectralStorageDataNotFoundException_HolderClass.spectralStorageDataNotFoundException != null ) {
+			        		
+			        		throw spectralStorageDataNotFoundException_HolderClass.spectralStorageDataNotFoundException;
+			        	}
 					}
-
+		        	
 					webserviceResponse.setScans( scans );
 				}
 				
@@ -376,15 +464,27 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 			Get_ScanData_IncludeReturnScanLevelTotalIonCurrentData includeReturnScanLevelTotalIonCurrentData,
 			List<SingleScan_SubResponse> scans,
 			Set<Integer> insertedScansScanNumbers,
+			Set<Integer> loadingScansInProgress_ScanNumbers,
 			SpectralFile_Reader__IF spectralFile_Reader,
 			SingleScan_SubResponse_Factory singleScan_SubResponse_Factory,
 			SingleScan_SubResponse_Factory_Parameters singleScan_SubResponse_Factory_Parameters ) throws Exception {
-		
-		if ( insertedScansScanNumbers.contains( scanNumber ) ) {
-			// exit since already processed this scan number
-			return;
+
+		synchronized (insertedScansScanNumbers) {
+
+			if ( insertedScansScanNumbers.contains( scanNumber ) ) {
+				// exit since already processed this scan number
+				return;
+			}
+
+			if ( loadingScansInProgress_ScanNumbers.contains( scanNumber ) ) {
+				// exit since already currently loading this scan number
+				return;
+			}
+			
+			//  Add since currently loading
+			loadingScansInProgress_ScanNumbers.add(scanNumber);
 		}
-		
+
 		SpectralFile_SingleScan_Common spectralFile_SingleScan_Common = null;
 		
 		if ( excludeReturnScanPeakData != null
@@ -427,12 +527,30 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 		}		
 		
 		SingleScan_SubResponse singleScan_SubResponse = null;
-		if ( spectralFile_SingleScan_Common != null ) {
+		if ( spectralFile_SingleScan_Common == null ) {
+
+			synchronized (insertedScansScanNumbers) {
+
+				//  Remove since Done loading and not found loading
+				loadingScansInProgress_ScanNumbers.remove(scanNumber);
+			}
+			
+		} else {
 			singleScan_SubResponse = 
 					singleScan_SubResponse_Factory
 					.buildSingleScan_SubResponse( spectralFile_SingleScan_Common, singleScan_SubResponse_Factory_Parameters );
-			scans.add( singleScan_SubResponse );
-			insertedScansScanNumbers.add( scanNumber );
+			
+			synchronized (insertedScansScanNumbers) {
+
+				//  Do check again in case loaded same scan number in parallel
+				if ( ! insertedScansScanNumbers.contains( scanNumber ) ) {
+					scans.add( singleScan_SubResponse );
+					insertedScansScanNumbers.add( scanNumber );
+				}
+				
+				//  Remove since Done loading and found loading
+				loadingScansInProgress_ScanNumbers.remove(scanNumber);
+			}
 			
 			if ( includeParentScans != null ) { 
 				if ( includeParentScans == Get_ScanDataFromScanNumbers_IncludeParentScans.IMMEDIATE_PARENT 
@@ -453,6 +571,7 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 								includeReturnScanLevelTotalIonCurrentData,
 								scans, 
 								insertedScansScanNumbers, 
+								loadingScansInProgress_ScanNumbers,
 								spectralFile_Reader,
 								singleScan_SubResponse_Factory,
 								singleScan_SubResponse_Factory_Parameters );
@@ -475,6 +594,7 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 								includeReturnScanLevelTotalIonCurrentData,
 								scans, 
 								insertedScansScanNumbers, 
+								loadingScansInProgress_ScanNumbers,
 								spectralFile_Reader,
 								singleScan_SubResponse_Factory,
 								singleScan_SubResponse_Factory_Parameters );
@@ -485,6 +605,10 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 			}
 		}
 
+	}
+	
+	private static class SpectralStorageDataNotFoundException_HolderClass {
+		volatile SpectralStorageDataNotFoundException spectralStorageDataNotFoundException;
 	}
 
 }

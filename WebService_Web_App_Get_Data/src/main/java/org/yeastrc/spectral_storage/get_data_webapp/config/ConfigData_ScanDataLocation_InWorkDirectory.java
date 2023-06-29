@@ -70,6 +70,15 @@ public class ConfigData_ScanDataLocation_InWorkDirectory {
 	public Integer getMaxNumberScansReturn() {
 		return maxNumberScansReturn;
 	}
+	
+
+	private boolean parallelStream_DefaultThreadPool_Java_Processing_Enabled_True;
+
+
+	void setParallelStream_DefaultThreadPool_Java_Processing_Enabled_True(
+			boolean parallelStream_DefaultThreadPool_Java_Processing_Enabled_True) {
+		this.parallelStream_DefaultThreadPool_Java_Processing_Enabled_True = parallelStream_DefaultThreadPool_Java_Processing_Enabled_True;
+	} 
 
 	void setMaxNumberScansReturn(Integer maxNumberScansReturn) {
 		this.maxNumberScansReturn = maxNumberScansReturn;
@@ -97,5 +106,10 @@ public class ConfigData_ScanDataLocation_InWorkDirectory {
 
 	void setS3Region(String s3Region) {
 		this.s3Region = s3Region;
-	} 
+	}
+
+	public boolean isParallelStream_DefaultThreadPool_Java_Processing_Enabled_True() {
+		return parallelStream_DefaultThreadPool_Java_Processing_Enabled_True;
+	}
+
 }
