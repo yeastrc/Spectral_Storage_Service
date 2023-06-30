@@ -38,7 +38,7 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 	
 	//  This value comes from Environment variable, jvm -D parameter, or property file, in that order.
 
-	private static final String PROPERTY_FILE_KEY__PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE = "parallelstream.default.thread.pool.java.processing.enable";
+	private static final String PROPERTY_NAME__PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE = "parallelstream.default.thread.pool.java.processing.enable";
 
 	private static final String ENVIRONMENT_VARIABLE__PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE = "SPECTRAL_STORAGE_PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE";
 
@@ -352,9 +352,6 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 
 			{ //  PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE
 				
-				String valueFoundInLabel = "";
-				
-
 				String parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String = System.getenv( ENVIRONMENT_VARIABLE__PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE );
 
 				if ( parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String != null ) {
@@ -362,12 +359,25 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 					parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String = parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String.trim();
 				}
 
-
 				if ( StringUtils.isNotEmpty( parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String ) ) {
 
-					log.warn( "INFO: parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String to use: Value found in Environment Variable: '" + ENVIRONMENT_VARIABLE__PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE + "' with value: " + parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String );
+					final String logMessage_Start = 
+							"INFO: parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String to use: Value found in Environment Variable: '" 
+									+ ENVIRONMENT_VARIABLE__PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE 
+									+ "' with value: " 
+									+ parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String
+									+ "' so parallelStream_DefaultThreadPool_Java_Processing";
+					
+					if ( VALUE_TRUE.equals(parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String) ) {
 
-					valueFoundInLabel = "parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String to use: Value found in Environment Variable: '" + ENVIRONMENT_VARIABLE__PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE + "'";
+						log.warn( logMessage_Start
+								+ " will be set to true (YES be enabled)");
+
+						configData_ScanDataLocation_InWorkDirectory.setParallelStream_DefaultThreadPool_Java_Processing_Enabled_True(true);
+					} else {
+						log.warn( logMessage_Start
+								+ " will be NOT set to true (NOT be enabled)");
+					}
 					
 				} else {
 
@@ -383,15 +393,30 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 
 					if ( StringUtils.isNotEmpty( parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String ) ) {
 
-						log.warn( "INFO: parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String to use: Value found in JVM param: '-D" + ENVIRONMENT_VARIABLE__PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE + "' with value: " + parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String );
+						final String logMessage_Start = 
+								"INFO: parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String to use: Value found in JVM param: '-D" 
+								+ ENVIRONMENT_VARIABLE__PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE
+								+ "' with value: '"
+								+ parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String
+								+ "' so parallelStream_DefaultThreadPool_Java_Processing";
+						
+						if ( VALUE_TRUE.equals(parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String) ) {
 
-						valueFoundInLabel = "parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String to use: Value found in JVM param: '-D" + ENVIRONMENT_VARIABLE__PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE + "'";
+							log.warn( logMessage_Start
+									+ " will be set to true (YES be enabled)");
+
+							configData_ScanDataLocation_InWorkDirectory.setParallelStream_DefaultThreadPool_Java_Processing_Enabled_True(true);
+						} else {
+							log.warn( logMessage_Start
+									+ " will be NOT set to true (NOT be enabled)");
+						}
+
 					} else {
 
 						//  Last place to check is Properties File
 
 						if ( propertiesFile_Properties != null ) {
-							parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String = propertiesFile_Properties.getProperty( PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS );
+							parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String = propertiesFile_Properties.getProperty( PROPERTY_NAME__PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE );
 
 							if ( parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String != null ) {
 
@@ -399,12 +424,29 @@ public class ConfigData_ScanDataLocation_InWorkDirectory_Reader {
 							}
 
 							if ( StringUtils.isNotEmpty( parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String ) ) {
+								
+								final String logMessage_Start = "INFO: parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String to use: Value found in Properties file with key: '" 
+										+ PROPERTY_NAME__PARALLELSTREAM_DEFAULT_THREAD_POOL_JAVA_PROCESSING_ENABLE 
+										+ "' with value: '" 
+										+ parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String
+										+ "' so parallelStream_DefaultThreadPool_Java_Processing";
 
-								log.warn( "INFO: parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String to use: Value found in Properties file with key: '" + PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS + "' with value: " + parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String );
+								if ( VALUE_TRUE.equals(parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String) ) {
 
-								valueFoundInLabel = "parallelStream_DefaultThreadPool_Java_Processing_Enabled_True_String to use: Value found in Properties file with key:" + PROPERTY_NAME__MAX_NUMBER_SCANS_TO_RETURN_FOR_REQUESTS_THAT_INCLUDE_SCAN_PEAKS + "'";
+									log.warn( logMessage_Start
+											+ " will be set to true (YES be enabled)");
+
+									configData_ScanDataLocation_InWorkDirectory.setParallelStream_DefaultThreadPool_Java_Processing_Enabled_True(true);
+								} else {
+									log.warn( logMessage_Start
+											+ " will be NOT set to true (NOT be enabled)");
+								}
 							}
 						}
+					}
+					
+					if ( ! configData_ScanDataLocation_InWorkDirectory.isParallelStream_DefaultThreadPool_Java_Processing_Enabled_True() ) {
+						log.warn( "parallelStream_DefaultThreadPool_Java_Processing is NOT enabled" );
 					}
 				}
 				
