@@ -274,26 +274,33 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 							}
 						}
 
-						int allowedMaxScanNumbers = maxNumberScansReturn;
-
-						if ( includeParentScans == 
-								Get_ScanDataFromScanNumbers_IncludeParentScans.IMMEDIATE_PARENT ) {
-
-							allowedMaxScanNumbers = allowedMaxScanNumbers / 2;  // Scan and parent
+						if ( excludeReturnScanPeakData != null 
+								&& excludeReturnScanPeakData == Get_ScanData_ExcludeReturnScanPeakData.YES ) {
+							
 						} else {
-							allowedMaxScanNumbers = allowedMaxScanNumbers / maxScanLevelFound;
-						}
-
-						if ( scanNumbers.size() > allowedMaxScanNumbers ) {
-
-							webserviceResponse.setTooManyScansToReturn( true );
-							webserviceResponse.setMaxScansToReturn( allowedMaxScanNumbers );
-							webserviceResponse.setMaxScanLevelFound( maxScanLevelFound );
-
-							WriteResponseObjectToOutputStream.getSingletonInstance()
-							.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
-
-							return; // EARLY RETURN
+							//  Only apply max number of scans for when returning scan peaks
+								
+							int allowedMaxScanNumbers = maxNumberScansReturn;
+	
+							if ( includeParentScans == 
+									Get_ScanDataFromScanNumbers_IncludeParentScans.IMMEDIATE_PARENT ) {
+	
+								allowedMaxScanNumbers = allowedMaxScanNumbers / 2;  // Scan and parent
+							} else {
+								allowedMaxScanNumbers = allowedMaxScanNumbers / maxScanLevelFound;
+							}
+	
+							if ( scanNumbers.size() > allowedMaxScanNumbers ) {
+	
+								webserviceResponse.setTooManyScansToReturn( true );
+								webserviceResponse.setMaxScansToReturn( allowedMaxScanNumbers );
+								webserviceResponse.setMaxScanLevelFound( maxScanLevelFound );
+	
+								WriteResponseObjectToOutputStream.getSingletonInstance()
+								.writeResponseObjectToOutputStream( webserviceResponse, servetResponseFormat, response );
+	
+								return; // EARLY RETURN
+							}
 						}
 					}
 
