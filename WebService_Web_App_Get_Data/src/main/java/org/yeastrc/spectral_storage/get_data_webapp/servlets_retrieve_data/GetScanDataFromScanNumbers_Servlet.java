@@ -24,6 +24,7 @@ import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileDeser
 import org.yeastrc.spectral_storage.get_data_webapp.exceptions.SpectralFileWebappInternalRuntimeException;
 import org.yeastrc.spectral_storage.get_data_webapp.servlet_response_factories.SingleScan_SubResponse_Factory;
 import org.yeastrc.spectral_storage.get_data_webapp.servlet_response_factories.SingleScan_SubResponse_Factory_Parameters;
+import org.yeastrc.spectral_storage.get_data_webapp.servlet_response_factories.SingleScan_SubResponse_Factory_Parameters.SingleScan_SubResponse_Factory_Parameters__M_Over_Z_Range;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.GetRequestObjectFromInputStream;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.Get_ServletResultDataFormat_FromServletInitParam;
 import org.yeastrc.spectral_storage.get_data_webapp.servlets_common.WriteResponseObjectToOutputStream;
@@ -35,6 +36,7 @@ import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webserv
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_ScanFileAPI_Key_NotFound;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Request;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main.Get_ScanDataFromScanNumbers_Response;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.sub_parts.Get_ScanDataFromScanNumbers_M_Over_Z_Range_SubRequest;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.sub_parts.SingleScan_SubResponse;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.CommonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.CommonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum;
@@ -316,6 +318,21 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 
 					singleScan_SubResponse_Factory_Parameters.setMzHighCutoff( get_ScanDataFromScanNumbers_Request.getMzHighCutoff() );
 					singleScan_SubResponse_Factory_Parameters.setMzLowCutoff( get_ScanDataFromScanNumbers_Request.getMzLowCutoff() );
+					
+					if ( get_ScanDataFromScanNumbers_Request.getM_Over_Z_Range_Filters() != null ) {
+						
+						List<SingleScan_SubResponse_Factory_Parameters__M_Over_Z_Range> m_Over_Z_Range_Filters = new ArrayList<>( get_ScanDataFromScanNumbers_Request.getM_Over_Z_Range_Filters().size() );
+						singleScan_SubResponse_Factory_Parameters.setM_Over_Z_Range_Filters(m_Over_Z_Range_Filters);
+						
+						for ( Get_ScanDataFromScanNumbers_M_Over_Z_Range_SubRequest inputItem : get_ScanDataFromScanNumbers_Request.getM_Over_Z_Range_Filters()  ) {
+							
+							SingleScan_SubResponse_Factory_Parameters__M_Over_Z_Range outputItem = new SingleScan_SubResponse_Factory_Parameters__M_Over_Z_Range();
+							outputItem.setMzHighCutoff( inputItem.getMzHighCutoff() );
+							outputItem.setMzLowCutoff( inputItem.getMzLowCutoff() );
+							
+							m_Over_Z_Range_Filters.add(outputItem);
+						}
+					}
 					
 					//  Updated in method processScanNumber(...):   (Not synchronized here since always read and updated in a synchronized block on 'insertedScansScanNumbers'
 

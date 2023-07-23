@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
+import org.yeastrc.spectral_storage.get_data_webapp.servlet_response_factories.SingleScan_SubResponse_Factory_Parameters.SingleScan_SubResponse_Factory_Parameters__M_Over_Z_Range;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.sub_parts.SingleScanPeak_SubResponse;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.sub_parts.SingleScan_SubResponse;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScanPeak_Common;
@@ -61,6 +62,9 @@ public class SingleScan_SubResponse_Factory {
 			singleScan_SubResponse.setPeaks( peaks );
 			
 			for ( SpectralFile_SingleScanPeak_Common peakCommon : spectralFile_SingleScan_Common.getScanPeaksAsObjectArray() ) {
+				
+				//  Filter on top level request m/z filter cutoffs
+				
 				if ( singleScan_SubResponse_Factory_Parameters.getMzLowCutoff() != null
 						&& singleScan_SubResponse_Factory_Parameters.getMzLowCutoff() > peakCommon.getM_over_Z() ) {
 					continue;  // Skip Peak since MZ below low cutoff
@@ -69,6 +73,39 @@ public class SingleScan_SubResponse_Factory {
 						&& singleScan_SubResponse_Factory_Parameters.getMzHighCutoff() < peakCommon.getM_over_Z() ) {
 					continue;  // Skip Peak since MZ above high cutoff
 				}
+				
+				//   Filter on m/z filter cutoffs in list
+				
+
+				if ( singleScan_SubResponse_Factory_Parameters.getM_Over_Z_Range_Filters() != null ) {
+
+					boolean keepPeak = false;
+
+					for ( SingleScan_SubResponse_Factory_Parameters__M_Over_Z_Range m_Over_Z_Range : singleScan_SubResponse_Factory_Parameters.getM_Over_Z_Range_Filters() ) {
+						
+						boolean keepPeak_SingleRange = true;
+						
+						if ( m_Over_Z_Range.getMzLowCutoff() != null
+								&& m_Over_Z_Range.getMzLowCutoff() > peakCommon.getM_over_Z() ) {
+							keepPeak_SingleRange = false;  //  Peak MZ below low cutoff
+						}
+						if ( m_Over_Z_Range.getMzHighCutoff() != null
+								&& m_Over_Z_Range.getMzHighCutoff() < peakCommon.getM_over_Z() ) {
+							keepPeak_SingleRange = false;  // Peak  MZ above high cutoff
+						}
+						
+						if ( keepPeak_SingleRange ) {
+							//  Peak m/z found in a range so keep peak
+							keepPeak = true;
+							break;
+						}
+					}
+
+					if ( ! keepPeak ) {
+						continue;  // Skip Peak since MZ Not meet MZ Filters
+					}
+				}
+
 				SingleScanPeak_SubResponse peak = new SingleScanPeak_SubResponse();
 				peak.setMz( peakCommon.getM_over_Z() );
 				peak.setIntensity( peakCommon.getIntensity() );

@@ -13,6 +13,7 @@ import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webserv
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_ExcludeReturnScanPeakData;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_IncludeReturnIonInjectionTimeData;
 import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums.Get_ScanData_IncludeReturnScanLevelTotalIonCurrentData;
+import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.sub_parts.Get_ScanDataFromScanNumbers_M_Over_Z_Range_SubRequest;
 
 /**
  * Request object for POST to Webservice GetScanDataFromScanNumbers_Servlet
@@ -64,42 +65,54 @@ public class Get_ScanDataFromScanNumbers_Request extends BaseGetDataWebserviceRe
 
 	/**
 	 * If populated, do not return any peaks with mz below this cutoff.  
+	 * 
+	 * This cutoff is applied in Addition To the filters in property 'm_Over_Z_Range_Filters' 
 	 */
 	@XmlAttribute // attribute name is property name
-	private Float mzLowCutoff;
+	private Double mzLowCutoff;
 
 	/**
 	 * If populated, do not return any peaks with mz above this cutoff.  
+	 * 
+	 * This cutoff is applied in Addition To the filters in property 'm_Over_Z_Range_Filters'
 	 */
 	@XmlAttribute // attribute name is property name
-	private Float mzHighCutoff;
+	private Double mzHighCutoff;
+
+
+	/**
+	 * Main Query element, list of m/z filter cutoffs.  Each m/z range is OR with each other
+	 */
+	@XmlElementWrapper(name="m_Over_Z_Range_Filters")
+	@XmlElement(name="m_Over_Z_Range_Filter")
+	private List<Get_ScanDataFromScanNumbers_M_Over_Z_Range_SubRequest> m_Over_Z_Range_Filters;
 
 
 	/**
 	 * If populated, do not return any peaks with mz below this cutoff.  
 	 */
-	public Float getMzLowCutoff() {
+	public Double getMzLowCutoff() {
 		return mzLowCutoff;
 	}
 
 	/**
 	 * If populated, do not return any peaks with mz below this cutoff.  
 	 */
-	public void setMzLowCutoff(Float mzLowCutoff) {
+	public void setMzLowCutoff(Double mzLowCutoff) {
 		this.mzLowCutoff = mzLowCutoff;
 	}
 
 	/**
 	 * If populated, do not return any peaks with mz above this cutoff.  
 	 */
-	public Float getMzHighCutoff() {
+	public Double getMzHighCutoff() {
 		return mzHighCutoff;
 	}
 
 	/**
 	 * If populated, do not return any peaks with mz above this cutoff.  
 	 */
-	public void setMzHighCutoff(Float mzHighCutoff) {
+	public void setMzHighCutoff(Double mzHighCutoff) {
 		this.mzHighCutoff = mzHighCutoff;
 	}
 
@@ -152,6 +165,15 @@ public class Get_ScanDataFromScanNumbers_Request extends BaseGetDataWebserviceRe
 	public void setIncludeReturnScanLevelTotalIonCurrentData(
 			Get_ScanData_IncludeReturnScanLevelTotalIonCurrentData includeReturnScanLevelTotalIonCurrentData) {
 		this.includeReturnScanLevelTotalIonCurrentData = includeReturnScanLevelTotalIonCurrentData;
+	}
+
+	public List<Get_ScanDataFromScanNumbers_M_Over_Z_Range_SubRequest> getM_Over_Z_Range_Filters() {
+		return m_Over_Z_Range_Filters;
+	}
+
+	public void setM_Over_Z_Range_Filters(
+			List<Get_ScanDataFromScanNumbers_M_Over_Z_Range_SubRequest> m_Over_Z_Range_Filters) {
+		this.m_Over_Z_Range_Filters = m_Over_Z_Range_Filters;
 	}
 
 

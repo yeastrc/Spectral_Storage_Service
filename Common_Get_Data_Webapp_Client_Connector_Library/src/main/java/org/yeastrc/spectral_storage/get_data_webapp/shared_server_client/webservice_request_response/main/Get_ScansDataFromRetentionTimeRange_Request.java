@@ -36,13 +36,13 @@ public class Get_ScansDataFromRetentionTimeRange_Request extends BaseGetDataWebs
 	 * If populated, do not return any peaks with mz below this cutoff.  
 	 */
 	@XmlAttribute // attribute name is property name
-	private Float mzLowCutoff;
+	private Double mzLowCutoff;
 
 	/**
 	 * If populated, do not return any peaks with mz above this cutoff.  
 	 */
 	@XmlAttribute // attribute name is property name
-	private Float mzHighCutoff;
+	private Double mzHighCutoff;
 	
 	/**
 	 * Only return scans for this scan level
@@ -71,28 +71,28 @@ public class Get_ScansDataFromRetentionTimeRange_Request extends BaseGetDataWebs
 	/**
 	 * If populated, do not return any peaks with mz below this cutoff.  
 	 */
-	public Float getMzLowCutoff() {
+	public Double getMzLowCutoff() {
 		return mzLowCutoff;
 	}
 
 	/**
 	 * If populated, do not return any peaks with mz below this cutoff.  
 	 */
-	public void setMzLowCutoff(Float mzLowCutoff) {
+	public void setMzLowCutoff(Double mzLowCutoff) {
 		this.mzLowCutoff = mzLowCutoff;
 	}
 
 	/**
 	 * If populated, do not return any peaks with mz above this cutoff.  
 	 */
-	public Float getMzHighCutoff() {
+	public Double getMzHighCutoff() {
 		return mzHighCutoff;
 	}
 
 	/**
 	 * If populated, do not return any peaks with mz above this cutoff.  
 	 */
-	public void setMzHighCutoff(Float mzHighCutoff) {
+	public void setMzHighCutoff(Double mzHighCutoff) {
 		this.mzHighCutoff = mzHighCutoff;
 	}
 
