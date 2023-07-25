@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -41,9 +40,13 @@ import org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webserv
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.CommonCore_Get_ScanData_IncludeReturnIonInjectionTimeData_Enum;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.constants_enums.CommonCore_Get_ScanData_IncludeReturnTotalIonCurrentData_Enum;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.exceptions.SpectralStorageDataNotFoundException;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.ScanLevel_1_RT_MZ_Binned_Constants;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.ScanLevel_1_RT_MZ_Binned_ReadFile_GetParsedContents_JSON_GZIP_NoIntensities__ObjectCache;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.scan_rt_mz_binned.ScanLevel_1_RT_MZ_Binned_ReadFile_GetParsedContents_JSON_GZIP_NoIntensities__ObjectCache.ScanLevel_1_RT_MZ_Binned_ReadFile_GetParsedContents_JSON_GZIP_NoIntensities__ObjectCache__Get_Result;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_dto.data_file.SpectralFile_SingleScan_Common;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_reader_file_and_s3.CommonReader_File_And_S3_Holder;
+import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.common_request_results.SpectralFile_Result_RetentionTime_ScanNumber;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader_Factory;
 import org.yeastrc.spectral_storage.spectral_file_common.spectral_file.storage_files_on_disk.reader_writer_if_factories.SpectralFile_Reader__IF;
 
@@ -253,7 +256,7 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 				} else {
 					
 					final SpectralFile_Reader__IF spectralFile_Reader_AfterAssigned_InsideTry = spectralFile_Reader;
-
+					
 					Byte maxScanLevelFound = null;
 
 					if ( includeParentScans != null
@@ -332,6 +335,63 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 							
 							m_Over_Z_Range_Filters.add(outputItem);
 						}
+						
+						
+						//   Filter  Scan Numbers for scans that do NOT have any peaks in the binned data for the M/Z filters
+						
+						//  Following code is NOT TESTED and NOT COMPLETE
+					
+//						ScanLevel_1_RT_MZ_Binned_ReadFile_GetParsedContents_JSON_GZIP_NoIntensities__ObjectCache__Get_Result scanLevel_1_RT_MZ_Binned_ReadFile_Parsed_JSON_GZIP_NoIntensities__ObjectCache__Get_Result =
+//								ScanLevel_1_RT_MZ_Binned_ReadFile_GetParsedContents_JSON_GZIP_NoIntensities__ObjectCache.getSingletonInstance()
+//								.getCacheValue(	scanFileAPIKey, 
+//										(int) ScanLevel_1_RT_MZ_Binned_Constants.RETENTION_TIME_BIN_SIZE_IN_SECONDS_1,
+//										(int) ScanLevel_1_RT_MZ_Binned_Constants.MZ_BIN_SIZE_IN_MZ_1 );
+//				
+//						
+//						List<Integer> scanNumbers_Filtered = new ArrayList<>( scanNumbers.size() );
+//						
+//						for ( Integer scanNumber : scanNumbers ) {
+//							
+//
+//							SpectralFile_Result_RetentionTime_ScanNumber result_RetentionTime = spectralFile_Reader_AfterAssigned_InsideTry.getScanRetentionTimeForScanNumber( scanNumber );
+//
+//							if ( result_RetentionTime == null ) {
+//								//  Scan Number NOT FOUND in scan file so skip
+//								continue; // EARLY CONTINUE
+//							}
+//							
+//							List<Integer> scan_RetentionTime_Binned_List = new ArrayList<>( 2 );
+//							
+//							float scan_RetentionTime = result_RetentionTime.getRetentionTime();
+//							
+//							//   Search for scan_RetentionTime +/- 0.1 to ensure that do not miss a scan peak due to rounding
+//							
+//							float scan_RetentionTime_Subtract_0_point_1 = scan_RetentionTime - 0.1f;
+//							float scan_RetentionTime_Add_0_point_1 = scan_RetentionTime + 0.1f;
+//							
+//							int scan_RetentionTime_Subtract_0_point_1__Floor = (int) Math.floor( scan_RetentionTime_Subtract_0_point_1 );
+//							int scan_RetentionTime_Add_0_point_1__Floor = (int) Math.floor( scan_RetentionTime_Add_0_point_1 );
+//							
+//							scan_RetentionTime_Binned_List.add( scan_RetentionTime_Subtract_0_point_1__Floor );
+//							if ( scan_RetentionTime_Subtract_0_point_1__Floor != scan_RetentionTime_Add_0_point_1__Floor ) {
+//								scan_RetentionTime_Binned_List.add( scan_RetentionTime_Add_0_point_1__Floor );
+//							}
+//							
+//							for ( Integer scan_RetentionTime_Binned_Item : scan_RetentionTime_Binned_List ) {
+//								
+//								
+////								sss
+//								
+//							}
+//							
+//							
+//							scanNumbers_Filtered.add( scanNumber );
+//							
+////							sss;
+//						}
+//						
+//						scanNumbers = scanNumbers_Filtered;
+						
 					}
 					
 					//  Updated in method processScanNumber(...):   (Not synchronized here since always read and updated in a synchronized block on 'insertedScansScanNumbers'
