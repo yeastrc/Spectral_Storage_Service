@@ -87,6 +87,12 @@ public class Get_ScanDataFromScanNumbers_Request extends BaseGetDataWebserviceRe
 	@XmlElement(name="m_Over_Z_Range_Filter")
 	private List<Get_ScanDataFromScanNumbers_M_Over_Z_Range_SubRequest> m_Over_Z_Range_Filters;
 
+	/**
+	 * If populated and true, populate peak_WMxInty in class SingleScan_SubResponse
+	 */
+	@XmlAttribute // attribute name is property name
+	private Boolean returnScanPeakWithMaxIntensityIgnoringSanPeakFilters;
+
 
 	/**
 	 * If populated, do not return any peaks with mz below this cutoff.  
@@ -174,6 +180,15 @@ public class Get_ScanDataFromScanNumbers_Request extends BaseGetDataWebserviceRe
 	public void setM_Over_Z_Range_Filters(
 			List<Get_ScanDataFromScanNumbers_M_Over_Z_Range_SubRequest> m_Over_Z_Range_Filters) {
 		this.m_Over_Z_Range_Filters = m_Over_Z_Range_Filters;
+	}
+
+	public Boolean getReturnScanPeakWithMaxIntensityIgnoringSanPeakFilters() {
+		return returnScanPeakWithMaxIntensityIgnoringSanPeakFilters;
+	}
+
+	public void setReturnScanPeakWithMaxIntensityIgnoringSanPeakFilters(
+			Boolean returnScanPeakWithMaxIntensityIgnoringSanPeakFilters) {
+		this.returnScanPeakWithMaxIntensityIgnoringSanPeakFilters = returnScanPeakWithMaxIntensityIgnoringSanPeakFilters;
 	}
 
 

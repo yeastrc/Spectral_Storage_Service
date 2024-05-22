@@ -27,7 +27,12 @@ public class SingleScan_SubResponse_Factory_Parameters {
 	 */
 	private List<SingleScan_SubResponse_Factory_Parameters__M_Over_Z_Range> m_Over_Z_Range_Filters;
 	
-	
+
+	/**
+	 * If populated and true, populate peak_WMxInty in class SingleScan_SubResponse
+	 */
+	private Boolean returnScanPeakWithMaxIntensityIgnoringSanPeakFilters;
+
 	///
 
 	
@@ -98,5 +103,14 @@ public class SingleScan_SubResponse_Factory_Parameters {
 	public void setM_Over_Z_Range_Filters(
 			List<SingleScan_SubResponse_Factory_Parameters__M_Over_Z_Range> m_Over_Z_Range_Filters) {
 		this.m_Over_Z_Range_Filters = m_Over_Z_Range_Filters;
+	}
+
+	public Boolean getReturnScanPeakWithMaxIntensityIgnoringSanPeakFilters() {
+		return returnScanPeakWithMaxIntensityIgnoringSanPeakFilters;
+	}
+
+	public void setReturnScanPeakWithMaxIntensityIgnoringSanPeakFilters(
+			Boolean returnScanPeakWithMaxIntensityIgnoringSanPeakFilters) {
+		this.returnScanPeakWithMaxIntensityIgnoringSanPeakFilters = returnScanPeakWithMaxIntensityIgnoringSanPeakFilters;
 	}
 }

@@ -63,6 +63,22 @@ public class SingleScan_SubResponse_Factory {
 			
 			for ( SpectralFile_SingleScanPeak_Common peakCommon : spectralFile_SingleScan_Common.getScanPeaksAsObjectArray() ) {
 				
+				if ( singleScan_SubResponse_Factory_Parameters.getReturnScanPeakWithMaxIntensityIgnoringSanPeakFilters() != null
+						&& singleScan_SubResponse_Factory_Parameters.getReturnScanPeakWithMaxIntensityIgnoringSanPeakFilters().booleanValue() ) {
+				
+					//  Save Peak with Max Intensity, since requested
+					
+					if ( singleScan_SubResponse.getPeak_WithMaxIntensityInAllOfScan() == null
+							|| singleScan_SubResponse.getPeak_WithMaxIntensityInAllOfScan().getIntensity() < peakCommon.getIntensity() ) {
+
+						SingleScanPeak_SubResponse peak = new SingleScanPeak_SubResponse();
+						peak.setMz( peakCommon.getM_over_Z() );
+						peak.setIntensity( peakCommon.getIntensity() );
+					
+						singleScan_SubResponse.setPeak_WithMaxIntensityInAllOfScan( peak );
+					}
+				}
+				
 				//  Filter on top level request m/z filter cutoffs
 				
 				if ( singleScan_SubResponse_Factory_Parameters.getMzLowCutoff() != null

@@ -50,6 +50,10 @@ public class SingleScan_SubResponse {
 	@XmlElement(name="peak")
 	private List<SingleScanPeak_SubResponse> peaks;
 	
+	@XmlElement(name="peak_WMxInty")   //   'name' for XML value
+	// Peak with Max Intensity in the scan. IGNORES Scan Peak Filtering.  ONLY Returned if requested so NOT break old callers.
+	private SingleScanPeak_SubResponse peak_WithMaxIntensityInAllOfScan;  
+	
 	//  Constructors
 	
 	public SingleScan_SubResponse() {
@@ -131,5 +135,12 @@ public class SingleScan_SubResponse {
 		this.totalIonCurrent_ForScan = totalIonCurrent_ForScan;
 	}
 
+	public SingleScanPeak_SubResponse getPeak_WithMaxIntensityInAllOfScan() {
+		return peak_WithMaxIntensityInAllOfScan;
+	}
+
+	public void setPeak_WithMaxIntensityInAllOfScan(SingleScanPeak_SubResponse peak_WithMaxIntensityInAllOfScan) {
+		this.peak_WithMaxIntensityInAllOfScan = peak_WithMaxIntensityInAllOfScan;
+	}
 	
 }
