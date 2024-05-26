@@ -50,7 +50,6 @@ public class SingleScan_SubResponse {
 	@XmlElement(name="peak")
 	private List<SingleScanPeak_SubResponse> peaks;
 	
-	@XmlElement(name="peak_WMxInty")   //   'name' for XML value
 	// Peak with Max Intensity in the scan. IGNORES Scan Peak Filtering.  ONLY Returned if requested so NOT break old callers.
 	private SingleScanPeak_SubResponse peak_WithMaxIntensityInAllOfScan;  
 	
