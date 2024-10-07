@@ -27,42 +27,69 @@ All shorts, integers, and longs are written high byte first (big-endian). All fl
 according to IEEE 754 floating-point "double format" bit layout, and written as ints and longs. See ``writeByte``, 
 ``writeShort``, ``writeInt``, ``writeLong``, ``writeFloat``, ``writeDouble`` at https://docs.oracle.com/javase/8/docs/api/java/io/DataOutputStream.html for more information.
 
+
+
+File Version
+----------------------------------------------------------
+The latest version is 5.
+All newly created files will be that version.
+There were versions 3 and 4.
+An existing installation of Spectral Storage Service may have files with those versions.
+
+File Format
+----------------------------------------------------------
+
 File Header
 ----------------------------------------------------------
 This section appears once at the beginning of the file and contains information describing this file.
 
 Header sections:
+	
+	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+	| Name                                         | Data Type | Bytes | Description                                                                                     |
+	+==============================================+===========+=======+=================================================================================================+
+	| Version                                      | short     | 2     | The file format version for this file. Version 5.                                               |
+	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+	| Full write indicator                         | byte      | 1     | Indicates if the binary file is fully written:                                                  |
+	|                                              |           |       | 0 = no, 1 = yes, 2 = undefined (always 2 in S3).                                                |
+	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+	| All Scans: Total Ion Current Computed        | byte      | 1     | Whether the Total Ion Current per scan is computed by the Spectral Storage Service Importer:    |
+	|                                              |           |       | 0 = no, 1 = yes.                                                                                |
+	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+	| All Scans: Ion injection time NOT populated  | byte      | 1     | Indicates if the Ion Injection Time per scan is missing:                                        |
+	|                                              |           |       | 0 = no, 1 = yes.                                                                                |
+	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+	| Count of scan levels                         | byte      | 1     | The number of scan levels. For example, 2 for ms1 and ms2.                                      |
+	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
 
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Name                 | Data Type | Bytes | Description                                                                                |
-	+======================+===========+=======+============================================================================================+
-	| Version              | short     | 2     | The file format version for this file. Currently, there is only one version (3).           |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Full write indicator | byte      | 1     | Is the binary file fully written? 0 = no, 1 = yes, 2 = undefined (always 2 in S3)          |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Centroided?          | byte      | 1     | A whole-file designation for centroidedness. 0 = only no, 1 = only yes, and 2 = mixed.     |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Count of scan levels | byte      | 1     | Number of scan levels. E.g., 2 for ms1 and ms2.                                            |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 
 Then for each scan level:
-
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Name                 | Data Type | Bytes | Description                                                                                |
-	+======================+===========+=======+============================================================================================+
-	| Scan level           | byte      | 1     | The scan level. E.g., 1 for ms1 or 2 for ms2.                                              |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Number of scans      | integer   | 4     | Number of scan for this scan level                                                         |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Total ion current    | double    | 8     | Total ion current for this scan level (sum of intensity of all peaks)                      |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
+	| Name                         | Data Type | Bytes | Description                                                                                            |
+	+==============================+===========+=======+========================================================================================================+
+	| Scan level                   | byte      | 1     | The scan level. E.g., 1 for ms1 or 2 for ms2.                                                          |
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
+	| Number of scans              | integer   | 4     | Number of scans for this scan level.                                                                   |
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
+	| Centroided?                  | byte      | 1     | Designation for centroidedness at this scan level: 0 = only no, 1 = only yes, and 2 = mixed.           |
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
+	| Ion injection time set?      | byte      | 1     | All scans at this scan level have Ion Injection Time populated:                                        |
+	|                              |           |       | 0 = no, 1 = yes, 2 = some no, some yes.                                                                |
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
+	| Total ion current            | double    | 8     | Total ion current for this scan level from one of the following:                                       |
+	|                              |           |       |  * Sum of Total Ion Current field for all scans with this scan level (Total Ion Current Computed == 0) |
+	|                              |           |       |  * Same as Total ion current sum of scan peaks (next field) (Total Ion Current Computed == 1)          |
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
+	| Total ion current sum of     | double    | 8     | Sum of intensity of all peaks for all scans with this scan level.                                      |
+	| scan peaks                   |           |       |                                                                                                        |
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
 
 Then continuing:
 
 	+-------------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 	| Name                    | Data Type | Bytes | Description                                                                                |
 	+=========================+===========+=======+============================================================================================+
-	| Scan number sorted?     | byte      | 1     | 0 if not sorted by scan number. 1 if sorted by scan number.                                |
+	| Scan numbers sequential | byte      | 1     | Scan numbers are sequential (1,2,3,...,n-1,n). 0 = no, 1 = yes                             |
 	+-------------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 	| Ret. time sorted?       | byte      | 1     | 0 if not sorted by retention time. 1 if sorted by retention time.                          |
 	+-------------------------+-----------+-------+--------------------------------------------------------------------------------------------+
@@ -78,7 +105,7 @@ Then continuing:
 	|                         |           |       |  * 1 = byte                                                                                |
 	|                         |           |       |  * 2 = short                                                                               |
 	|                         |           |       |  * 3 = integer                                                                             |
-	|                         |           |       |  * 8 = none. There is no offset stored. Assumed that offset between scans is 1.            |
+	|                         |           |       |  * 8 = none. There is no offset stored. Assumed that offset between scan numbers is 1.     |
 	+-------------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 	| Scan size type          | byte      | 1     | The data type used to store the scan size below:                                           |
 	|                         |           |       |  * 1 = byte                                                                                |
@@ -100,5 +127,4 @@ Then for each scan:
 	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 	| Retention time       | float     | 4     | Retention time for this scan.                                                              |
 	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-
 
