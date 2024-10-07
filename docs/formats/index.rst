@@ -64,25 +64,25 @@ Header sections:
 
 
 Then for each scan level:
-	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
-	| Name                         | Data Type | Bytes | Description                                                                                    |
-	+==============================+===========+=======+================================================================================================+
-	| Scan level                   | byte      | 1     | The scan level. E.g., 1 for ms1 or 2 for ms2.                                                  |
-	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
-	| Number of scans              | integer   | 4     | Number of scans for this scan level.                                                           |
-	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
-	| Centroided?                  | byte      | 1     | Designation for centroidedness at this scan level: 0 = only no, 1 = only yes, and 2 = mixed.   |
-	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
-	| Ion injection time set?      | byte      | 1     | All scans at this scan level have Ion Injection Time populated:                                |
-	|                              |           |       | 0 = no, 1 = yes, 2 = some no, some yes.                                                        |
-	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
-	| Total ion current            | double    | 8     | Total ion current for this scan level from one of the following:                               |
-	|                              |           |       |  * Sum of TotalIonCurrent for all scans with this scan level (Total Ion Current Computed == 0) |
-	|                              |           |       |  * Same as Total ion current sum of scan peaks (next field) (Total Ion Current Computed == 1)  |
-	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
-	| Total ion current sum of     | double    | 8     | Sum of intensity of all peaks for all scans with this scan level.                              |
-	| scan peaks                   |           |       |                                                                                                |
-	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
+	| Name                         | Data Type | Bytes | Description                                                                                            |
+	+==============================+===========+=======+========================================================================================================+
+	| Scan level                   | byte      | 1     | The scan level. E.g., 1 for ms1 or 2 for ms2.                                                          |
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
+	| Number of scans              | integer   | 4     | Number of scans for this scan level.                                                                   |
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
+	| Centroided?                  | byte      | 1     | Designation for centroidedness at this scan level: 0 = only no, 1 = only yes, and 2 = mixed.           |
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
+	| Ion injection time set?      | byte      | 1     | All scans at this scan level have Ion Injection Time populated:                                        |
+	|                              |           |       | 0 = no, 1 = yes, 2 = some no, some yes.                                                                |
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
+	| Total ion current            | double    | 8     | Total ion current for this scan level from one of the following:                                       |
+	|                              |           |       |  * Sum of Total Ion Current field for all scans with this scan level (Total Ion Current Computed == 0) |
+	|                              |           |       |  * Same as Total ion current sum of scan peaks (next field) (Total Ion Current Computed == 1)          |
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
+	| Total ion current sum of     | double    | 8     | Sum of intensity of all peaks for all scans with this scan level.                                      |
+	| scan peaks                   |           |       |                                                                                                        |
+	+------------------------------+-----------+-------+--------------------------------------------------------------------------------------------------------+
 
 Then continuing:
 
