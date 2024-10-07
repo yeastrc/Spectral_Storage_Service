@@ -128,4 +128,3 @@ Then for each scan:
 	| Retention time       | float     | 4     | Retention time for this scan.                                                              |
 	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 
-Table data unchanged
