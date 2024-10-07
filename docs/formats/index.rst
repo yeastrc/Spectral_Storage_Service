@@ -44,128 +44,52 @@ File Header
 This section appears once at the beginning of the file and contains information describing this file.
 
 Header sections:
-
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Name                 | Data Type | Bytes | Description                                                                                |
-	+======================+===========+=======+============================================================================================+
-	| Version              | short     | 2     | The file format version for this file. Currently, there is only one version (3).           |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Full write indicator | byte      | 1     | Is the binary file fully written? 0 = no, 1 = yes, 2 = undefined (always 2 in S3)          |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Centroided?          | byte      | 1     | A whole-file designation for centroidedness. 0 = only no, 1 = only yes, and 2 = mixed.     |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Count of scan levels | byte      | 1     | Number of scan levels. E.g., 2 for ms1 and ms2.                                            |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 	
-New Text
+	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+	| Name                                         | Data Type | Bytes | Description                                                                                     |
+	+==============================================+===========+=======+=================================================================================================+
+	| Version                                      | short     | 2     | The file format version for this file. Version 5.                                               |
+	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+	| Full write indicator                         | byte      | 1     | Indicates if the binary file is fully written:                                                  |
+	|                                              |           |       | 0 = no, 1 = yes, 2 = undefined (always 2 in S3).                                                |
+	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+	| All Scans: Total Ion Current Computed        | byte      | 1     | Whether the Total Ion Current per scan is computed by the Spectral Storage Service Importer:    |
+	|                                              |           |       | 0 = no, 1 = yes. The original scan file did not have this value.                                |
+	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+	| All Scans: Ion injection time NOT populated  | byte      | 1     | Indicates if the Ion Injection Time per scan is missing:                                        |
+	|                                              |           |       | 0 = no, 1 = yes. The original scan file did not include this value.                             |
+	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+	| Count of scan levels                         | byte      | 1     | The number of scan levels. For example, 2 for ms1 and ms2.                                      |
+	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
 
-Field:  	  
-Version  
-
-Description:
-Version 5
-
-Field:
-Full write indicator
-	
-Description:	
-NO Change	
-
-Remove Field: Centroided? from this table.  Moved to per scan level section
-
-Field:
-totalIonCurrent_ForEachScan_ComputedFromScanPeaks  byte
-
-Description:
-Original Scan File did NOT have Total Ion Current Per Scan so it is computed in Spectral Storage Service Importer from Scan Peaks.
-Not populated for Data File Version < 5.
- 0 = no, 1 = yes
-
-Field:
-ionInjectionTime_NotPopulated  byte
-
-Description:
-*	Original Scan File did NOT have Ion Injection Time Per Scan.
-	 * Not populated for Data File Version < 5.
-	 * @return - null if not stored in data file (Old Version of data file)
-
-
-Field:
-Count of scan levels
-
-Description:	
-NO Change	
 
 Then for each scan level:
-
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Name                 | Data Type | Bytes | Description                                                                                |
-	+======================+===========+=======+============================================================================================+
-	| Scan level           | byte      | 1     | The scan level. E.g., 1 for ms1 or 2 for ms2.                                              |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Number of scans      | integer   | 4     | Number of scan for this scan level                                                         |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-	| Total ion current    | double    | 8     | Total ion current for this scan level (sum of intensity of all peaks)                      |
-	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-
-
-New Text for section: Then for each scan level:
-
-
-Field:
-Count of scan levels
-
-Description:	
-NO Change	
-
-Field:
-Number of scans
-
-Description:	
-NO Change	
-
-Field:
- Centroided?  Moved From above but for this scan level
-
-
-Field:
-isIonInjectionTime_Set_ScanLevel  byte
-
-Description:
-All scans at this can level have Ion Injection Time populated.  0 = no, 1 = yes, 2 = some no, some yes.
-		/**
-		 * Is the IonInjectionTime Set values for this scan level
-		 * 0 - false - IonInjectionTime == null
-		 * 1 - true - IonInjectionTime != null
-		 * 2 - both - both IonInjectionTime == null and IonInjectionTime != null
-		 *            ScanHasIonInjectionTimeConstants.SCAN_HAS_ION_INJECTION_TIME_VALUES_IN_FILE_BOTH
-		 */
-
-Field:
-totalIonCurrent_SumOf_TotalIonCurrent_OfScans  double
-
-Description:
-		/**
-		 * This is either ( Based On Value of totalIonCurrent_ForEachScan_ComputedFromScanPeaks ):
-		 * A) Sum of TotalIonCurrent for all scans with this scan level ( totalIonCurrent_ForEachScan_ComputedFromScanPeaks == 0 )
-		 * B) Same as totalIonCurrent_SumOf_IntensityOfPeaks ( totalIonCurrent_ForEachScan_ComputedFromScanPeaks == 1 )
-		 */
-		 
-Field: 
-totalIonCurrent_SumOf_IntensityOfPeaks   double
-
-Description:
-Sum of intensity of all peaks for all scans with this scan level
-
-
-*************
+	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
+	| Name                         | Data Type | Bytes | Description                                                                                    |
+	+==============================+===========+=======+================================================================================================+
+	| Scan level                   | byte      | 1     | The scan level. E.g., 1 for ms1 or 2 for ms2.                                                  |
+	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
+	| Number of scans              | integer   | 4     | Number of scans for this scan level.                                                           |
+	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
+	| Centroided?                  | byte      | 1     | Designation for centroidedness at this scan level: 0 = only no, 1 = only yes, and 2 = mixed.   |
+	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
+	| Ion injection time set?      | byte      | 1     | All scans at this scan level have Ion Injection Time populated:                                |
+	|                              |           |       | 0 = no, 1 = yes, 2 = some no, some yes.                                                        |
+	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
+	| Total ion current            | double    | 8     | Total ion current for this scan level from one of the following:                               |
+	|                              |           |       |  * Sum of TotalIonCurrent for all scans with this scan level (Total Ion Current Computed == 0) |
+	|                              |           |       |  * Same as Total ion current sum of scan peaks (next field) (Total Ion Current Computed == 1)  |
+	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
+	| Total ion current sum of     | double    | 8     | Sum of intensity of all peaks for all scans with this scan level.                              |
+	| scan peaks                   |           |       |                                                                                                |
+	+------------------------------+-----------+-------+------------------------------------------------------------------------------------------------+
 
 Then continuing:
 
 	+-------------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 	| Name                    | Data Type | Bytes | Description                                                                                |
 	+=========================+===========+=======+============================================================================================+
-	| Scan number sorted?     | byte      | 1     | 0 if not sorted by scan number. 1 if sorted by scan number.                                |
+	| Scan numbers sequential | byte      | 1     | Scan numbers are sequential (1,2,3,...,n-1,n). 0 = no, 1 = yes                             |
 	+-------------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 	| Ret. time sorted?       | byte      | 1     | 0 if not sorted by retention time. 1 if sorted by retention time.                          |
 	+-------------------------+-----------+-------+--------------------------------------------------------------------------------------------+
@@ -181,26 +105,13 @@ Then continuing:
 	|                         |           |       |  * 1 = byte                                                                                |
 	|                         |           |       |  * 2 = short                                                                               |
 	|                         |           |       |  * 3 = integer                                                                             |
-	|                         |           |       |  * 8 = none. There is no offset stored. Assumed that offset between scans is 1.            |
+	|                         |           |       |  * 8 = none. There is no offset stored. Assumed that offset between scan numbers is 1.     |
 	+-------------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 	| Scan size type          | byte      | 1     | The data type used to store the scan size below:                                           |
 	|                         |           |       |  * 1 = byte                                                                                |
 	|                         |           |       |  * 2 = short                                                                               |
 	|                         |           |       |  * 3 = integer                                                                             |
 	+-------------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-
-New Text:
-
-Field:
-Scan number sorted?
- 
-This is incorrect.  It should be:  Scan numbers sequential
- 
-Description:
-The scan numbers are sequential (1,2,3,...,n-1,n)  1 = yes, 0 = no
-
-Rest is Unchanged
-
 
 Then for each scan:
 
