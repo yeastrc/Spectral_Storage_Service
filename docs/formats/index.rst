@@ -54,10 +54,10 @@ Header sections:
 	|                                              |           |       | 0 = no, 1 = yes, 2 = undefined (always 2 in S3).                                                |
 	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
 	| All Scans: Total Ion Current Computed        | byte      | 1     | Whether the Total Ion Current per scan is computed by the Spectral Storage Service Importer:    |
-	|                                              |           |       | 0 = no, 1 = yes. The original scan file did not have this value.                                |
+	|                                              |           |       | 0 = no, 1 = yes.                                                                                |
 	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
 	| All Scans: Ion injection time NOT populated  | byte      | 1     | Indicates if the Ion Injection Time per scan is missing:                                        |
-	|                                              |           |       | 0 = no, 1 = yes. The original scan file did not include this value.                             |
+	|                                              |           |       | 0 = no, 1 = yes.                                                                                |
 	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
 	| Count of scan levels                         | byte      | 1     | The number of scan levels. For example, 2 for ms1 and ms2.                                      |
 	+----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+

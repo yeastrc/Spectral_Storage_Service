@@ -45,54 +45,37 @@ expected lengths or hashes.
 Header sections:
 
 
-+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-| Name                 | Data Type | Bytes | Description                                                                                |
-+======================+===========+=======+============================================================================================+
-| Version              | short     | 2     | The file format version for this file. Version is 5.                                       |
-+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-| Full write indicator | byte      | 1     | Whether or not this file is fully written. 0 = no, 1 = yes, 2 = undefined (always 2 in S3) |
-+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-| Length of this file  | long      | 8     | Length of this binary file (not present when using S3)                                     |
-+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-| Header length        | short     | 2     | Length of the header (in bytes), up to an excluding this value.                            |
-+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-| Scan file length     | long      | 8     | Length of scan file used to generate this file.                                            |
-+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-| SHA 384 hash length  | short     | 2     | Length of SHA 384 hash, in bytes.                                                          |
-+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-| SHA 384 hash bytes   | byte[]    |       | A byte array with a length equal to above.                                                 |
-+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-| SHA 512 hash length  | short     | 2     | Length of SHA 512 hash, in bytes.                                                          |
-+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-| SHA 512 hash bytes   | byte[]    |       | A byte array with a length equal to above.                                                 |
-+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-| SHA-1 hash length    | short     | 2     | Length of SHA-1 hash, in bytes.                                                            |
-+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-| SHA-1 has bytes      | byte[]    |       | A byte array with a length equal to above.                                                 |
-+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
-
-
-Added Fields:
-
-
-Field:
-totalIonCurrent_ForEachScan_ComputedFromScanPeaks  byte
-
-Description:
-Original Scan File did NOT have Total Ion Current Per Scan so it is computed in Spectral Storage Service Importer from Scan Peaks.
-Not populated for Data File Version < 5.
- 0 = no, 1 = yes
-
-Field:
-ionInjectionTime_NotPopulated  byte
-
-Description:
-*	Original Scan File did NOT have Ion Injection Time Per Scan.
-	 * Not populated for Data File Version < 5.
-	 * @return - null if not stored in data file (Old Version of data file)
-
-
-
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+| Name                                         | Data Type | Bytes | Description                                                                                     |
++==============================================+===========+=======+=================================================================================================+
+| Version                                      | short     | 2     | The file format version for this file. Version is 5.                                            |
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+| Full write indicator                         | byte      | 1     | Whether this file is fully written: 0 = no, 1 = yes, 2 = undefined (always 2 in S3).            |
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+| Length of this file                          | long      | 8     | Length of this binary file (not present when using S3).                                         |
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+| Header length                                | short     | 2     | Length of the header (in bytes), up to and excluding this value.                                |
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+| Scan file length                             | long      | 8     | Length of the scan file used to generate this file.                                             |
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+| SHA 384 hash length                          | short     | 2     | Length of the SHA 384 hash, in bytes.                                                           |
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+| SHA 384 hash bytes                           | byte[]    |       | A byte array with a length equal to the value specified above.                                  |
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+| SHA 512 hash length                          | short     | 2     | Length of the SHA 512 hash, in bytes.                                                           |
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+| SHA 512 hash bytes                           | byte[]    |       | A byte array with a length equal to the value specified above.                                  |
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+| SHA-1 hash length                            | short     | 2     | Length of the SHA-1 hash, in bytes.                                                             |
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+| SHA-1 hash bytes                             | byte[]    |       | A byte array with a length equal to the value specified above.                                  |
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+| All Scans: Total Ion Current Computed        | byte      | 1     | Whether the Total Ion Current per scan is computed by the Spectral Storage Service Importer:    |
+|                                              |           |       | 0 = no, 1 = yes.                                                                                |
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
+| All Scans: Ion injection time NOT populated  | byte      | 1     | Indicates if the Ion Injection Time per scan is missing:                                        |
+|                                              |           |       | 0 = no, 1 = yes.                                                                                |
++----------------------------------------------+-----------+-------+-------------------------------------------------------------------------------------------------+
 
 Scan Data
 ----------------------------------------------------------
@@ -113,6 +96,10 @@ Each scan contains the following information preceding the peak list.
 +----------------------+-----------+-------+----------------------------------------------------------------+
 | Centroid?            | byte      | 1     | 0 if not centroided, 1 if centroided                           |
 +----------------------+-----------+-------+----------------------------------------------------------------+
+| Total ion current    | float     | 4     | From Scan File else Computed from scan peaks                   |
++----------------------+-----------+-------+----------------------------------------------------------------+
+| Ion injection time   | float     | 4     | Set to Float.NEGATIVE_INFINITY in disk file if not available   |
++----------------------+-----------+-------+----------------------------------------------------------------+
 | Parent scan number   | integer   | 4     | Scan number of parent scan (only present for ms2 and up)       |
 +----------------------+-----------+-------+----------------------------------------------------------------+
 | Precursor charge     | byte      | 1     | Reported charge of precursor ion (only present for ms2 and up) |
@@ -125,27 +112,6 @@ Each scan contains the following information preceding the peak list.
 +----------------------+-----------+-------+----------------------------------------------------------------+
 | Compressed scan data | byte[]    |       | A byte array compressed via GZIP. (See below)                  |
 +----------------------+-----------+-------+----------------------------------------------------------------+
-
-
-Add After field: Centroid?  
-
-Field:
-totalIonCurrent  float
-
-Descripton:
-	/**
-	 * Value per Scan, retrieved from file, not computed: mzML: <cvParam cvRef="MS" accession="MS:1000285" name="total ion current" value="5.0278541e05"/>
-	 * Otherwise computed from scan peaks
-	 */
-	 
-Field:
-ionInjectionTime  Float
-
-Descripton:
-	/**
-	 * Set to Float.NEGATIVE_INFINITY in disk file if not available.  Set to null in Java objects.
-	 */
-	 
 
 
 Peak Byte Array
