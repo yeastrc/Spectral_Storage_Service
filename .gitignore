@@ -20,3 +20,5 @@
 /.project
 /WebService_Web_App/.settings
 /.idea/
+/docs/.idea/
+/docs/_build

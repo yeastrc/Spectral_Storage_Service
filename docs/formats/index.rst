@@ -27,6 +27,18 @@ All shorts, integers, and longs are written high byte first (big-endian). All fl
 according to IEEE 754 floating-point "double format" bit layout, and written as ints and longs. See ``writeByte``, 
 ``writeShort``, ``writeInt``, ``writeLong``, ``writeFloat``, ``writeDouble`` at https://docs.oracle.com/javase/8/docs/api/java/io/DataOutputStream.html for more information.
 
+
+
+File Version
+----------------------------------------------------------
+The latest version is 5.
+All newly created files will be that version.
+There were versions 3 and 4.
+An existing installation of Spectral Storage Service may have files with those versions.
+
+File Format
+----------------------------------------------------------
+
 File Header
 ----------------------------------------------------------
 This section appears once at the beginning of the file and contains information describing this file.
@@ -44,6 +56,45 @@ Header sections:
 	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 	| Count of scan levels | byte      | 1     | Number of scan levels. E.g., 2 for ms1 and ms2.                                            |
 	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
+	
+New Text
+
+Field:  	  
+Version  
+
+Description:
+Version 5
+
+Field:
+Full write indicator
+	
+Description:	
+NO Change	
+
+Remove Field: Centroided? from this table.  Moved to per scan level section
+
+Field:
+totalIonCurrent_ForEachScan_ComputedFromScanPeaks  byte
+
+Description:
+Original Scan File did NOT have Total Ion Current Per Scan so it is computed in Spectral Storage Service Importer from Scan Peaks.
+Not populated for Data File Version < 5.
+ 0 = no, 1 = yes
+
+Field:
+ionInjectionTime_NotPopulated  byte
+
+Description:
+*	Original Scan File did NOT have Ion Injection Time Per Scan.
+	 * Not populated for Data File Version < 5.
+	 * @return - null if not stored in data file (Old Version of data file)
+
+
+Field:
+Count of scan levels
+
+Description:	
+NO Change	
 
 Then for each scan level:
 
@@ -56,6 +107,58 @@ Then for each scan level:
 	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 	| Total ion current    | double    | 8     | Total ion current for this scan level (sum of intensity of all peaks)                      |
 	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
+
+
+New Text for section: Then for each scan level:
+
+
+Field:
+Count of scan levels
+
+Description:	
+NO Change	
+
+Field:
+Number of scans
+
+Description:	
+NO Change	
+
+Field:
+ Centroided?  Moved From above but for this scan level
+
+
+Field:
+isIonInjectionTime_Set_ScanLevel  byte
+
+Description:
+All scans at this can level have Ion Injection Time populated.  0 = no, 1 = yes, 2 = some no, some yes.
+		/**
+		 * Is the IonInjectionTime Set values for this scan level
+		 * 0 - false - IonInjectionTime == null
+		 * 1 - true - IonInjectionTime != null
+		 * 2 - both - both IonInjectionTime == null and IonInjectionTime != null
+		 *            ScanHasIonInjectionTimeConstants.SCAN_HAS_ION_INJECTION_TIME_VALUES_IN_FILE_BOTH
+		 */
+
+Field:
+totalIonCurrent_SumOf_TotalIonCurrent_OfScans  double
+
+Description:
+		/**
+		 * This is either ( Based On Value of totalIonCurrent_ForEachScan_ComputedFromScanPeaks ):
+		 * A) Sum of TotalIonCurrent for all scans with this scan level ( totalIonCurrent_ForEachScan_ComputedFromScanPeaks == 0 )
+		 * B) Same as totalIonCurrent_SumOf_IntensityOfPeaks ( totalIonCurrent_ForEachScan_ComputedFromScanPeaks == 1 )
+		 */
+		 
+Field: 
+totalIonCurrent_SumOf_IntensityOfPeaks   double
+
+Description:
+Sum of intensity of all peaks for all scans with this scan level
+
+
+*************
 
 Then continuing:
 
@@ -86,6 +189,19 @@ Then continuing:
 	|                         |           |       |  * 3 = integer                                                                             |
 	+-------------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 
+New Text:
+
+Field:
+Scan number sorted?
+ 
+This is incorrect.  It should be:  Scan numbers sequential
+ 
+Description:
+The scan numbers are sequential (1,2,3,...,n-1,n)  1 = yes, 0 = no
+
+Rest is Unchanged
+
+
 Then for each scan:
 
 	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
@@ -101,4 +217,4 @@ Then for each scan:
 	| Retention time       | float     | 4     | Retention time for this scan.                                                              |
 	+----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 
-
+Table data unchanged

@@ -25,6 +25,17 @@ All shorts, integers, and longs are written high byte first (big-endian). All fl
 according to IEEE 754 floating-point "double format" bit layout, and written as ints and longs. See ``writeByte``, 
 ``writeShort``, ``writeInt``, ``writeLong``, ``writeFloat``, ``writeDouble`` at https://docs.oracle.com/javase/8/docs/api/java/io/DataOutputStream.html for more information.
 
+
+File Version
+----------------------------------------------------------
+The latest version is 5.
+All newly created files will be that version.
+There was version 3.
+An existing installation of Spectral Storage Service may have files with that version.
+
+File Format
+----------------------------------------------------------
+
 File Header
 ----------------------------------------------------------
 This section appears once at the beginning of the file and contains information describing this file. Most of this
@@ -37,7 +48,7 @@ Header sections:
 +----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 | Name                 | Data Type | Bytes | Description                                                                                |
 +======================+===========+=======+============================================================================================+
-| Version              | short     | 2     | The file format version for this file. Currently, there is only one version (3).           |
+| Version              | short     | 2     | The file format version for this file. The latest version is 5.                            |
 +----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 | Full write indicator | byte      | 1     | Whether or not this file is fully written. 0 = no, 1 = yes, 2 = undefined (always 2 in S3) |
 +----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
@@ -59,6 +70,28 @@ Header sections:
 +----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
 | SHA-1 has bytes      | byte[]    |       | A byte array with a length equal to above.                                                 |
 +----------------------+-----------+-------+--------------------------------------------------------------------------------------------+
+
+
+Added Fields:
+
+
+Field:
+totalIonCurrent_ForEachScan_ComputedFromScanPeaks  byte
+
+Description:
+Original Scan File did NOT have Total Ion Current Per Scan so it is computed in Spectral Storage Service Importer from Scan Peaks.
+Not populated for Data File Version < 5.
+ 0 = no, 1 = yes
+
+Field:
+ionInjectionTime_NotPopulated  byte
+
+Description:
+*	Original Scan File did NOT have Ion Injection Time Per Scan.
+	 * Not populated for Data File Version < 5.
+	 * @return - null if not stored in data file (Old Version of data file)
+
+
 
 
 Scan Data
@@ -92,6 +125,28 @@ Each scan contains the following information preceding the peak list.
 +----------------------+-----------+-------+----------------------------------------------------------------+
 | Compressed scan data | byte[]    |       | A byte array compressed via GZIP. (See below)                  |
 +----------------------+-----------+-------+----------------------------------------------------------------+
+
+
+Add After field: Centroid?  
+
+Field:
+totalIonCurrent  float
+
+Descripton:
+	/**
+	 * Value per Scan, retrieved from file, not computed: mzML: <cvParam cvRef="MS" accession="MS:1000285" name="total ion current" value="5.0278541e05"/>
+	 * Otherwise computed from scan peaks
+	 */
+	 
+Field:
+ionInjectionTime  Float
+
+Descripton:
+	/**
+	 * Set to Float.NEGATIVE_INFINITY in disk file if not available.  Set to null in Java objects.
+	 */
+	 
+
 
 Peak Byte Array
 ^^^^^^^^^^^^^^^^^^^^^^
