@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -410,10 +411,14 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 			    		if ( ConfigData_ScanDataLocation_InWorkDirectory.getSingletonInstance().isParallelStream_DefaultThreadPool_Java_Processing_Enabled_True() ) {
 			
 			    			//  YES execute in parallel
+			    			
+			    			ConcurrentHashMap<Integer, List<SingleScan_SubResponse>> scans_ForSingleScanNumber_Map_Key_RequestedScanNumber = new ConcurrentHashMap<>( scanNumbers.size() );
 			
-			    			scanNumbers.parallelStream().forEach( scanNumber -> { 
+			    			scanNumbers.parallelStream().forEach( scanNumber -> {
 
 			    				try {
+
+			    					List<SingleScan_SubResponse> scans_ForSingleScanNumber = new ArrayList<>();
 
 			    					processScanNumber( 
 			    							1, // recursionLevel
@@ -422,12 +427,14 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 			    							excludeReturnScanPeakData,
 			    							includeReturnIonInjectionTimeData,
 			    							includeReturnScanLevelTotalIonCurrentData,
-			    							scans, 
+			    							scans_ForSingleScanNumber, 
 			    							insertedScansScanNumbers, 
 			    							loadingScansInProgress_ScanNumbers,
 			    							spectralFile_Reader_AfterAssigned_InsideTry,
 			    							singleScan_SubResponse_Factory,
 			    							singleScan_SubResponse_Factory_Parameters );
+			    					
+			    					scans_ForSingleScanNumber_Map_Key_RequestedScanNumber.put(scanNumber, scans_ForSingleScanNumber);
 			    					
 			    				} catch (SpectralStorageDataNotFoundException e) {
 
@@ -442,6 +449,31 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 		        					thrownInsideStream_List.add(t);
 		        				}
 		        			});
+			    			
+			    			if ( anyThrownInsideStreamProcessing.get() ) {
+			        			
+			        			throw new SpectralFileWebappInternalRuntimeException( "At least 1 exception processing resultList_Temp" );
+			        		}
+
+				        	if ( spectralStorageDataNotFoundException_HolderClass.spectralStorageDataNotFoundException != null ) {
+				        		
+				        		throw spectralStorageDataNotFoundException_HolderClass.spectralStorageDataNotFoundException;
+				        	}
+		    				
+		    				//  Transfer Scans to final output list in Requested Scan Number Order
+			    			
+			    			for ( Integer scanNumber : scanNumbers ) {
+			    				
+			    				List<SingleScan_SubResponse> scans_ForSingleScanNumber = scans_ForSingleScanNumber_Map_Key_RequestedScanNumber.get( scanNumber );
+			    				
+			    				if ( scans_ForSingleScanNumber == null ) {
+			    					String msg = "Adding scan to final result list. scans_ForSingleScanNumber_Map_Key_RequestedScanNumber.get( scanNumber ); returned null for scanNumber: " + scanNumber;
+			    					log.error(msg);
+			    					throw new SpectralFileWebappInternalRuntimeException(msg);
+			    				}
+			    				
+			    				scans.addAll(scans_ForSingleScanNumber);
+			    			}
 		        			
 		        		} else {
 		        			
@@ -480,6 +512,16 @@ public class GetScanDataFromScanNumbers_Servlet extends HttpServlet {
 		        					throw new SpectralFileWebappInternalRuntimeException( t );
 		        				}
 		        			});
+		        			
+		        			if ( anyThrownInsideStreamProcessing.get() ) {
+			        			
+			        			throw new SpectralFileWebappInternalRuntimeException( "At least 1 exception processing resultList_Temp" );
+			        		}
+
+				        	if ( spectralStorageDataNotFoundException_HolderClass.spectralStorageDataNotFoundException != null ) {
+				        		
+				        		throw spectralStorageDataNotFoundException_HolderClass.spectralStorageDataNotFoundException;
+				        	}
 		        		}
 			    		
 
