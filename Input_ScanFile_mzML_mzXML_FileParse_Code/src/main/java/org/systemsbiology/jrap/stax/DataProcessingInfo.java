@@ -40,7 +40,8 @@ public class DataProcessingInfo
 
 	protected double intensityCutoff;
     protected int centroided, deisotoped, chargeDeconvoluted, spotIntegration;
-    protected int peakPicked, smoothed, baseLineReduced,lowIntensityDataRemoved;
+//    protected int peakPicked;
+    protected int smoothed, baseLineReduced,lowIntensityDataRemoved;
 
     ArrayList<SoftwareInfo> softwareUsed = null;
 
@@ -49,7 +50,7 @@ public class DataProcessingInfo
 		deisotoped = UNKNOWN;
 		chargeDeconvoluted = UNKNOWN;
 		spotIntegration = UNKNOWN;
-		peakPicked = UNKNOWN;
+//		peakPicked = UNKNOWN;
 		smoothed = UNKNOWN;
 		baseLineReduced = UNKNOWN;
 		lowIntensityDataRemoved = UNKNOWN;
@@ -196,25 +197,25 @@ public class DataProcessingInfo
 	}
 
 
-    /**
-     * Were peaks extracted?
-     *
-     * @return UNKNOWN, YES or NO
-     */
-    public int getPeakPicked()
-    {
-	return peakPicked;
-    }
-
-    /**
-     * set value of peakPicked to one of UNKNOWN, YES or NO
-     *
-     * @param peakPicked
-     */
-    public void setPeakPicked(int peakPicked)
-    {
-	this.peakPicked = peakPicked;
-    }
+//    /**
+//     * Were peaks extracted?
+//     *
+//     * @return UNKNOWN, YES or NO
+//     */
+//    public int getPeakPicked()
+//    {
+//	return peakPicked;
+//    }
+//
+//    /**
+//     * set value of peakPicked to one of UNKNOWN, YES or NO
+//     *
+//     * @param peakPicked
+//     */
+//    public void setPeakPicked(int peakPicked)
+//    {
+//	this.peakPicked = peakPicked;
+//    }
 
     /**
      * Were Chromatogram smoothed?
@@ -265,8 +266,10 @@ public class DataProcessingInfo
 
 	outputLine += " centroided "+centroided+" deisotoped "+deisotoped
 	    +" chargeDeconvoluted "+chargeDeconvoluted+" spotIntegration "
-	    +spotIntegration+" intensityCutoff "+intensityCutoff+" peakPicked "
-	    +peakPicked+" smoothed "+smoothed+" baseLineReduced "+baseLineReduced
+	    +spotIntegration+" intensityCutoff "+intensityCutoff
+//	    +" peakPicked "
+//	    +peakPicked
+	    +" smoothed "+smoothed+" baseLineReduced "+baseLineReduced
 	    +" lowIntenistyDataRemoved "+lowIntensityDataRemoved+"\n";
 
 	SoftwareInfo sInfo = null;

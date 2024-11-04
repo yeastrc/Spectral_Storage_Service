@@ -339,20 +339,20 @@ public class FileHeaderParser{
 						    else
 							info.dataProcessing.chargeDeconvoluted = 0;
 						}
-					    if(name.indexOf("peak") != -1)
-						{
-					    	if ( value == null ) {
-					    		String msg = "ERROR: Attribute 'value' is not found.  Attribute 'name' is '" 
-					    				+ name + "' which contains string 'peak'.  Element Name: " + elementName;
-					    		System.out.println( msg );
-					    		System.err.println( msg );
-					    		throw new XMLStreamException( msg );
-					    	}
-						    if(value.equals("true"))
-							info.dataProcessing.peakPicked = 1;
-						    else
-							info.dataProcessing.peakPicked = 0;
-						}
+//					    if(name.indexOf("peak") != -1)
+//						{
+//					    	if ( value == null ) {
+//					    		String msg = "ERROR: Attribute 'value' is not found.  Attribute 'name' is '" 
+//					    				+ name + "' which contains string 'peak'.  Element Name: " + elementName;
+//					    		System.out.println( msg );
+//					    		System.err.println( msg );
+//					    		throw new XMLStreamException( msg );
+//					    	}
+//						    if(value.equals("true"))
+//							info.dataProcessing.peakPicked = 1;
+//						    else
+//							info.dataProcessing.peakPicked = 0;
+//						}
 					    if(name.indexOf("smoothing") != -1)
 						{
 					    	if ( value == null ) {
