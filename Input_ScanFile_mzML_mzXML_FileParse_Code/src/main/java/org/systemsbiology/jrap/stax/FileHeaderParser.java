@@ -313,6 +313,13 @@ public class FileHeaderParser{
 					    value = xmlSR.getAttributeValue(null, "value");
 					    if(name.indexOf("deisotoping") != -1)
 						{
+					    	if ( value == null ) {
+					    		String msg = "ERROR: Attribute 'value' is not found.  Attribute 'name' is '" 
+					    				+ name + "' which contains string 'deisotoping'.  Element Name: " + elementName;
+					    		System.out.println( msg );
+					    		System.err.println( msg );
+					    		throw new XMLStreamException( msg );
+					    	}
 						    if(value.equals("true"))
 							info.dataProcessing.deisotoped = 1;
 						    else
@@ -320,6 +327,13 @@ public class FileHeaderParser{
 						}
 					    if(name.indexOf("charge") != -1)
 						{
+					    	if ( value == null ) {
+					    		String msg = "ERROR: Attribute 'value' is not found.  Attribute 'name' is '" 
+					    				+ name + "' which contains string 'charge'.  Element Name: " + elementName;
+					    		System.out.println( msg );
+					    		System.err.println( msg );
+					    		throw new XMLStreamException( msg );
+					    	}
 						    if(value.equals("true"))
 							info.dataProcessing.chargeDeconvoluted = 1;
 						    else
@@ -327,6 +341,13 @@ public class FileHeaderParser{
 						}
 					    if(name.indexOf("peak") != -1)
 						{
+					    	if ( value == null ) {
+					    		String msg = "ERROR: Attribute 'value' is not found.  Attribute 'name' is '" 
+					    				+ name + "' which contains string 'peak'.  Element Name: " + elementName;
+					    		System.out.println( msg );
+					    		System.err.println( msg );
+					    		throw new XMLStreamException( msg );
+					    	}
 						    if(value.equals("true"))
 							info.dataProcessing.peakPicked = 1;
 						    else
@@ -334,6 +355,13 @@ public class FileHeaderParser{
 						}
 					    if(name.indexOf("smoothing") != -1)
 						{
+					    	if ( value == null ) {
+					    		String msg = "ERROR: Attribute 'value' is not found.  Attribute 'name' is '" 
+					    				+ name + "' which contains string 'smoothing'.  Element Name: " + elementName;
+					    		System.out.println( msg );
+					    		System.err.println( msg );
+					    		throw new XMLStreamException( msg );
+					    	}
 						    if(value.equals("true"))
 							info.dataProcessing.smoothed = 1;
 						    else
@@ -341,6 +369,13 @@ public class FileHeaderParser{
 						}
 					    if(name.indexOf("baseline") != -1)
 						{
+					    	if ( value == null ) {
+					    		String msg = "ERROR: Attribute 'value' is not found.  Attribute 'name' is '" 
+					    				+ name + "' which contains string 'baseline'.  Element Name: " + elementName;
+					    		System.out.println( msg );
+					    		System.err.println( msg );
+					    		throw new XMLStreamException( msg );
+					    	}
 						    if(value.equals("true"))
 							info.dataProcessing.baseLineReduced = 1;
 						    else
@@ -348,6 +383,13 @@ public class FileHeaderParser{
 						}
 					    if(name.indexOf("low intensity") != -1)
 						{
+					    	if ( value == null ) {
+					    		String msg = "ERROR: Attribute 'value' is not found.  Attribute 'name' is '" 
+					    				+ name + "' which contains string 'low intensity'.  Element Name: " + elementName;
+					    		System.out.println( msg );
+					    		System.err.println( msg );
+					    		throw new XMLStreamException( msg );
+					    	}
 						    if(value.equals("true"))
 							info.dataProcessing.lowIntensityDataRemoved = 1;
 						    else
