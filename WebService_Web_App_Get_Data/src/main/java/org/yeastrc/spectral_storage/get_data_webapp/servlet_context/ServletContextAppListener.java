@@ -1,8 +1,8 @@
 package org.yeastrc.spectral_storage.get_data_webapp.servlet_context;
 
 import java.util.Properties;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.get_data_webapp.config.A_Load_Config_Populate_Objects;
 
@@ -16,7 +16,7 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 	private static final long serialVersionUID = 1L;
 	
 	/* (non-Javadoc)
-	 * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
+	 * @see jakarta.servlet.ServletContextListener#contextInitialized(jakarta.servlet.ServletContextEvent)
 	 */
 	public void contextInitialized(ServletContextEvent event) {
 		log.warn( "INFO:  !!!!!!!!!!!!!!!   Start up of web app  'Spectral Storage' beginning  !!!!!!!!!!!!!!!!!!!! " );
@@ -41,7 +41,7 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 	}
 	
 	/* (non-Javadoc)
-	 * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
+	 * @see jakarta.servlet.ServletContextListener#contextDestroyed(jakarta.servlet.ServletContextEvent)
 	 */
 	public void contextDestroyed(ServletContextEvent event) {
 		

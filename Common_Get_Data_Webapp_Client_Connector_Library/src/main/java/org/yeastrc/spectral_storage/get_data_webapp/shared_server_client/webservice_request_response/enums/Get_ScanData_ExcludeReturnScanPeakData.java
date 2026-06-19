@@ -1,8 +1,8 @@
 package org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.enums;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * Used in Get_ScanDataFromScanNumbers_Request

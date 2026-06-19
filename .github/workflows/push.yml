@@ -1,4 +1,4 @@
-name: Limelight Build CI
+name: Spectral Storage Build CI
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run build in Docker container	    
-      uses: docker://mriffle/build-spectr:latest
+      uses: docker://ghcr.io/yeastrc/spectral-storage-build-docker:2
       with:
         entrypoint: ant
         args: -f ant_build_all_create_download_zip_file.xml

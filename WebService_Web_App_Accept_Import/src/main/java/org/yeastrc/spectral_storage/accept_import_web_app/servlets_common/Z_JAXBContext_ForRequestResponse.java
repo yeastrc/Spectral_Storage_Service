@@ -1,6 +1,6 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.servlets_common;
 
-import javax.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBContext;
 
 import org.yeastrc.spectral_storage.accept_import_web_app.shared_server_client.webservice_request_response.main.*;
 

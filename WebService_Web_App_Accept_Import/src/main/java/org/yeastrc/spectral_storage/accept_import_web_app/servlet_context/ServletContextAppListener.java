@@ -1,7 +1,7 @@
 package org.yeastrc.spectral_storage.accept_import_web_app.servlet_context;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 import org.slf4j.LoggerFactory;  import org.slf4j.Logger;
 import org.yeastrc.spectral_storage.accept_import_web_app.background_thread.A_BackgroundThreads_Containers_Manager;
 import org.yeastrc.spectral_storage.accept_import_web_app.config.A_Load_Config;
@@ -17,7 +17,7 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 	private static final long serialVersionUID = 1L;
 	
 	/* (non-Javadoc)
-	 * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
+	 * @see jakarta.servlet.ServletContextListener#contextInitialized(jakarta.servlet.ServletContextEvent)
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
@@ -56,7 +56,7 @@ public class ServletContextAppListener extends HttpServlet implements ServletCon
 
 	
 	/* (non-Javadoc)
-	 * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
+	 * @see jakarta.servlet.ServletContextListener#contextDestroyed(jakarta.servlet.ServletContextEvent)
 	 */
 	@Override
 	public void contextDestroyed(ServletContextEvent event) {

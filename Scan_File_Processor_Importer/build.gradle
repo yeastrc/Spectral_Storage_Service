@@ -25,12 +25,12 @@ buildscript {
     }
   }
   dependencies {
-    classpath "org.ajoberstar.grgit:grgit-gradle:4.1.1"
+    classpath "org.ajoberstar.grgit:grgit-gradle:5.3.2"
   }
 }
 
 plugins {
-	id 'com.github.johnrengelman.shadow' version '5.0.0'
+	id 'com.gradleup.shadow' version '9.2.2'
 	//  moved to 'buildscript'. See Notes above	id 'org.ajoberstar.grgit' version '3.1.1'
 }
 
@@ -38,8 +38,11 @@ apply plugin: 'java'
 
 apply plugin: "org.ajoberstar.grgit"
 
-sourceCompatibility = 1.8      //    defaults to currently installed JVM
-// targetCompatibility  = 1.8  //    defaults to sourceCompatibility
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
 
 repositories {
     mavenCentral()
@@ -54,25 +57,25 @@ dependencies {
 
 //  Specify dependency on Common_Accept_Import_Webapp_Client_Connector_Library
 	
-	compile project(":Common_Importer_Get_Data_Client_Connector")
+	implementation project(":Common_Importer_Get_Data_Client_Connector")
 
-	compile project(":Common_Spectral_File_Core")
+	implementation project(":Common_Spectral_File_Core")
 	
-	compile project(":Common_Webapps_Importer")
+	implementation project(":Common_Webapps_Importer")
 	
-	compile project(":Input_ScanFile_mzML_mzXML_FileParse_Code")
+	implementation project(":Input_ScanFile_mzML_mzXML_FileParse_Code")
 	
 	
 	// JAXB dependencies (Required for Java 11+)
 	// https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
-	implementation group: 'jakarta.xml.bind', name: 'jakarta.xml.bind-api', version: '2.3.3'
+	implementation group: 'jakarta.xml.bind', name: 'jakarta.xml.bind-api', version: '4.0.2'
 	// https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime
-	implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '2.3.6'
+	implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '4.0.5'
 	
 	
 	//  Jars not found in any repository
 	
-	compile fileTree(dir: './libs_not_in_any_repository', include: ['*.jar'])
+	implementation fileTree(dir: './libs_not_in_any_repository', include: ['*.jar'])
 	
 	
 }
@@ -123,15 +126,16 @@ jar {
 }
 
 //  For creating runnable jar
+//  Note: the default processResources already copies src/main/resources, so re-adding it
+//  here produced duplicate entries (e.g. log4j2.xml), which Gradle 7+ treats as an error.
+//  Set a duplicates strategy instead of re-declaring the source set.
 processResources {
-    from ('src/main/resources') {
-        include '**/*'
-    }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 shadowJar {
-    baseName = 'spectralStorage_ProcessScanFile'
-    classifier = null
-    version = null
+    archiveBaseName = 'spectralStorage_ProcessScanFile'
+    archiveClassifier = ''
+    archiveVersion = ''
 }
 

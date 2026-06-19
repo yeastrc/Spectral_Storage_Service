@@ -1,10 +1,10 @@
 package org.yeastrc.spectral_storage.get_data_webapp.shared_server_client.webservice_request_response.main;
 
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Request object for POST to Webservice Get_MaxScanCountToReturn_Servlet

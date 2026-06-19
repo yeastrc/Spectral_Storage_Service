@@ -1,4 +1,4 @@
-FROM mriffle/build-spectr:latest AS builder
+FROM ghcr.io/yeastrc/spectral-storage-build-docker:2 AS builder
 MAINTAINER Michael Riffle <mriffle@uw.edu>
 
 COPY . /app
@@ -11,7 +11,7 @@ RUN ant -f ant_build_all_create_download_zip_file.xml
 RUN cd download_zip_file && unzip spectral_storage_service_deploy.zip
 
 
-FROM tomcat:9-jdk11-corretto
+FROM tomcat:11.0-jdk25-temurin
 MAINTAINER Michael Riffle <mriffle@uw.edu>
 
 COPY --from=builder /app/download_zip_file/WebService_Web_App_Accept_Import/build/libs/spectral_storage_accept_import.war /usr/local/tomcat/webapps

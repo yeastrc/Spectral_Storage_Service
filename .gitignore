@@ -22,3 +22,8 @@
 /.idea/
 /docs/.idea/
 /docs/_build
+/.claude/
+/bin/
+/.classpath
+build_copyto_tomcat.sh
+/deploy/

@@ -17,7 +17,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "org.ajoberstar.grgit:grgit-gradle:4.1.1"
+    classpath "org.ajoberstar.grgit:grgit-gradle:5.3.2"
   }
 }
 
@@ -37,8 +37,11 @@ repositories {
 //    Comment out since creates infinite loop of building
 //  defaultTasks 'build'
 
-sourceCompatibility = 1.8     //  defaults to currently installed JVM
-// targetCompatibility = 1.8  //  defaults to sourceCompatibility
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
 
 
 configurations.all {
@@ -55,13 +58,13 @@ dependencies {
 
 //  Specify dependency on Projects in this repo (other dirs under main root dir)
 	
-	compile project(":Common_Spectral_File_Core")
+	implementation project(":Common_Spectral_File_Core")
 	
-	compile project(":Common_Importer_Get_Data_Client_Connector")
+	implementation project(":Common_Importer_Get_Data_Client_Connector")
 	
-	compile project(":Common_Webapps_Importer")
+	implementation project(":Common_Webapps_Importer")
 	
-	compile project(":Common_Get_Data_Webapp_Client_Connector_Library")
+	implementation project(":Common_Get_Data_Webapp_Client_Connector_Library")
 	
 	
 	
@@ -82,7 +85,7 @@ dependencies {
 	
 	//  Old StringUtils
 	// https://mvnrepository.com/artifact/commons-lang/commons-lang
-	compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+	implementation group: 'commons-lang', name: 'commons-lang', version: '2.6'
 	
 	//  New StringUtils
 	// https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
@@ -91,22 +94,22 @@ dependencies {
 	
 		// JAXB dependencies (Required for Java 11+)
 	// https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api
-	implementation group: 'jakarta.xml.bind', name: 'jakarta.xml.bind-api', version: '2.3.2'
+	implementation group: 'jakarta.xml.bind', name: 'jakarta.xml.bind-api', version: '4.0.2'
 	// https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime
-	implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '2.3.2'
+	implementation group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '4.0.5'
 	
 	
 	
     // https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core
-    providedCompile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '8.5.77'
+    providedCompile group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '11.0.22'
 
 	//  
 	// https://mvnrepository.com/artifact/javax.servlet/servlet-api
 	//  Most current servlet spec:
-	providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
+	providedCompile group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '6.1.0'
 	
 	// https://mvnrepository.com/artifact/javax.servlet.jsp/javax.servlet.jsp-api
-	providedCompile group: 'javax.servlet.jsp', name: 'javax.servlet.jsp-api', version: '2.3.3'
+	providedCompile group: 'jakarta.servlet.jsp', name: 'jakarta.servlet.jsp-api', version: '4.0.0'
 	
 }
 
@@ -120,7 +123,7 @@ processResources.dependsOn 'deleteExistingBuiltWar'
  * Before the Gradle WAR processing creates the war, it deletes the output .war file to ensure it is always re-created 
  */
 
-task deleteExistingBuiltWar(type: GradleBuild) {
+task deleteExistingBuiltWar {
   	
   	println("Webapp Gradle build deleteExistingBuiltWar called - Before WAR created. Deletes the output .war file to ensure it is always re-created")
   	
@@ -152,7 +155,7 @@ processResources.dependsOn 'createFileGitHash'
  * Before the Gradle WAR processing creates the war, it deletes the output .war file to ensure it is always re-created 
  */
 
-task createFileGitHash(type: GradleBuild) {
+task createFileGitHash {
   	doLast {
 	  	println("Webapp Gradle build createFileGitHash doLast called - Before WAR created. Create file under WEB-INF with GIT Hash ")
 				  	
