@@ -43,6 +43,9 @@ public class Scan_File_Processor_MainProgram {
 //			System.exit( 1 );
 //		}
 		
+		//  Set to remove limits since getting error on this
+		System.setProperty("jdk.xml.maxGeneralEntitySizeLimit", "0");
+		
 		System.out.println( "INFO: Command Line args START");
 		for ( int index = 0; index < args.length; index++) {
 			System.out.println( "arg: " + args[ index ] );
