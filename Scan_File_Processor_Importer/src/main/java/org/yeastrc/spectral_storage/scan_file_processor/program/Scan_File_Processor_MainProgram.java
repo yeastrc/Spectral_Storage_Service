@@ -15,7 +15,13 @@ import jargs.gnu.CmdLineParser.UnknownOptionException;
  *
  */
 public class Scan_File_Processor_MainProgram {
-	
+
+    //  RIGHT: This block is hit first and forces the JVM setting
+    static {
+        System.setProperty("jdk.xml.maxGeneralEntitySizeLimit", "0");
+        System.setProperty("jdk.xml.totalEntitySizeLimit", "0");
+    }
+    
 	private static final int PROGRAM_EXIT_CODE_INVALID_INPUT = 1;
 	private static final int PROGRAM_EXIT_CODE_HELP = 1;
 	private static final String FOR_HELP_STRING = "For help, run without any parameters, -h, or --help";
@@ -42,9 +48,6 @@ public class Scan_File_Processor_MainProgram {
 //			}
 //			System.exit( 1 );
 //		}
-		
-		//  Set to remove limits since getting error on this
-		System.setProperty("jdk.xml.maxGeneralEntitySizeLimit", "0");
 		
 		System.out.println( "INFO: Command Line args START");
 		for ( int index = 0; index < args.length; index++) {
