@@ -69,7 +69,7 @@ public class Accumulate_RT_MZ_Binned_ScanLevel_1 {
         	return;  //  EARLY EXIT
         }
         	
-		float retentionTime = scan.getRetentionTime();
+		float retentionTime = scan.getRetentionTime();  // SECONDS
         long retentionTimeFloor = (long)retentionTime;  // Truncate the decimal fraction
 
     	//  Optimization for when prev retentionTimeFloor is same as current retentionTimeFloor

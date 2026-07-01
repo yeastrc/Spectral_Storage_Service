@@ -12,6 +12,9 @@ public class SpectralFile_SingleScan_V_003 {
 
 	private byte level;
 	private int scanNumber;
+	/**
+	 * Retention time in SECONDS (spectr normalizes minute-&gt;second at ingest; see MLScanAndHeaderParser).
+	 */
 	private float retentionTime;
 	
 	/**

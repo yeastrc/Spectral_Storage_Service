@@ -73,10 +73,10 @@ public class ScanHeader implements Serializable
 	/** TODO: Describe */
 	protected int chargeDeconvoluted = -1;
 
-	/** TODO: Describe */
+	/** Retention time as ISO-8601 duration string "PT&lt;seconds&gt;S" (SECONDS; minute-&gt;second normalized in MLScanAndHeaderParser) */
 	protected String retentionTime = null;
 
-    /** for mzML */
+    /** for mzML.  Retention time in SECONDS (minute-&gt;second normalized in MLScanAndHeaderParser) */
     protected double rt = -1;
 
 	/** TODO: Describe */
@@ -559,7 +559,7 @@ public class ScanHeader implements Serializable
     }
 
 	/**
-	 * @return Returns the retentionTime.
+	 * @return retention time as ISO-8601 duration string "PT&lt;seconds&gt;S" (SECONDS)
 	 */
 	public String getRetentionTime()
 	{
@@ -577,8 +577,7 @@ public class ScanHeader implements Serializable
 
 
     /**
-     * 
-     *             The retentionTime for mzML.
+     * @return retention time in SECONDS (the retentionTime for mzML)
      */
     public double getRT()
     {
@@ -641,6 +640,9 @@ public class ScanHeader implements Serializable
 		this.totIonCurrent = totIonCurrent;
 	}
 
+	/**
+	 * @return retention time in SECONDS (parsed from the ISO-8601 "PT&lt;seconds&gt;S" string)
+	 */
 	public double getDoubleRetentionTime()
 	{
         // TODO: more robust ISO time conversion?

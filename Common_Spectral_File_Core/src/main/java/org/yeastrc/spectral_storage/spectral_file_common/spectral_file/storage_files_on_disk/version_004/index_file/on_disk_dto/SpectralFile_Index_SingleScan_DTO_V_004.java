@@ -17,6 +17,9 @@ public class SpectralFile_Index_SingleScan_DTO_V_004 {
 
 
 	private byte level;
+	/**
+	 * Retention time in SECONDS (spectr normalizes minute-&gt;second at ingest; see MLScanAndHeaderParser).
+	 */
 	private float retentionTime;
 
 }

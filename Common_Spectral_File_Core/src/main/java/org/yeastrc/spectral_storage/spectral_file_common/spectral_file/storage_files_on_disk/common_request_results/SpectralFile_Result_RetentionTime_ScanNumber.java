@@ -9,6 +9,9 @@ public class SpectralFile_Result_RetentionTime_ScanNumber {
 
 	private int scanNumber;
 	private int level;
+	/**
+	 * Retention time in SECONDS (spectr normalizes minute-&gt;second at ingest; see MLScanAndHeaderParser).
+	 */
 	private float retentionTime;
 	
 	public int getScanNumber() {

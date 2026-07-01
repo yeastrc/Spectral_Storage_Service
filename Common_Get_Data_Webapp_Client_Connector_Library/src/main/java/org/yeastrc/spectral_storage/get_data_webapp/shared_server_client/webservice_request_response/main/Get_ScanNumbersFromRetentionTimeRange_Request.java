@@ -18,9 +18,15 @@ public class Get_ScanNumbersFromRetentionTimeRange_Request extends BaseGetDataWe
 	@XmlAttribute // attribute name is property name
 	private String scanFileAPIKey;
 
+	/**
+	 * Range start retention time in SECONDS (the unit to pass in the request; spectr stores seconds).
+	 */
 	@XmlAttribute // attribute name is property name
 	private Float retentionTimeStart;
-	
+
+	/**
+	 * Range end retention time in SECONDS (the unit to pass in the request; spectr stores seconds).
+	 */
 	@XmlAttribute // attribute name is property name
 	private Float retentionTimeEnd;
 

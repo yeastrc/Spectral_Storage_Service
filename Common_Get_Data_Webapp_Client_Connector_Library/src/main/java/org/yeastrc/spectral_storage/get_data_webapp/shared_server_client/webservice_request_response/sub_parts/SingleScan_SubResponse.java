@@ -19,6 +19,10 @@ public class SingleScan_SubResponse {
 	private byte level;
 	@XmlAttribute // attribute name is property name
 	private int scanNumber;
+	/**
+	 * Retention time in SECONDS.  spectr normalizes minute->second at ingest
+	 * (MLScanAndHeaderParser), so this value (XML attribute / JSON property) is seconds.
+	 */
 	@XmlAttribute // attribute name is property name
 	private float retentionTime;
 	@XmlAttribute // attribute name is property name
@@ -93,6 +97,9 @@ public class SingleScan_SubResponse {
 	public void setScanNumber(int scanNumber) {
 		this.scanNumber = scanNumber;
 	}
+	/**
+	 * @return retention time in SECONDS
+	 */
 	public float getRetentionTime() {
 		return retentionTime;
 	}

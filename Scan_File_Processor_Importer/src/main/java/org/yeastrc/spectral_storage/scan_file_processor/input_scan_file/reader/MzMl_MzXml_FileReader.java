@@ -285,7 +285,7 @@ public class MzMl_MzXml_FileReader { // implements MzXmlDataProvider {
     
     /**
      * @param header
-     * @return zero if no value
+     * @return retention time in SECONDS (parsed from the ISO-8601 xs:duration string), or zero if no value
      */
     private float getRetentionTime(ScanHeader header) {
         // In the schema, retentionTime is "xs:duration" 

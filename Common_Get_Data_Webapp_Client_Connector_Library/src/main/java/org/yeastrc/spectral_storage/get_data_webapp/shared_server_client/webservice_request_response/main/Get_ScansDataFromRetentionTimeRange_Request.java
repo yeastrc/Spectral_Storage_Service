@@ -26,9 +26,15 @@ public class Get_ScansDataFromRetentionTimeRange_Request extends BaseGetDataWebs
 	@XmlAttribute // attribute name is property name
 	private Get_ScanData_ExcludeScansWithoutPeaks excludeScansWithoutPeaks;
 
+	/**
+	 * Range start retention time in SECONDS (the unit to pass in the request; spectr stores seconds).
+	 */
 	@XmlAttribute // attribute name is property name
 	private float retentionTimeStart;
-	
+
+	/**
+	 * Range end retention time in SECONDS (the unit to pass in the request; spectr stores seconds).
+	 */
 	@XmlAttribute // attribute name is property name
 	private float retentionTimeEnd;
 

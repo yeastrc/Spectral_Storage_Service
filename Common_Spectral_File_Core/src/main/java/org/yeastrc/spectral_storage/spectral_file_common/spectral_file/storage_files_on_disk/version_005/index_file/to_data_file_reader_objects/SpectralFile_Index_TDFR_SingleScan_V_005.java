@@ -9,6 +9,9 @@ public class SpectralFile_Index_TDFR_SingleScan_V_005 implements Comparable<Spec
 
 	private int scanNumber;
 	private byte level;
+	/**
+	 * Retention time in SECONDS (spectr normalizes minute-&gt;second at ingest; see MLScanAndHeaderParser).
+	 */
 	private float retentionTime;
 	
 	/**

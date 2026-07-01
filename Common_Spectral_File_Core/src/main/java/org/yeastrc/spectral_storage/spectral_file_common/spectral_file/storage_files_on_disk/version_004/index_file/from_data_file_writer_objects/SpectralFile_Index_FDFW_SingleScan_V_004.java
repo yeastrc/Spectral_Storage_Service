@@ -11,6 +11,9 @@ public class SpectralFile_Index_FDFW_SingleScan_V_004 {
 	
 	private int scanNumber;
 	private byte level;
+	/**
+	 * Retention time in SECONDS (spectr normalizes minute-&gt;second at ingest; see MLScanAndHeaderParser).
+	 */
 	private float retentionTime;
 
 	//  Only applicable where level > 1

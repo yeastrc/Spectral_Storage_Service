@@ -27,6 +27,9 @@ public class MzML_MzXmlScan { // implements MsScanIn {
 
     private double precursorMz;
     private byte precursorCharge;
+    /**
+     * Retention time in SECONDS (parsed from the source file's ISO-8601 duration; see MzMl_MzXml_FileReader.getRetentionTime)
+     */
     private float retentionTime;
 
     /**

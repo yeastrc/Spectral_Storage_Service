@@ -276,6 +276,12 @@ public class MLScanAndHeaderParser
                             tmpScanHeader.setPolarity("+");
                         //dhmay changed this for mzML 1.1.0RC5,a nd then again for RC6.
                         //Hopefully the name of this attribute will settle down.
+                        //  RETENTION TIME UNIT: normalized to SECONDS here.  mzML scan start time
+                        //  (MS:1000016) may be in minutes or seconds; when unitName == "minute" it is
+                        //  converted to seconds below.  Everything downstream (ScanHeader.rt, stored
+                        //  data files, and the get-data webservice responses) is therefore in SECONDS.
+                        //  CAVEAT: only the literal unitName "minute" is converted, so a minute-unit
+                        //  file that omits/misspells unitName would be mis-stored as-if seconds.
                         if(attriAccession.equals("MS:1000016"))
                         {
                             String timeType = xmlSR.getAttributeValue(null,"unitName");

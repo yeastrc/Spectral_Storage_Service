@@ -17,6 +17,9 @@ public class Get_ScanPeakIntensityBinnedOn_RT_MZ_Request extends BaseGetDataWebs
 	@XmlAttribute // attribute name is property name
 	private String scanFileAPIKey;
 	
+	/**
+	 * Retention time bin size in SECONDS (spectr retention times are in seconds).
+	 */
 	@XmlAttribute // attribute name is property name
 	private Long retentionTimeBinSize;
 	
